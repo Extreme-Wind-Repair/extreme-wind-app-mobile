@@ -110,13 +110,14 @@
 
 <div class="panel active" id="panel-ativos">
 <div class="kpis">
-  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">18</div><div class="sub">em campo agora</div></div>
-  <div class="kpi"><div class="label">Planejado (headcount)</div><div class="value">35</div><div class="sub">meta de equipes</div></div>
-  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-17</div><div class="sub">abaixo do plano</div></div>
+  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">15</div><div class="sub">em campo agora</div></div>
+  <div class="kpi"><div class="label">Planejado (headcount)</div><div class="value">29</div><div class="sub">meta de equipes</div></div>
+  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-14</div><div class="sub">abaixo do plano</div></div>
   <div class="kpi" style="display:flex; gap:12px; padding:0; overflow:hidden;">
     <div style="flex:1; padding:16px 14px;"><div class="label">Parques ativos</div><div class="value">5</div></div>
-    <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">4</div></div>
+    <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">2</div></div>
   </div>
+  <div class="kpi"><div class="label">Em mobilizacao</div><div class="value" style="color:var(--ok,#4caf82)">3</div><div class="sub">ja em viagem, chegada prevista ate 12/09/2026</div></div>
 </div>
 <div class="grid2">
   <div class="card"><h2>Por cliente <span>tecnicos ativos</span></h2><canvas id="chartCliente" style="max-height:187px;"></canvas></div>
@@ -274,15 +275,13 @@ Chart.defaults.color = '#93a3b8';
 Chart.defaults.font.family = "'Segoe UI',Arial,sans-serif";
 
 var parques = [
-  {nome:"OITIS/PI", cliente:"GE", suop:"EVAIR", real:6, plano:6},
+  {nome:"OITIS/PI", cliente:"GE", suop:"EVAIR", real:3, plano:6},
   {nome:"LDV3/PI", cliente:"GE", suop:"EVAIR", real:0, plano:5},
   {nome:"DOLORES/NL - MEX", cliente:"NORDEX", suop:"-", real:0, plano:6},
   {nome:"SÃO VITOR/BA", cliente:"SIEMENS", suop:"WILDNER", real:3, plano:3},
   {nome:"BAIXA DO FEIJÃO/RN", cliente:"SIEMENS", suop:"WILDNER", real:3, plano:3},
   {nome:"SANTO AGOSTINHO/RN", cliente:"SIEMENS", suop:"WILDNER", real:3, plano:3},
-  {nome:"TUCANO/BA", cliente:"SIEMENS", suop:"WILDNER", real:3, plano:3},
-  {nome:"BABILÔNIA/BA", cliente:"SIEMENS", suop:"WILDNER", real:0, plano:3},
-  {nome:"TUCANO 2/BA", cliente:"SIEMENS", suop:"WILDNER", real:0, plano:3}
+  {nome:"TUCANO/BA", cliente:"SIEMENS", suop:"WILDNER", real:3, plano:3}
 ];
 var emDesmobQtd = 0;
 function badgeClass(c){ return {GE:'ge',NORDEX:'nordex',SIEMENS:'siemens'}[c] || 'ge'; }
@@ -308,9 +307,6 @@ trTot.innerHTML = '<td>Total Geral</td><td></td><td></td><td class="num">'+totRe
 tbody.appendChild(trTot);
 
 var tecnicosAtivos = [
-  {mat:"331", nome:"ANTÔNIO ERIVANDO AGOSTINHO DA SILVA", acumulado:46273, parque:"OITIS/PI", suop:"EVAIR"},
-  {mat:"919", nome:"ARTHUR LEONIDAS ARAUJO DA SILVA", acumulado:46273, parque:"OITIS/PI", suop:"EVAIR"},
-  {mat:"279", nome:"LENNON ALMEIDA DE SOUZA", acumulado:46273, parque:"OITIS/PI", suop:"EVAIR"},
   {mat:"899", nome:"PEDRO LUCAS DA CRUZ DA SILVA", acumulado:246, parque:"OITIS/PI", suop:"EVAIR"},
   {mat:"295", nome:"SANDRELINO MACIEL DE FREITAS", acumulado:243, parque:"OITIS/PI", suop:"EVAIR"},
   {mat:"239", nome:"JOAO PAULO SILVA SANTOS", acumulado:178, parque:"TUCANO/BA", suop:"WILDNER"},
