@@ -787,6 +787,37 @@
     'almoco/janta':'Intervalo',
     'outra atividade nao listada':'Outro'
   };
+  /* PRODUTIVO 15/09/2026: lista das etapas de reparo cadastradas na coluna C
+     ("Atividade") da aba "Reparos" da planilha — confirmado 53 valores
+     únicos via gviz em 15/09/2026 (Robson pediu: "tudo que tiver na coluna
+     C da aba Reparos são atividades produtivas"). Qualquer atividade cujo
+     texto bata com um destes é classificada como "produtivo", com
+     prioridade sobre o fallback de Setup/Stand-by acima (uma atividade não
+     deveria estar em ambas as listas, mas por segurança o Setup/Stand-by é
+     checado primeiro em classificaBucket — na prática as duas listas não se
+     sobrepõem). Se a aba Reparos ganhar etapas novas no futuro e alguma
+     atividade de reparo real voltar a não contar como produtivo, é só
+     acrescentar aqui (mesmo padrão). */
+  const ATIVIDADES_PRODUTIVAS = {
+    'inspecao / identificacao do defeito':1, 'fixacao dos parafusos':1, 'aplicacao do vedante (sikaflex)':1,
+    'instalacao de vortex':1, 'remocao da fita danificada':1, 'preparacao da superficie':1,
+    'aplicacao e fixacao da nova fita':1, 'teste de condutividade inicial':1, 'remocao do parafuso':1,
+    'instalacao do receptor':1, 'aplicacao do vedante (teroson ms9380)':1, 'teste de condutividade final':1,
+    'instalacao do receptor (loctite + torque)':1, 'inspecao / identificacao da area':1, 'lixamento das bordas':1,
+    'marcacao sbi':1, 'pintura (demaos de gel)':1, 'pintura finalizada':1, 'abertura do dano (bod)':1,
+    'remocao do nucleo':1, 'colagem do nucleo':1, 'ajuste do nucleo e medicao de folga':1,
+    'lixamento / tracado geral':1, 'laminacao':1, 'pos-cura e teste de dureza':1,
+    'acabamento (aplicacao de massa de acabamento)':1, 'pintura':1, 'teste de condutividade':1,
+    'abertura do dano (bod) + abertura de janela':1, 'colagem do anteparo':1, 'escalonamento das camadas internas':1,
+    'laminacao das camadas internas':1, 'pos-cura e teste de dureza das camadas internas':1,
+    'abertura do dano / remocao do defeito':1, 'pos-cura, teste de dureza':1, 'remocao e ajuste do nucleo':1,
+    'teste de dureza':1, 'remocao do defeito':1, 'aplicacao de massa de acabamento (putty) + lixamento':1,
+    'pintura e lps':1, 'cabo desencapado / preparacao da emenda':1, 'crimpagem do cabo':1,
+    'isolamento do cabo':1, 'reconexao da ponta (quando aplicavel)':1, 'conexao / reparo finalizado':1,
+    'preparacao da area':1, 'colagem da ponta (tip)':1, 'preenchimento do cartao':1,
+    'instalacao finalizada':1, 'lixamento / remocao do dano':1, 'pos-cura':1,
+    'inspecao interna':1, 'inspecao externa':1
+  };
   function normalizeTxt(s){
     return String(s == null ? '' : s)
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -802,26 +833,16 @@
     });
     return _classifLookup;
   }
-  /* CORRECAO 15/09/2026: a aba Setups (e o fallback estático acima) só
-     cadastra as atividades de Setup/Stand-by/Intervalo/Integração — por
-     definição, uma atividade real de reparo (ex.: "Lixamento / traçado
-     geral", "Laminação", "Colagem do núcleo", "Pintura") NUNCA vai
-     aparecer lá, porque essas são justamente as atividades "produtivas".
-     Antes, quando o texto não batia em nenhum dos dois lookups, a função
-     retornava null e a atividade era descartada do cálculo inteiro (nem
-     entrava no total de minutos) — isso fazia o "Produtivo" ficar 0% (ou
-     artificialmente baixo) sempre que havia trabalho real de reparo no
-     RDO, exatamente o oposto do esperado. Agora, atividade sem
-     correspondência em nenhum lookup cai em "produtivo" por padrão (mesma
-     regra que já valia pra um Tipo de reparo encontrado mas não listado em
-     TIPO_TO_BUCKET). */
   function classificaBucket(atividadeTexto){
     const chave = normalizeTxt(atividadeTexto);
     const tipo = classifLookup()[chave] || ATIVIDADE_TO_TIPO_FALLBACK[chave];
-    if (!tipo) return 'produtivo';
-    const key = normalizeTxt(tipo);
-    if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
-    return 'produtivo';
+    if (tipo){
+      const key = normalizeTxt(tipo);
+      if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
+      return 'produtivo';
+    }
+    if (ATIVIDADES_PRODUTIVAS[chave]) return 'produtivo';
+    return null;
   }
   /* Aceita "7:00" / "17:30" (texto) ou string ISO com hora ("...T17:30:00.000Z") vinda de célula
      que a planilha guardou como horário — devolve minutos desde a meia-noite, ou null se ilegível. */
