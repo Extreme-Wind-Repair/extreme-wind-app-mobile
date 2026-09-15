@@ -246,7 +246,7 @@
     </div>
   </div>
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-    <div class="badge-week">Semana 37 (WK 37)</div>
+    <div class="badge-week">Semana 38 (WK 38)</div>
     <button class="toggle-btn" id="navAcao" style="background:var(--nok)">Plano de Ação</button>
   </div>
 </header>
@@ -262,23 +262,23 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--ok)">94%</div>
-    <div class="foot">WK 37 · 13 ações pendentes no total</div>
+    <div class="value" style="color:var(--warn)">84%</div>
+    <div class="foot">WK 38 · 12 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">0</span><span class="l">Emergenciais</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">13</span><span class="l">Programadas</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">12</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">0</span><span class="l">Administrativas</span></div>
     </div>
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="32924" style="color: var(--nok);">32.924</div>
+    <div class="value" id="kmValue" data-km="33653" style="color: var(--nok);">33.653</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
 
 <div class="panel" id="panelDetalhamento">
-  <h2 style="margin-bottom:14px">Veículos — Detalhamento (Semana 37)</h2>
+  <h2 style="margin-bottom:14px">Veículos — Detalhamento (Semana 38)</h2>
 
   <div class="toolbar">
     <div class="search">
@@ -651,13 +651,13 @@
 
 <div class="panel" id="panelPlanoAcao">
   <div class="panel-header">
-    <h2 style="margin-bottom:0">Plano de Ação — Semana 37</h2>
+    <h2 style="margin-bottom:0">Plano de Ação — Semana 38</h2>
     <button class="toggle-btn" id="toggleAcao" aria-expanded="false">Expandir <span class="chev">▾</span></button>
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">0</span><span class="l">Emergencial</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">13</span><span class="l">Programado</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">12</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">0</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
@@ -865,7 +865,7 @@
       <span><span class="dot" style="background:var(--na)"></span> Indefinido</span>
     </div>
     <div class="note">
-      Fonte: aba BASE DASHBOARD, 31 blocos semanais identificados (WK07–WK37). "Média Geral" calculada como a média de Checklist, Revisão, Estepe Extra, Rastreador+Bloqueador e Medição Pneus por bloco semanal, direto dos dados brutos (nao depende de tabela dinamica/pivot). Semanas com rótulo original inconsistente na planilha, número inferido pela posição sequencial (confirme antes de usar externamente): WK07, WK08, WK09, WK10, WK11, WK12, WK13, WK14, WK15, WK16, WK17, WK18, WK19, WK20, WK21, WK22, WK23, WK24, WK25, WK26, WK27, WK28, WK29, WK30, WK31, WK32, WK35, WK36, WK37.
+      Fonte: aba BASE DASHBOARD, 32 blocos semanais identificados (WK07–WK38). "Média Geral" calculada como a média de Checklist, Revisão, Estepe Extra, Rastreador+Bloqueador e Medição Pneus por bloco semanal, direto dos dados brutos (nao depende de tabela dinamica/pivot). Semanas com rótulo original inconsistente na planilha, número inferido pela posição sequencial (confirme antes de usar externamente): WK07, WK08, WK09, WK10, WK11, WK12, WK13, WK14, WK15, WK16, WK17, WK18, WK19, WK20, WK21, WK22, WK23, WK24, WK25, WK26, WK27, WK28, WK29, WK30, WK31, WK32, WK35, WK36, WK37, WK38.
     </div>
   </div>
 </div>
@@ -916,36 +916,36 @@
     <text x="600" y="84" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 90%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,90.0 C92.1,97.0 158.3,128.2 202.5,132.0 C246.7,135.8 290.8,118.5 335.0,113.1 C379.2,107.7 423.3,108.7 467.5,99.8 C511.7,90.9 577.9,66.6 600.0,59.9 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,132.0 C92.1,128.8 158.3,118.5 202.5,113.1 C246.7,107.7 290.8,108.7 335.0,99.8 C379.2,90.9 423.3,49.9 467.5,59.9 C511.7,69.9 577.9,143.3 600.0,160.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,90.0 C92.1,97.0 158.3,128.2 202.5,132.0 C246.7,135.8 290.8,118.5 335.0,113.1 C379.2,107.7 423.3,108.7 467.5,99.8 C511.7,90.9 577.9,66.6 600.0,59.9" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,132.0 C92.1,128.8 158.3,118.5 202.5,113.1 C246.7,107.7 290.8,108.7 335.0,99.8 C379.2,90.9 423.3,49.9 467.5,59.9 C511.7,69.9 577.9,143.3 600.0,160.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
-      <circle cx="70.0" cy="90.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="70.0" y="78.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">90%</text>
+      <circle cx="70.0" cy="132.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="70.0" y="120.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">84%</text>
 
-      <circle cx="202.5" cy="132.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="202.5" y="120.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">84%</text>
+      <circle cx="202.5" cy="113.1" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="202.5" y="101.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">87%</text>
 
-      <circle cx="335.0" cy="113.1" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="335.0" y="101.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">87%</text>
+      <circle cx="335.0" cy="99.8" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="335.0" y="87.8" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">89%</text>
 
-      <circle cx="467.5" cy="99.8" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="467.5" y="87.8" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">89%</text>
+      <circle cx="467.5" cy="59.9" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="467.5" y="47.9" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
 
-      <circle cx="600.0" cy="59.9" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="47.9" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
+      <circle cx="600.0" cy="160.0" r="5.5" fill="#0F2A40" stroke="#E0483C" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="148.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">49%</text>
     </g>
 
     <!-- x labels -->
     <g fill="#8FA9C0" font-size="12" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif">
-      <text x="70.0" y="182">WK 33</text>
-      <text x="202.5" y="182">WK 34</text>
-      <text x="335.0" y="182">WK 35</text>
-      <text x="467.5" y="182">WK 36</text>
-      <text x="600.0" y="182">WK 37</text>
+      <text x="70.0" y="182">WK 34</text>
+      <text x="202.5" y="182">WK 35</text>
+      <text x="335.0" y="182">WK 36</text>
+      <text x="467.5" y="182">WK 37</text>
+      <text x="600.0" y="182">WK 38</text>
     </g>
   </svg>
 </div>
@@ -963,32 +963,32 @@
   <div style="overflow-x:auto;">
   <svg viewBox="0 0 466 320" class="trend-chart saldo-km-chart" style="height:auto; max-height:340px;">
     <!-- linha zero -->
-    <line x1="50" y1="214.7" x2="456" y2="214.7" stroke="#3A567A" stroke-width="1.2"></line>
-    <text x="44" y="218.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
+    <line x1="50" y1="206.8" x2="456" y2="206.8" stroke="#3A567A" stroke-width="1.2"></line>
+    <text x="44" y="210.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
 
     <!-- linha de referencia +4.000 km (limite da faixa verde) -->
-    <line x1="50" y1="173.1" x2="456" y2="173.1" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
-    <text x="456" y="167.1" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
+    <line x1="50" y1="157.5" x2="456" y2="157.5" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
+    <text x="456" y="151.5" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
 
     <g font-family="Segoe UI,Arial,sans-serif">
-      <rect x="60.0" y="214.7" width="46" height="9.4" rx="4" fill="#E0483C"></rect>
-      <rect x="128.0" y="214.7" width="46" height="20.9" rx="4" fill="#E0483C"></rect>
-      <rect x="196.0" y="98.3" width="46" height="116.4" rx="4" fill="#E0483C"></rect>
-      <rect x="264.0" y="26.0" width="46" height="188.7" rx="4" fill="#E0483C"></rect>
-      <rect x="332.0" y="164.9" width="46" height="49.7" rx="4" fill="#E0483C"></rect>
-      <rect x="400.0" y="214.7" width="46" height="27.3" rx="4" fill="#E0483C"></rect>
-      <text x="83.0" y="228.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-904</text>
-      <text x="151.0" y="228.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.015</text>
-      <text x="219.0" y="90.3" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">11.199</text>
-      <text x="287.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">18.158</text>
-      <text x="355.0" y="156.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">4.788</text>
-      <text x="423.0" y="228.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.631</text>
-      <text x="83.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 248.7)">ST.AGOSTINHO/RN</text>
-      <text x="151.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 248.7)">ADM 1</text>
-      <text x="219.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 248.7)">ADM 2</text>
-      <text x="287.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 248.7)">TUCANO/BA</text>
-      <text x="355.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 248.7)">SÃO VITOR/BA</text>
-      <text x="423.0" y="248.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 248.7)">BAIXA DO FEIJÃO/RN</text>
+      <rect x="60.0" y="206.8" width="46" height="8.7" rx="4" fill="#E0483C"></rect>
+      <rect x="128.0" y="206.8" width="46" height="16.6" rx="4" fill="#E0483C"></rect>
+      <rect x="196.0" y="65.4" width="46" height="141.4" rx="4" fill="#E0483C"></rect>
+      <rect x="264.0" y="26.0" width="46" height="180.8" rx="4" fill="#E0483C"></rect>
+      <rect x="332.0" y="154.2" width="46" height="52.6" rx="4" fill="#E0483C"></rect>
+      <rect x="400.0" y="206.8" width="46" height="35.2" rx="4" fill="#E0483C"></rect>
+      <text x="83.0" y="220.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-705</text>
+      <text x="151.0" y="220.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.348</text>
+      <text x="219.0" y="57.4" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">11.460</text>
+      <text x="287.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">14.655</text>
+      <text x="355.0" y="146.2" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">4.264</text>
+      <text x="423.0" y="220.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.851</text>
+      <text x="83.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 240.8)">ST.AGOSTINHO/RN</text>
+      <text x="151.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 240.8)">ADM 1</text>
+      <text x="219.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 240.8)">OITIS 2/PI</text>
+      <text x="287.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 240.8)">TUCANO/BA</text>
+      <text x="355.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 240.8)">SÃO VITOR/BA</text>
+      <text x="423.0" y="240.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 240.8)">BAIXA DO FEIJÃO/RN</text>
     </g>
   </svg>
   </div>
@@ -1001,7 +1001,7 @@
 
 <div class="panel">
   <div class="panel-header">
-    <h2>Conformidade por Categoria — Tendência Semanal <span class="wk-full">(WK 33–37)</span><span class="wk-mobile">(WK 36–37)</span></h2>
+    <h2>Conformidade por Categoria — Tendência Semanal <span class="wk-full">(WK 34–38)</span><span class="wk-mobile">(WK 37–38)</span></h2>
     <button class="toggle-btn" id="toggleConf" aria-expanded="false">Expandir <span class="chev">▾</span></button>
   </div>
   <div class="collapsible" id="confBody">
@@ -1009,23 +1009,23 @@
   <table class="conftable" id="confCatTable">
     <thead>
       <tr>
-        <th>Categoria</th><th>WK 33</th><th>WK 34</th><th>WK 35</th><th>WK 36</th><th>WK 37</th>
+        <th>Categoria</th><th>WK 34</th><th>WK 35</th><th>WK 36</th><th>WK 37</th><th>WK 38</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>KM Ponto de Troca</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-warn cur">71%</td></tr>
-      <tr><td>Saldo Extra</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok cur">43%</td></tr>
+      <tr><td>KM Ponto de Troca</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-warn">71%</td><td class="cell-warn cur">71%</td></tr>
+      <tr><td>Saldo Extra</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok">43%</td><td class="cell-nok cur">43%</td></tr>
       <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Revisão</td><td class="cell-ok">90%</td><td class="cell-nok">60%</td><td class="cell-nok">67%</td><td class="cell-warn">86%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Medição Pneus</td><td class="cell-nok">60%</td><td class="cell-nok">60%</td><td class="cell-nok">67%</td><td class="cell-nok">57%</td><td class="cell-warn cur">71%</td></tr>
-      <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
+      <tr><td>Revisão</td><td class="cell-nok">60%</td><td class="cell-nok">67%</td><td class="cell-warn">86%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
+      <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-nok cur">0%</td></tr>
+      <tr><td>Medição Pneus</td><td class="cell-nok">60%</td><td class="cell-nok">67%</td><td class="cell-nok">57%</td><td class="cell-warn">71%</td><td class="cell-nok cur">43%</td></tr>
+      <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-nok cur">0%</td></tr>
       <tr><td>Consumo KM/L</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
-      <tr><td>Doc Postado (MOB)</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
+      <tr><td>Doc Postado (MOB)</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="nd cur">–</td></tr>
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-ok">90%</td><td class="cell-warn">84%</td><td class="cell-warn">87%</td><td class="cell-warn">89%</td><td class="cell-ok cur">94%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-warn">84%</td><td class="cell-warn">87%</td><td class="cell-warn">89%</td><td class="cell-ok">94%</td><td class="cell-nok cur">49%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1042,7 +1042,7 @@
 
 <div class="panel">
   <div class="panel-header">
-    <h2 style="margin-bottom:0">Histórico Semanal Completo — WK 07 a WK 37</h2>
+    <h2 style="margin-bottom:0">Histórico Semanal Completo — WK 07 a WK 38</h2>
     <button class="toggle-btn" id="toggleHist" aria-expanded="false">Expandir <span class="chev">▾</span></button>
   </div>
   <div class="collapsible" id="histBody">
@@ -1070,7 +1070,7 @@
       <span><span class="dot" style="background:var(--na)"></span> – sem dado</span>
     </div>
     <div class="note">
-      Fonte: aba BASE DASHBOARD, tabela "RESUMO" (cálculo oficial por fórmula da própria planilha) para Checklist, Revisão, Estepe Extra, Medição Pneus, Rastreador+Bloqueador e Média Geral, disponível nas semanas WK22–WK37. KM Ponto de Troca, Saldo Extra, Consumo, Doc Postado e Doc Entregue não têm tabela oficial na planilha e são sempre calculados por contagem bruta OK/N-OK de cada veículo no bloco semanal; esse mesmo cálculo bruto também cobre Checklist/Revisão/Estepe/Pneus/Rastreador nas semanas sem tabela RESUMO (WK07–WK21). Semanas com rótulo original inconsistente na planilha, número inferido pela posição sequencial (confirme antes de usar externamente): WK07, WK08, WK09, WK10, WK11, WK12, WK13, WK14, WK15, WK16, WK17, WK18, WK19, WK20, WK21, WK22, WK23, WK24, WK25, WK26, WK27, WK28, WK29, WK30, WK31, WK32, WK35, WK36, WK37.
+      Fonte: aba BASE DASHBOARD, tabela "RESUMO" (cálculo oficial por fórmula da própria planilha) para Checklist, Revisão, Estepe Extra, Medição Pneus, Rastreador+Bloqueador e Média Geral, disponível nas semanas WK22–WK38. KM Ponto de Troca, Saldo Extra, Consumo, Doc Postado e Doc Entregue não têm tabela oficial na planilha e são sempre calculados por contagem bruta OK/N-OK de cada veículo no bloco semanal; esse mesmo cálculo bruto também cobre Checklist/Revisão/Estepe/Pneus/Rastreador nas semanas sem tabela RESUMO (WK07–WK21). Semanas com rótulo original inconsistente na planilha, número inferido pela posição sequencial (confirme antes de usar externamente): WK07, WK08, WK09, WK10, WK11, WK12, WK13, WK14, WK15, WK16, WK17, WK18, WK19, WK20, WK21, WK22, WK23, WK24, WK25, WK26, WK27, WK28, WK29, WK30, WK31, WK32, WK35, WK36, WK37, WK38.
     </div>
   </div>
 </div>
@@ -1082,13 +1082,13 @@
 
 <script>
 const rows = [
-["TET3C50","UNIDAS","1","ADM 2","SIEMENS","06/02/2026","7,20","N/OK","OK","OK","OK","OK","OK","OK","10,25","OK",""],
-["TYA7G48","LOCALIZA","1","ST.AGOSTINHO/RN","NORDEX","19/02/2026","6,77","N/OK","N/OK","OK","OK","OK","OK","OK","9,66","OK","N/A"],
-["UHS5E92","LOCALIZA","2","Oitis 1/PI","GE","13/05/2026","4,00","OK","N/OK","OK","OK","OK","N/OK","OK","9,45","OK","N/A"],
-["TXZ5J79","LOCALIZA","1","ADM 1","EXTREME","21/02/2026","6,70","OK","N/OK","OK","OK","OK","OK","OK","10,21","OK","N/A"],
-["TXY8H30","LOCALIZA","1","BAIXA DO FEIJÃO/RN","NORDEX","20/02/2026","6,73","OK","N/OK","OK","OK","OK","OK","OK","10,66","OK","N/A"],
-["TYD9F24","LOCALIZA","2","SÃO VITOR/BA","SIEMENS","13/02/2026","6,97","OK","OK","OK","OK","OK","OK","OK","9,52","OK","N/A"],
-["TWY4C61","UNIDAS","1","TUCANO/BA","SIEMENS","18/08/2025","12,93","OK","OK","OK","OK","OK","N/OK","OK","11,18","OK","N/A"],
+["TET3C50","UNIDAS","1","OITIS 2/PI","SIEMENS","06/02/2026","7,37","N/OK","OK","OK","OK","N/A","OK","N/A","10,25","N/A",""],
+["TYA7G48","LOCALIZA","1","ST.AGOSTINHO/RN","NORDEX","19/02/2026","6,93","N/OK","N/OK","OK","OK","N/A","N/OK","N/A","9,66","N/A","N/A"],
+["UHS5E92","LOCALIZA","2","Oitis 1/PI","GE","13/05/2026","4,17","OK","N/OK","OK","OK","N/A","OK","N/A","9,45","N/A","N/A"],
+["TXZ5J79","LOCALIZA","1","ADM 1","EXTREME","21/02/2026","6,87","OK","N/OK","-","OK","","","","None","","N/A"],
+["TXY8H30","LOCALIZA","1","BAIXA DO FEIJÃO/RN","NORDEX","20/02/2026","6,90","OK","N/OK","OK","OK","N/A","N/OK","N/A","10,66","N/A","N/A"],
+["TYD9F24","LOCALIZA","2","SÃO VITOR/BA","SIEMENS","13/02/2026","7,13","OK","OK","OK","OK","N/A","OK","N/A","9,52","N/A","N/A"],
+["TWY4C61","UNIDAS","1","TUCANO/BA","SIEMENS","18/08/2025","13,10","OK","OK","OK","OK","N/A","N/OK","N/A","11,18","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1253,6 +1253,7 @@ const histData = [
   { wk:"WK35", geral:86.7, cats:[66.7,50.0,100,66.7,100,66.7,100,null,100.0,null] },
   { wk:"WK36", geral:88.6, cats:[66.7,50.0,100,85.7,100,57.1,100,null,100.0,null] },
   { wk:"WK37", geral:94.3, cats:[71.4,42.9,100,100,100,71.4,100,null,100.0,null] },
+  { wk:"WK38", geral:48.6, cats:[71.4,42.9,100,100,0,42.9,0,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
@@ -1333,19 +1334,18 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TYW6D70 - PNEU TRASEIRO ESQUERDO ABAIXO DE 2,7mm (TWI) - TROCAR IMEDIATAMENTE", tipo:"CORRETIVA", parque:"OITIS 1", quem:"Sandoval/João", status:"11/09/2026", obs:"SOLICITAR A TROCA DO TITULAR PELO ESTEPE EXTRA", categoria:"Emergencial" },
-  { acao:"TYW6D70 - PAINEL COM DIVERSAS LUZES DE ADVERTÊNCIA ACESAS - REALIZAR DIAGNÓSTICO", tipo:"CORRETIVA", parque:"OITIS 1", quem:"Sandoval", status:"11/09/2026", obs:"SUBSTITUIÇÃO DO VEICULO (FINALIZADA)", categoria:"Administrativa" },
-  { acao:"TET3C50 - LATARIA NÃO CONFORME (CHECKLIST 04/09 REPETIU 'NÃO CONFORME' SEM DESCRIÇÃO DE AVARIA; RESUMO FINAL DO MESMO CHECKLIST DIZ 'CONFORME') - VERIFICAR COM MOTORISTA", tipo:"ADMINISTRATIVA", parque:"ADM 2", quem:"Sandoval/João", status:"10/09/2026", obs:"FUNILARIA - LIBERADO ATE 10/09  / INSTALAÇAO DO RASTRADOR", categoria:"Emergencial" },
-  { acao:"TYA7G48 - AVARIAS (PARA-CHOQUE DIREITO, PORTA TRASEIRA, TAMPA TRASEIRA COM PRODUTO QUÍMICO NA PINTURA, TRAVA DA CAPOTA MARÍTIMA QUEBRADA)", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval/João", status:"06/10/2026", obs:"RESOLVER NO RETORNO", categoria:"Administrativa" },
-  { acao:"TYW6D70 - AVARIA NÃO REPORTADA - TETO AMASSADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1", quem:"Sandoval/João", status:"08/10/2026", obs:"RESOLVER NO RETORNO", categoria:"Administrativa" },
-  { acao:"TYA7G48 - 40K de KM RODADOS", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval/João", status:"14/09/2026", obs:"ALINHAR TROCA - RETORNAR LIGAÇÃO DIA 15/09 (31 2122.5980)", categoria:"Programada" },
-  { acao:"TYA7G48 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval/João", status:"08/10/2026", obs:"ACOMPANHAR A REDUÇAO EM PROJETO", categoria:"Programada" },
-  { acao:"TET3C50 - 40K de KM RODADOS", tipo:"ADMINISTRATIVA", parque:"ADM 2", quem:"Sandoval/João", status:"08/10/2026", obs:"POSSIBILIDADE DE PROJETO(AGUARDAR ATE 10/09)", categoria:"Programada" },
-  { acao:"TXZ5J79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ADM 1", quem:"Sandoval/João", status:"30/09/2026", obs:"PROJEÇAO PARA ZERAR EM 16 DIAS", categoria:"Programada" },
+  { acao:"TXY8H30 - PNEU DIANTEIRO ESQ. E TRASEIRO DIR. ENTRE 3,7-2,7MM (FAIXA AMBÍGUA), ESTEPE ABAIXO DE 2,7MM (CHECKLIST 14/09)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval", status:"15/09/2026", obs:"CONFIRMAR MEDIÇÃO COM PAQUÍMETRO / AVALIAR TROCA DO ESTEPE", categoria:"Emergencial" },
+  { acao:"TET3C50 - Freios marcados NÃO CONFORME no checklist; texto livre também relata defeito na trava do freio de mão (não segura a posição) — verificar com condutor e agendar inspeção mecânica (CHECKLIST 14/09)", tipo:"CORRETIVA", parque:"OITIS 2", quem:"Sandoval", status:"18/09/2026", obs:"VERIFICAR COM CONDUTOR E AGENDAR INSPEÇÃO MECÂNICA (FREIOS)", categoria:"Emergencial" },
+  { acao:"TYA7G48 - 40K de KM RODADOS", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"João", status:"19/09/2026", obs:"TROCA CONFIRMADA PARA  DIA 19/09 (TELEFONE DE CONTATO 31 2122.5980)", categoria:"Programada" },
+  { acao:"TYA7G48 - AVARIAS (PARA-CHOQUE DIREITO, PORTA TRASEIRA, TAMPA TRASEIRA COM PRODUTO QUÍMICO NA PINTURA, TRAVA DA CAPOTA MARÍTIMA QUEBRADA)", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval/João", status:"19/09/2026", obs:"RESOLVER NO RETORNO", categoria:"Administrativa" },
+  { acao:"TYA7G48 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval/João", status:"19/09/2026", obs:"ACOMPANHAR A REDUÇAO EM PROJETO", categoria:"Programada" },
+  { acao:"CONSEGUIR OUTRO FORNECEDOR DE CARRO EM DOM INOCENCIO E REGIAO", tipo:"ADMINISTRATIVA", parque:"OITIS/PI", quem:"Sandoval/João", status:"19/09/2026", obs:"", categoria:"Administrativa" },
+  { acao:"TXZ5J79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ADM 1", quem:"Sandoval/João", status:"30/09/2026", obs:"PROJEÇAO PARA ZERAR EM 11 DIAS", categoria:"Programada" },
   { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval/João", status:"08/10/2026", obs:"ACOMPANHAR A REDUÇAO EM PROJETO", categoria:"Programada" },
   { acao:"TYW6D70 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1", quem:"Sandoval/João", status:"08/10/2026", obs:"ACOMPANHAR A REDUÇAO EM PROJETO", categoria:"Programada" },
-  { acao:"TWY4C61 - ARRANHÃO NA LATARIA (PORTA TRASEIRA DIREITA)", tipo:"ADMINISTRATIVA", parque:"TUCANO", quem:"Sandoval/João", status:"08/10/2026", obs:"no retorno usar caneta para correçao", categoria:"Administrativa" },
-  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval/João", status:"08/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" }
+  { acao:"TWY4C61 - ARRANHÃO NA LATARIA (PORTA TRASEIRA DIREITA)", tipo:"ADMINISTRATIVA", parque:"TUCANO", quem:"Sandoval/João", status:"08/10/2026", obs:"NO RETORNO, USAR A CANETA PARA CORREÇAO", categoria:"Administrativa" },
+  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval/João", status:"08/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
+  { acao:"TET3C50 - LATARIA MARCADA CONFORME MAS TEXTO LIVRE DESCREVE AMASSADO NA TAMPA TRASEIRA, MANCHAS E TRAVA EMPENADA (CHECKLIST 11/09)", tipo:"ADMINISTRATIVA", parque:"OITIS 2", quem:"Sandoval/João", status:"14/10/2026", obs:"RESOLVER NO RETORNO", categoria:"Emergencial" }
 ];
 
 function categoriaTag(categoria){
