@@ -870,6 +870,19 @@
      cálculo) em vez de arriscar um match errado por palavra-chave frágil
      demais. Se aparecerem padrões novos e recorrentes de observação sem
      match, é só acrescentar um grupo aqui. */
+  /* EXCEÇÕES LITERAIS 15/09/2026 (definidas pelo Robson): observações reais
+     específicas que não seguiam um padrão de palavra-chave claro o
+     suficiente pra generalizar, mas cujo enquadramento ele já confirmou
+     manualmente. Match por igualdade exata (texto normalizado) — não usar
+     substring aqui pra não vazar pra observações parecidas mas diferentes.
+     Se aparecer variação de texto (ex.: "Montagem do kit de resgate" sem o
+     "Organização da área +"), tratar como caso novo, não presumir a mesma
+     exceção. */
+  const OBS_EXCECOES_LITERAIS = {
+    'organizacao da area + montagem do kit de resgate': 'setup',
+    'subida dos materiais e montagem das ancoragens': 'setup',
+    'deslocamento da equipe pra irece para comprar os fardamentos rf': 'standby'
+  };
   const OBS_STANDBY_KEYWORDS = [
     ['aguardando']
   ];
@@ -897,6 +910,7 @@
   function classificaPorObservacao(observacaoTexto){
     const obs = normalizeTxt(observacaoTexto);
     if (!obs) return null;
+    if (OBS_EXCECOES_LITERAIS[obs]) return OBS_EXCECOES_LITERAIS[obs];
     if (matchGrupoPalavras(obs, OBS_STANDBY_KEYWORDS)) return 'standby';
     if (matchGrupoPalavras(obs, OBS_SETUP_KEYWORDS)) return 'setup';
     if (matchGrupoPalavras(obs, OBS_PRODUTIVO_KEYWORDS)) return 'produtivo';
