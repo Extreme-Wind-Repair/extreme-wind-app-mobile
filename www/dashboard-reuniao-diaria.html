@@ -483,7 +483,6 @@
         '</div>' +
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
-          '<div class="rdo-box" data-rdo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
         '</div>' +
       '</div>' +
       '<table><thead><tr>' + theadHtml + '</tr></thead><tbody data-equipe-body></tbody></table>' +
@@ -541,7 +540,6 @@
 
     wirePanel(node, p);
     initActivityBox(node);
-    initRdoBox(node);
     return node;
   }
 
@@ -607,12 +605,25 @@
     return yyyy + '-' + mm + '-' + dd;
   }
   function yesterdayISO(){ return dateOffsetISO(1); }
-  function activityRowHtml(a){
+  /* stats: resultado de computeRdoStats() para o RDO exibido (ou null se
+     ainda não computado / sem atividades com Hora_ini-Hora_fim válidos) —
+     ver bloco "Quadro RDO Enviado" mais abaixo. Desde 15/09/2026 essas 4
+     linhas (Stand by/Produtivo/Setup/Garantia) ficam dentro do próprio
+     quadro do dia (Anteontem/Ontem) em vez de um card "RDO Enviado" à
+     parte — pedido do Robson para não duplicar a data/numeração do RDO em
+     dois lugares diferentes da mesma tela. */
+  function activityRowHtml(a, stats){
     if (!a){
       return '<div class="ab-empty ab-not-sent">Não Enviado</div>';
     }
     const pct = Number(a.Avanco_reparo);
     const pctStr = isNaN(pct) ? '—' : pct + '%';
+    const statsHtml = stats
+      ? ('<div class="ab-row"><span class="ab-label">Stand by</span><span class="ab-value">' + stats.standby + '%</span></div>' +
+         '<div class="ab-row"><span class="ab-label">Produtivo</span><span class="ab-value">' + stats.produtivo + '%</span></div>' +
+         '<div class="ab-row"><span class="ab-label">Setup</span><span class="ab-value">' + stats.setup + '%</span></div>' +
+         '<div class="ab-row"><span class="ab-label">Garantia</span><span class="ab-value">' + stats.garantia + '%</span></div>')
+      : '<div class="ab-empty">Sem atividades lançadas</div>';
     return '' +
       '<div class="ab-row"><span class="ab-label">WTG</span><span class="ab-value">' + escapeHtml(a.Turbina || '—') + '</span></div>' +
       '<div class="ab-row"><span class="ab-label">Blade</span><span class="ab-value">' + escapeHtml(a.Blade || '—') + '</span></div>' +
@@ -622,7 +633,8 @@
       '<div class="ab-progress-wrap">' +
         '<div class="ab-row"><span class="ab-label">Avanço</span><span class="ab-value">' + pctStr + '</span></div>' +
         '<div class="ab-progress-bar"><div class="ab-progress-fill" style="width:' + (isNaN(pct) ? 0 : Math.max(0, Math.min(100, pct))) + '%"></div></div>' +
-      '</div>';
+      '</div>' +
+      statsHtml;
   }
   /* "dd/mm" a partir de uma data ISO "YYYY-MM-DD" (o dia de expediente do
      quadro — Data_exp — não a data em que o RDO foi de fato digitado/enviado,
@@ -634,7 +646,9 @@
   function renderActivityBox(box, rows, idx, diaTag){
     const title = box.querySelector('[data-ab-title-count]');
     const rdoTag = box.querySelector('[data-ab-rdo-date]');
-    box.querySelector('[data-ab-body]').innerHTML = activityRowHtml(rows[idx]);
+    const row = rows[idx];
+    const stats = row ? computeRdoStats(row.Parque, [row.ID]) : null;
+    box.querySelector('[data-ab-body]').innerHTML = activityRowHtml(row, stats);
     if (title) title.textContent = rows.length ? (idx + 1) + '/' + rows.length : '';
     if (rdoTag){
       rdoTag.textContent = (rows.length && diaTag) ? ('RDO ' + diaTag + ' · ') : '';
@@ -733,6 +747,46 @@
     'stand by clima':'standby', 'stand by':'standby', 'intervalo':'standby', 'outro':'standby', 'atividade a definir':'standby'
     // Tudo que não estiver mapeado acima (instalação/reparo/inspeção) cai em "produtivo" — ver classificaBucket().
   };
+  /* FALLBACK 15/09/2026: a API do Apps Script (doGet) está retornando
+     DATA.classificacao vazio (a aba "Setups" que mapeia Atividade -> Tipo de
+     reparo tem 21 linhas cadastradas, mas o backend não está lendo/servindo
+     esse conteúdo — bug do lado do Apps Script, fora deste arquivo). Sem
+     essa lista, classificaBucket() nunca encontrava o Tipo de reparo de
+     nenhuma atividade e todo RDO caía em "Sem atividades lançadas", mesmo
+     com Hora_ini/Hora_fim e Atividade perfeitamente preenchidos.
+     Enquanto o backend não for corrigido, mantemos aqui uma cópia estática
+     (Atividade normalizada -> Tipo de reparo) igual ao conteúdo real da aba
+     Setups em 15/09/2026 (confirmado direto na planilha via gviz). Se a API
+     voltar a servir DATA.classificacao normalmente, ela continua tendo
+     prioridade (ver classificaBucket) — este mapa só entra quando o lookup
+     vindo da API não encontrar a atividade. Se a aba Setups ganhar linhas
+     novas no futuro e o Setup/Stand-by voltar a não bater para alguma
+     atividade nova, é só acrescentar o par aqui (mesmo padrão), ou avisar
+     pra investigar se o bug do Apps Script foi corrigido (aí este bloco
+     inteiro pode ser removido). */
+  const ATIVIDADE_TO_TIPO_FALLBACK = {
+    'integracao de tecnicos':'Integração',
+    'dds + preenchimento de documento':'Setup inicio',
+    'moblizacao para turbina':'Setup inicio',
+    'isolamento de area + subida na wtg':'Setup inicio',
+    'aplicacao do loto':'Setup inicio',
+    'montagem da ancoragem e lancamento das cordas':'Setup inicio',
+    'subida dos tecnicos':'Setup inicio',
+    'descida dos tecnicos (posicionamento no dano)':'Setup inicio',
+    'organizacao de materiais/equipamentos':'Setup inicio',
+    'pesagem dos quimicos':'Pesagem dos quimicos',
+    'descida da wtg + desmontagem das ancoragens':'Setup final',
+    '5s, organizacao da area e recolhimento das cordas':'Setup final',
+    'deslocamento para subestacao e saida do parque':'Setup final',
+    'desmobilizacao':'Setup final',
+    'stand by clima':'Stand by Clima',
+    'stand by':'Stand by',
+    'aguardando aprovacao do reparo':'Stand by',
+    'aguardando procedimento':'Stand by',
+    'liberado pelo cliente':'Stand by',
+    'almoco/janta':'Intervalo',
+    'outra atividade nao listada':'Outro'
+  };
   function normalizeTxt(s){
     return String(s == null ? '' : s)
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -749,7 +803,8 @@
     return _classifLookup;
   }
   function classificaBucket(atividadeTexto){
-    const tipo = classifLookup()[normalizeTxt(atividadeTexto)];
+    const chave = normalizeTxt(atividadeTexto);
+    const tipo = classifLookup()[chave] || ATIVIDADE_TO_TIPO_FALLBACK[chave];
     if (!tipo) return null;
     const key = normalizeTxt(tipo);
     if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
@@ -818,35 +873,14 @@
     if (m) return m[3] + '/' + m[2] + ' ' + m[4] + ':' + m[5];
     return s;
   }
-  function rdoBoxHtml(rows, stats){
-    if (!rows.length){
-      return '<div class="ab-title">RDO Enviado</div><div class="ab-not-sent">Não Enviado</div>';
-    }
-    const dataStr = formatDataHoraFromId(rows[0].ID) || formatDataHoraEnvio(rows[0].Registrado_em);
-    if (!stats){
-      return '<div class="ab-title">RDO Enviado</div><div class="rdo-date">' + escapeHtml(dataStr) + '</div>' +
-        '<div class="ab-empty">Sem atividades lançadas</div>';
-    }
-    return '' +
-      '<div class="ab-title">RDO Enviado</div>' +
-      '<div class="rdo-date">' + escapeHtml(dataStr) + '</div>' +
-      '<div class="ab-row"><span class="ab-label">Stand by</span><span class="ab-value">' + stats.standby + '%</span></div>' +
-      '<div class="ab-row"><span class="ab-label">Produtivo</span><span class="ab-value">' + stats.produtivo + '%</span></div>' +
-      '<div class="ab-row"><span class="ab-label">Setup</span><span class="ab-value">' + stats.setup + '%</span></div>' +
-      '<div class="ab-row"><span class="ab-label">Garantia</span><span class="ab-value">' + stats.garantia + '%</span></div>';
-  }
-  function initRdoBox(node){
-    const box = node.querySelector('[data-rdo-box]');
-    if (!box) return;
-    const parkName = box.dataset.parkname;
-    const ontem = yesterdayISO();
-    const rows = (DATA.relatorios || [])
-      .filter(function(r){ return parkMatchesReport(parkName, r.Parque) && normalizeDateExp(r.Data_exp) === ontem; })
-      .sort(function(a, b){ return String(b.Registrado_em || '').localeCompare(String(a.Registrado_em || '')); });
-    const stats = computeRdoStats(parkName, rows.map(function(r){ return r.ID; }));
-    box.innerHTML = rdoBoxHtml(rows, stats);
-    box.classList.toggle('ab-alert', !rows.length);
-  }
+  /* rdoBoxHtml/initRdoBox (card "RDO Enviado" separado) foram removidos em
+     15/09/2026 — as mesmas 4 linhas (Stand by/Produtivo/Setup/Garantia)
+     agora aparecem dentro de cada quadro de dia (ver activityRowHtml /
+     renderActivityBox acima), a pedido do Robson, para não duplicar a
+     mesma informação (data do RDO, WTG etc.) em dois cards diferentes da
+     mesma tela. formatDataHoraFromId/formatDataHoraEnvio continuam usadas
+     em outros pontos do arquivo (edição manual de campos), não remover.
+  */
 
   /* ============ Salvar edições ============ */
   function wireFieldSave(fieldEl, sheet, isSelect){
