@@ -415,12 +415,26 @@
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
       .toLowerCase().replace(/[\s\-_]/g, '').trim();
   }
+  async function fetchGvizComRetry(url, tentativas){
+    tentativas = tentativas || 3;
+    let ultimoErro;
+    for (let i = 0; i < tentativas; i++){
+      try{
+        const r = await fetch(url, { cache:'no-store' });
+        let txt = await r.text();
+        if (!r.ok) throw new Error('gviz respondeu status ' + r.status);
+        txt = txt.replace(/^[^(]*\(/, '').replace(/\);?\s*$/, '');
+        return JSON.parse(txt);
+      } catch(err){
+        ultimoErro = err;
+        if (i < tentativas - 1) await new Promise(function(res){ setTimeout(res, 800 * (i + 1)); });
+      }
+    }
+    throw ultimoErro;
+  }
   async function loadPlanejadoPorTurbina(){
     try{
-      const r = await fetch(ANALISE_GVIZ_URL, { cache:'no-store' });
-      let txt = await r.text();
-      txt = txt.replace(/^[^(]*\(/, '').replace(/\);?\s*$/, '');
-      const j = JSON.parse(txt);
+      const j = await fetchGvizComRetry(ANALISE_GVIZ_URL);
       const rows = j.table.rows || [];
       const map = {};
       rows.forEach(function(row){
@@ -457,6 +471,34 @@
     return wrap.firstElementChild;
   }
 
+  /* RETRY 15/09/2026: o Web App do Apps Script falha de forma intermitente
+     (observado: ~1 em cada 4 chamadas retorna HTTP 404 com uma página HTML
+     de erro do próprio Google em vez do JSON esperado — instabilidade do
+     lado do Apps Script/cold-start, não um bug deste arquivo). Antes disso,
+     uma única falha nessa chamada quebrava `JSON.parse`/`r.json()` sem
+     tratamento e travava a tela inteira em "Falha ao carregar dados", exigindo
+     o usuário atualizar a página manualmente. Agora tentamos de novo
+     automaticamente (até 3 tentativas, com pequena espera entre elas) antes
+     de desistir e propagar o erro para a mensagem de status. */
+  async function fetchJsonComRetry(url, options, tentativas){
+    tentativas = tentativas || 3;
+    let ultimoErro;
+    for (let i = 0; i < tentativas; i++){
+      try{
+        const r = await fetch(url, options);
+        const txt = await r.text();
+        const pareceHtml = txt.trim().slice(0, 15).toLowerCase().indexOf('<!doctype') !== -1 || txt.trim().startsWith('<');
+        if (!r.ok || pareceHtml){
+          throw new Error('Resposta inválida (status ' + r.status + ')' + (pareceHtml ? ' — recebido HTML em vez de JSON' : ''));
+        }
+        return JSON.parse(txt);
+      } catch(err){
+        ultimoErro = err;
+        if (i < tentativas - 1) await new Promise(function(res){ setTimeout(res, 800 * (i + 1)); });
+      }
+    }
+    throw ultimoErro;
+  }
   async function apiGet(){
     if (!API_URL){
       const r = await fetch(MOCK_JSON_PATH);
@@ -465,8 +507,7 @@
     // cache-buster: o Web App do Apps Script (e/ou o navegador) pode servir
     // uma resposta antiga em cache para essa mesma URL; o parâmetro "_"
     // garante que cada carregamento busque os dados realmente atuais da planilha.
-    const r = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
-    return r.json();
+    return fetchJsonComRetry(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
   }
   async function apiPost(payload){
     if (!API_URL){
