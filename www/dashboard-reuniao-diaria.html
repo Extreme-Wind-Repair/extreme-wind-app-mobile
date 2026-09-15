@@ -833,15 +833,99 @@
     });
     return _classifLookup;
   }
-  function classificaBucket(atividadeTexto){
-    const chave = normalizeTxt(atividadeTexto);
-    const tipo = classifLookup()[chave] || ATIVIDADE_TO_TIPO_FALLBACK[chave];
-    if (tipo){
-      const key = normalizeTxt(tipo);
-      if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
-      return 'produtivo';
+  /* MATCH POR OBSERVAÇÃO 15/09/2026 (pedido do Robson): quando a Atividade
+     não bate direto com nenhuma das listas (o caso mais comum é
+     "Outra atividade não listada", mas vale pra qualquer texto
+     desconhecido), a equipe normalmente já descreveu o trabalho real na
+     coluna J ("Observação") — ex.: Atividade="Outra atividade não listada",
+     Observacao="Corte de camadas + pesagem de químicos". Antes de cair em
+     Stand by por padrão, procuramos na Observação (normalizada) algum
+     trecho que bata com um item das listas de Setup (ATIVIDADE_TO_TIPO_FALLBACK)
+     ou de Reparos (ATIVIDADES_PRODUTIVAS) — busca por substring nos dois
+     sentidos (o item da lista aparece dentro da observação, ou a observação
+     inteira é curta o bastante para estar contida no item da lista), pra
+     cobrir tanto "pesagem de quimicos" (variação sem "dos") quanto textos
+     compostos com "+" ou vírgula. Setup tem prioridade sobre Reparo quando
+     a observação bate com os dois (ex.: "organização de materiais" é Setup
+     mesmo que apareça ao lado de um termo de reparo na mesma frase) — isso
+     é uma escolha de desempate razoável, não uma regra formal; se um caso
+     real for classificado errado, ajustar aqui. Sem match em nenhuma lista,
+     a atividade continua sendo descartada do cálculo (não vira Stand by
+     "no escuro" — ver classificaBucket). */
+  /* PALAVRAS-CHAVE NA OBSERVAÇÃO 15/09/2026: quando a Observação (coluna J)
+     não cita o nome quase completo de uma atividade cadastrada (caso coberto
+     pelo match direto acima), calibramos manualmente contra as 41
+     observações reais de "Outra atividade não listada" existentes na
+     planilha em 15/09/2026 (confirmado via gviz), extraindo grupos de
+     palavras que aparecem juntas nesses textos. Cada grupo é uma lista de
+     palavras que precisam TODAS aparecer na observação (AND) para contar
+     como aquele grupo; getBucketPorPalavrasChave() testa os grupos de Stand
+     by primeiro (palavra "aguardando" é sinal forte de espera, tem
+     prioridade mesmo se a frase também citar um termo de reparo — ex.:
+     "aguardando cura do núcleo" é tempo parado esperando a cura acontecer,
+     não trabalho de cura em si), depois Setup, depois Produtivo. Cobriu 38
+     das 41 observações reais nos testes; os 3 casos sem match (ex.:
+     "Organização da área + Montagem do kit de resgate", "Deslocamento...
+     Comprar os fardamentos") ficam sem classificação (descartados do
+     cálculo) em vez de arriscar um match errado por palavra-chave frágil
+     demais. Se aparecerem padrões novos e recorrentes de observação sem
+     match, é só acrescentar um grupo aqui. */
+  const OBS_STANDBY_KEYWORDS = [
+    ['aguardando']
+  ];
+  const OBS_SETUP_KEYWORDS = [
+    ['organiza', 'material'], ['organiza', 'equipamento'], ['montagem', 'ancoragem'],
+    ['montagem', 'cordas'], ['subida', 'material'], ['subida', 'tecnico'], ['subida', 'tec.'],
+    ['descida', 'solo'], ['descida', 'cordas'], ['descida', 'tec'], ['recolhimento', 'corda'],
+    ['recolhimento', 'material'], ['recolhimento', 'equipamento'], ['pesagem', 'quimico'],
+    ['aplicacao', 'loto'], ['fechamento', 'nacele'], ['fechamento', 'quadro'], ['saida', 'sit'],
+    ['saida', 'parque'], ['deslocamento', 'subestacao'], ['deslocamento', 'wtg'], ['ajuste', 'corda'],
+    ['puxada', 'corda'], ['retirada', 'link'], ['retirada', 'sistema'], ['dds'], ['desmobiliza']
+  ];
+  const OBS_PRODUTIVO_KEYWORDS = [
+    ['corte', 'camada'], ['corte', 'tecido'], ['traca'], ['tracagem'], ['laminacao'], ['laminado'],
+    ['lixamento'], ['limpeza', 'blade'], ['acompanhamento', 'inspecao'], ['inspecao'],
+    ['pintura'], ['acabamento'], ['gel'], ['dureza'], ['cinto', 'seguranca'], ['cura'],
+    ['auditoria'], ['treinamento']
+  ];
+  function matchGrupoPalavras(obsNormalizada, grupos){
+    for (const grupo of grupos){
+      if (grupo.every(function(palavra){ return obsNormalizada.indexOf(palavra) !== -1; })) return true;
     }
-    if (ATIVIDADES_PRODUTIVAS[chave]) return 'produtivo';
+    return false;
+  }
+  function classificaPorObservacao(observacaoTexto){
+    const obs = normalizeTxt(observacaoTexto);
+    if (!obs) return null;
+    if (matchGrupoPalavras(obs, OBS_STANDBY_KEYWORDS)) return 'standby';
+    if (matchGrupoPalavras(obs, OBS_SETUP_KEYWORDS)) return 'setup';
+    if (matchGrupoPalavras(obs, OBS_PRODUTIVO_KEYWORDS)) return 'produtivo';
+    return null;
+  }
+  function classificaBucket(atividadeTexto, observacaoTexto){
+    const chave = normalizeTxt(atividadeTexto);
+    /* "Outra atividade não listada" é um rótulo genérico que não descreve o
+       trabalho de verdade — o texto real está na Observação. Por isso este
+       caso específico pula direto pra classificação por Observação, em vez
+       de aceitar o match direto (que sempre cairia em "Outro"/Stand by e
+       nunca chegaria a olhar a Observação). Qualquer outro texto de
+       Atividade continua sendo checado normalmente primeiro — mas também
+       usa a Observação como fallback se não bater em nada. */
+    if (chave !== 'outra atividade nao listada'){
+      const tipo = classifLookup()[chave] || ATIVIDADE_TO_TIPO_FALLBACK[chave];
+      if (tipo){
+        const key = normalizeTxt(tipo);
+        if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
+        return 'produtivo';
+      }
+      if (ATIVIDADES_PRODUTIVAS[chave]) return 'produtivo';
+    }
+    const bucketObs = classificaPorObservacao(observacaoTexto);
+    if (bucketObs) return bucketObs;
+    // Observação também não bateu em nada: se a Atividade era "Outra
+    // atividade não listada", ainda assim classifica como Stand by (regra
+    // original), em vez de descartar o tempo do dia inteiro.
+    if (chave === 'outra atividade nao listada') return 'standby';
     return null;
   }
   /* Aceita "7:00" / "17:30" (texto) ou string ISO com hora ("...T17:30:00.000Z") vinda de célula
@@ -853,6 +937,15 @@
     if (!m) return null;
     return Number(m[1]) * 60 + Number(m[2]);
   }
+  /* ALMOÇO/JANTA 15/09/2026 (pedido do Robson): o intervalo de refeição não
+     deve contar nem como Stand by nem em nenhum outro bucket — é
+     descartado do cálculo inteiro (não entra no total de minutos), pra que
+     o dia seja medido só pelo tempo de trabalho efetivo (Setup + Produtivo
+     + Stand-by real por clima/aguardo), sem a refeição "diluindo" os
+     percentuais. */
+  function ehAlmocoJanta(atividadeTexto){
+    return normalizeTxt(atividadeTexto) === 'almoco/janta';
+  }
   function computeRdoStats(parkName, relatorioIds){
     const idSet = {};
     relatorioIds.forEach(function(id){ idSet[String(id)] = true; });
@@ -860,12 +953,13 @@
     let total = 0;
     (DATA.atividades || []).forEach(function(a){
       if (!idSet[String(a.Relatorio_ID)]) return;
+      if (ehAlmocoJanta(a.Atividade)) return;
       const ini = parseHoraMinutos(a.Hora_ini), fim = parseHoraMinutos(a.Hora_fim);
       if (ini == null || fim == null) return;
       let dur = fim - ini;
       if (dur < 0) dur += 24 * 60; // atravessou a meia-noite
       if (dur <= 0) return;
-      const bucket = classificaBucket(a.Atividade);
+      const bucket = classificaBucket(a.Atividade, a.Observacao);
       if (!bucket) return;
       minutos[bucket] += dur;
       total += dur;
