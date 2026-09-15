@@ -741,8 +741,10 @@
      ainda não é um campo na planilha, então o valor fica zerado até que
      esse rastreio exista. */
   const TIPO_TO_BUCKET = {
-    // Setup (preparação/fechamento do acesso por corda, integração, pesagem)
-    'integracao':'setup', 'setup inicio':'setup', 'setup final':'setup', 'pesagem dos quimicos':'setup',
+    // Setup (preparação/fechamento do acesso por corda, integração)
+    'integracao':'setup', 'setup inicio':'setup', 'setup final':'setup',
+    // Produtivo — Pesagem dos Químicos é sempre hora produtiva, independente de parque/projeto (regra do Robson, 15/09/2026)
+    'pesagem dos quimicos':'produtivo',
     // Stand by (parado/aguardando — inclui intervalo e atividades não classificadas)
     'stand by clima':'standby', 'stand by':'standby', 'intervalo':'standby', 'outro':'standby', 'atividade a definir':'standby'
     // Tudo que não estiver mapeado acima (instalação/reparo/inspeção) cai em "produtivo" — ver classificaBucket().
@@ -890,7 +892,7 @@
     ['organiza', 'material'], ['organiza', 'equipamento'], ['montagem', 'ancoragem'],
     ['montagem', 'cordas'], ['subida', 'material'], ['subida', 'tecnico'], ['subida', 'tec.'],
     ['descida', 'solo'], ['descida', 'cordas'], ['descida', 'tec'], ['recolhimento', 'corda'],
-    ['recolhimento', 'material'], ['recolhimento', 'equipamento'], ['pesagem', 'quimico'],
+    ['recolhimento', 'material'], ['recolhimento', 'equipamento'],
     ['aplicacao', 'loto'], ['fechamento', 'nacele'], ['fechamento', 'quadro'], ['saida', 'sit'],
     ['saida', 'parque'], ['deslocamento', 'subestacao'], ['deslocamento', 'wtg'], ['ajuste', 'corda'],
     ['puxada', 'corda'], ['retirada', 'link'], ['retirada', 'sistema'], ['dds'], ['desmobiliza']
@@ -899,7 +901,9 @@
     ['corte', 'camada'], ['corte', 'tecido'], ['traca'], ['tracagem'], ['laminacao'], ['laminado'],
     ['lixamento'], ['limpeza', 'blade'], ['acompanhamento', 'inspecao'], ['inspecao'],
     ['pintura'], ['acabamento'], ['gel'], ['dureza'], ['cinto', 'seguranca'], ['cura'],
-    ['auditoria'], ['treinamento']
+    ['auditoria'], ['treinamento'],
+    // Pesagem dos Químicos é sempre hora produtiva, independente de parque/projeto (regra do Robson, 15/09/2026)
+    ['pesagem', 'quimico']
   ];
   function matchGrupoPalavras(obsNormalizada, grupos){
     for (const grupo of grupos){
