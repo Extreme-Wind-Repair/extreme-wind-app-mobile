@@ -396,6 +396,49 @@
 
   let DATA = { parques:[], equipe:[], aprovados:[], notas:[], tecnicos:[], relatorios:[], atividades:[], classificacao:[] };
   let PARK_SEQ = 0;
+  /* % PLANEJADO 15/09/2026 (pedido do Robson): a aba "análise" da planilha
+     "banco de dados RDO" já calcula, por Turbina, o "% Planejado" (coluna I
+     da tabela real dessa aba — colunas A-N a partir da 2ª linha visível:
+     Parque/Turbina/Blade/Tipo de Reparo/.../% Real(H)/% Planejado(I)/Desvio(J)/
+     Status(K)/Data(L)/Última etapa(M)/Próxima etapa(N)). Essa aba não vem pela
+     API do Apps Script (só serve Relatorios/Atividades/Setups/Reparos), então
+     buscamos direto via endpoint público gviz do Google Sheets (sem
+     autenticação, mesmo padrão já usado para inspecionar dados nesta sessão).
+     Robson confirmou que cada RDO tem só um reparo em andamento por turbina
+     naquele dia, então o match é feito só por Turbina normalizada (sem
+     espaços/traços/underscores) — sem precisar desempatar por Tipo de Reparo. */
+  const ANALISE_SHEET_ID = '16Mj1fsk9916qWP7KUxbcE33X985gvcd0ei-ZFcMCdb4';
+  const ANALISE_GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('analise');
+  let PLANEJADO_POR_TURBINA = {};
+  function normalizeTurbina(s){
+    return String(s == null ? '' : s)
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .toLowerCase().replace(/[\s\-_]/g, '').trim();
+  }
+  async function loadPlanejadoPorTurbina(){
+    try{
+      const r = await fetch(ANALISE_GVIZ_URL, { cache:'no-store' });
+      let txt = await r.text();
+      txt = txt.replace(/^[^(]*\(/, '').replace(/\);?\s*$/, '');
+      const j = JSON.parse(txt);
+      const rows = j.table.rows || [];
+      const map = {};
+      rows.forEach(function(row){
+        const c = row.c || [];
+        const turbina = c[1] ? c[1].v : null;
+        const planejadoCell = c[8]; // coluna I (índice 8) = "% Planejado"
+        if (!turbina || !planejadoCell) return;
+        const val = planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v;
+        if (val == null || val === '') return;
+        const key = normalizeTurbina(turbina);
+        if (key) map[key] = String(val);
+      });
+      PLANEJADO_POR_TURBINA = map;
+    } catch(err){
+      console.error('Falha ao carregar % Planejado (aba análise):', err);
+      PLANEJADO_POR_TURBINA = {};
+    }
+  }
 
   function escapeHtml(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -618,6 +661,8 @@
     }
     const pct = Number(a.Avanco_reparo);
     const pctStr = isNaN(pct) ? '—' : pct + '%';
+    const planejadoVal = PLANEJADO_POR_TURBINA[normalizeTurbina(a.Turbina)];
+    const planejadoStr = planejadoVal != null ? planejadoVal : '—';
     const statsHtml = stats
       ? ('<div class="ab-row"><span class="ab-label">Stand by</span><span class="ab-value">' + stats.standby + '%</span></div>' +
          '<div class="ab-row"><span class="ab-label">Produtivo</span><span class="ab-value">' + stats.produtivo + '%</span></div>' +
@@ -631,6 +676,7 @@
       '<div class="ab-row"><span class="ab-label">Data início</span><span class="ab-value">—</span></div>' +
       '<div class="ab-row"><span class="ab-label">Data prev. fim</span><span class="ab-value">—</span></div>' +
       '<div class="ab-progress-wrap">' +
+        '<div class="ab-row"><span class="ab-label">% Planejado</span><span class="ab-value">' + escapeHtml(planejadoStr) + '</span></div>' +
         '<div class="ab-row"><span class="ab-label">Avanço</span><span class="ab-value">' + pctStr + '</span></div>' +
         '<div class="ab-progress-bar"><div class="ab-progress-fill" style="width:' + (isNaN(pct) ? 0 : Math.max(0, Math.min(100, pct))) + '%"></div></div>' +
       '</div>' +
@@ -1422,7 +1468,8 @@
 
   async function boot(){
     try{
-      DATA = await apiGet();
+      const [dataResult] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
+      DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
       renderAll();
       setSyncStatus(API_URL ? 'Conectado ao Google Sheets.' : 'MODO TESTE — lendo dados_seed.json local. Edições não são salvas (configure API_URL).', !API_URL);
