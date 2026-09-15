@@ -802,10 +802,23 @@
     });
     return _classifLookup;
   }
+  /* CORRECAO 15/09/2026: a aba Setups (e o fallback estático acima) só
+     cadastra as atividades de Setup/Stand-by/Intervalo/Integração — por
+     definição, uma atividade real de reparo (ex.: "Lixamento / traçado
+     geral", "Laminação", "Colagem do núcleo", "Pintura") NUNCA vai
+     aparecer lá, porque essas são justamente as atividades "produtivas".
+     Antes, quando o texto não batia em nenhum dos dois lookups, a função
+     retornava null e a atividade era descartada do cálculo inteiro (nem
+     entrava no total de minutos) — isso fazia o "Produtivo" ficar 0% (ou
+     artificialmente baixo) sempre que havia trabalho real de reparo no
+     RDO, exatamente o oposto do esperado. Agora, atividade sem
+     correspondência em nenhum lookup cai em "produtivo" por padrão (mesma
+     regra que já valia pra um Tipo de reparo encontrado mas não listado em
+     TIPO_TO_BUCKET). */
   function classificaBucket(atividadeTexto){
     const chave = normalizeTxt(atividadeTexto);
     const tipo = classifLookup()[chave] || ATIVIDADE_TO_TIPO_FALLBACK[chave];
-    if (!tipo) return null;
+    if (!tipo) return 'produtivo';
     const key = normalizeTxt(tipo);
     if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
     return 'produtivo';
