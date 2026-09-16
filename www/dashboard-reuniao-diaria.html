@@ -1171,10 +1171,24 @@
      por RDO). Setups são deliberadamente ignorados aqui (pedido explícito do
      Robson em 16/09/2026) — não confundir com o quadro Anteontem/Ontem, que
      ainda mostra o % de Setup normalmente. */
+  /* Chave de ordenação por data/hora real do RDO — usa o ID (formato
+     "AAAAMMDD-HHMMSS", sempre confiável, ver comentário de formatDataHoraFromId
+     mais abaixo) como fonte primária; só cai para Registrado_em (que tem um bug
+     conhecido de mês/dia invertidos em vários RDOs) quando o ID não bater nesse
+     formato. Corrige bug encontrado em 16/09/2026: ordenar só por Registrado_em
+     fazia "Último RDO" mostrar um RDO antigo (ex.: 28/08) em vez do mais recente
+     de fato (ex.: 15/09), porque a string de Registrado_em de alguns RDOs mais
+     novos vinha com mês/dia trocados e comparava "menor" que a de RDOs antigos. */
+  function chaveOrdenacaoRdo(row){
+    const s = String(row && row.ID != null ? row.ID : '').trim();
+    const m = s.match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/);
+    if (m) return m[1] + m[2] + m[3] + m[4] + m[5] + m[6]; // AAAAMMDDHHMMSS, ordenável como string
+    return String((row && row.Registrado_em) || '');
+  }
   function ultimoRdoDoParque(parkName){
     const todos = (DATA.relatorios || [])
       .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
-      .sort(function(a, b){ return String(b.Registrado_em || '').localeCompare(String(a.Registrado_em || '')); });
+      .sort(function(a, b){ return chaveOrdenacaoRdo(b).localeCompare(chaveOrdenacaoRdo(a)); });
     return todos.length ? todos[0] : null;
   }
   function rdoResumoHtml(row){
