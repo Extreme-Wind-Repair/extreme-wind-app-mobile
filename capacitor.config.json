@@ -3,6 +3,7 @@
   "appName": "Extreme Wind",
   "webDir": "www",
   "server": {
+    "url": "https://extreme-wind-repair.github.io/extreme-wind-app-mobile/",
     "cleartext": false,
     "allowNavigation": [
       "*.google.com",
