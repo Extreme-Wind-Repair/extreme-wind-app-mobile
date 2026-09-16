@@ -247,6 +247,21 @@
   .ab-daycol-label[data-fallback-active]{color:#d9b234;}
   .activity-box .ab-not-sent{color:var(--nok); font-weight:700; font-style:normal; text-align:center; padding:6px 0;}
 
+  /* ============ Quadro Segurança / EHS (retorno 16/09/2026, pedido do Robson) ============
+     Espaço reservado ao lado de cada quadro de Atividades (Anteontem/Ontem),
+     mesmo tamanho do .activity-box. Por enquanto fica sempre vazio — sem
+     fonte de dados definida ainda; só a estrutura/posição do card. Aparece
+     em todo parque/turbina que tiver o quadro de RDO (Anteontem e Ontem). */
+  .ehs-box{
+    flex:none; width:210px; background:var(--brand-deep); border:1px solid var(--line);
+    border-radius:8px; padding:8px 10px; font-size:11px;
+  }
+  .ehs-box .ab-title{
+    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    margin-bottom:6px;
+  }
+  .ehs-box .ab-empty{color:var(--muted); font-style:italic; font-size:11px;}
+
   /* ============ Quadro RDO Enviado (data + % Stand by/Produtivo/Setup/Garantia) ============ */
   .rdo-box{
     flex:none; width:170px; background:var(--brand-deep); border:1px solid var(--line);
@@ -657,6 +672,11 @@
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">Ontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="1" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
+          '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
+            '<div class="ehs-box" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
+              '<div class="ab-title">Segurança / EHS</div>' +
+              '<div class="ab-empty">—</div>' +
+            '</div></div>' +
         '</div>' +
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
