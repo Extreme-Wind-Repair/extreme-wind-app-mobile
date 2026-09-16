@@ -1507,14 +1507,31 @@
     renderNotes('b5', document.getElementById('b5'));
   }
 
-  async function boot(){
+  /* RETRY DE BOOT 15/09/2026: além do retry interno de cada fetch
+     (fetchJsonComRetry/fetchGvizComRetry — até 3 tentativas cada, ~4s no
+     total), o Apps Script já foi observado ficando indisponível por janelas
+     mais longas que isso (3 falhas 404 seguidas em poucos segundos). Em vez
+     de deixar o usuário preso em "Falha ao carregar dados" até atualizar a
+     página manualmente, o boot() tenta o ciclo inteiro de novo automaticamente
+     (até 4 vezes, esperando 5s a mais a cada tentativa) antes de desistir e
+     mostrar o erro de verdade. Isso não esconde uma falha real — só absorve
+     a instabilidade intermitente conhecida do backend. */
+  async function boot(tentativa){
+    tentativa = tentativa || 1;
+    const MAX_TENTATIVAS_BOOT = 4;
     try{
+      setSyncStatus(tentativa > 1 ? ('Carregando dados do Google Sheets… (tentativa ' + tentativa + '/' + MAX_TENTATIVAS_BOOT + ')') : 'Carregando dados do Google Sheets…', false);
       const [dataResult] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
       renderAll();
       setSyncStatus(API_URL ? 'Conectado ao Google Sheets.' : 'MODO TESTE — lendo dados_seed.json local. Edições não são salvas (configure API_URL).', !API_URL);
     } catch(err){
+      if (tentativa < MAX_TENTATIVAS_BOOT){
+        setSyncStatus('Instabilidade ao carregar dados, tentando novamente…', true);
+        setTimeout(function(){ boot(tentativa + 1); }, 5000 * tentativa);
+        return;
+      }
       setSyncStatus('Falha ao carregar dados: ' + err.message, true);
       console.error(err);
     }
