@@ -231,6 +231,14 @@
     background:var(--panel2); border-radius:6px; height:6px; overflow:hidden; margin-top:3px;
   }
   .activity-box .ab-progress-fill{background:var(--teal); height:100%; border-radius:6px;}
+  /* Barra de % Planejado (retorno 16/09/2026, pedido do Robson) — mesma barra visual
+     do Avanço, sempre em cinza/azul neutro (não segue a regra de vermelho/verde,
+     essa é só do Avanço real comparado contra o planejado). */
+  .activity-box .ab-progress-fill.ab-progress-planejado{background:var(--steel);}
+  /* Avanço real: verde quando >= planejado, vermelho quando < planejado (pedido do
+     Robson, 16/09/2026) — ver comparaAvancoPlanejado() / activityRowHtml(). */
+  .activity-box .ab-progress-fill.ab-progress-ok{background:var(--ok);}
+  .activity-box .ab-progress-fill.ab-progress-atraso{background:var(--nok);}
   .activity-box .ab-dots{display:flex; justify-content:center; gap:4px; margin-top:6px;}
   .activity-box .ab-dot{width:5px; height:5px; border-radius:50%; background:var(--line);}
   .activity-box .ab-dot.active{background:var(--teal);}
@@ -254,6 +262,32 @@
   .rdo-box .ab-value{color:var(--text); font-weight:600; text-align:right;}
   .rdo-box.ab-alert{background:rgba(224,72,60,.14); border-color:rgba(224,72,60,.45);}
   .rdo-box .ab-not-sent{color:var(--nok); font-weight:700; font-style:normal; text-align:center; padding:6px 0;}
+
+  /* ============ Quadro "Último RDO" (retorno 16/09/2026, pedido do Robson) ============
+     Bloco adicional abaixo do status-select (.status-col), com o resumo do
+     último RDO enviado: atividades produtivas/reparo realizadas no dia,
+     motivos de stand-by (quando houver) e a próxima atividade prevista
+     (campo Proxima_atividade da aba Relatórios). Setups são deliberadamente
+     ignorados aqui (pedido do Robson) — ver rdoResumoHtml(). */
+  .rdo-resumo-box{
+    flex:none; width:190px; background:var(--brand-deep); border:1px solid var(--line);
+    border-radius:8px; padding:8px 10px; font-size:11px;
+  }
+  .rdo-resumo-box .ab-title{
+    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    margin-bottom:6px;
+  }
+  .rdo-resumo-box .rr-section{margin-bottom:6px;}
+  .rdo-resumo-box .rr-section:last-child{margin-bottom:0;}
+  .rdo-resumo-box .rr-label{
+    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px;
+  }
+  .rdo-resumo-box .rr-list{list-style:none; margin:0; padding:0;}
+  .rdo-resumo-box .rr-list li{color:var(--text); padding:1px 0; line-height:1.3;}
+  .rdo-resumo-box .rr-standby li{color:var(--warn);}
+  .rdo-resumo-box .rr-empty{color:var(--muted); font-style:italic;}
+  .rdo-resumo-box .rr-next{color:var(--teal); font-weight:600;}
+  .rdo-resumo-box .ab-not-sent{color:var(--nok); font-weight:700; font-style:normal; text-align:center; padding:6px 0;}
 
   table{width:100%; border-collapse:collapse; font-size:12px;}
   thead th{
@@ -410,6 +444,14 @@
   const ANALISE_SHEET_ID = '16Mj1fsk9916qWP7KUxbcE33X985gvcd0ei-ZFcMCdb4';
   const ANALISE_GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('analise');
   let PLANEJADO_POR_TURBINA = {};
+  /* % AVANÇO (RETORNO 16/09/2026, pedido do Robson): o "Avanço" mostrado no
+     quadro Anteontem/Ontem deixa de vir de a.Avanco_reparo (campo digitado
+     manualmente no RDO, aba Relatorios) e passa a vir da mesma aba "análise"
+     do % Planejado, só que da coluna H (índice 7) = "% Real" — calculado
+     automaticamente pela planilha a partir de Relatorios/Atividades/Reparos
+     (ver cabeçalho da própria aba). Mesmo padrão de busca/match por Turbina
+     normalizada usado em PLANEJADO_POR_TURBINA. */
+  let AVANCO_POR_TURBINA = {};
   function normalizeTurbina(s){
     return String(s == null ? '' : s)
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -436,21 +478,31 @@
     try{
       const j = await fetchGvizComRetry(ANALISE_GVIZ_URL);
       const rows = j.table.rows || [];
-      const map = {};
+      const mapPlanejado = {};
+      const mapAvanco = {};
       rows.forEach(function(row){
         const c = row.c || [];
         const turbina = c[1] ? c[1].v : null;
-        const planejadoCell = c[8]; // coluna I (índice 8) = "% Planejado"
-        if (!turbina || !planejadoCell) return;
-        const val = planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v;
-        if (val == null || val === '') return;
+        if (!turbina) return;
         const key = normalizeTurbina(turbina);
-        if (key) map[key] = String(val);
+        if (!key) return;
+        const planejadoCell = c[8]; // coluna I (índice 8) = "% Planejado"
+        if (planejadoCell){
+          const val = planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v;
+          if (val != null && val !== '') mapPlanejado[key] = String(val);
+        }
+        const avancoCell = c[7]; // coluna H (índice 7) = "% Real"
+        if (avancoCell){
+          const val = avancoCell.f !== undefined ? avancoCell.f : avancoCell.v;
+          if (val != null && val !== '') mapAvanco[key] = String(val);
+        }
       });
-      PLANEJADO_POR_TURBINA = map;
+      PLANEJADO_POR_TURBINA = mapPlanejado;
+      AVANCO_POR_TURBINA = mapAvanco;
     } catch(err){
-      console.error('Falha ao carregar % Planejado (aba análise):', err);
+      console.error('Falha ao carregar % Planejado / % Avanço (aba análise):', err);
       PLANEJADO_POR_TURBINA = {};
+      AVANCO_POR_TURBINA = {};
     }
   }
 
@@ -567,6 +619,7 @@
         '</div>' +
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
+          '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
         '</div>' +
       '</div>' +
       '<table><thead><tr>' + theadHtml + '</tr></thead><tbody data-equipe-body></tbody></table>' +
@@ -624,6 +677,7 @@
 
     wirePanel(node, p);
     initActivityBox(node);
+    initRdoResumoBox(node);
     return node;
   }
 
@@ -696,14 +750,40 @@
      quadro do dia (Anteontem/Ontem) em vez de um card "RDO Enviado" à
      parte — pedido do Robson para não duplicar a data/numeração do RDO em
      dois lugares diferentes da mesma tela. */
+  /* Extrai o número inteiro de um valor de % vindo do gviz (pode chegar como
+     "100", "100.00", "100,00%", etc. — formatação da própria planilha, fora
+     do nosso controle) — retorna null se não achar nenhum número. Usada tanto
+     pro % Planejado (coluna I) quanto pro % Avanço/Real (coluna H). */
+  function pctGvizParaInteiro(val){
+    if (val == null) return null;
+    const s = String(val).replace(',', '.');
+    const m = s.match(/-?\d+(\.\d+)?/);
+    if (!m) return null;
+    return Math.round(Number(m[0]));
+  }
   function activityRowHtml(a, stats){
     if (!a){
       return '<div class="ab-empty ab-not-sent">Não Enviado</div>';
     }
-    const pct = Number(a.Avanco_reparo);
-    const pctStr = isNaN(pct) ? '—' : pct + '%';
+    // % Avanço (RETORNO 16/09/2026, pedido do Robson): antes vinha de
+    // a.Avanco_reparo (campo digitado no RDO, aba Relatorios); agora vem da
+    // aba "análise", coluna H ("% Real"), calculada automaticamente pela
+    // planilha — mesma fonte/match por Turbina do % Planejado. Exibido como
+    // número inteiro, igual ao Planejado.
+    const avancoVal = AVANCO_POR_TURBINA[normalizeTurbina(a.Turbina)];
+    const pct = pctGvizParaInteiro(avancoVal);
+    const pctStr = pct != null ? pct + '%' : '—';
     const planejadoVal = PLANEJADO_POR_TURBINA[normalizeTurbina(a.Turbina)];
-    const planejadoStr = planejadoVal != null ? planejadoVal : '—';
+    // % Planejado (retorno 16/09/2026, pedido do Robson): exibir só o número
+    // inteiro (sem casas decimais), com barra de progresso igual à do Avanço.
+    const planejadoInt = pctGvizParaInteiro(planejadoVal);
+    const planejadoStr = planejadoInt != null ? planejadoInt + '%' : '—';
+    // Avanço real: barra verde quando Avanço >= Planejado, vermelha quando
+    // Avanço < Planejado (pedido do Robson, 16/09/2026). Sem % Planejado
+    // conhecido, não há base de comparação — mantém neutro (teal, como antes).
+    const avancoCorClass = (pct == null || planejadoInt == null)
+      ? ''
+      : (pct >= planejadoInt ? ' ab-progress-ok' : ' ab-progress-atraso');
     const statsHtml = stats
       ? ('<div class="ab-row"><span class="ab-label">Stand by</span><span class="ab-value">' + stats.standby + '%</span></div>' +
          '<div class="ab-row"><span class="ab-label">Produtivo</span><span class="ab-value">' + stats.produtivo + '%</span></div>' +
@@ -718,8 +798,9 @@
       '<div class="ab-row"><span class="ab-label">Data prev. fim</span><span class="ab-value">—</span></div>' +
       '<div class="ab-progress-wrap">' +
         '<div class="ab-row"><span class="ab-label">% Planejado</span><span class="ab-value">' + escapeHtml(planejadoStr) + '</span></div>' +
+        '<div class="ab-progress-bar"><div class="ab-progress-fill ab-progress-planejado" style="width:' + (planejadoInt == null ? 0 : Math.max(0, Math.min(100, planejadoInt))) + '%"></div></div>' +
         '<div class="ab-row"><span class="ab-label">Avanço</span><span class="ab-value">' + pctStr + '</span></div>' +
-        '<div class="ab-progress-bar"><div class="ab-progress-fill" style="width:' + (isNaN(pct) ? 0 : Math.max(0, Math.min(100, pct))) + '%"></div></div>' +
+        '<div class="ab-progress-bar"><div class="ab-progress-fill' + avancoCorClass + '" style="width:' + (pct == null ? 0 : Math.max(0, Math.min(100, pct))) + '%"></div></div>' +
       '</div>' +
       statsHtml;
   }
@@ -1077,6 +1158,69 @@
       garantia: 0 // sem rastreio na planilha ainda — ver comentário acima
     };
   }
+
+  /* ============ Quadro "Último RDO" (retorno 16/09/2026, pedido do Robson) ============
+     Mostra, a partir do RDO mais recente daquele parque (mesma noção de
+     "último RDO enviado" já usada no quadro Anteontem/Ontem — ver
+     initActivityBox): as atividades produtivas/reparo realizadas no dia
+     (Atividade classificada como 'produtivo' por classificaBucket), os
+     motivos de stand-by do dia (Atividade classificada como 'standby' —
+     mostra a Observação daquela linha, que é onde a equipe escreve o motivo
+     real, ex.: "Vento alto", "Aguardando técnico Gamesa"), e a próxima
+     atividade prevista (campo Proxima_atividade da aba Relatórios, 1 valor
+     por RDO). Setups são deliberadamente ignorados aqui (pedido explícito do
+     Robson em 16/09/2026) — não confundir com o quadro Anteontem/Ontem, que
+     ainda mostra o % de Setup normalmente. */
+  function ultimoRdoDoParque(parkName){
+    const todos = (DATA.relatorios || [])
+      .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
+      .sort(function(a, b){ return String(b.Registrado_em || '').localeCompare(String(a.Registrado_em || '')); });
+    return todos.length ? todos[0] : null;
+  }
+  function rdoResumoHtml(row){
+    if (!row){
+      return '<div class="ab-title">Último RDO</div><div class="ab-not-sent">Não Enviado</div>';
+    }
+    const atividadesDoRdo = (DATA.atividades || []).filter(function(a){ return String(a.Relatorio_ID) === String(row.ID); });
+    const produtivas = [];
+    const standbyMotivos = [];
+    atividadesDoRdo.forEach(function(a){
+      // Almoço/Janta é sempre descartado (mesma regra do computeRdoStats) — não é
+      // atividade produtiva nem motivo de stand-by, é intervalo de refeição.
+      if (ehAlmocoJanta(a.Atividade)) return;
+      const bucket = classificaBucket(a.Atividade, a.Observacao);
+      if (bucket === 'produtivo'){
+        produtivas.push(a.Atividade);
+      } else if (bucket === 'standby'){
+        const motivo = (a.Observacao && normalizeTxt(a.Observacao) !== 'n/a') ? a.Observacao : a.Atividade;
+        standbyMotivos.push(motivo);
+      }
+      // bucket 'setup' e null (almoço/janta, não classificado) são ignorados aqui de propósito.
+    });
+    const produtivasHtml = produtivas.length
+      ? '<ul class="rr-list">' + produtivas.map(function(t){ return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
+      : '<div class="rr-empty">Nenhuma atividade produtiva</div>';
+    const standbyHtml = standbyMotivos.length
+      ? '<ul class="rr-list rr-standby">' + standbyMotivos.map(function(t){ return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
+      : '<div class="rr-empty">Sem stand-by</div>';
+    const proxima = (row.Proxima_atividade || '').trim();
+    return '' +
+      '<div class="ab-title">Último RDO <span style="color:var(--muted); font-weight:400;">' + escapeHtml(isoToDDMM(normalizeDateExp(row.Data_exp))) + '</span></div>' +
+      '<div class="rr-section"><div class="rr-label">Atividade realizada</div>' + produtivasHtml + '</div>' +
+      '<div class="rr-section"><div class="rr-label">Stand-by (motivo)</div>' + standbyHtml + '</div>' +
+      '<div class="rr-section"><div class="rr-label">Próxima atividade</div>' +
+        '<div class="rr-next">' + (proxima ? escapeHtml(proxima) : '<span class="rr-empty">Não informado</span>') + '</div>' +
+      '</div>';
+  }
+  function initRdoResumoBox(node){
+    const box = node.querySelector('[data-rdo-resumo-box]');
+    if (!box) return;
+    const parkName = box.dataset.parkname;
+    const row = ultimoRdoDoParque(parkName);
+    box.innerHTML = rdoResumoHtml(row);
+    box.classList.toggle('ab-alert', !row);
+  }
+
   /* BUG na origem (planilha/Apps Script), corrigido aqui em 03/09/2026: o
      campo "Registrado_em" vem, para varios RDOs recentes, com mes e dia
      INVERTIDOS (ex.: um RDO de 03/09 as 08:48 chega como
