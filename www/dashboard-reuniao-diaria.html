@@ -443,15 +443,20 @@
      espaços/traços/underscores) — sem precisar desempatar por Tipo de Reparo. */
   const ANALISE_SHEET_ID = '16Mj1fsk9916qWP7KUxbcE33X985gvcd0ei-ZFcMCdb4';
   const ANALISE_GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('analise');
-  let PLANEJADO_POR_TURBINA = {};
-  /* % AVANÇO (RETORNO 16/09/2026, pedido do Robson): o "Avanço" mostrado no
-     quadro Anteontem/Ontem deixa de vir de a.Avanco_reparo (campo digitado
-     manualmente no RDO, aba Relatorios) e passa a vir da mesma aba "análise"
-     do % Planejado, só que da coluna H (índice 7) = "% Real" — calculado
-     automaticamente pela planilha a partir de Relatorios/Atividades/Reparos
-     (ver cabeçalho da própria aba). Mesmo padrão de busca/match por Turbina
-     normalizada usado em PLANEJADO_POR_TURBINA. */
-  let AVANCO_POR_TURBINA = {};
+  /* % PLANEJADO e % AVANÇO (RETORNO 16/09/2026, pedido do Robson): em vez de um
+     mapa simples "turbina -> valor único", guardamos TODAS as linhas da aba
+     análise por turbina normalizada, cada uma com sua Data (coluna L). Isso é
+     necessário porque a aba pode ter mais de uma linha para a mesma turbina
+     física (mesma turbina em reparos diferentes ao longo do tempo, ou até
+     grafias diferentes do nome que colidem depois de normalizeTurbina -- ex.:
+     "BDF3_05" com underscore e "BDF3-05" com hífen viram a mesma chave
+     "bdf305", caso real confirmado em Baixa do Feijão 1). Antes o código
+     guardava só a "última linha lida" (ou a de data mais recente), o que
+     causou o Avanço aparecer errado/zerado quando a linha errada vencia.
+     CRITÉRIO CORRETO (definido pelo Robson em 16/09/2026): ao montar o quadro
+     de um RDO específico, casar pela DATA DAQUELE RDO (Data_exp), não pela
+     linha "mais recente" da aba análise em geral -- ver buscarAnaliseTurbina(). */
+  let ANALISE_POR_TURBINA = {}; // key normalizada -> [{dataChave:'AAAAMMDD', planejado, avanco}, ...]
   function normalizeTurbina(s){
     return String(s == null ? '' : s)
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -474,35 +479,71 @@
     }
     throw ultimoErro;
   }
+  /* Converte a coluna L ("Data", formato "DD/MM/AAAA" como texto/valor formatado
+     do gviz) numa chave comparável "AAAAMMDD". Retorna '' se não conseguir ler. */
+  function dataAnaliseParaChave(v){
+    const s = String(v == null ? '' : v).trim();
+    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!m) return '';
+    return m[3] + m[2] + m[1];
+  }
+  /* Data_exp do RDO (ISO "YYYY-MM-DD..." ou "DD/MM/AAAA", ver normalizeDateExp
+     mais abaixo) já normalizada para "YYYY-MM-DD" -- converte pra "AAAAMMDD"
+     no mesmo formato de dataAnaliseParaChave, pra poder comparar direto. */
+  function dataExpParaChave(dataExpNormalizada){
+    const m = String(dataExpNormalizada || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (m[1] + m[2] + m[3]) : '';
+  }
+  /* Busca a linha da aba análise da turbina cuja Data bate com a data do RDO
+     exibido (dataExpChaveRdo, no formato "AAAAMMDD"). Se houver mais de uma
+     linha na mesma data (não deveria, mas por segurança) ou nenhuma bater
+     exatamente, cai para a linha de data mais próxima e não-posterior ao RDO
+     (a última análise disponível até aquele dia); se nem isso existir, usa a
+     mais antiga disponível. Retorna null se a turbina não tiver nenhuma linha. */
+  function buscarAnaliseTurbina(turbina, dataExpChaveRdo){
+    const key = normalizeTurbina(turbina);
+    const linhas = ANALISE_POR_TURBINA[key];
+    if (!linhas || !linhas.length) return null;
+    const exata = linhas.find(function(l){ return l.dataChave === dataExpChaveRdo; });
+    if (exata) return exata;
+    // Sem match exato: melhor linha é a mais recente que ainda seja <= data do RDO.
+    const anteriores = linhas.filter(function(l){ return l.dataChave && l.dataChave <= dataExpChaveRdo; });
+    if (anteriores.length) return anteriores[anteriores.length - 1]; // linhas já vêm ordenadas por data asc.
+    return linhas[0]; // nenhuma linha <= data do RDO: usa a mais antiga disponível como último recurso.
+  }
   async function loadPlanejadoPorTurbina(){
     try{
       const j = await fetchGvizComRetry(ANALISE_GVIZ_URL);
       const rows = j.table.rows || [];
-      const mapPlanejado = {};
-      const mapAvanco = {};
+      const mapa = {};
       rows.forEach(function(row){
         const c = row.c || [];
         const turbina = c[1] ? c[1].v : null;
         if (!turbina) return;
         const key = normalizeTurbina(turbina);
         if (!key) return;
+        const dataCell = c[11]; // coluna L (índice 11) = "Data"
+        const dataVal = dataCell ? (dataCell.f !== undefined ? dataCell.f : dataCell.v) : null;
+        const dataChave = dataAnaliseParaChave(dataVal);
         const planejadoCell = c[8]; // coluna I (índice 8) = "% Planejado"
-        if (planejadoCell){
-          const val = planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v;
-          if (val != null && val !== '') mapPlanejado[key] = String(val);
-        }
+        const planejadoVal = planejadoCell ? (planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v) : null;
         const avancoCell = c[7]; // coluna H (índice 7) = "% Real"
-        if (avancoCell){
-          const val = avancoCell.f !== undefined ? avancoCell.f : avancoCell.v;
-          if (val != null && val !== '') mapAvanco[key] = String(val);
-        }
+        const avancoVal = avancoCell ? (avancoCell.f !== undefined ? avancoCell.f : avancoCell.v) : null;
+        (mapa[key] = mapa[key] || []).push({
+          dataChave: dataChave,
+          planejado: (planejadoVal != null && planejadoVal !== '') ? String(planejadoVal) : null,
+          avanco: (avancoVal != null && avancoVal !== '') ? String(avancoVal) : null
+        });
       });
-      PLANEJADO_POR_TURBINA = mapPlanejado;
-      AVANCO_POR_TURBINA = mapAvanco;
+      // Ordena as linhas de cada turbina por data ascendente, pra buscarAnaliseTurbina()
+      // poder pegar a última <= data do RDO com um simples "pega o último da lista".
+      Object.keys(mapa).forEach(function(key){
+        mapa[key].sort(function(a, b){ return a.dataChave.localeCompare(b.dataChave); });
+      });
+      ANALISE_POR_TURBINA = mapa;
     } catch(err){
       console.error('Falha ao carregar % Planejado / % Avanço (aba análise):', err);
-      PLANEJADO_POR_TURBINA = {};
-      AVANCO_POR_TURBINA = {};
+      ANALISE_POR_TURBINA = {};
     }
   }
 
@@ -765,18 +806,17 @@
     if (!a){
       return '<div class="ab-empty ab-not-sent">Não Enviado</div>';
     }
-    // % Avanço (RETORNO 16/09/2026, pedido do Robson): antes vinha de
-    // a.Avanco_reparo (campo digitado no RDO, aba Relatorios); agora vem da
-    // aba "análise", coluna H ("% Real"), calculada automaticamente pela
-    // planilha — mesma fonte/match por Turbina do % Planejado. Exibido como
-    // número inteiro, igual ao Planejado.
-    const avancoVal = AVANCO_POR_TURBINA[normalizeTurbina(a.Turbina)];
-    const pct = pctGvizParaInteiro(avancoVal);
+    /* % Avanço e % Planejado (RETORNO 16/09/2026, pedido do Robson): vêm da aba
+       "análise" (coluna H = "% Real", coluna I = "% Planejado"), casando pela
+       TURBINA e pela DATA do RDO exibido (Data_exp) -- não só pela turbina, já
+       que uma turbina pode ter mais de uma linha na aba análise ao longo do
+       tempo (reparo diferente depois, ou grafia duplicada do nome). Ver
+       buscarAnaliseTurbina(). Antes o Avanço vinha de a.Avanco_reparo (campo
+       digitado no RDO, aba Relatorios). */
+    const analiseLinha = buscarAnaliseTurbina(a.Turbina, dataExpParaChave(normalizeDateExp(a.Data_exp)));
+    const pct = analiseLinha ? pctGvizParaInteiro(analiseLinha.avanco) : null;
     const pctStr = pct != null ? pct + '%' : '—';
-    const planejadoVal = PLANEJADO_POR_TURBINA[normalizeTurbina(a.Turbina)];
-    // % Planejado (retorno 16/09/2026, pedido do Robson): exibir só o número
-    // inteiro (sem casas decimais), com barra de progresso igual à do Avanço.
-    const planejadoInt = pctGvizParaInteiro(planejadoVal);
+    const planejadoInt = analiseLinha ? pctGvizParaInteiro(analiseLinha.planejado) : null;
     const planejadoStr = planejadoInt != null ? planejadoInt + '%' : '—';
     // Avanço real: barra verde quando Avanço >= Planejado, vermelha quando
     // Avanço < Planejado (pedido do Robson, 16/09/2026). Sem % Planejado
