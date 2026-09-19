@@ -177,6 +177,7 @@
       <div class="menu-item" data-view="reembolso"><span class="ic">&#128176;</span> Reembolso</div>
       <div class="menu-label">Almoxarifado</div>
       <div class="menu-item" data-view="calibracao"><span class="ic">&#128295;</span> Calibração</div>
+      <div class="menu-item" data-view="radar-campo"><span class="ic">&#128225;</span> Radar de Campo</div>
     </nav>
 
     <div class="sidebar-footer">
@@ -300,6 +301,7 @@
       <iframe id="view-envios" src="dashboard-envios-logisticos.html" title="Envios Logísticos"></iframe>
       <iframe id="view-reembolso" src="dashboard-reembolso.html" title="Reembolso"></iframe>
       <iframe id="view-calibracao" src="calibracao/index.html" title="Calibração"></iframe>
+      <iframe id="view-radar-campo" src="radar-campo/index.html" title="Radar de Campo"></iframe>
     </div>
   </main>
 </div>
@@ -319,7 +321,8 @@
     boletos: { title: "Controle de Boletos", path: "Extreme Wind / Painel Geral / Controle de Boletos" },
     envios: { title: "Envios Logísticos", path: "Extreme Wind / Painel Geral / Envios Logísticos" },
     reembolso: { title: "Reembolso", path: "Extreme Wind / Painel Geral / Reembolso" },
-    calibracao: { title: "Calibração", path: "Extreme Wind / Painel Geral / Almoxarifado / Calibração" }
+    calibracao: { title: "Calibração", path: "Extreme Wind / Painel Geral / Almoxarifado / Calibração" },
+    "radar-campo": { title: "Radar de Campo", path: "Extreme Wind / Painel Geral / Almoxarifado / Radar de Campo" }
   };
 
   function showView(view){
@@ -336,6 +339,7 @@
     document.getElementById("view-envios").classList.toggle("active", view === "envios");
     document.getElementById("view-reembolso").classList.toggle("active", view === "reembolso");
     document.getElementById("view-calibracao").classList.toggle("active", view === "calibracao");
+    document.getElementById("view-radar-campo").classList.toggle("active", view === "radar-campo");
     document.getElementById("topTitle").textContent = TITLES[view].title;
     document.getElementById("topPath").textContent = TITLES[view].path;
   }
