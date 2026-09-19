@@ -499,9 +499,23 @@
      "DD/MM/AAAA" numa chave comparável "AAAAMMDD". Retorna '' se não der. */
   function dataAnaliseParaChave(v){
     const s = String(v == null ? '' : v).trim();
-    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-    if (!m) return '';
-    return m[3] + m[2] + m[1];
+    /* "DD/MM/AAAA" (valor formatado da planilha, caso mais comum) */
+    const br = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (br) return br[3] + br[2] + br[1];
+    /* "AAAA-MM-DD..." -- o gviz as vezes devolve a data crua em ISO quando a
+       celula nao tem formato de data aplicado na planilha. Sem este caso a
+       chave saia vazia e o casamento por data nunca acontecia. */
+    const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return iso[1] + iso[2] + iso[3];
+    /* "Date(2026,8,18)" -- formato bruto do gviz pra celulas de data. */
+    const gv = s.match(/^Date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})/);
+    if (gv){
+      const ano = gv[1];
+      const mes = String(Number(gv[2]) + 1).padStart(2, '0'); // gviz: mes base 0
+      const dia = String(Number(gv[3])).padStart(2, '0');
+      return ano + mes + dia;
+    }
+    return '';
   }
   /* Data_exp do RDO (ISO "YYYY-MM-DD..." ou "DD/MM/AAAA", ver normalizeDateExp
      mais abaixo) já normalizada para "YYYY-MM-DD" -- converte pra "AAAAMMDD"
@@ -510,7 +524,8 @@
     const m = String(dataExpNormalizada || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
     return m ? (m[1] + m[2] + m[3]) : '';
   }
-  /* Busca a linha da aba análise da turbina cuja Data bate com a data do RDO
+  /* Busca a linha da aba análise da turbina cuja data de "RDO recebido"
+     (coluna Q, desde 19/09/2026) bate com a data do RDO
      exibido (dataExpChaveRdo, no formato "AAAAMMDD"). Se houver mais de uma
      linha na mesma data (não deveria, mas por segurança) ou nenhuma bater
      exatamente, cai para a linha de data mais próxima e não-posterior ao RDO
@@ -559,7 +574,12 @@
         const diasRealizadosVal = valCel(c[5]); // F = Dias realizados
         const planejadoVal = valCel(c[11]);   // L = % Planejado
         const avancoVal = valCel(c[12]);      // M = % Realizado
-        const dataChave = dataAnaliseParaChave(dataInicioVal);
+        /* AJUSTE 19/09/2026 (Robson): a data de referencia da linha -- usada pra
+           casar com o RDO exibido e pra ordenar as linhas da mesma turbina --
+           e a coluna Q (indice 16) = "RDO recebido", nao a Data inicio (G).
+           G continua sendo so o valor exibido no campo "Data inicio" do card. */
+        const rdoRecebidoVal = valCel(c[16]); // Q = RDO recebido
+        const dataChave = dataAnaliseParaChave(rdoRecebidoVal);
         (mapa[key] = mapa[key] || []).push({
           dataChave: dataChave,
           dataInicio: dataInicioVal,
