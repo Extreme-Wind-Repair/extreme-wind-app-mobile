@@ -155,7 +155,7 @@
     </div>
   </div>
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-    <div class="badge-week" id="badgeAtualizado">Atualizado 16/09/2026</div>
+    <div class="badge-week" id="badgeAtualizado">Atualizado 19/09/2026</div>
     <button class="toggle-btn" id="navAcao" style="background:var(--nok)">Plano de Ação</button>
   </div>
 </header>
@@ -163,15 +163,15 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">614</div>
+    <div class="n" id="kpiTotal">620</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
-    <div class="n" id="kpiAlmox">614</div>
+    <div class="n" id="kpiAlmox">620</div>
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
-    <div class="n" id="kpiEntregues">535</div>
+    <div class="n" id="kpiEntregues">540</div>
   </div>
   <div class="kpi kpi-fill-red">
     <div class="label">Canceladas 2026 (Almox.)</div>
@@ -184,9 +184,9 @@
   <p class="panel-note">Situações que ainda aguardam ação (Almoxarifado ou Logística)</p>
   <div class="aberto" id="abertoBadges">
     <div class="aberto-badge"><div class="n" id="abEmSeparacao">0</div><div class="l">Em separação</div></div>
-    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">29</div><div class="l">Aguardando coleta</div></div>
+    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">35</div><div class="l">Aguardando coleta</div></div>
     <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">0</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">29</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">35</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -213,7 +213,7 @@
 
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
-    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">29</div><div class="l">Ações Almoxarifado</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">35</div><div class="l">Ações Almoxarifado</div></div>
     <div class="aberto-badge"><div class="n" id="acaoCountLog">0</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">0</div><div class="l">Aguardando Assinatura</div></div>
   </div>
@@ -252,6 +252,12 @@
     <tr><td>LDV MCU 2</td><td>EVAIR</td><td>14/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>LDV MCU 1</td><td>JAMILE</td><td>21/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>LDV MCU 1</td><td>JAMILE</td><td>21/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>BAIXA DO FEIJÃO</td><td>WILDNER</td><td>15/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>GERIPABU - RS</td><td>WILDNER</td><td>18/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>GERIPABU - RS</td><td>WILDNER</td><td>18/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>GERIPABU - RS</td><td>WILDNER</td><td>18/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>SANTO AGOSTINHO</td><td>EVAIR</td><td>18/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>GERIPABU - RS</td><td>WILDNER</td><td>18/09/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     </tbody>
   </table>
   </div>
@@ -283,8 +289,8 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 27];
-  var evolucaoEnt = [96, 76, 103, 72, 58, 73, 33, 22, 2];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 33];
+  var evolucaoEnt = [96, 76, 103, 72, 58, 73, 33, 22, 7];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
     data:{ labels: evolucaoMeses,

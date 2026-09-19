@@ -96,15 +96,15 @@
       <div class="sub">Nossas Demandas — cópia consolidada de todos os itens em aberto/urgentes hoje</div>
     </div>
   </div>
-  <div class="badge-week" id="badgeData">Data: 16/09/2026</div>
+  <div class="badge-week" id="badgeData">Data: 19/09/2026</div>
 </header>
 
 <div class="kpis" id="kpisDemandas">
   <div class="kpi"><div class="label">Equipes</div><div class="n" id="cntEquipes">0</div></div>
-  <div class="kpi"><div class="label">Frota</div><div class="n" id="cntFrota">1</div></div>
-  <div class="kpi"><div class="label">Boletos</div><div class="n" id="cntBoletos">6</div></div>
+  <div class="kpi"><div class="label">Frota</div><div class="n" id="cntFrota">6</div></div>
+  <div class="kpi"><div class="label">Boletos</div><div class="n" id="cntBoletos">3</div></div>
   <div class="kpi"><div class="label">Envios Logísticos</div><div class="n" id="cntEnvios">0</div></div>
-  <div class="kpi total"><div class="label">Total de demandas</div><div class="n" id="cntTotal">7</div></div>
+  <div class="kpi total"><div class="label">Total de demandas</div><div class="n" id="cntTotal">9</div></div>
 </div>
 
 <div class="panel">
@@ -126,14 +126,19 @@
 <div class="panel">
   <div class="panel-head">
     <h2>&#128663; Frota — Manutenção</h2>
-    <span class="count-pill" id="pillFrota">1</span>
+    <span class="count-pill" id="pillFrota">6</span>
   </div>
   <p class="panel-note">Ações com prazo em hoje (ou vencido) e ações marcadas como urgentes.</p>
   <div class="tablewrap">
   <table>
     <thead><tr><th>Ação</th><th>Tipo</th><th>Parque</th><th>Quem?</th><th>Status</th><th>Observação</th></tr></thead>
     <tbody id="bodyFrota">
+    <tr class="row-warn"><td>TYA7G48 - AVARIAS (PARA-CHOQUE DIREITO, PORTA TRASEIRA, TAMPA TRASEIRA COM PRODUTO QUÍMICO NA PINTURA, TRAVA DA CAPOTA MARÍTIMA QUEBRADA)</td><td>ADMINISTRATIVA</td><td>ST.AGOSTINHO/RN</td><td>Sandoval/João</td><td>19/09/2026</td><td>RESOLVER NO RETORNO</td></tr>
     <tr class="row-warn"><td>TXY8H30 - PNEU DIANTEIRO ESQ. E TRASEIRO DIR. ENTRE 3,7-2,7MM (FAIXA AMBÍGUA), ESTEPE ABAIXO DE 2,7MM (CHECKLIST 14/09)</td><td>ADMINISTRATIVA</td><td>BAIXA DO FEIJAO</td><td>Sandoval</td><td>15/09/2026</td><td>CONFIRMAR MEDIÇÃO COM PAQUÍMETRO / AVALIAR TROCA DO ESTEPE</td></tr>
+    <tr class="row-warn"><td>TET3C50 - Freios marcados NÃO CONFORME no checklist; texto livre também relata defeito na trava do freio de mão (não segura a posição) — verificar com condutor e agendar inspeção mecânica (CHECKLIST 14/09)</td><td>CORRETIVA</td><td>OITIS 2</td><td>Sandoval</td><td>18/09/2026</td><td>VERIFICAR COM CONDUTOR E AGENDAR INSPEÇÃO MECÂNICA (FREIOS)</td></tr>
+    <tr class="row-warn"><td>TYA7G48 - 40K de KM RODADOS</td><td>ADMINISTRATIVA</td><td>ST.AGOSTINHO/RN</td><td>João</td><td>19/09/2026</td><td>TROCA CONFIRMADA PARA  DIA 19/09 (TELEFONE DE CONTATO 31 2122.5980)</td></tr>
+    <tr class="row-warn"><td>TYA7G48 - SALDO CONTRATO ESTOURADO</td><td>ADMINISTRATIVA</td><td>ST.AGOSTINHO/RN</td><td>Sandoval/João</td><td>19/09/2026</td><td>ACOMPANHAR A REDUÇAO EM PROJETO</td></tr>
+    <tr class="row-warn"><td>CONSEGUIR OUTRO FORNECEDOR DE CARRO EM DOM INOCENCIO E REGIAO</td><td>ADMINISTRATIVA</td><td>OITIS 1</td><td>Sandoval/João</td><td>19/09/2026</td><td></td></tr>
     </tbody>
   </table>
   </div>
@@ -142,19 +147,16 @@
 <div class="panel">
   <div class="panel-head">
     <h2>&#129534; Controle de Boletos</h2>
-    <span class="count-pill" id="pillBoletos">6</span>
+    <span class="count-pill" id="pillBoletos">3</span>
   </div>
   <p class="panel-note">Multas, contestações e sinistros em aberto (Unidas e Localiza).</p>
   <div class="tablewrap">
   <table>
     <thead><tr><th>Tipo</th><th>Placa</th><th>Locadora</th><th>Parque</th><th>Vencimento</th><th>Motivo</th></tr></thead>
     <tbody id="bodyBoletos">
-    <tr class="row-warn"><td>Multa</td><td>TYD9E76</td><td>LOCALIZA</td><td>INTERMARITIMA/BA</td><td>01/09/2026</td><td>-</td></tr>
-    <tr class="row-warn"><td>Multa</td><td>TXC6E97</td><td>LOCALIZA</td><td>TRAIRI/CE</td><td>03/09/2026</td><td>-</td></tr>
-    <tr class="row-warn"><td>Multa</td><td>TXC6E97</td><td>LOCALIZA</td><td>TRAIRI/CE</td><td>03/09/2026</td><td>-</td></tr>
-    <tr class="row-warn"><td>Multa</td><td>TYD9E80</td><td>LOCALIZA</td><td>DELTA 3/PI</td><td>10/09/2026</td><td>-</td></tr>
-    <tr class="row-warn"><td>Multa</td><td>TYD9E80</td><td>LOCALIZA</td><td>DELTA 3/PI</td><td>10/09/2026</td><td>-</td></tr>
     <tr class="row-warn"><td>Multa</td><td>TET3C50</td><td>UNIDAS</td><td>BAIXA DO FEIJÃO</td><td>13/09/2026</td><td>-</td></tr>
+    <tr class="row-warn"><td>Multa</td><td>TYG1E23</td><td>LOCALIZA</td><td>ST.AGOSTINHO/RN</td><td>24/09/2026</td><td>-</td></tr>
+    <tr class="row-warn"><td>Multa</td><td>TER0D54</td><td>LOCALIZA</td><td>COPEL 1/RN</td><td>25/09/2026</td><td>-</td></tr>
     </tbody>
   </table>
   </div>
