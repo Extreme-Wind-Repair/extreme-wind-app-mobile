@@ -494,8 +494,9 @@
     }
     throw ultimoErro;
   }
-  /* Converte a coluna L ("Data", formato "DD/MM/AAAA" como texto/valor formatado
-     do gviz) numa chave comparável "AAAAMMDD". Retorna '' se não conseguir ler. */
+  /* Converte a data de referência da linha da aba análise (desde 19/09/2026 é a
+     coluna G = "Data início"; antes era a coluna L = "Data") no formato
+     "DD/MM/AAAA" numa chave comparável "AAAAMMDD". Retorna '' se não der. */
   function dataAnaliseParaChave(v){
     const s = String(v == null ? '' : v).trim();
     const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
@@ -537,17 +538,35 @@
         if (!turbina) return;
         const key = normalizeTurbina(turbina);
         if (!key) return;
-        const dataCell = c[11]; // coluna L (índice 11) = "Data"
-        const dataVal = dataCell ? (dataCell.f !== undefined ? dataCell.f : dataCell.v) : null;
-        const dataChave = dataAnaliseParaChave(dataVal);
-        const planejadoCell = c[8]; // coluna I (índice 8) = "% Planejado"
-        const planejadoVal = planejadoCell ? (planejadoCell.f !== undefined ? planejadoCell.f : planejadoCell.v) : null;
-        const avancoCell = c[7]; // coluna H (índice 7) = "% Real"
-        const avancoVal = avancoCell ? (avancoCell.f !== undefined ? avancoCell.f : avancoCell.v) : null;
+        /* REMAPEAMENTO 19/09/2026 (informado pelo Robson): as colunas da aba
+           "analise" mudaram de lugar. Mapa atual:
+             F (5)  = Dias realizados
+             G (6)  = Data inicio   -> tambem passou a ser a data de referencia
+                                       da linha (antes era a coluna L "Data",
+                                       que virou % Planejado)
+             H (7)  = Data fim previsto
+             L (11) = % Planejado   (antes era I)
+             M (12) = % Realizado   (antes era H)
+           Se essas posicoes mudarem de novo, e AQUI que se ajusta -- nao na
+           logica de casamento nem no HTML do card. */
+        function valCel(cel){
+          if (!cel) return null;
+          const v = (cel.f !== undefined && cel.f !== null && cel.f !== '') ? cel.f : cel.v;
+          return (v != null && v !== '') ? String(v) : null;
+        }
+        const dataInicioVal = valCel(c[6]);   // G = Data inicio
+        const dataFimPrevVal = valCel(c[7]);  // H = Data fim previsto
+        const diasRealizadosVal = valCel(c[5]); // F = Dias realizados
+        const planejadoVal = valCel(c[11]);   // L = % Planejado
+        const avancoVal = valCel(c[12]);      // M = % Realizado
+        const dataChave = dataAnaliseParaChave(dataInicioVal);
         (mapa[key] = mapa[key] || []).push({
           dataChave: dataChave,
-          planejado: (planejadoVal != null && planejadoVal !== '') ? String(planejadoVal) : null,
-          avanco: (avancoVal != null && avancoVal !== '') ? String(avancoVal) : null
+          dataInicio: dataInicioVal,
+          dataFimPrev: dataFimPrevVal,
+          diasRealizados: diasRealizadosVal,
+          planejado: planejadoVal,
+          avanco: avancoVal
         });
       });
       // Ordena as linhas de cada turbina por data ascendente, pra buscarAnaliseTurbina()
@@ -827,7 +846,7 @@
       return '<div class="ab-empty ab-not-sent">Não Enviado</div>';
     }
     /* % Avanço e % Planejado (RETORNO 16/09/2026, pedido do Robson): vêm da aba
-       "análise" (coluna H = "% Real", coluna I = "% Planejado"), casando pela
+       "análise" (coluna M = "% Realizado", coluna L = "% Planejado" -- remapeadas em 19/09/2026), casando pela
        TURBINA e pela DATA do RDO exibido (Data_exp) -- não só pela turbina, já
        que uma turbina pode ter mais de uma linha na aba análise ao longo do
        tempo (reparo diferente depois, ou grafia duplicada do nome). Ver
@@ -838,6 +857,12 @@
     const pctStr = pct != null ? pct + '%' : '—';
     const planejadoInt = analiseLinha ? pctGvizParaInteiro(analiseLinha.planejado) : null;
     const planejadoStr = planejadoInt != null ? planejadoInt + '%' : '—';
+    /* Campos vindos da aba analise a partir de 19/09/2026 -- antes eram "—" fixo
+       no HTML (placeholder). Data inicio = G, Data fim previsto = H,
+       Dias realizados = F. Quando a celula vem vazia, mantem o travessao. */
+    const dataInicioStr = (analiseLinha && analiseLinha.dataInicio) ? analiseLinha.dataInicio : '—';
+    const dataFimPrevStr = (analiseLinha && analiseLinha.dataFimPrev) ? analiseLinha.dataFimPrev : '—';
+    const diasRealizadosStr = (analiseLinha && analiseLinha.diasRealizados) ? analiseLinha.diasRealizados : '—';
     // Avanço real: barra verde quando Avanço >= Planejado, vermelha quando
     // Avanço < Planejado (pedido do Robson, 16/09/2026). Sem % Planejado
     // conhecido, não há base de comparação — mantém neutro (teal, como antes).
@@ -854,8 +879,9 @@
       '<div class="ab-row"><span class="ab-label">WTG</span><span class="ab-value">' + escapeHtml(a.Turbina || '—') + '</span></div>' +
       '<div class="ab-row"><span class="ab-label">Blade</span><span class="ab-value">' + escapeHtml(a.Blade || '—') + '</span></div>' +
       '<div class="ab-row"><span class="ab-label">Tipo de reparo</span><span class="ab-value">' + escapeHtml(a.Tipo_reparo || '—') + '</span></div>' +
-      '<div class="ab-row"><span class="ab-label">Data início</span><span class="ab-value">—</span></div>' +
-      '<div class="ab-row"><span class="ab-label">Data prev. fim</span><span class="ab-value">—</span></div>' +
+      '<div class="ab-row"><span class="ab-label">Data início</span><span class="ab-value">' + escapeHtml(dataInicioStr) + '</span></div>' +
+      '<div class="ab-row"><span class="ab-label">Data prev. fim</span><span class="ab-value">' + escapeHtml(dataFimPrevStr) + '</span></div>' +
+      '<div class="ab-row"><span class="ab-label">Dias realizados</span><span class="ab-value">' + escapeHtml(diasRealizadosStr) + '</span></div>' +
       '<div class="ab-progress-wrap">' +
         '<div class="ab-row"><span class="ab-label">% Planejado</span><span class="ab-value">' + escapeHtml(planejadoStr) + '</span></div>' +
         '<div class="ab-progress-bar"><div class="ab-progress-fill ab-progress-planejado" style="width:' + (planejadoInt == null ? 0 : Math.max(0, Math.min(100, planejadoInt))) + '%"></div></div>' +
