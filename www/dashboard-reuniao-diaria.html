@@ -457,7 +457,15 @@
      naquele dia, então o match é feito só por Turbina normalizada (sem
      espaços/traços/underscores) — sem precisar desempatar por Tipo de Reparo. */
   const ANALISE_SHEET_ID = '16Mj1fsk9916qWP7KUxbcE33X985gvcd0ei-ZFcMCdb4';
-  const ANALISE_GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('analise');
+  /* CORRECAO 20/09/2026 (validada com Robson): parametro headers=7 adicionado.
+     A aba "analise" tem 6 linhas de titulo/resumo antes do cabecalho real (linha 7).
+     Sem headers=7 o gviz ADIVINHA quantas linhas sao cabecalho, e adivinha DIFERENTE
+     conforme o contexto: logado como dono devolvia 23 colunas alinhadas, mas no acesso
+     anonimo do app (GitHub Pages) devolvia 18 colunas DESALINHADAS -- c[11] (% Planejado)
+     caia na coluna de data e virava "14%" (primeiro numero de "14/09/2026"), e c[12]
+     (Avanco) caia numa coluna com "-" e virava "--". Com headers=7 o retorno anonimo
+     passa a ter as mesmas 23 colunas alinhadas. NAO REMOVER este parametro. */
+  const ANALISE_GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=7&sheet=' + encodeURIComponent('analise');
   /* % PLANEJADO e % AVANÇO (RETORNO 16/09/2026, pedido do Robson): em vez de um
      mapa simples "turbina -> valor único", guardamos TODAS as linhas da aba
      análise por turbina normalizada, cada uma com sua Data (coluna L). Isso é
