@@ -95,21 +95,28 @@
   }
   .tech-list{list-style:none; margin:0; padding:0; font-size:12.5px;}
   .tech-header, .tech-row{
-    display:grid; grid-template-columns:40px 1fr 72px 50px; gap:6px; align-items:start;
+    display:grid; grid-template-columns:34px 1fr 108px 1fr; gap:8px; align-items:start;
   }
   .tech-header{
     font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
     padding-bottom:4px; border-bottom:1px solid var(--line);
   }
-  .tech-list li{padding:4px 0; border-top:1px solid var(--line);}
+  .tech-list li{padding:5px 0; border-top:1px solid var(--line);}
   .tech-list li:first-child{border-top:none;}
   .tech-list [contenteditable="true"]{border-radius:3px; padding:0 3px; cursor:text;}
   .tech-list [contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   .tech-list [contenteditable="true"]:focus{outline:none; background:rgba(28,140,232,.16);}
-  .tech-mat, .tech-data, .tech-dias{text-align:center; white-space:nowrap;}
-  .tech-parques{grid-column:1 / -1; font-size:11px; color:var(--brand); margin-top:2px;}
-  .tech-parques-empty{color:var(--muted); font-style:italic;}
+  .tech-mat{text-align:center; white-space:nowrap;}
+  .tech-nome-block{display:flex; flex-direction:column; gap:2px;}
   .tech-nome{font-size:12px; line-height:1.25; word-break:break-word;}
+  .tech-inicio-line{font-size:10.5px; color:var(--muted); white-space:nowrap;}
+  .tech-inicio-line .tech-data{color:var(--muted);}
+  .tech-inicio-line.tech-inicio-aguardando{color:var(--warn); font-style:italic;}
+  .tech-cert{font-size:11px; color:var(--text); line-height:1.35;}
+  .tech-cert-empty{color:var(--muted); font-style:italic;}
+  .tech-parques-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
+  .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:10.5px; color:var(--brand); white-space:nowrap; line-height:1.5;}
+  .tech-parques-empty{color:var(--muted); font-style:italic; font-size:11px;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:10px; padding:16px 18px;}
   .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
   .kpi .n{font-size:26px; font-weight:700; margin-top:4px;}
@@ -388,7 +395,7 @@
   <div class="kpis" id="kpisBox">
     <div class="kpi tech-box tech-box-full">
       <div class="label">Técnicos em Banco de Horas (Casa)</div>
-      <div class="tech-header"><span>Mat.</span><span>Nome</span><span>Início</span><span>Dias</span></div>
+      <div class="tech-header"><span>Mat.</span><span>Nome / Início</span><span>Certificações</span><span>Parques Aprovados</span></div>
       <ul class="tech-list" id="tecnicosList"></ul>
     </div>
   </div>
@@ -447,11 +454,18 @@
 
   let DATA = { parques:[], equipe:[], aprovados:[], notas:[], tecnicos:[], relatorios:[], atividades:[], classificacao:[] };
   /* ============ Banco de Horas (BDH) -- fonte oficial ============
-     Definido por Robson em 20/09/2026: quem aparece nesta lista, e os parques/
-     cursos aprovados de cada um, vem da planilha "VAGAS MESTRE.xlsx" (aba
-     BANCO DE DADOS, coluna "RESUMO GESTAO A VISTA" = "BDH"), cruzada com
-     "controle_efetivo_independente.html" (chave bdh_list, filtrando
-     situacao=="Aprovado") para os parques/cursos aprovados de cada matricula.
+     Definido por Robson em 20/09/2026 (revisado em 21/09/2026 -- a fonte de
+     certificacoes mudou de "RESUMO IGOR" para as colunas reais de certificacao):
+     quem aparece nesta lista vem da planilha "VAGAS MESTRE.xlsx" (aba BANCO DE
+     DADOS, coluna "RESUMO GESTAO A VISTA" = "BDH"). Certificacoes vem das
+     colunas reais de certificacao da mesma aba (colunas 23-34: BST, BTT, BRT,
+     ART, BTT-E, LIFT USER, LOTO GE Teorico, LOTO Autorizado GE -- valor 1 =
+     possui). Parques aprovados vem das colunas de "CONTROLE PARQUES E SISTEMA"
+     (colunas 42-54, ex: "GE - OITIS", "SIE - SAO VITOR - BA", "NX - SAO
+     FERNANDO" -- valor = data de aprovacao preenchida). NAO usar mais a coluna
+     "RESUMO IGOR" (e so um resumo manual informal, nao e fonte confiavel) nem
+     o controle_efetivo_independente.html para este dado -- ir direto na aba
+     BANCO DE DADOS, que e a fonte primaria (pedido explicito do Robson).
      Isso é dado ESTATICO, atualizado manualmente aqui sempre que a composição
      do BDH mudar (mesmo padrão usado no outro dashboard de Reunião Diária,
      ver "Reunião diária/reuniao-diaria-dashboard.html" no Dropbox) -- a
@@ -463,11 +477,21 @@
      antiga simplesmente para de ser exibida, não é apagada da planilha).
      Última atualização: 20/09/2026. */
   const BDH_VAGAS_MESTRE = {
-    '29':  { nome: 'JONATO DIAS FEITOZA',              parques: ['COPEL'] },
-    '30':  { nome: 'FELIPE DE LIMA SERPA',              parques: [] },
-    '98':  { nome: 'TAYLAN DE OLIVEIRA CAMPOS',         parques: ['OITIS', 'SÃO VITOR - BA'] },
-    '292': { nome: 'FRANCISCO ELINALDO SILVA QUINTO',   parques: [] },
-    '364': { nome: 'APARECIDO PINTO LAUREANO',          parques: ['SÃO FERNANDO'] }
+    '29':  { nome: 'JONATO DIAS FEITOZA',
+             certificacoes: ['BST', 'ART', 'BTT-E'],
+             parques: [{ parque: 'Copel', cliente: 'GE' }] },
+    '30':  { nome: 'FELIPE DE LIMA SERPA',
+             certificacoes: ['BST', 'ART', 'BTT-E', 'LOTO Autorizado GE'],
+             parques: [] },
+    '98':  { nome: 'TAYLAN DE OLIVEIRA CAMPOS',
+             certificacoes: ['BST', 'ART'],
+             parques: [{ parque: 'Oitis', cliente: 'GE' }, { parque: 'São Vitor - BA', cliente: 'SIE' }] },
+    '292': { nome: 'FRANCISCO ELINALDO SILVA QUINTO',
+             certificacoes: ['BST', 'ART'],
+             parques: [] },
+    '364': { nome: 'APARECIDO PINTO LAUREANO',
+             certificacoes: ['BST', 'ART'],
+             parques: [{ parque: 'São Fernando', cliente: 'NX' }] }
   };
   let PARK_SEQ = 0;
   /* % PLANEJADO 15/09/2026 (pedido do Robson): a aba "análise" da planilha
@@ -1743,16 +1767,50 @@
         DATA.tecnicos.push(t);
         spawnTecnicoBdhRow(t);
       }
-      const parques = oficial.parques;
+
+      // Bloco Nome + Início/Dias juntos (pedido do Robson em 21/09/2026: a
+      // data e os dias acumulados ficam colados no nome, à esquerda, em vez
+      // de colunas separadas). Sem DataInicio, mostra o aviso combinado
+      // "Aguardando data de Início" (editável -- clicar e digitar a data já
+      // salva na planilha, mesmo campo/fluxo de antes).
+      let inicioHtml;
+      if (t.DataInicio){
+        inicioHtml = '<span class="tech-inicio-line">' +
+          '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>' +
+          ' · ' + diasContador(t.DataInicio) +
+        '</span>';
+      } else {
+        inicioHtml = '<span class="tech-inicio-line tech-inicio-aguardando">' +
+          '<span class="tech-data" contenteditable="true" data-field="DataInicio">Aguardando data de Início</span>' +
+        '</span>';
+      }
+
+      // Certificações: vem direto da aba BANCO DE DADOS da VAGAS MESTRE
+      // (colunas BST/BTT/BRT/ART/BTT-E/LIFT USER/LOTO GE.../LOTO Autorizado
+      // GE, valor 1 = possui -- ver BDH_VAGAS_MESTRE acima). NÃO usar mais a
+      // coluna "RESUMO IGOR" (resumo manual informal, não confiável).
+      const certs = oficial.certificacoes || [];
+      const certHtml = certs.length === 0
+        ? '<span class="tech-cert tech-cert-empty">sem certificação registrada</span>'
+        : '<span class="tech-cert">' + escapeHtml(certs.join(', ')) + '</span>';
+
+      // Parques Aprovados: badges em retângulo, formato "SIGLA · Parque"
+      // (GE, SIE, NX -- sigla do cliente definida pelo Robson em 21/09/2026).
+      const parques = oficial.parques || [];
       const parquesHtml = parques.length === 0
-        ? '<span class="tech-parques tech-parques-empty">sem parque aprovado</span>'
-        : '<span class="tech-parques">aprovado: ' + escapeHtml(parques.join(', ')) + '</span>';
+        ? '<span class="tech-parques-empty">sem parque aprovado</span>'
+        : '<span class="tech-parques-badges">' + parques.map(function(p){
+            return '<span class="badge-parque">' + escapeHtml(p.cliente) + ' · ' + escapeHtml(p.parque) + '</span>';
+          }).join('') + '</span>';
+
       const li = el(
         '<li data-row="' + (t._row == null ? '' : t._row) + '" data-mat="' + escapeHtml(mat) + '" class="tech-row">' +
           '<span class="tech-mat">' + escapeHtml(mat) + '</span>' +
-          '<span class="tech-nome">' + escapeHtml(oficial.nome) + '</span>' +
-          '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>' +
-          '<span class="tech-dias" title="Calculado automaticamente a partir da Data Início">' + diasContador(t.DataInicio) + '</span>' +
+          '<span class="tech-nome-block">' +
+            '<span class="tech-nome">' + escapeHtml(oficial.nome) + '</span>' +
+            inicioHtml +
+          '</span>' +
+          certHtml +
           parquesHtml +
         '</li>'
       );
@@ -1762,6 +1820,14 @@
       // editável e salva na planilha; "Dias" continua calculado ao vivo.
       if (t._row != null){
         li.querySelectorAll('[data-field]').forEach(function(f){ wireFieldSave(f, 'RD_TecnicosIndeterminados', false); });
+      }
+      // Placeholder "Aguardando data de Início" some ao focar, igual ao
+      // comportamento dos outros campos editáveis vazios do dashboard.
+      const dataField = li.querySelector('[data-field="DataInicio"]');
+      if (dataField && !t.DataInicio){
+        dataField.addEventListener('focus', function(){
+          if (dataField.textContent === 'Aguardando data de Início') dataField.textContent = '';
+        });
       }
     });
   }
