@@ -112,8 +112,9 @@
   .tech-inicio-line{font-size:10.5px; color:var(--muted); white-space:nowrap;}
   .tech-inicio-line .tech-data{color:var(--muted);}
   .tech-inicio-line.tech-inicio-aguardando{color:var(--warn); font-style:italic;}
-  .tech-cert{font-size:11px; color:var(--text); line-height:1.35;}
-  .tech-cert-empty{color:var(--muted); font-style:italic;}
+  .tech-cert-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
+  .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:10.5px; color:var(--ok); white-space:nowrap; line-height:1.5;}
+  .tech-cert-empty{color:var(--muted); font-style:italic; font-size:11px;}
   .tech-parques-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
   .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:10.5px; color:var(--brand); white-space:nowrap; line-height:1.5;}
   .tech-parques-empty{color:var(--muted); font-style:italic; font-size:11px;}
@@ -1791,8 +1792,10 @@
       // coluna "RESUMO IGOR" (resumo manual informal, não confiável).
       const certs = oficial.certificacoes || [];
       const certHtml = certs.length === 0
-        ? '<span class="tech-cert tech-cert-empty">sem certificação registrada</span>'
-        : '<span class="tech-cert">' + escapeHtml(certs.join(', ')) + '</span>';
+        ? '<span class="tech-cert-empty">sem certificação registrada</span>'
+        : '<span class="tech-cert-badges">' + certs.map(function(cert){
+            return '<span class="badge-cert">' + escapeHtml(cert) + '</span>';
+          }).join('') + '</span>';
 
       // Parques Aprovados: badges em retângulo, formato "SIGLA · Parque"
       // (GE, SIE, NX -- sigla do cliente definida pelo Robson em 21/09/2026).
