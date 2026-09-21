@@ -107,6 +107,8 @@
   .tech-list [contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   .tech-list [contenteditable="true"]:focus{outline:none; background:rgba(28,140,232,.16);}
   .tech-mat, .tech-data, .tech-dias{text-align:center; white-space:nowrap;}
+  .tech-parques{grid-column:1 / -1; font-size:11px; color:var(--brand); margin-top:2px;}
+  .tech-parques-empty{color:var(--muted); font-style:italic;}
   .tech-nome{font-size:12px; line-height:1.25; word-break:break-word;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:10px; padding:16px 18px;}
   .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
@@ -444,6 +446,29 @@
   const BLOCK_LABELS = {b1:'Parques Ativos', b2:'Mobilização', b3:'Aprovação de Documentações'};
 
   let DATA = { parques:[], equipe:[], aprovados:[], notas:[], tecnicos:[], relatorios:[], atividades:[], classificacao:[] };
+  /* ============ Banco de Horas (BDH) -- fonte oficial ============
+     Definido por Robson em 20/09/2026: quem aparece nesta lista, e os parques/
+     cursos aprovados de cada um, vem da planilha "VAGAS MESTRE.xlsx" (aba
+     BANCO DE DADOS, coluna "RESUMO GESTAO A VISTA" = "BDH"), cruzada com
+     "controle_efetivo_independente.html" (chave bdh_list, filtrando
+     situacao=="Aprovado") para os parques/cursos aprovados de cada matricula.
+     Isso é dado ESTATICO, atualizado manualmente aqui sempre que a composição
+     do BDH mudar (mesmo padrão usado no outro dashboard de Reunião Diária,
+     ver "Reunião diária/reuniao-diaria-dashboard.html" no Dropbox) -- a
+     planilha não é lida ao vivo por este arquivo. "Início"/"Dias" continuam
+     vindos do Google Sheets (aba RD_TecnicosIndeterminados), cruzados por
+     MATRICULA. Regra importante: só entra na lista quem a VAGAS MESTRE marca
+     como BDH HOJE -- se alguém sair do BDH lá, sai daqui também no proximo
+     ciclo, mesmo que ainda reste uma linha antiga na aba do Sheets (a linha
+     antiga simplesmente para de ser exibida, não é apagada da planilha).
+     Última atualização: 20/09/2026. */
+  const BDH_VAGAS_MESTRE = {
+    '29':  { nome: 'JONATO DIAS FEITOZA',              parques: ['COPEL'] },
+    '30':  { nome: 'FELIPE DE LIMA SERPA',              parques: [] },
+    '98':  { nome: 'TAYLAN DE OLIVEIRA CAMPOS',         parques: ['OITIS', 'SÃO VITOR - BA'] },
+    '292': { nome: 'FRANCISCO ELINALDO SILVA QUINTO',   parques: [] },
+    '364': { nome: 'APARECIDO PINTO LAUREANO',          parques: ['SÃO FERNANDO'] }
+  };
   let PARK_SEQ = 0;
   /* % PLANEJADO 15/09/2026 (pedido do Robson): a aba "análise" da planilha
      "banco de dados RDO" já calcula, por Turbina, o "% Planejado" (coluna I
@@ -1699,20 +1724,64 @@
   function renderTecnicos(){
     const ul = document.getElementById('tecnicosList');
     ul.innerHTML = '';
-    DATA.tecnicos.sort(function(a,b){ return a.Ordem-b.Ordem; }).forEach(function(t){
+    const porMatricula = {};
+    (DATA.tecnicos || []).forEach(function(t){
+      const mat = String(t.Matricula == null ? '' : t.Matricula).trim();
+      if (mat) porMatricula[mat] = t;
+    });
+    // Fonte da lista e da ordem: BDH_VAGAS_MESTRE (ver comentário acima),
+    // não mais DATA.tecnicos direto -- isso garante que quem sai do BDH na
+    // VAGAS MESTRE também sai daqui, mesmo com linha residual no Sheets.
+    Object.keys(BDH_VAGAS_MESTRE).forEach(function(mat){
+      const oficial = BDH_VAGAS_MESTRE[mat];
+      let t = porMatricula[mat];
+      if (!t){
+        // Novo no BDH: ainda não tem linha na aba RD_TecnicosIndeterminados.
+        // Cria a linha agora (DataInicio em branco -- editável na hora) pra
+        // edição inline funcionar normalmente daqui pra frente.
+        t = { Ordem: 999, Matricula: mat, Nome: oficial.nome, DataInicio: '', _row: null, _pendingCreate: true };
+        DATA.tecnicos.push(t);
+        spawnTecnicoBdhRow(t);
+      }
+      const parques = oficial.parques;
+      const parquesHtml = parques.length === 0
+        ? '<span class="tech-parques tech-parques-empty">sem parque aprovado</span>'
+        : '<span class="tech-parques">aprovado: ' + escapeHtml(parques.join(', ')) + '</span>';
       const li = el(
-        '<li data-row="' + t._row + '" class="tech-row">' +
-          '<span class="tech-mat" contenteditable="true" data-field="Matricula">' + escapeHtml(t.Matricula) + '</span>' +
-          '<span class="tech-nome" contenteditable="true" data-field="Nome">' + escapeHtml(t.Nome) + '</span>' +
+        '<li data-row="' + (t._row == null ? '' : t._row) + '" data-mat="' + escapeHtml(mat) + '" class="tech-row">' +
+          '<span class="tech-mat">' + escapeHtml(mat) + '</span>' +
+          '<span class="tech-nome">' + escapeHtml(oficial.nome) + '</span>' +
           '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>' +
           '<span class="tech-dias" title="Calculado automaticamente a partir da Data Início">' + diasContador(t.DataInicio) + '</span>' +
+          parquesHtml +
         '</li>'
       );
       ul.appendChild(li);
-      // Só Matrícula/Nome/DataInicio são editáveis e salvam na planilha —
-      // "Dias" agora é sempre calculado ao vivo, não é mais um campo salvo.
-      li.querySelectorAll('[data-field]').forEach(function(f){ wireFieldSave(f, 'RD_TecnicosIndeterminados', false); });
+      // Nome e matrícula agora vêm sempre da VAGAS MESTRE (não editáveis aqui
+      // -- editar exigiria mudar a planilha fonte). Só "Início" continua
+      // editável e salva na planilha; "Dias" continua calculado ao vivo.
+      if (t._row != null){
+        li.querySelectorAll('[data-field]').forEach(function(f){ wireFieldSave(f, 'RD_TecnicosIndeterminados', false); });
+      }
     });
+  }
+
+  /* Cria a linha nova em RD_TecnicosIndeterminados para um técnico que a
+     VAGAS MESTRE já mostra em BDH mas que ainda não tinha linha na aba.
+     Mesmo padrão usado em spawnNextPark/spawnTecnicoRow. */
+  async function spawnTecnicoBdhRow(t){
+    const resp = await apiPost({ action:'addRow', sheet:'RD_TecnicosIndeterminados', template:{
+      Ordem: t.Ordem, Matricula: t.Matricula, Nome: t.Nome, DataInicio: ''
+    }});
+    t._row = resp && resp.result ? resp.result.newRow : null;
+    delete t._pendingCreate;
+    if (t._row != null){
+      const li = document.querySelector('#tecnicosList li[data-mat="' + t.Matricula + '"]');
+      if (li){
+        li.setAttribute('data-row', t._row);
+        li.querySelectorAll('[data-field]').forEach(function(f){ wireFieldSave(f, 'RD_TecnicosIndeterminados', false); });
+      }
+    }
   }
 
   /* ============ KPIs e render geral ============ */
