@@ -501,27 +501,28 @@
   const RADAR_CAMPO_PERIODO = '10/09/2026 a 15/09/2026';
   const RADAR_CAMPO_NC = {
     'JOHN LENON VIEIRA ALVES': [
-      { equipamento: 'Extintor', nota: 'Extintor despressurizado (nota do técnico pouco clara: "Beg na operação melou de catalisador").', checklist: 'Ferramentas', data: '14/09/2026' }
+      { equipamento: 'Extintor', nota: 'Extintor despressurizado (nota do técnico pouco clara: "Beg na operação melou de catalisador").', checklist: 'Ferramentas', data: '14/09/2026', parque: 'OITIS Dom inocencio' }
     ],
     'WILLAMES LEANDRO SILVA DA HORA': [
-      { equipamento: 'Extintor', nota: 'Extintor danificado.', checklist: 'Ferramentas', data: '14/09/2026' }
+      { equipamento: 'Extintor', nota: 'Extintor danificado.', checklist: 'Ferramentas', data: '14/09/2026', parque: 'BDF João câmara RN' }
     ],
     'PEDRO LUCAS': [
-      { equipamento: 'Rádio Comunicador', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '14/09/2026' }
+      { equipamento: 'Rádio Comunicador', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '14/09/2026', parque: 'Oitis' }
     ],
     'HELIO FREITAS': [
-      { equipamento: 'Descensor', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '13/09/2026' }
+      { equipamento: 'Descensor', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '13/09/2026', parque: 'Lajes' }
     ],
     'DIEGO SILVA': [
-      { equipamento: 'Cinto de Segurança', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026' },
-      { equipamento: 'Ascensor de Peito-Croll', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026' },
-      { equipamento: 'Lanterna para Capacete', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026' }
+      { equipamento: 'Cinto de Segurança', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' },
+      { equipamento: 'Ascensor de Peito-Croll', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' },
+      { equipamento: 'Lanterna para Capacete', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' }
     ],
     'ANTONIO ERIVANDO AGOSTINHO DA SILVA': [
-      { equipamento: 'Kit Resgate', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026' },
-      { equipamento: 'Maca Envelope', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026' }
+      { equipamento: 'Kit Resgate', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026', parque: 'Oitis2' },
+      { equipamento: 'Maca Envelope', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026', parque: 'Oitis2' }
     ]
   };
+
   function normNomeTecnico(s){
     return String(s == null ? '' : s)
       .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -556,7 +557,16 @@
      depois de confirmar que e a mesma pessoa -- ver comentario acima. */
   var TECNICO_APELIDOS = {
   };
-  function radarCampoDe(nomeCelula){
+  /* TIER 2 (adicionado 21/09/2026, pedido do Robson): quando o tier 1 (2+
+     palavras em comum) nao acha nada, tenta casar so pelo PRIMEIRO NOME +
+     o PARQUE do card bater com o campo "parque" da sinalizacao (via
+     parkMatchesReport/PARK_NAME_ALIAS_GROUPS, definidos mais abaixo --
+     reaproveita o mesmo mecanismo do casamento de RDO). Caso real que
+     originou a regra: "Diego Silva" (Radar) = "Diego Barbosa" (equipe do
+     card Tucano/BA) -- sobrenomes diferentes (apelido/erro de cadastro),
+     mas primeiro nome + parque batem. So usa esse criterio mais fraco como
+     ultimo recurso, depois que o tier 1 (mais forte) ja foi tentado. */
+  function radarCampoDe(nomeCelula, nomeParque){
     const norm = normNomeTecnico(nomeCelula);
     if (!norm) return null;
     if (TECNICO_APELIDOS[norm] && RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]]) return RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]];
@@ -572,10 +582,21 @@
       for (let j = 0; j < wordsK.length; j++){ if (setCel[wordsK[j]]) overlap++; }
       if (overlap >= 2) return RADAR_CAMPO_NC[k];
     }
+    if (nomeParque){
+      const primeiroNomeCel = wordsCel[0];
+      for (let i = 0; i < keys.length; i++){
+        const k = keys[i];
+        const wordsK = nomeWords(k);
+        if (!wordsK.length || wordsK[0] !== primeiroNomeCel) continue;
+        const itens = RADAR_CAMPO_NC[k];
+        const parqueBate = itens.some(function(it){ return it.parque && parkMatchesReport(nomeParque, it.parque); });
+        if (parqueBate) return itens;
+      }
+    }
     return null;
   }
-  function radarCampoTdHtml(nomeCelula){
-    const itens = radarCampoDe(nomeCelula);
+  function radarCampoTdHtml(nomeCelula, nomeParque){
+    const itens = radarCampoDe(nomeCelula, nomeParque);
     if (!itens || !itens.length) return '<td class="radar-td radar-empty">—</td>';
     const badges = itens.map(function(it){
       return '<div class="radar-item" title="' + escapeHtml(it.nota) + '">' +
@@ -938,12 +959,12 @@
     return '';
   }
 
-  function equipeRowHtml(row, colCount){
+  function equipeRowHtml(row, colCount, nomeParque){
     let tds = '';
     for (let i = 1; i <= colCount; i++){
       tds += '<td contenteditable="true" data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
-    tds += radarCampoTdHtml(row.Val1);
+    tds += radarCampoTdHtml(row.Val1, nomeParque);
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
   }
 
@@ -959,7 +980,7 @@
     const colCount = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',').length;
     const tbody = node.querySelector('[data-equipe-body]');
     const equipeRows = DATA.equipe.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
-    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount))); });
+    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque))); });
 
     const apBody = node.querySelector('[data-aprovados-body]');
     const apRows = DATA.aprovados.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
@@ -995,7 +1016,11 @@
      Nomes sao normalizados com normalizeParkName antes de comparar aqui,
      entao nao precisa se preocupar com acento/maiusculas/sufixo "/UF". */
   var PARK_NAME_ALIAS_GROUPS = [
-    ['oitis 1', 'oitis mcu 1']
+    ['oitis 1', 'oitis mcu 1'],
+    /* Radar de Campo usa "Lajes" como apelido de campo pro card "Santo
+       Agostinho/RN" (definido por Robson em 21/09/2026, usado pelo
+       casamento tecnico<->radar via parque -- ver radarCampoDe). */
+    ['santo agostinho', 'lajes']
   ];
   function parkAliasGroup(nome){
     for (var i = 0; i < PARK_NAME_ALIAS_GROUPS.length; i++){
