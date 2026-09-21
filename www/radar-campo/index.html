@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Checklist de Campo</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -306,15 +306,22 @@ section.card{
   display:flex;gap:10px;padding:16px 22px;border-bottom:1px solid var(--border);
   flex-wrap:wrap;align-items:center;
 }
+.hide-resolved-toggle{
+  display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-muted);
+  margin-left:auto;cursor:pointer;user-select:none;
+}
+.hide-resolved-toggle input{width:14px;height:14px;accent-color:var(--success);cursor:pointer;}
 .equip-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;
   padding:20px 22px;
 }
 .equip-card{
   border:1px solid var(--border);border-radius:13px;padding:16px 17px;background:var(--surface);
-  display:flex;flex-direction:column;gap:11px;transition:box-shadow .15s ease, transform .15s ease;
+  display:flex;flex-direction:column;gap:11px;transition:box-shadow .15s ease, transform .15s ease, opacity .15s ease;
 }
 .equip-card:hover{box-shadow:var(--shadow-lift);transform:translateY(-2px);}
+.equip-card.is-resolved{background:var(--success-soft);border-color:var(--success);opacity:.72;}
+.equip-card.is-resolved:hover{transform:none;}
 .equip-head{display:flex;align-items:flex-start;gap:8px;justify-content:space-between;}
 .equip-head-left{display:flex;flex-direction:column;gap:8px;min-width:0;}
 .nc-score{
@@ -322,6 +329,44 @@ section.card{
   padding:4px 9px;border-radius:999px;background:var(--warning-soft);color:var(--warning);white-space:nowrap;
 }
 .nc-score.nc-score-obs{background:var(--surface-2);color:var(--text-muted);font-weight:500;}
+.nc-score.nc-score-resolved{background:var(--success-soft);color:var(--success);}
+.resolved-toggle{
+  flex:none;display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-muted);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+.resolved-toggle input{width:14px;height:14px;accent-color:var(--success);cursor:pointer;}
+.resolved-toggle .lock-icon{width:11px;height:11px;flex:none;color:var(--text-muted);}
+.resolved-toggle .lock-icon svg{display:block;width:100%;height:100%;}
+.is-resolved .equip-park,
+.is-resolved .equip-note,
+.is-resolved .equip-finding{color:var(--text-muted);}
+.is-resolved .tec-name{text-decoration:line-through;text-decoration-color:var(--success);}
+
+/* ---------- Password gate (almoxarifado) ---------- */
+.pw-modal-overlay{
+  position:fixed;inset:0;background:rgba(10,20,30,.5);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.pw-modal-overlay.open{display:flex;}
+.pw-modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow-lift);padding:22px 24px;width:100%;max-width:320px;
+}
+.pw-modal-title{font-family:"Big Shoulders Display",sans-serif;font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px;}
+.pw-modal-desc{font-size:12.5px;color:var(--text-muted);margin-bottom:14px;line-height:1.4;}
+.pw-modal-input{
+  width:100%;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;box-sizing:border-box;
+}
+.pw-modal-input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.pw-modal-error{font-size:12px;color:var(--danger);min-height:16px;margin-top:6px;}
+.pw-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
+.pw-modal-btn{
+  border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+.pw-modal-cancel{background:var(--surface-2);color:var(--text-muted);}
+.pw-modal-confirm{background:var(--accent);color:#fff;}
 .equip-park{font-size:11.5px;color:var(--text-muted);}
 .equip-pills{display:flex;flex-wrap:wrap;gap:5px;}
 .pill{
@@ -418,11 +463,15 @@ footer{text-align:center;color:var(--text-muted);font-size:12px;padding:30px 0 1
     <div class="card-head">
       <h2>Equipamentos sinalizados</h2>
       <span class="count" id="atencao-count"></span>
-      <div class="desc">Um card por submissão com risco de segurança. A avaliação é do supervisor, que decide se aciona o almoxarifado, solicita a troca do equipamento ou define outra tratativa.</div>
+      <div class="desc">Um card por submissão com risco de segurança. A avaliação é do supervisor, que decide se aciona o almoxarifado, solicita a troca do equipamento ou define outra tratativa. A marcação "solucionado" pede a senha do almoxarifado e vale só para esta visualização — não fica salva ao recarregar a página.</div>
     </div>
     <div class="equip-toolbar">
       <div class="seg" id="cl-filter"></div>
       <input class="search" id="tec-search" type="search" placeholder="Buscar técnico…">
+      <label class="hide-resolved-toggle">
+        <input type="checkbox" id="hide-resolved">
+        <span>Ocultar solucionados</span>
+      </label>
     </div>
     <div class="equip-grid" id="equip-grid"></div>
   </section>
@@ -433,6 +482,19 @@ footer{text-align:center;color:var(--text-muted);font-size:12px;padding:30px 0 1
   </details>
 
   <footer>Painel gerado a partir do relatório de avaliação semanal de checklists &middot; foco em alertas e pontos de atenção</footer>
+</div>
+
+<div class="pw-modal-overlay" id="pw-modal-overlay">
+  <div class="pw-modal">
+    <div class="pw-modal-title">Acesso do almoxarifado</div>
+    <div class="pw-modal-desc">Digite a senha do setor para marcar ou desmarcar um item como solucionado.</div>
+    <input type="password" class="pw-modal-input" id="pw-modal-input" placeholder="Senha" autocomplete="off">
+    <div class="pw-modal-error" id="pw-modal-error"></div>
+    <div class="pw-modal-actions">
+      <button type="button" class="pw-modal-btn pw-modal-cancel" id="pw-modal-cancel">Cancelar</button>
+      <button type="button" class="pw-modal-btn pw-modal-confirm" id="pw-modal-confirm">Confirmar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -446,6 +508,7 @@ const ICONS = {
   bulb: '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2a5.5 5.5 0 00-3 10.1c.5.35.8.9.8 1.5V14h4.4v-.4c0-.6.3-1.15.8-1.5A5.5 5.5 0 0010 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.2 17h3.6M8.7 15h2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   people: '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><circle cx="7.2" cy="7" r="2.6" stroke="currentColor" stroke-width="1.5"/><path d="M2.4 16.4a4.8 4.8 0 019.6 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12.6 5a2.6 2.6 0 010 5.05M14.2 11.6a4.4 4.4 0 013 4.15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   inbox: '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M2.5 11.5h4.2l1.1 2h4.4l1.1-2h4.2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 6l-1.5 5.5v5A1.5 1.5 0 004 18h12a1.5 1.5 0 001.5-1.5v-5L16 6a1.5 1.5 0 00-1.4-1H5.4A1.5 1.5 0 004 6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  lock: '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="4.5" y="9" width="11" height="8" rx="1.6" stroke="currentColor" stroke-width="1.5"/><path d="M6.8 9V6.6a3.2 3.2 0 016.4 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="13" r="1.1" fill="currentColor"/></svg>',
 };
 
 const CL_META = {
@@ -627,10 +690,58 @@ const legend = document.getElementById("legend");
   legend.appendChild(item);
 });
 
+/* ---------- Senha do almoxarifado (barreira simples, não é segurança real) ---------- */
+const ALMOX_PASSWORD = "almoxarifado2026";
+let almoxUnlocked = false;
+let pwPendingResolve = null;
+const pwOverlay = document.getElementById("pw-modal-overlay");
+const pwInput = document.getElementById("pw-modal-input");
+const pwError = document.getElementById("pw-modal-error");
+const pwCancelBtn = document.getElementById("pw-modal-cancel");
+const pwConfirmBtn = document.getElementById("pw-modal-confirm");
+
+function openPasswordModal(){
+  return new Promise(resolve=>{
+    pwPendingResolve = resolve;
+    pwInput.value = "";
+    pwError.textContent = "";
+    pwOverlay.classList.add("open");
+    setTimeout(()=> pwInput.focus(), 0);
+  });
+}
+function closePasswordModal(result){
+  pwOverlay.classList.remove("open");
+  if(pwPendingResolve){ const r = pwPendingResolve; pwPendingResolve = null; r(result); }
+}
+function tryPassword(){
+  if(pwInput.value === ALMOX_PASSWORD){
+    almoxUnlocked = true;
+    closePasswordModal(true);
+  } else {
+    pwError.textContent = "Senha incorreta.";
+    pwInput.value = "";
+    pwInput.focus();
+  }
+}
+pwCancelBtn.addEventListener("click", ()=> closePasswordModal(false));
+pwConfirmBtn.addEventListener("click", tryPassword);
+pwInput.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){ e.preventDefault(); tryPassword(); }
+  if(e.key === "Escape"){ e.preventDefault(); closePasswordModal(false); }
+});
+pwOverlay.addEventListener("click", e=>{ if(e.target === pwOverlay) closePasswordModal(false); });
+
 /* ---------- Equipamentos sinalizados ---------- */
 const checklistNames = ["Ferramentas","Cordas","Equipamentos Individuais"];
 let clFilter = "todos";
 let searchVal = "";
+let hideResolved = false;
+const resolvedSet = new Set(); // marcação temporária, só nesta sessão do navegador (não é salva)
+
+document.getElementById("hide-resolved").addEventListener("change", e=>{
+  hideResolved = e.target.checked;
+  renderAtencao();
+});
 
 const clFilterEl = document.getElementById("cl-filter");
 function buildClFilter(){
@@ -665,32 +776,58 @@ document.getElementById("tec-search").addEventListener("input", e=>{
 function renderAtencao(){
   const grid = document.getElementById("equip-grid");
   grid.innerHTML = "";
-  const rows = DATA.atencao.filter(r=>{
-    if(clFilter !== "todos" && r.checklist !== clFilter) return false;
-    if(searchVal && !r.tecnico.toLowerCase().includes(searchVal)) return false;
-    return true;
-  });
-  document.getElementById("atencao-count").textContent = rows.length + " / " + DATA.atencao.length;
+  const rows = DATA.atencao
+    .map((r,i)=>({r, i}))
+    .filter(({r,i})=>{
+      if(clFilter !== "todos" && r.checklist !== clFilter) return false;
+      if(searchVal && !r.tecnico.toLowerCase().includes(searchVal)) return false;
+      if(hideResolved && resolvedSet.has(i)) return false;
+      return true;
+    });
+  const resolvedCount = DATA.atencao.reduce((n,_,i)=> n + (resolvedSet.has(i)?1:0), 0);
+  document.getElementById("atencao-count").textContent = rows.length + " / " + DATA.atencao.length
+    + (resolvedCount>0 ? " · " + resolvedCount + " solucionado" + (resolvedCount===1?"":"s") : "");
 
   if(rows.length === 0){
     grid.appendChild(el("div","empty-state", ICONS.inbox + "<div style='margin-top:8px;'>Nenhum resultado para esse filtro.</div>"));
     return;
   }
 
-  rows.forEach(r=>{
+  rows.forEach(({r,i})=>{
     const items = r.equipamento ? r.equipamento.split(";").map(s=>s.trim()).filter(Boolean) : [];
-    const card = el("div","equip-card");
+    const isResolved = resolvedSet.has(i);
+    const card = el("div","equip-card" + (isResolved ? " is-resolved" : ""));
     const head = el("div","equip-head");
     const left = el("div","equip-head-left");
     left.appendChild(tecBadge(r.tecnico));
     left.appendChild(clBadge(r.checklist));
     head.appendChild(left);
-    if(items.length > 0){
+    if(isResolved){
+      head.appendChild(textEl("span","nc-score nc-score-resolved","solucionado"));
+    } else if(items.length > 0){
       head.appendChild(textEl("span","nc-score", items.length + (items.length===1?" item NC":" itens NC")));
     } else {
       head.appendChild(textEl("span","nc-score nc-score-obs","observação"));
     }
     card.appendChild(head);
+
+    const resolvedLabel = el("label","resolved-toggle");
+    const resolvedCheckbox = document.createElement("input");
+    resolvedCheckbox.type = "checkbox";
+    resolvedCheckbox.checked = isResolved;
+    resolvedCheckbox.addEventListener("change", async e=>{
+      const wantChecked = e.target.checked;
+      e.target.checked = !wantChecked; // reverte visualmente até confirmar a senha
+      const ok = await openPasswordModal();
+      if(!ok) return; // cancelado: nada muda
+      if(wantChecked) resolvedSet.add(i); else resolvedSet.delete(i);
+      renderAtencao();
+    });
+    resolvedLabel.appendChild(resolvedCheckbox);
+    resolvedLabel.appendChild(el("span","lock-icon", ICONS.lock));
+    resolvedLabel.appendChild(document.createTextNode("Marcar como solucionado"));
+    card.appendChild(resolvedLabel);
+
     card.appendChild(textEl("div","equip-park", r.parque ? "Parque: "+r.parque : "Parque não informado"));
 
     const pillList = el("div","equip-pills");
@@ -743,5 +880,4 @@ DATA.metodologia.forEach((line,i)=>{
 });
 </script>
 
-</body>
 </html>
