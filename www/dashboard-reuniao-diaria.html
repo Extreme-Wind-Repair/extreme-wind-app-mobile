@@ -530,17 +530,47 @@
       .trim();
   }
   /* row.Val1 normalmente contem o nome do tecnico (primeira coluna da
-     tabela de equipe, cabecalho padrao "Nome — Estado"), mas pode vir com
-     texto extra colado (ex.: "João Silva — Ativo"). Match por conteudo
-     (indexOf nos dois sentidos) em vez de igualdade exata, pra nao quebrar
-     por causa disso. */
+     tabela de equipe, cabecalho padrao "Nome — Estado"), mas o nome ali
+     costuma vir de forma INFORMAL/abreviada (ex.: "John Lenon - CE",
+     "Willames Leandro (Will Pix) — PE"), enquanto o Radar de Campo usa o
+     nome completo formal (ex.: "John Lenon Vieira Alves", "Willames
+     Leandro Silva da Hora"). Match por substring (indexOf) falhava nesses
+     casos -- corrigido em 21/09/2026 (Robson reportou "so apareceu 3 de
+     6") pra casar por PALAVRAS EM COMUM (2 ou mais), mesmo criterio que o
+     proprio Radar de Campo ja usa pra cruzar tecnico entre checklists
+     diferentes (ver REGRAS_AUTOMACAO.md, metodologia do Radar de Campo,
+     item 5). Palavras de 2 letras ou menos (sigla de estado -- "CE", "PE",
+     "BA", "RJ", "SP", "ES" -- e conectivos "DA"/"DE"/"DO") sao ignoradas
+     pra nao gerar falso positivo so por os dois serem do mesmo estado.
+     Isso ainda NAO resolve apelido puro sem nenhuma palavra em comum (ex.:
+     "Ant. Erivaguino" x "Antônio Erivando..." -- nenhuma palavra bate) --
+     esses casos precisam de um apelido cadastrado manualmente em
+     TECNICO_APELIDOS (ver abaixo), com confirmacao do Robson antes de
+     adicionar (risco de atribuir uma sinalizacao de equipamento pra pessoa
+     errada). */
+  function nomeWords(s){
+    return normNomeTecnico(s).split(' ').filter(function(w){ return w.length > 2; });
+  }
+  /* Apelidos confirmados manualmente pelo Robson (nome como aparece na
+     equipe do card -> chave exata de RADAR_CAMPO_NC). So adicionar aqui
+     depois de confirmar que e a mesma pessoa -- ver comentario acima. */
+  var TECNICO_APELIDOS = {
+  };
   function radarCampoDe(nomeCelula){
     const norm = normNomeTecnico(nomeCelula);
     if (!norm) return null;
+    if (TECNICO_APELIDOS[norm] && RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]]) return RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]];
+    const wordsCel = nomeWords(nomeCelula);
+    if (!wordsCel.length) return null;
+    const setCel = {};
+    wordsCel.forEach(function(w){ setCel[w] = true; });
     const keys = Object.keys(RADAR_CAMPO_NC);
     for (let i = 0; i < keys.length; i++){
       const k = keys[i];
-      if (norm.indexOf(k) !== -1 || k.indexOf(norm) !== -1) return RADAR_CAMPO_NC[k];
+      const wordsK = nomeWords(k);
+      let overlap = 0;
+      for (let j = 0; j < wordsK.length; j++){ if (setCel[wordsK[j]]) overlap++; }
+      if (overlap >= 2) return RADAR_CAMPO_NC[k];
     }
     return null;
   }
