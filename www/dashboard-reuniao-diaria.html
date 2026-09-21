@@ -1001,11 +1001,13 @@
   }
   /* Cada painel tem 2 quadros (data-dayoffset="2" = anteontem, "1" = ontem),
      cada um navegável de forma independente entre os relatórios daquele dia.
-     Regra especial: se não houver RDO nem de ontem nem de anteontem, o
-     quadro de Anteontem passa a mostrar o último RDO já enviado (qualquer
-     data), escolhido/rotulado pelo dia de expediente — Data_exp — mais
-     recente (não pela data/hora real de envio). O quadro de Ontem continua
-     mostrando "Não Enviado" normalmente nesse cenário. */
+     Regra especial (ajustada 21/09/2026 a pedido do Robson): o quadro de
+     Anteontem NUNCA pode ficar vazio. Sempre que não houver RDO de
+     anteontem — independente do que "ontem" mostrar — o quadro de
+     Anteontem passa a mostrar o último RDO já enviado daquele parque
+     (qualquer data), escolhido/rotulado pelo dia de expediente — Data_exp —
+     mais recente (não pela data/hora real de envio). O quadro de Ontem
+     segue seu próprio cálculo normalmente, sem qualquer fallback. */
   function initActivityBox(node){
     const byPark = {};
     node.querySelectorAll('[data-activity-box]').forEach(function(box){
@@ -1025,9 +1027,8 @@
           .sort(function(a, b){ return String(b.Registrado_em || '').localeCompare(String(a.Registrado_em || '')); });
         entries[offset] = { box: box, diaTag: isoToDDMM(diaIso), rows: rows, fallback: false };
       });
-      const semOntem = !entries[1] || !entries[1].rows.length;
       const semAnteontem = !entries[2] || !entries[2].rows.length;
-      if (entries[2] && semOntem && semAnteontem){
+      if (entries[2] && semAnteontem){
         const todos = (DATA.relatorios || [])
           .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
           .sort(function(a, b){ return normalizeDateExp(b.Data_exp).localeCompare(normalizeDateExp(a.Data_exp)); });
