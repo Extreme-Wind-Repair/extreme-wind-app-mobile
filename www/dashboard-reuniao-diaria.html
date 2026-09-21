@@ -95,7 +95,7 @@
   }
   .tech-list{list-style:none; margin:0; padding:0; font-size:12.5px;}
   .tech-header, .tech-row{
-    display:grid; grid-template-columns:32px 1fr 76px 46px 140px 1fr; gap:8px; align-items:start;
+    display:grid; grid-template-columns:32px minmax(110px,200px) 70px 42px 1fr 1.2fr; gap:8px; align-items:start;
   }
   .tech-header{
     font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
@@ -112,10 +112,10 @@
   .tech-data.tech-inicio-aguardando{color:var(--warn); font-style:italic; white-space:normal; font-size:10px; line-height:1.25;}
   .tech-dias{font-size:11px; color:var(--muted);}
   .tech-cert-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
-  .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:10.5px; color:var(--ok); white-space:nowrap; line-height:1.5;}
+  .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:12.5px; font-weight:700; color:var(--ok); white-space:nowrap; line-height:1.5;}
   .tech-cert-empty{color:var(--muted); font-style:italic; font-size:11px;}
   .tech-parques-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
-  .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:10.5px; color:var(--brand); white-space:nowrap; line-height:1.5;}
+  .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:12.5px; font-weight:700; color:var(--brand); white-space:nowrap; line-height:1.5;}
   .tech-parques-empty{color:var(--muted); font-style:italic; font-size:11px;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:10px; padding:16px 18px;}
   .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
