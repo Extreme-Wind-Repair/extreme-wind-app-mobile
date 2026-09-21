@@ -95,7 +95,7 @@
   }
   .tech-list{list-style:none; margin:0; padding:0; font-size:12.5px;}
   .tech-header, .tech-row{
-    display:grid; grid-template-columns:34px 1fr 108px 1fr; gap:8px; align-items:start;
+    display:grid; grid-template-columns:32px 1fr 76px 46px 140px 1fr; gap:8px; align-items:start;
   }
   .tech-header{
     font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
@@ -106,12 +106,11 @@
   .tech-list [contenteditable="true"]{border-radius:3px; padding:0 3px; cursor:text;}
   .tech-list [contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   .tech-list [contenteditable="true"]:focus{outline:none; background:rgba(28,140,232,.16);}
-  .tech-mat{text-align:center; white-space:nowrap;}
-  .tech-nome-block{display:flex; flex-direction:column; gap:2px;}
+  .tech-mat, .tech-dias{text-align:center; white-space:nowrap;}
   .tech-nome{font-size:12px; line-height:1.25; word-break:break-word;}
-  .tech-inicio-line{font-size:10.5px; color:var(--muted); white-space:nowrap;}
-  .tech-inicio-line .tech-data{color:var(--muted);}
-  .tech-inicio-line.tech-inicio-aguardando{color:var(--warn); font-style:italic;}
+  .tech-data{font-size:11px; color:var(--muted); white-space:nowrap;}
+  .tech-data.tech-inicio-aguardando{color:var(--warn); font-style:italic; white-space:normal; font-size:10px; line-height:1.25;}
+  .tech-dias{font-size:11px; color:var(--muted);}
   .tech-cert-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
   .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:10.5px; color:var(--ok); white-space:nowrap; line-height:1.5;}
   .tech-cert-empty{color:var(--muted); font-style:italic; font-size:11px;}
@@ -396,7 +395,7 @@
   <div class="kpis" id="kpisBox">
     <div class="kpi tech-box tech-box-full">
       <div class="label">Técnicos em Banco de Horas (Casa)</div>
-      <div class="tech-header"><span>Mat.</span><span>Nome / Início</span><span>Certificações</span><span>Parques Aprovados</span></div>
+      <div class="tech-header"><span>Mat.</span><span>Nome</span><span>Início</span><span>Dias</span><span>Certificações</span><span>Parques Aprovados</span></div>
       <ul class="tech-list" id="tecnicosList"></ul>
     </div>
   </div>
@@ -1769,22 +1768,15 @@
         spawnTecnicoBdhRow(t);
       }
 
-      // Bloco Nome + Início/Dias juntos (pedido do Robson em 21/09/2026: a
-      // data e os dias acumulados ficam colados no nome, à esquerda, em vez
-      // de colunas separadas). Sem DataInicio, mostra o aviso combinado
-      // "Aguardando data de Início" (editável -- clicar e digitar a data já
-      // salva na planilha, mesmo campo/fluxo de antes).
-      let inicioHtml;
-      if (t.DataInicio){
-        inicioHtml = '<span class="tech-inicio-line">' +
-          '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>' +
-          ' · ' + diasContador(t.DataInicio) +
-        '</span>';
-      } else {
-        inicioHtml = '<span class="tech-inicio-line tech-inicio-aguardando">' +
-          '<span class="tech-data" contenteditable="true" data-field="DataInicio">Aguardando data de Início</span>' +
-        '</span>';
-      }
+      // Início e Dias como colunas próprias, logo depois de Nome (pedido do
+      // Robson em 21/09/2026, corrigindo uma tentativa anterior que tinha
+      // colado os dois junto do nome). Sem DataInicio, mostra o aviso
+      // "Aguardando data de Início" no lugar da data (editável -- clicar e
+      // digitar a data já salva na planilha, mesmo campo/fluxo de antes).
+      const dataHtml = t.DataInicio
+        ? '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>'
+        : '<span class="tech-data tech-inicio-aguardando" contenteditable="true" data-field="DataInicio">Aguardando data de Início</span>';
+      const diasHtml = '<span class="tech-dias">' + diasContador(t.DataInicio) + '</span>';
 
       // Certificações: vem direto da aba BANCO DE DADOS da VAGAS MESTRE
       // (colunas BST/BTT/BRT/ART/BTT-E/LIFT USER/LOTO GE.../LOTO Autorizado
@@ -1809,10 +1801,9 @@
       const li = el(
         '<li data-row="' + (t._row == null ? '' : t._row) + '" data-mat="' + escapeHtml(mat) + '" class="tech-row">' +
           '<span class="tech-mat">' + escapeHtml(mat) + '</span>' +
-          '<span class="tech-nome-block">' +
-            '<span class="tech-nome">' + escapeHtml(oficial.nome) + '</span>' +
-            inicioHtml +
-          '</span>' +
+          '<span class="tech-nome">' + escapeHtml(oficial.nome) + '</span>' +
+          dataHtml +
+          diasHtml +
           certHtml +
           parquesHtml +
         '</li>'
