@@ -150,10 +150,17 @@
   @media (max-width: 640px){
     .block-nav{
       position:static; box-shadow:none; padding:0; margin-top:0; margin-bottom:14px;
-      overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch;
+      flex-wrap:nowrap;
     }
-    .block-btn{width:118px; flex:none; padding:8px 10px; font-size:10.5px;}
-    .block-btn img.gif-icon{height:22px;}
+    /* CORRIGIDO 21/09/2026 (pedido do Robson): antes cada botao tinha largura
+       fixa (118px) com flex:none, o que forcava os 5 botoes a ultrapassarem a
+       largura da tela e exigia rolagem lateral. Agora usa a mesma distribuicao
+       flexivel da versao desktop (flex:1 1 0) -- os 5 botoes esticam para
+       preencher a largura toda da pagina, sem sobrar espaco e sem precisar de
+       barra de rolagem. O texto quebra em ate 2 linhas quando necessario
+       (already coberto por white-space:normal / flex-wrap:wrap da regra base). */
+    .block-btn{flex:1 1 0; min-width:0; padding:8px 4px; font-size:9.5px;}
+    .block-btn img.gif-icon{height:18px;}
   }
 
   .block-view{display:none;}
