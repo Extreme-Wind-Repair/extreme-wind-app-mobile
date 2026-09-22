@@ -1017,6 +1017,15 @@
      entao nao precisa se preocupar com acento/maiusculas/sufixo "/UF". */
   var PARK_NAME_ALIAS_GROUPS = [
     ['oitis 1', 'oitis mcu 1'],
+    /* 22/09/2026 (Robson): mesmo caso do 'oitis 1' acima, faltando pro
+       card 2. O RDO vem como "OITIS MCU 2" e o card e "Oitis 2/PI" ->
+       normalizados viram 'oitis mcu 2' e 'oitis 2', que nao batem nem por
+       igualdade nem por prefixo (o "MCU" fica no MEIO do nome). Sintoma:
+       card Oitis 2/PI com Anteontem, Ontem e Ultimo RDO todos em "Nao
+       Enviado", apesar de o RDO existir desde 18/09/2026. O de-para ja
+       estava documentado na REGRAS_AUTOMACAO.md (secao Auditoria RDO x
+       Quadro), so faltava aqui. */
+    ['oitis 2', 'oitis mcu 2'],
     /* Radar de Campo usa "Lajes" como apelido de campo pro card "Santo
        Agostinho/RN" (definido por Robson em 21/09/2026, usado pelo
        casamento tecnico<->radar via parque -- ver radarCampoDe). */
@@ -1180,8 +1189,18 @@
       });
       const semAnteontem = !entries[2] || !entries[2].rows.length;
       if (entries[2] && semAnteontem){
+        /* CORRECAO 22/09/2026 (regra definida por Robson): o fallback de
+           Anteontem so pode buscar no PASSADO -- "o de anteontem, ou o ultimo
+           enviado do passado, nunca o de ontem". Antes ele varria TODAS as
+           datas e, quando o RDO mais recente do parque era justamente o de
+           ontem, os dois quadros passavam a mostrar exatamente a mesma
+           informacao (mesma turbina, mesma data, mesmos percentuais), ocupando
+           dois quadros pra um dado so. Limite: estritamente anterior ao proprio
+           dia de anteontem (o dia exato ja foi tentado no loop acima). */
+        const limiteAnteontemIso = dateOffsetISO(2);
         const todos = (DATA.relatorios || [])
-          .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
+          .filter(function(r){ return parkMatchesReport(parkName, r.Parque)
+                                 && normalizeDateExp(r.Data_exp) < limiteAnteontemIso; })
           .sort(function(a, b){ return normalizeDateExp(b.Data_exp).localeCompare(normalizeDateExp(a.Data_exp)); });
         if (todos.length){
           const ultimoDiaIso = normalizeDateExp(todos[0].Data_exp);
