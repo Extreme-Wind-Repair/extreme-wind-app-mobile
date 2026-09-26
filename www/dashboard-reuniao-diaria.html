@@ -2101,8 +2101,11 @@
       if (na !== nb) return na - nb;
       return a.Ordem - b.Ordem;
     });
-    const ordered = naoPlaceholder.concat(placeholders);
-    const totalBlanks = placeholders.length;
+    /* 26/09/2026 (Robson): no Bloco 1 (Parques Ativos) NAO existe mais a vaga
+       em branco para criar projeto manualmente -- projeto novo entra pelo RDO
+       (regra "nome do card = nome do RDO"). Os Blocos 2 e 3 seguem com a vaga. */
+    const ordered = bloco === 'b1' ? naoPlaceholder : naoPlaceholder.concat(placeholders);
+    const totalBlanks = bloco === 'b1' ? 0 : placeholders.length;
     let blanksSeen = 0;
     ordered.forEach(function(p){
       let extraDeletableBlank = false;
