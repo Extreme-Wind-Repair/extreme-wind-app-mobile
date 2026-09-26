@@ -299,6 +299,14 @@
   .frota-acao.prog{border-left-color:var(--warn);}
   .frota-acao.adm{border-left-color:var(--steel);}
   .frota-box .frota-obs{font-size:11px; font-weight:600;}
+  .frota-item{font-size:11px; padding:2px 0 2px 7px; border-left:3px solid var(--line); margin:3px 0; line-height:1.3;}
+  .frota-item .frota-rot{font-weight:700; color:var(--text);}
+  .frota-item .frota-det{color:var(--text); opacity:.85;}
+  .frota-item.frota-rev{border-left-color:var(--nok);}
+  .frota-item.frota-pneu{border-left-color:var(--nok);}
+  .frota-item.frota-mec{border-left-color:var(--warn);}
+  .frota-item.frota-lat{border-left-color:var(--steel);}
+  .frota-item.frota-troca{border-left-color:var(--teal);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -2209,40 +2217,76 @@
     }
     preencherQuadrosFrota();
   }
+  /* QUADRO FROTA OBJETIVO (26/09/2026, Robson): por veiculo, so 4 perguntas
+     -- Revisao vencida? Pneu pra trocar? Problema mecanico/eletrico? Lataria?
+     -- mais a troca do veiculo quando estiver agendada (pedido anterior dele,
+     ex.: TYA7G48 em 03/10). Nada de 40K km, saldo, KM troca, rastreador,
+     checklist, fornecedor etc. Fonte: indicadores do veiculo (Revisao, Pneus,
+     Estepe = N/OK) + texto das acoes do Plano de Acao com placa. */
+  const FROTA_CATS = [
+    { k:'rev',   rot:'Revisão',             re:/REVIS/ },
+    { k:'pneu',  rot:'Pneus',               re:/PNEU|ESTEPE|CALIBR|BORRACHA/ },
+    { k:'mec',   rot:'Mecânico / Elétrico', re:/MEC[AÂ]NIC|EL[EÉ]TRIC|MOTOR|FREIO|EMBREAG|SUSPENS|[OÓ]LEO|VAZAMENT|BATERIA|RADIADOR|C[AÂ]MBIO|DIRE[CÇ][AÃ]O|AR[- ]CONDICIONADO|PAINEL|L[AÂ]MPADA|IGNI[CÇ]/ },
+    { k:'lat',   rot:'Lataria',             re:/LATARIA|AMASSAD|ARRANH|PARA-?CHOQUE|AVARIA|RETROVISOR|PINTURA|MANCHA|FAROL|VIDRO|PARA-?BRISA|CAPOTA|PORTA|TAMPA/ },
+    { k:'troca', rot:'Troca do veículo',    re:/TROCA DE VE[IÍ]CULO|SUBSTITU|DEVOLU/ }
+  ];
+  function prazoAcao(a){
+    let prazo = String(a.status || '');
+    const rem = String(a.obs || '').match(/REMARCAR?D[OA]?\s*[-:–]?\s*(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
+    if (rem) prazo = rem[1];
+    const ag = String(a.obs || '').match(/AGENDAD[OA]\s*(?:PARA\s*)?(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
+    if (ag) prazo = ag[1];
+    return prazo.replace(/\/20(\d\d)$/, '');
+  }
+  function chaveData(d){ const m = String(d).match(/(\d{1,2})\/(\d{1,2})/); return m ? (m[2].padStart(2,'0') + m[1].padStart(2,'0')) : '9999'; }
   function preencherQuadrosFrota(){
     document.querySelectorAll('[data-frota-auto]').forEach(function(el){
       if (!FROTA){ return; }
       if (FROTA.erro){ el.innerHTML = '<span class="frota-muted">Dados de Frota indisponíveis</span>'; return; }
       const nomeCard = el.dataset.parkname || '';
-      const veics = FROTA.veiculos.filter(function(v){ return mesmoProjeto(nomeCard, v.parque); });
-      const vistos = {};
-      const acoes = FROTA.acoes.filter(function(a){
-        if (!mesmoProjeto(nomeCard, a.parque)) return false;
-        const k = a.acao + '|' + a.status;
-        if (vistos[k]){ vistos[k].push(a.categoria); return false; }
-        vistos[k] = [a.categoria]; a._cats = vistos[k]; return true;
-      });
-      if (!veics.length && !acoes.length){ el.innerHTML = '<span class="frota-muted">Sem veículo vinculado</span>'; return; }
-      let h = '';
-      veics.forEach(function(v){
-        h += '<div class="frota-veic"><b>' + escapeHtml(v.placa) + '</b> <span class="frota-muted">' + escapeHtml(v.locadora || '') + '</span>' +
-             (v.pend.length ? '<div class="frota-pend">⚠ ' + escapeHtml(v.pend.join(', ')) + '</div>' : '<div class="frota-ok">✔ Tudo OK</div>') + '</div>';
-      });
-      if (acoes.length){
-        h += '<div class="frota-sub">Plano de ação (' + acoes.length + ')</div>';
-        acoes.forEach(function(a){
-          const cats = (a._cats || [a.categoria]).filter(function(c, i, arr){ return c && arr.indexOf(c) === i; });
-          const cor = cats.indexOf('Emergencial') !== -1 ? 'emerg' : (cats.indexOf('Programada') !== -1 ? 'prog' : 'adm');
-          /* Prazo remarcado (26/09/2026, Robson): quando a observacao diz
-             "REMARCADO - 03/10" (ou "REMARCADA 03/10/2026"), o prazo exibido
-             passa a ser a data remarcada, nao a data original ja vencida. */
-          let prazo = String(a.status || '');
-          const rem = String(a.obs || '').match(/REMARCAR?D[OA]?\s*[-:–]?\s*(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
-          if (rem) prazo = rem[1] + ' (remarcado)';
-          h += '<div class="frota-acao ' + cor + '" title="' + escapeHtml((a.obs || '') + ' — ' + (a.quem || '')) + '">' +
-               escapeHtml(a.acao) + ' <span class="frota-muted">· ' + escapeHtml(prazo) + '</span></div>';
+      const porPlaca = {};
+      function garante(placa, loc){ placa = String(placa || '').toUpperCase(); if (!porPlaca[placa]) porPlaca[placa] = { placa: placa, loc: loc || '', cats: {} }; if (loc && !porPlaca[placa].loc) porPlaca[placa].loc = loc; return porPlaca[placa]; }
+      function marca(v, k, detalhe, prazo){ const c = v.cats[k] || (v.cats[k] = { itens: [], prazo: null }); if (detalhe && c.itens.indexOf(detalhe) === -1) c.itens.push(detalhe); if (prazo && (!c.prazo || chaveData(prazo) < chaveData(c.prazo))) c.prazo = prazo; }
+      FROTA.veiculos.filter(function(v){ return mesmoProjeto(nomeCard, v.parque); }).forEach(function(v){
+        const reg = garante(v.placa, v.locadora);
+        (v.pend || []).forEach(function(pd){
+          if (/^Revis/.test(pd)) marca(reg, 'rev', 'vencida no checklist', null);
+          if (/^Pneus|^Estepe/.test(pd)) marca(reg, 'pneu', pd.replace(/ \(atenção\)/, '') === 'Estepe' ? 'estepe' : 'medição fora', null);
         });
-      }
+      });
+      FROTA.acoes.filter(function(a){ return mesmoProjeto(nomeCard, a.parque); }).forEach(function(a){
+        const txt = String(a.acao || '').toUpperCase();
+        const obs = String(a.obs || '').toUpperCase();
+        const m = txt.match(/^\s*([A-Z]{3}\d[A-Z0-9]\d{2})\s*-\s*(.*)$/);
+        if (!m) return;
+        const reg = garante(m[1]);
+        const corpo = m[2].replace(/^\d+(\.\d+)*\s*-\s*/, '');
+        FROTA_CATS.forEach(function(c){
+          const alvo = c.k === 'troca' ? (corpo + ' ' + obs) : corpo;
+          if (!c.re.test(alvo)) return;
+          if (c.k === 'troca' && !/AGENDAD|REMARCAD|SUBSTITU|DEVOLU/.test(obs + ' ' + corpo)) return;
+          let det = corpo.replace(/\s*\(.*$/, '').replace(/\s+/g, ' ').trim().toLowerCase();
+          if (det.length > 38) det = det.slice(0, 36).trim() + '…';
+          if (c.k === 'troca') det = 'agendada';
+          marca(reg, c.k, det, prazoAcao(a));
+        });
+      });
+      const placas = Object.keys(porPlaca);
+      if (!placas.length){ el.innerHTML = '<span class="frota-muted">Sem veículo vinculado</span>'; return; }
+      let h = '';
+      placas.forEach(function(pl){
+        const v = porPlaca[pl];
+        h += '<div class="frota-veic"><b>' + escapeHtml(v.placa) + '</b>' + (v.loc ? ' <span class="frota-muted">' + escapeHtml(v.loc) + '</span>' : '');
+        const linhas = FROTA_CATS.filter(function(c){ return v.cats[c.k]; });
+        if (!linhas.length){ h += '<div class="frota-ok">✔ Sem problemas</div>'; }
+        linhas.forEach(function(c){
+          const info = v.cats[c.k];
+          h += '<div class="frota-item frota-' + c.k + '"><span class="frota-rot">' + c.rot + '</span>' +
+               (info.itens.length ? ' <span class="frota-det">' + escapeHtml(info.itens.join('; ')) + '</span>' : '') +
+               (info.prazo ? ' <span class="frota-muted">· ' + escapeHtml(info.prazo) + '</span>' : '') + '</div>';
+        });
+        h += '</div>';
+      });
       el.innerHTML = h;
     });
   }
