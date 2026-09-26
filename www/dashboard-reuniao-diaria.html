@@ -299,10 +299,13 @@
   .frota-acao.prog{border-left-color:var(--warn);}
   .frota-acao.adm{border-left-color:var(--steel);}
   .frota-box .frota-obs{font-size:11px; font-weight:600;}
-  .rh-box .rh-topico{display:flex; gap:6px; align-items:flex-start; padding:3px 0; border-bottom:1px dashed var(--line);}
+  /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
+     altura toda do quadro, em vez de ficarem espremidos no topo. */
+  .rh-box{display:flex; flex-direction:column;}
+  .rh-box .rh-topico{display:flex; gap:8px; align-items:center; flex:1 1 0; min-height:44px; padding:8px 0; border-bottom:1px dashed var(--line);}
   .rh-box .rh-topico:last-child{border-bottom:none;}
-  .rh-box .rh-num{flex:none; width:16px; height:16px; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;}
-  .rh-box .rh-txt{flex:1; font-size:12px; font-weight:700; color:var(--text); line-height:1.35; min-height:17px; overflow-wrap:anywhere; border-radius:4px; padding:0 4px; margin:0 -4px;}
+  .rh-box .rh-num{flex:none; width:20px; height:20px; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;}
+  .rh-box .rh-txt{flex:1; font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; min-height:17px; overflow-wrap:anywhere; border-radius:4px; padding:0 4px; margin:0 -4px;}
   .rh-box .rh-txt:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
   .rh-box .rh-txt:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
   .ehs-box .box-texto:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
