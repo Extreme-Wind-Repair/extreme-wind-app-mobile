@@ -307,6 +307,7 @@
   .frota-item.frota-mec{border-left-color:var(--warn);}
   .frota-item.frota-lat{border-left-color:var(--steel);}
   .frota-item.frota-troca{border-left-color:var(--teal);}
+  .frota-item.frota-envio{border-left-color:var(--warn);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -499,8 +500,12 @@
      coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
     'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
-    'MaterialCompras','OcorrenciaQualidade'
+    'OcorrenciaQualidade'
   ];
+  /* 26/09/2026 (Robson): MaterialCompras saiu das caixinhas -- virou o quadro
+     "Solicitação de Compras / Aluguel" (editavel, mesma coluna MaterialCompras),
+     com "Envios Logísticos / Requisições" logo abaixo (automatico, puxa do
+     dashboard-envios-logisticos.html, casamento por projeto igual a Frota). */
   /* 26/09/2026 (Robson): Tramitacao e OcorrenciaRH viraram UM quadro so,
      "RH / Tramitação de Documentação", com 5 topicos editaveis, ao lado dos
      quadros Segurança/EHS e Veículos/Frota. Os 5 topicos sao gravados juntos
@@ -930,6 +935,15 @@
               '<div class="ab-title">Veículos / Frota</div>' +
               '<div class="frota-auto" data-frota-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando frota…</span></div>' +
               '<div class="box-texto frota-obs" contenteditable="true" data-field="Veiculo" data-vazio="+ observação">' + escapeHtml(p.Veiculo || '') + '</div>' +
+            '</div></div>' +
+          '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
+            '<div class="ehs-box compras-box">' +
+              '<div class="ab-title">Solicitação de Compras / Aluguel</div>' +
+              '<div class="box-texto" contenteditable="true" data-field="MaterialCompras" data-vazio="—">' + escapeHtml(p.MaterialCompras || '') + '</div>' +
+            '</div>' +
+            '<div class="ehs-box envios-box">' +
+              '<div class="ab-title">Envios Logísticos / Requisições</div>' +
+              '<div class="frota-auto" data-envios-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando envios…</span></div>' +
             '</div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label" data-ab-daylabel>Anteontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
@@ -2135,6 +2149,58 @@
     renderNotes('b4', document.getElementById('b4'));
     renderNotes('b5', document.getElementById('b5'));
     preencherQuadrosFrota();
+    preencherQuadrosEnvios();
+  }
+
+  /* ============ Quadro Envios Logísticos / Requisições (26/09/2026, Robson) ============
+     Le o dashboard-envios-logisticos.html publicado (tabelas acoesAlmox,
+     acoesLog, acoesAssinatura -- so pendencias em aberto) e mostra no card do
+     projeto correspondente (mesmoProjeto: "SÃO VITOR" = SÃO VITOR 1,
+     "LDV MCU 1" = LDV MCU 1...). Agrupa por status, com o prazo mais proximo. */
+  let ENVIOS = null;
+  async function loadEnvios(){
+    try{
+      const r = await fetch('dashboard-envios-logisticos.html?_=' + Date.now(), { cache:'no-store' });
+      if (!r.ok) throw new Error('status ' + r.status);
+      const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+      const itens = [];
+      [['acoesAlmox','Almoxarifado',4],['acoesLog','Logística',5],['acoesAssinatura','Aguardando assinatura',-1]].forEach(function(cfg){
+        const tb = doc.getElementById(cfg[0]); if (!tb) return;
+        tb.querySelectorAll('tr').forEach(function(tr){
+          const td = tr.querySelectorAll('td'); if (td.length < 3 || td[0].hasAttribute('colspan')) return;
+          const status = cfg[2] >= 0 && td[cfg[2]] ? td[cfg[2]].textContent.trim() : cfg[1];
+          itens.push({ projeto: td[0].textContent.trim(), resp: td[1].textContent.trim(), prazo: td[2].textContent.trim(), status: status || cfg[1] });
+        });
+      });
+      ENVIOS = { itens: itens };
+    } catch(err){
+      console.error('Falha ao carregar Envios Logisticos:', err);
+      ENVIOS = { erro: true, itens: [] };
+    }
+    preencherQuadrosEnvios();
+  }
+  function preencherQuadrosEnvios(){
+    document.querySelectorAll('[data-envios-auto]').forEach(function(el){
+      if (!ENVIOS) return;
+      if (ENVIOS.erro){ el.innerHTML = '<span class="frota-muted">Envios indisponíveis</span>'; return; }
+      const nomeCard = el.dataset.parkname || '';
+      const meus = ENVIOS.itens.filter(function(i){ return mesmoProjeto(nomeCard, i.projeto); });
+      if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nada em aberto</div>'; return; }
+      const grupos = {};
+      meus.forEach(function(i){
+        const k = (i.status || 'Em aberto').toUpperCase();
+        const g = grupos[k] || (grupos[k] = { n:0, prazo:null, resp:{} });
+        g.n++; if (i.resp) g.resp[i.resp] = 1;
+        if (/\d/.test(i.prazo) && (!g.prazo || chaveData(i.prazo) < chaveData(g.prazo))) g.prazo = i.prazo.replace(/\/20(\d\d)$/, '');
+      });
+      el.innerHTML = Object.keys(grupos).map(function(k){
+        const g = grupos[k];
+        const rot = k.charAt(0) + k.slice(1).toLowerCase();
+        return '<div class="frota-item frota-envio" title="Responsável: ' + escapeHtml(Object.keys(g.resp).join(', ')) + '">' +
+               '<span class="frota-rot">' + g.n + ' req.</span> <span class="frota-det">' + escapeHtml(rot) + '</span>' +
+               (g.prazo ? ' <span class="frota-muted">· prazo ' + escapeHtml(g.prazo) + '</span>' : '') + '</div>';
+      }).join('');
+    });
   }
 
   /* ============ Quadro Veículos / Frota -- puxa do dashboard de Frota (26/09/2026, Robson) ============
@@ -2319,6 +2385,7 @@
     try{
       setSyncStatus(tentativa > 1 ? ('Carregando dados do Google Sheets… (tentativa ' + tentativa + '/' + MAX_TENTATIVAS_BOOT + ')') : 'Carregando dados do Google Sheets…', false);
       if (!FROTA) loadFrota();
+      if (!ENVIOS) loadEnvios();
       const [dataResult, analiseOk] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
