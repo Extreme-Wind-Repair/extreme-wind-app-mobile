@@ -283,6 +283,11 @@
     margin-bottom:6px;
   }
   .ehs-box .ab-empty{color:var(--muted); font-style:italic; font-size:11px;}
+  .ab-daycol .ehs-box + .ehs-box{margin-top:4px;}
+  .ehs-box{flex:1 1 auto;}
+  .ehs-box .box-texto{font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; min-height:18px; white-space:pre-wrap; overflow-wrap:anywhere; border-radius:4px; padding:1px 4px; margin:-1px -4px;}
+  .ehs-box .box-texto:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
+  .ehs-box .box-texto:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
 
   /* ============ Quadro RDO Enviado (data + % Stand by/Produtivo/Setup/Garantia) ============ */
   .rdo-box{
@@ -465,8 +470,11 @@
      coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
     'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
-    'Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade'
+    'Tramitacao','OcorrenciaRH','MaterialCompras','OcorrenciaQualidade'
   ];
+  /* 26/09/2026 (Robson): OcorrenciaEHS e Veiculo sairam das caixinhas -- agora
+     aparecem nos quadros grandes "Segurança / EHS" e "Veículos / Frota" ao
+     lado do Anteontem (mesmas colunas da RD_Parques, editaveis ali). */
   const BLOCK_LABELS = {b1:'Parques Ativos', b2:'Mobilização', b3:'Aprovação de Documentações'};
 
   let DATA = { parques:[], equipe:[], aprovados:[], notas:[], tecnicos:[], relatorios:[], atividades:[], classificacao:[] };
@@ -840,7 +848,11 @@
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
             '<div class="ehs-box" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Segurança / EHS</div>' +
-              '<div class="ab-empty">—</div>' +
+              '<div class="box-texto" contenteditable="true" data-field="OcorrenciaEHS" data-vazio="—">' + escapeHtml(p.OcorrenciaEHS || '') + '</div>' +
+            '</div>' +
+            '<div class="ehs-box frota-box" data-frota-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
+              '<div class="ab-title">Veículos / Frota</div>' +
+              '<div class="box-texto" contenteditable="true" data-field="Veiculo" data-vazio="—">' + escapeHtml(p.Veiculo || '') + '</div>' +
             '</div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label" data-ab-daylabel>Anteontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
@@ -1557,7 +1569,7 @@
   }
 
   function wirePanel(node, p){
-    node.querySelectorAll('.park-info [contenteditable], .info-chips [data-field]').forEach(function(f){ wireFieldSave(f, 'RD_Parques', false); });
+    node.querySelectorAll('.park-info [contenteditable], .info-chips [data-field], .ehs-box [data-field]').forEach(function(f){ wireFieldSave(f, 'RD_Parques', false); });
     wireFieldSave(node.querySelector('.logo-select'), 'RD_Parques', true);
     wireFieldSave(node.querySelector('.status-select'), 'RD_Parques', true);
     node.querySelectorAll('tbody td[contenteditable]').forEach(function(td){ wireFieldSave(td, 'RD_Equipe', false); });
