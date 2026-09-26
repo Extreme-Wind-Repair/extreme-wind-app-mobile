@@ -287,6 +287,18 @@
   .ehs-box{flex:1 1 auto;}
   .ehs-box .box-texto{font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; min-height:18px; white-space:pre-wrap; overflow-wrap:anywhere; border-radius:4px; padding:1px 4px; margin:-1px -4px;}
   .ehs-box .box-texto:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
+  .frota-box .frota-auto{font-size:11px; line-height:1.35; max-height:230px; overflow-y:auto; margin-bottom:6px;}
+  .frota-muted{color:var(--muted); font-weight:400;}
+  .frota-veic{margin-bottom:5px;}
+  .frota-veic b{color:var(--text); font-size:12px;}
+  .frota-pend{color:var(--warn); font-size:10.5px;}
+  .frota-ok{color:var(--ok); font-size:10.5px;}
+  .frota-sub{font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:6px 0 3px;}
+  .frota-acao{font-size:10.5px; color:var(--text); padding:2px 0 2px 7px; border-left:3px solid var(--line); margin-bottom:3px;}
+  .frota-acao.emerg{border-left-color:var(--nok);}
+  .frota-acao.prog{border-left-color:var(--warn);}
+  .frota-acao.adm{border-left-color:var(--steel);}
+  .frota-box .frota-obs{font-size:11px; font-weight:600;}
   .ehs-box .box-texto:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
 
   /* ============ Quadro RDO Enviado (data + % Stand by/Produtivo/Setup/Garantia) ============ */
@@ -852,7 +864,8 @@
             '</div>' +
             '<div class="ehs-box frota-box" data-frota-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Veículos / Frota</div>' +
-              '<div class="box-texto" contenteditable="true" data-field="Veiculo" data-vazio="—">' + escapeHtml(p.Veiculo || '') + '</div>' +
+              '<div class="frota-auto" data-frota-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando frota…</span></div>' +
+              '<div class="box-texto frota-obs" contenteditable="true" data-field="Veiculo" data-vazio="+ observação">' + escapeHtml(p.Veiculo || '') + '</div>' +
             '</div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label" data-ab-daylabel>Anteontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
@@ -2053,6 +2066,105 @@
     ['b1','b2','b3'].forEach(renderBlock);
     renderNotes('b4', document.getElementById('b4'));
     renderNotes('b5', document.getElementById('b5'));
+    preencherQuadrosFrota();
+  }
+
+  /* ============ Quadro Veículos / Frota -- puxa do dashboard de Frota (26/09/2026, Robson) ============
+     Le o proprio dashboard-frota-manutencao.html publicado (mesmo site), extrai
+     os arrays "rows" (veiculos da semana) e "acaoData" (Plano de Acao pendente,
+     ja sem as "Resolvidas") e mostra no card do projeto correspondente.
+     O nome do parque na Frota NAO precisa bater com o nome do card: o casamento
+     e por PROJETO (nome base + numero), ex.: "OITIS 1/PI" = "OITIS MCU 1",
+     "ST.AGOSTINHO/RN" = "SANTO AGOSTINHO 1", "LDV 1/PI" = "LDV MCU 1",
+     "BAIXA DO FEIJAO" = "BAIXA DO FEIJÃO 1". Itens de ADM / sem parque nao
+     aparecem em card nenhum. Frota sem numero (ex.: "OITIS") aparece em todos
+     os cards daquele projeto. Se aparecer um apelido novo que nao case, e aqui
+     (FROTA_ALIAS) que se acrescenta. */
+  let FROTA = null; // {veiculos:[...], acoes:[...]}
+  const FROTA_ALIAS = { 'ST': 'SANTO', 'STO': 'SANTO', 'S': 'SAO', 'LAGOA DOS VENTOS': 'LDV' };
+  function chaveProjeto(nome){
+    let t = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    t = t.replace(/\/[A-Z]{2}\b.*$/, '');          // tira "/PI", "/RN"...
+    t = t.replace(/[·\-_.]/g, ' ');
+    t = t.replace(/\bMCU\b|\bCORDAS\b|\bINSPECAO\b|\bINTERNA\b|\bEQUIPE\b/g, ' ');
+    let palavras = t.split(/\s+/).filter(Boolean);
+    let num = null;
+    if (palavras.length && /^\d+$/.test(palavras[palavras.length - 1])) num = Number(palavras.pop());
+    palavras = palavras.map(function(w){ return FROTA_ALIAS[w] || w; });
+    let base = palavras.join(' ');
+    if (FROTA_ALIAS[base]) base = FROTA_ALIAS[base];
+    return { base: base, num: num };
+  }
+  function mesmoProjeto(nomeCard, nomeFrota){
+    const a = chaveProjeto(nomeCard), b = chaveProjeto(nomeFrota);
+    if (!a.base || !b.base || b.base === 'ADM') return false;
+    if (a.base !== b.base) return false;
+    if (a.num == null || b.num == null) return true;
+    return a.num === b.num;
+  }
+  function extrairLiteral(html, nome){
+    const i = html.indexOf('const ' + nome + ' = [');
+    if (i === -1) return null;
+    const ini = html.indexOf('[', i);
+    const fim = html.indexOf('\n];', ini);
+    if (fim === -1) return null;
+    try { return (new Function('return ' + html.slice(ini, fim + 2)))(); } catch(e){ return null; }
+  }
+  async function loadFrota(){
+    try{
+      const r = await fetch('dashboard-frota-manutencao.html?_=' + Date.now(), { cache:'no-store' });
+      if (!r.ok) throw new Error('status ' + r.status);
+      const html = await r.text();
+      const rows = extrairLiteral(html, 'rows') || [];
+      const acoes = extrairLiteral(html, 'acaoData') || [];
+      const NOMES = ['KM Troca','Saldo Extra','Checklist','Revisão','Estepe','Pneus','Rastreador'];
+      FROTA = {
+        veiculos: rows.map(function(r){
+          const pend = [];
+          for (let k = 0; k < NOMES.length; k++){
+            const v = String(r[7 + k] || '').trim().toUpperCase();
+            if (v === 'N/OK' || v === 'ATENÇÃO' || v === 'ATENCAO') pend.push(NOMES[k] + (v === 'N/OK' ? '' : ' (atenção)'));
+          }
+          return { placa: r[0], locadora: r[1], parque: r[3], pend: pend };
+        }),
+        acoes: acoes
+      };
+    } catch(err){
+      console.error('Falha ao carregar dados de Frota:', err);
+      FROTA = { erro: true, veiculos: [], acoes: [] };
+    }
+    preencherQuadrosFrota();
+  }
+  function preencherQuadrosFrota(){
+    document.querySelectorAll('[data-frota-auto]').forEach(function(el){
+      if (!FROTA){ return; }
+      if (FROTA.erro){ el.innerHTML = '<span class="frota-muted">Dados de Frota indisponíveis</span>'; return; }
+      const nomeCard = el.dataset.parkname || '';
+      const veics = FROTA.veiculos.filter(function(v){ return mesmoProjeto(nomeCard, v.parque); });
+      const vistos = {};
+      const acoes = FROTA.acoes.filter(function(a){
+        if (!mesmoProjeto(nomeCard, a.parque)) return false;
+        const k = a.acao + '|' + a.status;
+        if (vistos[k]){ vistos[k].push(a.categoria); return false; }
+        vistos[k] = [a.categoria]; a._cats = vistos[k]; return true;
+      });
+      if (!veics.length && !acoes.length){ el.innerHTML = '<span class="frota-muted">Sem veículo vinculado</span>'; return; }
+      let h = '';
+      veics.forEach(function(v){
+        h += '<div class="frota-veic"><b>' + escapeHtml(v.placa) + '</b> <span class="frota-muted">' + escapeHtml(v.locadora || '') + '</span>' +
+             (v.pend.length ? '<div class="frota-pend">⚠ ' + escapeHtml(v.pend.join(', ')) + '</div>' : '<div class="frota-ok">✔ Tudo OK</div>') + '</div>';
+      });
+      if (acoes.length){
+        h += '<div class="frota-sub">Plano de ação (' + acoes.length + ')</div>';
+        acoes.forEach(function(a){
+          const cats = (a._cats || [a.categoria]).filter(function(c, i, arr){ return c && arr.indexOf(c) === i; });
+          const cor = cats.indexOf('Emergencial') !== -1 ? 'emerg' : (cats.indexOf('Programada') !== -1 ? 'prog' : 'adm');
+          h += '<div class="frota-acao ' + cor + '" title="' + escapeHtml((a.obs || '') + ' — ' + (a.quem || '')) + '">' +
+               escapeHtml(a.acao) + ' <span class="frota-muted">· ' + escapeHtml(a.status || '') + '</span></div>';
+        });
+      }
+      el.innerHTML = h;
+    });
   }
 
   /* RETRY DE BOOT 15/09/2026: além do retry interno de cada fetch
@@ -2069,6 +2181,7 @@
     const MAX_TENTATIVAS_BOOT = 4;
     try{
       setSyncStatus(tentativa > 1 ? ('Carregando dados do Google Sheets… (tentativa ' + tentativa + '/' + MAX_TENTATIVAS_BOOT + ')') : 'Carregando dados do Google Sheets…', false);
+      if (!FROTA) loadFrota();
       const [dataResult, analiseOk] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
