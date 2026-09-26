@@ -176,21 +176,27 @@
     justify-content:space-between; gap:12px; flex-wrap:wrap;
   }
   .panel-head h2{font-size:14px; margin:0 0 10px 0; display:flex; align-items:center; gap:8px;}
-  .park-info{flex:1; min-width:200px; text-align:left;}
+  /* LAYOUT 26/09/2026 (Robson): coluna esquerda = nome, logo do fabricante
+     3x maior e as caixas (Tipo, Card, Supervisor...) em 2 colunas abaixo. */
+  .park-info{flex:none; width:320px; max-width:100%; text-align:left; display:flex; flex-direction:column; gap:10px;}
+  .park-info h2{margin:0;}
   .logo-picker{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:6px; flex:none; width:100px;
+    gap:6px; flex:none; width:100%;
   }
   .mfr-logo{
-    height:64px; width:auto; max-width:96px; object-fit:contain; border-radius:6px;
-    background:#fff; padding:6px 10px; border:1px solid var(--line);
+    height:192px; width:auto; max-width:288px; object-fit:contain; border-radius:10px;
+    background:#fff; padding:14px 24px; border:1px solid var(--line);
   }
   .logo-select{
     background:var(--panel2); color:var(--muted); border:1px solid var(--line);
-    border-radius:5px; font-size:10px; padding:2px 4px; cursor:pointer; max-width:96px;
+    border-radius:5px; font-size:11px; padding:3px 6px; cursor:pointer; width:160px; max-width:100%;
     text-align:center;
   }
-  .info-chips{display:flex; flex-wrap:wrap; gap:10px;}
+  .info-chips{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .info-chips .chip{min-width:0;}
+  .info-chips .chip.chip-wide{grid-column:1 / -1;}
+  .info-chips .chip-value{white-space:normal; overflow-wrap:anywhere;}
   .chip{
     background:var(--brand-deep); border:1px solid var(--line); border-radius:8px;
     padding:6px 14px; display:flex; flex-direction:column; gap:2px; min-width:84px;
@@ -802,7 +808,8 @@
     });
     if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
     return fields.map(function(k){
-      return '<span class="chip"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
+      const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade'].indexOf(k) !== -1;
+      return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
         '<span class="chip-value" contenteditable="true" data-field="' + k + '">' + escapeHtml(k === 'Estado' ? estadoDe(p) : p[k]) + '</span></span>';
     }).join('');
   }
@@ -821,12 +828,12 @@
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
-        '<span class="logo-picker">' +
-          '<img class="mfr-logo" src="' + logo + '" alt="' + escapeHtml(p.Fabricante || 'GE') + '">' +
-          '<select class="logo-select" data-field="Fabricante">' + logoOptions + '</select>' +
-        '</span>' +
         '<div class="park-info">' +
           '<h2 contenteditable="true" class="' + (p.Placeholder ? 'placeholder-title' : '') + '" data-field="NomeParque">' + escapeHtml(p.NomeParque) + '</h2>' +
+          '<span class="logo-picker">' +
+            '<img class="mfr-logo" src="' + logo + '" alt="' + escapeHtml(p.Fabricante || 'GE') + '">' +
+            '<select class="logo-select" data-field="Fabricante">' + logoOptions + '</select>' +
+          '</span>' +
           '<div class="info-chips">' + buildChipsHtml(p) + '</div>' +
         '</div>' +
         '<div class="activity-boxes">' +
