@@ -299,6 +299,12 @@
   .frota-acao.prog{border-left-color:var(--warn);}
   .frota-acao.adm{border-left-color:var(--steel);}
   .frota-box .frota-obs{font-size:11px; font-weight:600;}
+  .rh-box .rh-topico{display:flex; gap:6px; align-items:flex-start; padding:3px 0; border-bottom:1px dashed var(--line);}
+  .rh-box .rh-topico:last-child{border-bottom:none;}
+  .rh-box .rh-num{flex:none; width:16px; height:16px; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;}
+  .rh-box .rh-txt{flex:1; font-size:12px; font-weight:700; color:var(--text); line-height:1.35; min-height:17px; overflow-wrap:anywhere; border-radius:4px; padding:0 4px; margin:0 -4px;}
+  .rh-box .rh-txt:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
+  .rh-box .rh-txt:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
   .ehs-box .box-texto:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
 
   /* ============ Quadro RDO Enviado (data + % Stand by/Produtivo/Setup/Garantia) ============ */
@@ -482,8 +488,50 @@
      coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
     'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
-    'Tramitacao','OcorrenciaRH','MaterialCompras','OcorrenciaQualidade'
+    'MaterialCompras','OcorrenciaQualidade'
   ];
+  /* 26/09/2026 (Robson): Tramitacao e OcorrenciaRH viraram UM quadro so,
+     "RH / Tramitação de Documentação", com 5 topicos editaveis, ao lado dos
+     quadros Segurança/EHS e Veículos/Frota. Os 5 topicos sao gravados juntos
+     (um por linha) na coluna OcorrenciaRH; o que existia em Tramitacao e
+     trazido para dentro do quadro e, na primeira edicao, esvaziado la. */
+  const RH_TOPICOS = 5;
+  function rhTopicosDe(p){
+    const itens = [];
+    String(p.OcorrenciaRH || '').split(/\r?\n/).forEach(function(l){ l = l.trim(); if (l) itens.push(l); });
+    const tram = String(p.Tramitacao || '').trim();
+    if (tram && itens.indexOf(tram) === -1) itens.unshift(tram);
+    while (itens.length < RH_TOPICOS) itens.push('');
+    return itens.slice(0, Math.max(RH_TOPICOS, itens.length));
+  }
+  function rhBoxHtml(p){
+    return rhTopicosDe(p).map(function(t, i){
+      return '<div class="rh-topico"><span class="rh-num">' + (i + 1) + '</span>' +
+        '<div class="rh-txt" contenteditable="true" data-rh-topico="' + i + '" data-vazio="—">' + escapeHtml(t) + '</div></div>';
+    }).join('');
+  }
+  function wireRhBox(node, p){
+    const box = node.querySelector('[data-rh-box]');
+    if (!box) return;
+    const campos = box.querySelectorAll('[data-rh-topico]');
+    campos.forEach(function(el, i){
+      el.addEventListener('keydown', function(ev){
+        if (ev.key === 'Enter'){ ev.preventDefault(); const prox = campos[i + 1]; if (prox) prox.focus(); else el.blur(); }
+      });
+      el.addEventListener('blur', function(){
+        const row = Number(node.dataset.row);
+        const valor = Array.prototype.map.call(campos, function(c){ return c.textContent.trim(); })
+          .filter(function(t){ return t; }).join('\n');
+        if (valor === String(p.OcorrenciaRH || '').trim() && !String(p.Tramitacao || '').trim()) return;
+        apiPost({ action:'updateCell', sheet:'RD_Parques', row: row, field:'OcorrenciaRH', value: valor, autoUnblank:false });
+        p.OcorrenciaRH = valor;
+        if (String(p.Tramitacao || '').trim()){
+          apiPost({ action:'updateCell', sheet:'RD_Parques', row: row, field:'Tramitacao', value:'', autoUnblank:false });
+          p.Tramitacao = '';
+        }
+      });
+    });
+  }
   /* 26/09/2026 (Robson): OcorrenciaEHS e Veiculo sairam das caixinhas -- agora
      aparecem nos quadros grandes "Segurança / EHS" e "Veículos / Frota" ao
      lado do Anteontem (mesmas colunas da RD_Parques, editaveis ali). */
@@ -857,6 +905,11 @@
           '<div class="info-chips">' + buildChipsHtml(p) + '</div>' +
         '</div>' +
         '<div class="activity-boxes">' +
+          '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
+            '<div class="ehs-box rh-box" data-rh-box>' +
+              '<div class="ab-title">RH / Tramitação de Documentação</div>' +
+              rhBoxHtml(p) +
+            '</div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
             '<div class="ehs-box" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Segurança / EHS</div>' +
@@ -1582,6 +1635,7 @@
   }
 
   function wirePanel(node, p){
+    wireRhBox(node, p);
     node.querySelectorAll('.park-info [contenteditable], .info-chips [data-field], .ehs-box [data-field]').forEach(function(f){ wireFieldSave(f, 'RD_Parques', false); });
     wireFieldSave(node.querySelector('.logo-select'), 'RD_Parques', true);
     wireFieldSave(node.querySelector('.status-select'), 'RD_Parques', true);
