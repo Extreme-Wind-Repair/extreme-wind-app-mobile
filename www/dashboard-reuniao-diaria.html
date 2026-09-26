@@ -2254,8 +2254,15 @@
       if (!ENVIOS) return;
       if (ENVIOS.erro){ el.innerHTML = '<span class="frota-muted">Envios indisponíveis</span>'; return; }
       const nomeCard = el.dataset.parkname || '';
-      const meus = ENVIOS.itens.filter(function(i){ return mesmoProjeto(nomeCard, i.projeto); });
-      if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nada em aberto</div>'; return; }
+      /* So "em trajeto" e "falta assinatura" (Robson, 26/09/2026) -- "aguardando
+         coleta" e qualquer outro status ficam so no dashboard de Envios. */
+      const meus = ENVIOS.itens.filter(function(i){
+        if (!mesmoProjeto(nomeCard, i.projeto)) return false;
+        const st = String(i.status || '').toUpperCase();
+        if (/COLETA/.test(st)) return false;
+        return /TRAJETO|TR[AÂ]NSITO|EM ROTA|ASSINATURA/.test(st);
+      });
+      if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nada em trajeto nem pendente de assinatura</div>'; return; }
       const grupos = {};
       meus.forEach(function(i){
         const k = (i.status || 'Em aberto').toUpperCase();
