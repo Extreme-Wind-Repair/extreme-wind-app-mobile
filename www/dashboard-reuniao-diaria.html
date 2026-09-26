@@ -449,12 +449,16 @@
   // tiver algum desses campos preenchido (buildChipsHtml já filtra vazios),
   // então não afetam a exibição dos parques dos Blocos 1 e 3.
   const CHIP_LABELS = {
-    Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Cliente:'Cliente', Data:'Data', EHS:'EHS', Condicao:'Condição',
+    Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Estado:'Estado', Cliente:'Cliente', Data:'Data', EHS:'EHS', Condicao:'Condição',
     Tramitacao:'Tramitação', OcorrenciaRH:'Ocorrência RH', OcorrenciaEHS:'Ocorrência EHS',
     MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO'
   };
+  /* Estado (26/09/2026, pedido do Robson): caixa fixa ao lado de Supervisor,
+     sempre visivel (mesmo vazia) -- o nome do card passou a ser o nome exato do
+     RDO (ex.: "OITIS MCU 2"), que nao traz a UF; a UF fica aqui. Grava na
+     coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
-    'Tipo','Card','Supervisor','Cliente','Data','EHS','Condicao',
+    'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
     'Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade'
   ];
   const BLOCK_LABELS = {b1:'Parques Ativos', b2:'Mobilização', b3:'Aprovação de Documentações'};
@@ -772,10 +776,11 @@
   /* ============ Render: chips ============ */
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
-      if (p.Placeholder) return ['Tipo','Card','Supervisor','Cliente','Data'].indexOf(k) !== -1;
+      if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
+      if (k === 'Estado') return true;
       return p[k] !== undefined && String(p[k]).trim() !== '';
     });
-    if (!fields.length && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Cliente','Data'];
+    if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
     return fields.map(function(k){
       return '<span class="chip"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
         '<span class="chip-value" contenteditable="true" data-field="' + k + '">' + escapeHtml(p[k]) + '</span></span>';
