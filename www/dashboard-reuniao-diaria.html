@@ -2117,17 +2117,26 @@
       const html = await r.text();
       const rows = extrairLiteral(html, 'rows') || [];
       const acoes = extrairLiteral(html, 'acaoData') || [];
-      const NOMES = ['KM Troca','Saldo Extra','Checklist','Revisão','Estepe','Pneus','Rastreador'];
+      /* Saldo Extra NAO vai pra Reuniao Diaria (Robson, 26/09/2026) -- nem o
+         indicador do veiculo, nem as acoes do Plano de Acao que so tratam de
+         saldo/contrato estourado. Revisao e Pneus continuam aparecendo. */
+      const NOMES = ['KM Troca', null, 'Checklist','Revisão','Estepe','Pneus','Rastreador'];
       FROTA = {
         veiculos: rows.map(function(r){
           const pend = [];
           for (let k = 0; k < NOMES.length; k++){
+            if (!NOMES[k]) continue;
             const v = String(r[7 + k] || '').trim().toUpperCase();
             if (v === 'N/OK' || v === 'ATENÇÃO' || v === 'ATENCAO') pend.push(NOMES[k] + (v === 'N/OK' ? '' : ' (atenção)'));
           }
           return { placa: r[0], locadora: r[1], parque: r[3], pend: pend };
         }),
-        acoes: acoes
+        acoes: acoes.filter(function(a){
+          const txt = String((a.acao || '') + ' ' + (a.tipo || '')).toUpperCase();
+          const soSaldo = /SALDO/.test(txt) && !/REVIS|PNEU/.test(txt);
+          const linhaSaldo = /\[PROGRAMADA:\s*SALDO/.test(txt);
+          return !soSaldo && !linhaSaldo;
+        })
       };
     } catch(err){
       console.error('Falha ao carregar dados de Frota:', err);
