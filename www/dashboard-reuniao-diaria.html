@@ -495,31 +495,58 @@
      publicar (commit/push) -- esse arquivo vive so no GitHub, nao precisa
      nada no Dropbox. Se a semana nao mudou desde a ultima rodada, nao
      precisa recommitar so por causa disso.
-     Ultima atualizacao: 21/09/2026 (semana W37, periodo 10/09/2026 a
-     15/09/2026, avaliado em 15/09/2026). */
-  const RADAR_CAMPO_SEMANA = 'W37';
-  const RADAR_CAMPO_PERIODO = '10/09/2026 a 15/09/2026';
+     Ultima atualizacao: 26/09/2026 (semana W38, periodo 17/09/2026 a 22/09/2026,
+     avaliado em 22/09/2026). */
+  const RADAR_CAMPO_SEMANA = "W38";
+  const RADAR_CAMPO_PERIODO = "17/09/2026 a 22/09/2026";
   const RADAR_CAMPO_NC = {
-    'JOHN LENON VIEIRA ALVES': [
-      { equipamento: 'Extintor', nota: 'Extintor despressurizado (nota do técnico pouco clara: "Beg na operação melou de catalisador").', checklist: 'Ferramentas', data: '14/09/2026', parque: 'OITIS Dom inocencio' }
+    "JOHN LENON VIEIRA ALVES": [
+      { equipamento: "(sem item marcado)", nota: "Beg danificada", checklist: "Ferramentas", data: "22/09/2026", parque: "OITIS Dom inocencio" },
+      { equipamento: "Descensor", nota: "N/A", checklist: "Cordas", data: "22/09/2026", parque: "Oi" }
     ],
-    'WILLAMES LEANDRO SILVA DA HORA': [
-      { equipamento: 'Extintor', nota: 'Extintor danificado.', checklist: 'Ferramentas', data: '14/09/2026', parque: 'BDF João câmara RN' }
+    "JEFERSON ANTENOR": [
+      { equipamento: "Starlink", nota: "Teste de condutividade sem etiqueta O resto de ferramentas estão em torre", checklist: "Ferramentas", data: "21/09/2026", parque: "Santo Agostinho Lages RN" },
+      { equipamento: "Celular Smartphone", nota: "Teste de condutividade sem etiqueta O resto de ferramentas estão em torre", checklist: "Ferramentas", data: "21/09/2026", parque: "Santo Agostinho Lages RN" }
     ],
-    'PEDRO LUCAS': [
-      { equipamento: 'Rádio Comunicador', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '14/09/2026', parque: 'Oitis' }
+    "ANTONIO MOTA": [
+      { equipamento: "Cordas Semi-Estáticas", nota: "Desensor nao esta mais segurando. E não recebei lanterna de capacete", checklist: "Cordas", data: "18/09/2026", parque: "Tucano" }
     ],
-    'HELIO FREITAS': [
-      { equipamento: 'Descensor', nota: 'Sem observações — não conformidade não explicada.', checklist: 'Cordas', data: '13/09/2026', parque: 'Lajes' }
+    "ARTHUR LEONIDAS": [
+      { equipamento: "(sem item marcado)", nota: "N recebi cadeirinha", checklist: "Cordas", data: "21/09/2026", parque: "Oitis" }
     ],
-    'DIEGO SILVA': [
-      { equipamento: 'Cinto de Segurança', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' },
-      { equipamento: 'Ascensor de Peito-Croll', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' },
-      { equipamento: 'Lanterna para Capacete', nota: 'Sem observações para os 3 itens marcados como não conforme.', checklist: 'Cordas', data: '13/09/2026', parque: 'Tucano' }
+    "DIEGO SILVA": [
+      { equipamento: "Cinto de Segurança", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
+      { equipamento: "Ascensor de Peito-Croll", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
+      { equipamento: "Lanterna para Capacete", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
+      { equipamento: "Rádio Comunicador", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" }
     ],
-    'ANTONIO ERIVANDO AGOSTINHO DA SILVA': [
-      { equipamento: 'Kit Resgate', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026', parque: 'Oitis2' },
-      { equipamento: 'Maca Envelope', nota: 'Nota do técnico: "Obrigado" — não descreve o problema.', checklist: 'Equipamentos Individuais', data: '15/09/2026', parque: 'Oitis2' }
+    "ELIELSON SILVA": [
+      { equipamento: "Banqueta Suspensa-Cadeirinha", nota: "Eu como N3 não recebi a cadeirinha de conforto não.", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor WTG 09-05" },
+      { equipamento: "Rádio Comunicador", nota: "Eu como N3 não recebi a cadeirinha de conforto não.", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor WTG 09-05" }
+    ],
+    "HELIO FREITAS": [
+      { equipamento: "Descensor", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" },
+      { equipamento: "Mosquetões de Rosca", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" },
+      { equipamento: "Cadeado Loto + Plaquinha", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" }
+    ],
+    "MATEUS GOMES": [
+      { equipamento: "Cinto de Segurança", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor" },
+      { equipamento: "Cordas Semi-Estáticas", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor" }
+    ],
+    "MEZAC MARQUES": [
+      { equipamento: "Cordas Semi-Estáticas", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Xique Xique" }
+    ],
+    "PEDRO LUCAS DA CRUZ DA SILVA": [
+      { equipamento: "Ascensor de Peito-Croll", nota: "descensor Está desgastado e precisa de um novo , não tem como manda vídeo , mandei a foto , as cordas vou encaminhas também , está menor que as outras uma azul e as 4 cordas estão desgastadas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis / dom Inocêncio" },
+      { equipamento: "Cordas Semi-Estáticas", nota: "descensor Está desgastado e precisa de um novo , não tem como manda vídeo , mandei a foto , as cordas vou encaminhas também , está menor que as outras uma azul e as 4 cordas estão desgastadas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis / dom Inocêncio" }
+    ],
+    "SANDRELINO MACIEL": [
+      { equipamento: "Descensor", nota: "Rádio não está funcionando corretamente, descensor está apresentando falhas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis" },
+      { equipamento: "Rádio Comunicador", nota: "Rádio não está funcionando corretamente, descensor está apresentando falhas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis" }
+    ],
+    "ANTONIO ERIVANDO AGOSTINHO DA SILVA": [
+      { equipamento: "Kit Resgate", nota: "sem observações", checklist: "Equipamentos Individuais", data: "21/09/2026", parque: "OITIS" },
+      { equipamento: "Maca Envelope", nota: "sem observações", checklist: "Equipamentos Individuais", data: "21/09/2026", parque: "OITIS" }
     ]
   };
 
