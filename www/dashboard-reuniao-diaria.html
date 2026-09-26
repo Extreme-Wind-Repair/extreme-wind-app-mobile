@@ -327,13 +327,6 @@
   }
   tbody td{padding:8px 12px; border-top:1px solid var(--line); vertical-align:top;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
-  .radar-td{min-width:150px;}
-  .radar-td.radar-empty{color:var(--muted); text-align:center;}
-  .radar-item{margin-bottom:5px;}
-  .radar-item:last-child{margin-bottom:0;}
-  .radar-badge{display:inline-block; padding:2px 7px; border:1px solid var(--nok); border-radius:6px; font-size:11px; font-weight:700; color:var(--nok); white-space:nowrap;}
-  .radar-nota{font-size:10.5px; color:var(--muted); line-height:1.3; margin-top:2px;}
-  .radar-semana{font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-top:4px;}
   .obs{color:var(--muted); font-size:11.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
   .aprovados-box .ap-title{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
@@ -467,172 +460,6 @@
   const BLOCK_LABELS = {b1:'Parques Ativos', b2:'Mobilização', b3:'Aprovação de Documentações'};
 
   let DATA = { parques:[], equipe:[], aprovados:[], notas:[], tecnicos:[], relatorios:[], atividades:[], classificacao:[] };
-  /* ============ Radar de Campo -- Equipamentos Sinalizados (NC de risco) ============
-     Definido por Robson em 21/09/2026. Fonte: dashboard "Radar de Campo"
-     (outro time -- Almoxarifado/Suprimentos -- ve REGRAS_AUTOMACAO.md, secao
-     "Novo dashboard: Radar de Campo"), regenerado toda quarta-feira a partir
-     do RELATORIO CHECK LIST da semana. So a aba "Equipamentos Sinalizados"
-     desse relatorio entra aqui (risco === "SIM" no array DATA.atencao do
-     radar-campo/index.html) -- NAO confundir com os "achados" (aba Achados
-     Criticos, que fica so no Radar de Campo, nao e replicada aqui).
-     Objetivo: dar visibilidade, na propria linha do tecnico dentro do card
-     do projeto (tabela de equipe), de qualquer equipamento que ele mesmo
-     tenha sinalizado como danificado/nao conforme com risco de seguranca,
-     sem precisar abrir o Radar de Campo separadamente.
-     Casamento e por NOME do tecnico (normalizado, ver normNomeTecnico) --
-     nao pelo campo Parque do Radar, porque os nomes de parque de la (ex.:
-     "OITIS Dom inocencio", "BDF Joao camara RN") nao tem correspondencia
-     confiavel com os nomes dos cards daqui (ex.: "Oitis 1/PI"). O nome do
-     tecnico e bem mais estavel entre os dois sistemas.
-     Estrutura: chave = nome do tecnico normalizado (normNomeTecnico), valor
-     = lista de sinalizacoes (pode ter mais de uma por tecnico na mesma
-     semana). Cada sinalizacao tem: equipamento, nota (texto do proprio
-     tecnico), checklist (Ferramentas/Cordas/Equipamentos Individuais), data.
-     ATUALIZACAO SEMANAL (toda quarta, junto da tarefa agendada
-     "sync-radar-de-campo", ver REGRAS_AUTOMACAO.md): recalcular este objeto
-     a partir do radar-campo/index.html mais recente (DATA.atencao, filtro
-     risco === "SIM"), atualizar RADAR_CAMPO_SEMANA/RADAR_CAMPO_PERIODO, e
-     publicar (commit/push) -- esse arquivo vive so no GitHub, nao precisa
-     nada no Dropbox. Se a semana nao mudou desde a ultima rodada, nao
-     precisa recommitar so por causa disso.
-     Ultima atualizacao: 26/09/2026 (semana W38, periodo 17/09/2026 a 22/09/2026,
-     avaliado em 22/09/2026). */
-  const RADAR_CAMPO_SEMANA = "W38";
-  const RADAR_CAMPO_PERIODO = "17/09/2026 a 22/09/2026";
-  const RADAR_CAMPO_NC = {
-    "JOHN LENON VIEIRA ALVES": [
-      { equipamento: "(sem item marcado)", nota: "Beg danificada", checklist: "Ferramentas", data: "22/09/2026", parque: "OITIS Dom inocencio" },
-      { equipamento: "Descensor", nota: "N/A", checklist: "Cordas", data: "22/09/2026", parque: "Oi" }
-    ],
-    "JEFERSON ANTENOR": [
-      { equipamento: "Starlink", nota: "Teste de condutividade sem etiqueta O resto de ferramentas estão em torre", checklist: "Ferramentas", data: "21/09/2026", parque: "Santo Agostinho Lages RN" },
-      { equipamento: "Celular Smartphone", nota: "Teste de condutividade sem etiqueta O resto de ferramentas estão em torre", checklist: "Ferramentas", data: "21/09/2026", parque: "Santo Agostinho Lages RN" }
-    ],
-    "ANTONIO MOTA": [
-      { equipamento: "Cordas Semi-Estáticas", nota: "Desensor nao esta mais segurando. E não recebei lanterna de capacete", checklist: "Cordas", data: "18/09/2026", parque: "Tucano" }
-    ],
-    "ARTHUR LEONIDAS": [
-      { equipamento: "(sem item marcado)", nota: "N recebi cadeirinha", checklist: "Cordas", data: "21/09/2026", parque: "Oitis" }
-    ],
-    "DIEGO SILVA": [
-      { equipamento: "Cinto de Segurança", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
-      { equipamento: "Ascensor de Peito-Croll", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
-      { equipamento: "Lanterna para Capacete", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" },
-      { equipamento: "Rádio Comunicador", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Tucano" }
-    ],
-    "ELIELSON SILVA": [
-      { equipamento: "Banqueta Suspensa-Cadeirinha", nota: "Eu como N3 não recebi a cadeirinha de conforto não.", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor WTG 09-05" },
-      { equipamento: "Rádio Comunicador", nota: "Eu como N3 não recebi a cadeirinha de conforto não.", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor WTG 09-05" }
-    ],
-    "HELIO FREITAS": [
-      { equipamento: "Descensor", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" },
-      { equipamento: "Mosquetões de Rosca", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" },
-      { equipamento: "Cadeado Loto + Plaquinha", nota: "O descensor tá com problema.", checklist: "Cordas", data: "20/09/2026", parque: "Lajes" }
-    ],
-    "MATEUS GOMES": [
-      { equipamento: "Cinto de Segurança", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor" },
-      { equipamento: "Cordas Semi-Estáticas", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "São Vitor" }
-    ],
-    "MEZAC MARQUES": [
-      { equipamento: "Cordas Semi-Estáticas", nota: "sem observações", checklist: "Cordas", data: "21/09/2026", parque: "Xique Xique" }
-    ],
-    "PEDRO LUCAS DA CRUZ DA SILVA": [
-      { equipamento: "Ascensor de Peito-Croll", nota: "descensor Está desgastado e precisa de um novo , não tem como manda vídeo , mandei a foto , as cordas vou encaminhas também , está menor que as outras uma azul e as 4 cordas estão desgastadas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis / dom Inocêncio" },
-      { equipamento: "Cordas Semi-Estáticas", nota: "descensor Está desgastado e precisa de um novo , não tem como manda vídeo , mandei a foto , as cordas vou encaminhas também , está menor que as outras uma azul e as 4 cordas estão desgastadas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis / dom Inocêncio" }
-    ],
-    "SANDRELINO MACIEL": [
-      { equipamento: "Descensor", nota: "Rádio não está funcionando corretamente, descensor está apresentando falhas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis" },
-      { equipamento: "Rádio Comunicador", nota: "Rádio não está funcionando corretamente, descensor está apresentando falhas.", checklist: "Cordas", data: "22/09/2026", parque: "Oitis" }
-    ],
-    "ANTONIO ERIVANDO AGOSTINHO DA SILVA": [
-      { equipamento: "Kit Resgate", nota: "sem observações", checklist: "Equipamentos Individuais", data: "21/09/2026", parque: "OITIS" },
-      { equipamento: "Maca Envelope", nota: "sem observações", checklist: "Equipamentos Individuais", data: "21/09/2026", parque: "OITIS" }
-    ]
-  };
-
-  function normNomeTecnico(s){
-    return String(s == null ? '' : s)
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .toUpperCase()
-      .replace(/[^A-Z0-9]+/g, ' ')
-      .trim();
-  }
-  /* row.Val1 normalmente contem o nome do tecnico (primeira coluna da
-     tabela de equipe, cabecalho padrao "Nome — Estado"), mas o nome ali
-     costuma vir de forma INFORMAL/abreviada (ex.: "John Lenon - CE",
-     "Willames Leandro (Will Pix) — PE"), enquanto o Radar de Campo usa o
-     nome completo formal (ex.: "John Lenon Vieira Alves", "Willames
-     Leandro Silva da Hora"). Match por substring (indexOf) falhava nesses
-     casos -- corrigido em 21/09/2026 (Robson reportou "so apareceu 3 de
-     6") pra casar por PALAVRAS EM COMUM (2 ou mais), mesmo criterio que o
-     proprio Radar de Campo ja usa pra cruzar tecnico entre checklists
-     diferentes (ver REGRAS_AUTOMACAO.md, metodologia do Radar de Campo,
-     item 5). Palavras de 2 letras ou menos (sigla de estado -- "CE", "PE",
-     "BA", "RJ", "SP", "ES" -- e conectivos "DA"/"DE"/"DO") sao ignoradas
-     pra nao gerar falso positivo so por os dois serem do mesmo estado.
-     Isso ainda NAO resolve apelido puro sem nenhuma palavra em comum (ex.:
-     "Ant. Erivaguino" x "Antônio Erivando..." -- nenhuma palavra bate) --
-     esses casos precisam de um apelido cadastrado manualmente em
-     TECNICO_APELIDOS (ver abaixo), com confirmacao do Robson antes de
-     adicionar (risco de atribuir uma sinalizacao de equipamento pra pessoa
-     errada). */
-  function nomeWords(s){
-    return normNomeTecnico(s).split(' ').filter(function(w){ return w.length > 2; });
-  }
-  /* Apelidos confirmados manualmente pelo Robson (nome como aparece na
-     equipe do card -> chave exata de RADAR_CAMPO_NC). So adicionar aqui
-     depois de confirmar que e a mesma pessoa -- ver comentario acima. */
-  var TECNICO_APELIDOS = {
-  };
-  /* TIER 2 (adicionado 21/09/2026, pedido do Robson): quando o tier 1 (2+
-     palavras em comum) nao acha nada, tenta casar so pelo PRIMEIRO NOME +
-     o PARQUE do card bater com o campo "parque" da sinalizacao (via
-     parkMatchesReport/PARK_NAME_ALIAS_GROUPS, definidos mais abaixo --
-     reaproveita o mesmo mecanismo do casamento de RDO). Caso real que
-     originou a regra: "Diego Silva" (Radar) = "Diego Barbosa" (equipe do
-     card Tucano/BA) -- sobrenomes diferentes (apelido/erro de cadastro),
-     mas primeiro nome + parque batem. So usa esse criterio mais fraco como
-     ultimo recurso, depois que o tier 1 (mais forte) ja foi tentado. */
-  function radarCampoDe(nomeCelula, nomeParque){
-    const norm = normNomeTecnico(nomeCelula);
-    if (!norm) return null;
-    if (TECNICO_APELIDOS[norm] && RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]]) return RADAR_CAMPO_NC[TECNICO_APELIDOS[norm]];
-    const wordsCel = nomeWords(nomeCelula);
-    if (!wordsCel.length) return null;
-    const setCel = {};
-    wordsCel.forEach(function(w){ setCel[w] = true; });
-    const keys = Object.keys(RADAR_CAMPO_NC);
-    for (let i = 0; i < keys.length; i++){
-      const k = keys[i];
-      const wordsK = nomeWords(k);
-      let overlap = 0;
-      for (let j = 0; j < wordsK.length; j++){ if (setCel[wordsK[j]]) overlap++; }
-      if (overlap >= 2) return RADAR_CAMPO_NC[k];
-    }
-    if (nomeParque){
-      const primeiroNomeCel = wordsCel[0];
-      for (let i = 0; i < keys.length; i++){
-        const k = keys[i];
-        const wordsK = nomeWords(k);
-        if (!wordsK.length || wordsK[0] !== primeiroNomeCel) continue;
-        const itens = RADAR_CAMPO_NC[k];
-        const parqueBate = itens.some(function(it){ return it.parque && parkMatchesReport(nomeParque, it.parque); });
-        if (parqueBate) return itens;
-      }
-    }
-    return null;
-  }
-  function radarCampoTdHtml(nomeCelula, nomeParque){
-    const itens = radarCampoDe(nomeCelula, nomeParque);
-    if (!itens || !itens.length) return '<td class="radar-td radar-empty">—</td>';
-    const badges = itens.map(function(it){
-      return '<div class="radar-item" title="' + escapeHtml(it.nota) + '">' +
-        '<span class="radar-badge">⚠ ' + escapeHtml(it.equipamento) + '</span>' +
-        '<div class="radar-nota">' + escapeHtml(it.nota) + '</div>' +
-        '</div>';
-    }).join('');
-    return '<td class="radar-td">' + badges + '<div class="radar-semana">' + escapeHtml(RADAR_CAMPO_SEMANA) + '</div></td>';
-  }
   /* ============ Banco de Horas (BDH) -- fonte oficial ============
      Definido por Robson em 20/09/2026 (revisado em 21/09/2026 -- a fonte de
      certificacoes mudou de "RESUMO IGOR" para as colunas reais de certificacao):
@@ -931,7 +758,7 @@
       return '<option value="' + o.value + '"' + (p.Status === o.value ? ' selected' : '') + '>' + o.label + '</option>';
     }).join('');
     const cols = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
-    const theadHtml = cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '<th>Radar de Campo</th>';
+    const theadHtml = cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('');
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
@@ -991,7 +818,6 @@
     for (let i = 1; i <= colCount; i++){
       tds += '<td contenteditable="true" data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
-    tds += radarCampoTdHtml(row.Val1, nomeParque);
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
   }
 
