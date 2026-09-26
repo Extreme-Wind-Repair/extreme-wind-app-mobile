@@ -774,6 +774,20 @@
   }
 
   /* ============ Render: chips ============ */
+  /* ESTADO PADRAO POR CARD (26/09/2026, Robson): exibido na caixa Estado
+     enquanto a coluna "Estado" nao existir/estiver vazia na aba RD_Parques.
+     Quando alguem preencher a caixa (com a coluna criada), vale o da planilha. */
+  const ESTADO_PADRAO = {
+    'b1-02':'PI', 'b1-03':'PI', 'b2-03':'PI', 'b2-04':'PI',
+    'b1-06':'BA', 'b1-07':'RN', 'b1-08':'BA', 'b1-09':'RN',
+    'b3-01':'RN', 'b3-02':'BA', 'b2-05':'RS', 'b3-03':'RS',
+    'b3-08':'Nuevo León (MX)', 'b3-09':'Nuevo León (MX)'
+  };
+  function estadoDe(p){
+    const v = (p.Estado != null) ? String(p.Estado).trim() : '';
+    return v || ESTADO_PADRAO[p.ParkID] || '';
+  }
+
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
@@ -783,7 +797,7 @@
     if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
     return fields.map(function(k){
       return '<span class="chip"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
-        '<span class="chip-value" contenteditable="true" data-field="' + k + '">' + escapeHtml(p[k]) + '</span></span>';
+        '<span class="chip-value" contenteditable="true" data-field="' + k + '">' + escapeHtml(k === 'Estado' ? estadoDe(p) : p[k]) + '</span></span>';
     }).join('');
   }
 
@@ -1952,6 +1966,18 @@
     return idx === -1 ? FABRICANTE_ORDER.length : idx;
   }
 
+  /* ORDEM NATURAL DENTRO DO FABRICANTE (26/09/2026, Robson): cards do mesmo
+     projeto ficam juntos e em sequencia numerica (OITIS MCU 1, OITIS MCU 2,
+     LDV MCU 1, LDV MCU 2...). O projeto que vem primeiro e o que tem o menor
+     campo Ordem entre os seus cards. Nome base = nome sem o numero final. */
+  function nomeBaseProjeto(n){
+    return String(n || '').trim().toUpperCase().replace(/\s*\d+\s*$/, '').trim();
+  }
+  function numeroProjeto(n){
+    const m = String(n || '').trim().match(/(\d+)\s*$/);
+    return m ? Number(m[1]) : 0;
+  }
+
   function renderBlock(bloco){
     const containerEl = document.getElementById(bloco);
     containerEl.innerHTML = '';
@@ -1964,11 +1990,23 @@
     // antigo) ganham botão de excluir pra dar um jeito de reduzir a 1 só.
     const naoPlaceholder = parks.filter(function(p){ return !p.Placeholder; });
     const placeholders = parks.filter(function(p){ return p.Placeholder; });
+    const minOrdemProjeto = {};
+    naoPlaceholder.forEach(function(p){
+      const k = fabricanteRank(p.Fabricante) + '|' + nomeBaseProjeto(p.NomeParque);
+      const o = Number(p.Ordem) || 0;
+      if (!(k in minOrdemProjeto) || o < minOrdemProjeto[k]) minOrdemProjeto[k] = o;
+    });
     naoPlaceholder.sort(function(a,b){
       const fa = fabricanteRank(a.Fabricante), fb = fabricanteRank(b.Fabricante);
       if (fa !== fb) return fa - fb;
-      const ra = supervisorRank(a.Supervisor), rb = supervisorRank(b.Supervisor);
-      if (ra !== rb) return ra - rb;
+      const ka = fa + '|' + nomeBaseProjeto(a.NomeParque), kb = fb + '|' + nomeBaseProjeto(b.NomeParque);
+      if (ka !== kb){
+        const oa = minOrdemProjeto[ka], ob = minOrdemProjeto[kb];
+        if (oa !== ob) return oa - ob;
+        return ka.localeCompare(kb);
+      }
+      const na = numeroProjeto(a.NomeParque), nb = numeroProjeto(b.NomeParque);
+      if (na !== nb) return na - nb;
       return a.Ordem - b.Ordem;
     });
     const ordered = naoPlaceholder.concat(placeholders);
