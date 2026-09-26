@@ -550,7 +550,13 @@
     let ultimoErro;
     for (let i = 0; i < tentativas; i++){
       try{
-        const r = await fetch(url, { cache:'no-store' });
+        /* ANTI-CACHE 26/09/2026 (causa real do "—" recorrente, confirmada no
+           Chrome do Robson): para a URL fixa, o Google devolvia uma copia VELHA
+           da aba analise (74 linhas, sem OIT-05-05/OIT-08-05) enquanto a atual
+           tinha 85. cache:'no-store' so controla o cache do navegador, nao o do
+           Google. Um parametro que muda a cada chamada obriga a versao atual. */
+        const urlFresca = url + (url.indexOf('?') === -1 ? '?' : '&') + '_=' + Date.now() + '_' + i;
+        const r = await fetch(urlFresca, { cache:'no-store' });
         let txt = await r.text();
         if (!r.ok) throw new Error('gviz respondeu status ' + r.status);
         txt = txt.replace(/^[^(]*\(/, '').replace(/\);?\s*$/, '');
