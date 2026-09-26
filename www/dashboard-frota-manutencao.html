@@ -263,10 +263,10 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--ok)">96%</div>
-    <div class="foot">WK 39 · 25 ações pendentes no total</div>
+    <div class="foot">WK 39 · 16 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">0</span><span class="l">Emergenciais</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">25</span><span class="l">Programadas</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">16</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">0</span><span class="l">Administrativas</span></div>
     </div>
   </div>
@@ -657,7 +657,7 @@
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">0</span><span class="l">Emergencial</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">25</span><span class="l">Programado</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">16</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">0</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
@@ -1338,15 +1338,6 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TXY8H30 - REVISÃO VENCE EM 34 KM (ÚLTIMA REVISÃO 25.258 / ATUAL 35.224)", tipo:"[Emergencial: REVISÃO] CORRETIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"João", status:"25/09/2026", obs:"AGENDAR OFICINA PARCEIRA/KM ESTOURADO", categoria:"Emergencial" },
-  { acao:"TXY8H30 - REVISÃO VENCE EM 34 KM (ÚLTIMA REVISÃO 25.258 / ATUAL 35.224)", tipo:"[Programada: KM] CORRETIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"João", status:"25/09/2026", obs:"AGENDAR OFICINA PARCEIRA/KM ESTOURADO", categoria:"Programada" },
-  { acao:"TET3C50 - REVISÃO VENCIDA: 626 KM ALÉM DO PONTO DE TROCA (ÚLTIMA REVISÃO 40.331 / ATUAL 50.957)", tipo:"[Emergencial: REVISÃO] CORRETIVA", parque:"OITIS 2/PI", quem:"João", status:"26/09/2026", obs:"AGENDAR OFICINA - REVISÃO PARA 26/09", categoria:"Emergencial" },
-  { acao:"TET3C50 - REVISÃO VENCIDA: 626 KM ALÉM DO PONTO DE TROCA (ÚLTIMA REVISÃO 40.331 / ATUAL 50.957)", tipo:"[Programada: KM] CORRETIVA", parque:"OITIS 2/PI", quem:"João", status:"26/09/2026", obs:"AGENDAR OFICINA - REVISÃO PARA 26/09", categoria:"Programada" },
-  { acao:"FAZER  A PLANILHA DE ACOMPANHAMENTO BLOQ-DESBLOQ", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"Sandoval", status:"25/09/2026", obs:"USAR OS DADOS REPASSADOS PELA KRATOS", categoria:"Administrativa" },
-  { acao:"TYA7G48 - REMARCAR DATA DA DEVOLUÇÃO", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"João", status:"21/09/2026", obs:"REMARCARDO- 03/10", categoria:"Administrativa" },
-  { acao:"CONFERIR INFORMAÇÕES DO GRUPO", tipo:"ADMINISTRATIVA", parque:"-", quem:"Sandoval", status:"21/09/2026", obs:"REFERENTE AO ULTIMO FINAL DE SEMANA", categoria:"Administrativa" },
-  { acao:"TXY8H30 - PNEU DIANTEIRO ESQ. E TRASEIRO DIR. ENTRE 3,7-2,7MM (FAIXA AMBÍGUA), ESTEPE ABAIXO DE 2,7MM (CHECKLIST 14/09)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval", status:"22/09/2026", obs:"TROCA COM  ESTEPE", categoria:"Emergencial" },
-  { acao:"TET3C50 - ALINHAR INSTALAÇÃO DO RASTREADOR/BLOQUEADOR", tipo:"ADMINISTRATIVA", parque:"OITIS 2", quem:"João", status:"26/09/2026", obs:"ALINHAMENTO COM A SUPERVISÃO DE ACORDO COM AS ATIVIDADES", categoria:"Administrativa" },
   { acao:"TYD9F24 - PNEUS DIANTEIROS ESQ. E DIR. EM ~2,2mm NO PAQUÍMETRO (CHECKLIST 21/09) - PROGRAMAR TROCA", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"30/09/2026", obs:"CONFERIR HISTÓRICO DE MANUTENÇÃO PARA TROCA DE PNEUS", categoria:"Emergencial" },
   { acao:"TYA7G48 - MEDIÇÃO DO PNEU BAIXA", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"João", status:"03/10/2026", obs:"O VEICULO SERA SUBSTITUIDO", categoria:"Emergencial" },
   { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJAO", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
