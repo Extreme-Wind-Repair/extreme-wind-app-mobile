@@ -2173,8 +2173,14 @@
         acoes.forEach(function(a){
           const cats = (a._cats || [a.categoria]).filter(function(c, i, arr){ return c && arr.indexOf(c) === i; });
           const cor = cats.indexOf('Emergencial') !== -1 ? 'emerg' : (cats.indexOf('Programada') !== -1 ? 'prog' : 'adm');
+          /* Prazo remarcado (26/09/2026, Robson): quando a observacao diz
+             "REMARCADO - 03/10" (ou "REMARCADA 03/10/2026"), o prazo exibido
+             passa a ser a data remarcada, nao a data original ja vencida. */
+          let prazo = String(a.status || '');
+          const rem = String(a.obs || '').match(/REMARCAR?D[OA]?\s*[-:–]?\s*(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
+          if (rem) prazo = rem[1] + ' (remarcado)';
           h += '<div class="frota-acao ' + cor + '" title="' + escapeHtml((a.obs || '') + ' — ' + (a.quem || '')) + '">' +
-               escapeHtml(a.acao) + ' <span class="frota-muted">· ' + escapeHtml(a.status || '') + '</span></div>';
+               escapeHtml(a.acao) + ' <span class="frota-muted">· ' + escapeHtml(prazo) + '</span></div>';
         });
       }
       el.innerHTML = h;
