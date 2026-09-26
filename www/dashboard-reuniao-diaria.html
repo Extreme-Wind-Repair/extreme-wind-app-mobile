@@ -2281,8 +2281,21 @@
         if (!linhas.length){ h += '<div class="frota-ok">✔ Sem problemas</div>'; }
         linhas.forEach(function(c){
           const info = v.cats[c.k];
-          h += '<div class="frota-item frota-' + c.k + '"><span class="frota-rot">' + c.rot + '</span>' +
-               (info.itens.length ? ' <span class="frota-det">' + escapeHtml(info.itens.join('; ')) + '</span>' : '') +
+          const todos = info.itens.join(' ').toUpperCase();
+          let st;
+          if (c.k === 'rev'){
+            const km = todos.match(/VENCE EM ([\d.]+) KM/);
+            st = /VENCID|ESTOURAD|ALÉM|ALEM|CHECKLIST/.test(todos) ? 'VENCIDA' : (km ? 'vence em ' + km[1] + ' km' : 'pendente');
+          } else if (c.k === 'pneu'){
+            st = 'TROCAR';
+          } else if (c.k === 'troca'){
+            st = 'agendada';
+          } else {
+            const n = info.itens.length;
+            st = n + (c.k === 'lat' ? (n > 1 ? ' reparos' : ' reparo') : (n > 1 ? ' problemas' : ' problema'));
+          }
+          h += '<div class="frota-item frota-' + c.k + '" title="' + escapeHtml(info.itens.join(' • ')) + '">' +
+               '<span class="frota-rot">' + c.rot + ':</span> <span class="frota-det">' + escapeHtml(st) + '</span>' +
                (info.prazo ? ' <span class="frota-muted">· ' + escapeHtml(info.prazo) + '</span>' : '') + '</div>';
         });
         h += '</div>';
