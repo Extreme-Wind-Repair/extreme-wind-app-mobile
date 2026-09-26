@@ -2135,7 +2135,12 @@
           const txt = String((a.acao || '') + ' ' + (a.tipo || '')).toUpperCase();
           const soSaldo = /SALDO/.test(txt) && !/REVIS|PNEU/.test(txt);
           const linhaSaldo = /\[PROGRAMADA:\s*SALDO/.test(txt);
-          return !soSaldo && !linhaSaldo;
+          /* So problema COM O VEICULO entra (Robson, 26/09/2026): a acao tem que
+             comecar pela placa (ex.: "TET3C50 - ..."). Acoes administrativas sem
+             placa (conseguir fornecedor, ranking de condutores, planilhas) ficam
+             so no dashboard de Frota. */
+          const temPlaca = /^\s*[A-Z]{3}\d[A-Z0-9]\d{2}\b/.test(String(a.acao || '').toUpperCase());
+          return temPlaca && !soSaldo && !linhaSaldo;
         })
       };
     } catch(err){
