@@ -608,7 +608,7 @@
   }
   async function loadPlanejadoPorTurbina(){
     try{
-      const j = await fetchGvizComRetry(ANALISE_GVIZ_URL);
+      const j = await fetchGvizComRetry(ANALISE_GVIZ_URL, 5);
       const rows = j.table.rows || [];
       const mapa = {};
       rows.forEach(function(row){
@@ -659,10 +659,44 @@
         mapa[key].sort(function(a, b){ return a.dataChave.localeCompare(b.dataChave); });
       });
       ANALISE_POR_TURBINA = mapa;
+      return true;
     } catch(err){
       console.error('Falha ao carregar % Planejado / % Avanço (aba análise):', err);
-      ANALISE_POR_TURBINA = {};
+      /* CORRECAO 26/09/2026 (Robson): nao zera um mapa que ja estava carregado
+         -- so fica vazio se nunca carregou. Quem chama decide tentar de novo. */
+      if (!ANALISE_POR_TURBINA) ANALISE_POR_TURBINA = {};
+      return false;
     }
+  }
+  /* CORRECAO 26/09/2026 (Robson): "RDO sem informacoes reais da planilha".
+     Sintoma: nos quadros Anteontem/Ontem, Data inicio / Data prev. fim / Dias
+     realizados / % Planejado / Avanco TODOS em "—" ao mesmo tempo, com a aba
+     analise tendo os valores certos. Causa: a leitura gviz da aba analise
+     falhava de forma intermitente, o erro era engolido acima e a tela era
+     desenhada com o mapa vazio -- sem nenhuma nova tentativa (o retry do boot()
+     so cobria a API do Apps Script). Agora, se a analise falhar, a tela sobe
+     normal e a analise e retentada em segundo plano; quando carregar, os cards
+     sao redesenhados sozinhos. Nao muda layout, indices nem logica de casamento. */
+  let _analiseRetryTimer = null;
+  function agendarRetryAnalise(tentativa){
+    tentativa = tentativa || 1;
+    const MAX = 8;
+    if (tentativa > MAX){
+      setSyncStatus('Conectado ao Google Sheets — mas a aba "analise" (Data início / % Planejado / Avanço) não respondeu. Atualize a página.', true);
+      return;
+    }
+    clearTimeout(_analiseRetryTimer);
+    _analiseRetryTimer = setTimeout(async function(){
+      const ok = await loadPlanejadoPorTurbina();
+      if (!ok) return agendarRetryAnalise(tentativa + 1);
+      const ae = document.activeElement;
+      if (ae && ae.isContentEditable){
+        /* usuario editando uma celula: nao redesenha agora pra nao perder a digitacao */
+        return agendarRetryAnalise(tentativa);
+      }
+      renderAll();
+      setSyncStatus('Conectado ao Google Sheets.', false);
+    }, 4000 * tentativa);
   }
 
   function escapeHtml(s){
@@ -1953,11 +1987,15 @@
     const MAX_TENTATIVAS_BOOT = 4;
     try{
       setSyncStatus(tentativa > 1 ? ('Carregando dados do Google Sheets… (tentativa ' + tentativa + '/' + MAX_TENTATIVAS_BOOT + ')') : 'Carregando dados do Google Sheets…', false);
-      const [dataResult] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
+      const [dataResult, analiseOk] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
       renderAll();
       setSyncStatus(API_URL ? 'Conectado ao Google Sheets.' : 'MODO TESTE — lendo dados_seed.json local. Edições não são salvas (configure API_URL).', !API_URL);
+      if (!analiseOk){
+        setSyncStatus('Carregando Data início / % Planejado / Avanço (aba analise)… nova tentativa em instantes.', true);
+        agendarRetryAnalise(1);
+      }
     } catch(err){
       if (tentativa < MAX_TENTATIVAS_BOOT){
         setSyncStatus('Instabilidade ao carregar dados, tentando novamente…', true);
