@@ -1940,6 +1940,18 @@
     return idx === -1 ? SUPERVISOR_ORDER.length : idx;
   }
 
+  /* ORDEM POR FABRICANTE (26/09/2026, definida por Robson): a apresentacao
+     diaria e SEMPRE GE -> Nordex -> Siemens, nos 3 blocos. Criterio principal;
+     dentro de cada fabricante continua valendo a ordem por supervisor
+     (SUPERVISOR_ORDER) e depois o campo Ordem. Fabricante fora da lista (ou
+     vazio) vai depois de Siemens; vaga em branco sempre por ultimo.
+     Substitui a ordem GE -> Siemens -> Nordex anotada em 25/09/2026. */
+  const FABRICANTE_ORDER = ['GE', 'NORDEX', 'SIEMENS'];
+  function fabricanteRank(f){
+    const idx = FABRICANTE_ORDER.indexOf(String(f || '').trim().toUpperCase());
+    return idx === -1 ? FABRICANTE_ORDER.length : idx;
+  }
+
   function renderBlock(bloco){
     const containerEl = document.getElementById(bloco);
     containerEl.innerHTML = '';
@@ -1953,6 +1965,8 @@
     const naoPlaceholder = parks.filter(function(p){ return !p.Placeholder; });
     const placeholders = parks.filter(function(p){ return p.Placeholder; });
     naoPlaceholder.sort(function(a,b){
+      const fa = fabricanteRank(a.Fabricante), fb = fabricanteRank(b.Fabricante);
+      if (fa !== fb) return fa - fb;
       const ra = supervisorRank(a.Supervisor), rb = supervisorRank(b.Supervisor);
       if (ra !== rb) return ra - rb;
       return a.Ordem - b.Ordem;
