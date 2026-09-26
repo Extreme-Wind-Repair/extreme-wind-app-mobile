@@ -357,6 +357,10 @@
   .info-chips .chip-value{font-size:11.5px !important;}
   .activity-box, .ehs-box{width:182px !important;}
   .status-col{width:160px !important;}
+  /* RDOs (Anteontem/Ontem) encostados a direita, junto do status, e afastados
+     dos quadros de RH/EHS/Frota/Compras (26/09/2026, Robson). */
+  .activity-boxes{flex:1 1 auto !important;}
+  .ab-daycol.ab-rdo-inicio{margin-left:auto; padding-left:22px;}
   .status-select{width:160px !important;}
   .rdo-resumo-box{
     flex:none; width:190px; background:var(--brand-deep); border:1px solid var(--line);
@@ -962,7 +966,7 @@
               '<div class="ab-title">Envios Logísticos / Requisições</div>' +
               '<div class="frota-auto" data-envios-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando envios…</span></div>' +
             '</div></div>' +
-          '<div class="ab-daycol"><div class="ab-daycol-label" data-ab-daylabel>Anteontem</div>' +
+          '<div class="ab-daycol ab-rdo-inicio"><div class="ab-daycol-label" data-ab-daylabel>Anteontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">Ontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="1" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
