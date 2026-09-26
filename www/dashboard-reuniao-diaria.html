@@ -391,6 +391,13 @@
     font-size:10px; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;
   }
   tbody td{padding:8px 12px; border-top:1px solid var(--line); vertical-align:top;}
+  /* Tabela de equipe: coluna do nome so do tamanho do nome, pra certificacao
+     ficar logo ao lado (26/09/2026, Robson). */
+  .panel > table th:first-child, .panel > table td:first-child{width:1%; white-space:nowrap; padding-right:28px;}
+  td.cert-td{cursor:pointer;}
+  td.cert-td:hover{background:rgba(28,140,232,.06);}
+  td.cert-td[contenteditable="true"]{cursor:text; outline:none; background:rgba(28,140,232,.18); box-shadow:inset 0 0 0 1px var(--steel);}
+  td.cert-td .badge-cert{font-size:11.5px; padding:1px 7px;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
   .obs{color:var(--muted); font-size:11.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
@@ -1006,9 +1013,22 @@
     return '';
   }
 
-  function equipeRowHtml(row, colCount, nomeParque){
+  /* CERTIFICACOES EM CAIXINHAS (26/09/2026, Robson): a coluna "Certificação"
+     da tabela de equipe mostra cada certificacao num badge, igual ao quadro do
+     BDH ("N1 + ART" vira [N1] [ART]). Clicar na celula abre o texto puro pra
+     editar; ao sair, salva em RD_Equipe e volta a mostrar as caixinhas. */
+  function certChipsHtml(txt){
+    const itens = String(txt || '').split(/\s*[+,;\/]\s*|\s+-\s+/).map(function(x){ return x.trim(); }).filter(Boolean);
+    if (!itens.length) return '<span class="tech-cert-empty">—</span>';
+    return '<span class="tech-cert-badges">' + itens.map(function(c){ return '<span class="badge-cert">' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
+  }
+  function equipeRowHtml(row, colCount, nomeParque, certIdx){
     let tds = '';
     for (let i = 1; i <= colCount; i++){
+      if (i === certIdx){
+        tds += '<td class="cert-td" data-field="Val' + i + '" data-raw="' + escapeHtml(row['Val' + i] || '') + '" title="Clique para editar">' + certChipsHtml(row['Val' + i]) + '</td>';
+        continue;
+      }
       tds += '<td contenteditable="true" data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
@@ -1026,7 +1046,9 @@
     const colCount = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',').length;
     const tbody = node.querySelector('[data-equipe-body]');
     const equipeRows = DATA.equipe.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
-    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque))); });
+    const colsEq = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
+    const certIdx = colsEq.findIndex(function(h){ return /certifica/i.test(h); }) + 1;
+    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque, certIdx))); });
 
     const apBody = node.querySelector('[data-aprovados-body]');
     const apRows = DATA.aprovados.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
@@ -1683,8 +1705,32 @@
     });
   }
 
+  function wireCertCells(node){
+    node.querySelectorAll('td.cert-td').forEach(function(td){
+      td.addEventListener('click', function(){
+        if (td.isContentEditable) return;
+        td.contentEditable = 'true';
+        td.textContent = td.dataset.raw || '';
+        td.focus();
+      });
+      td.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); td.blur(); } });
+      td.addEventListener('blur', function(){
+        if (!td.isContentEditable) return;
+        const novo = td.textContent.trim();
+        td.contentEditable = 'false';
+        if (novo !== (td.dataset.raw || '')){
+          const tr = td.closest('[data-row]');
+          apiPost({ action:'updateCell', sheet:'RD_Equipe', row: Number(tr.dataset.row), field: td.dataset.field, value: novo, autoUnblank:false });
+          td.dataset.raw = novo;
+        }
+        td.innerHTML = certChipsHtml(td.dataset.raw);
+      });
+    });
+  }
+
   function wirePanel(node, p){
     wireRhBox(node, p);
+    wireCertCells(node);
     node.querySelectorAll('.park-info [contenteditable], .info-chips [data-field], .ehs-box [data-field]').forEach(function(f){ wireFieldSave(f, 'RD_Parques', false); });
     wireFieldSave(node.querySelector('.logo-select'), 'RD_Parques', true);
     wireFieldSave(node.querySelector('.status-select'), 'RD_Parques', true);
