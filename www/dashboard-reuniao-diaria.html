@@ -404,7 +404,7 @@
   .aprovados-box .ap-title{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
 
   /* ============ Rodapé do painel — excluir (bloco 1) / avançar (blocos 2 e 3) ============ */
-  .panel-footer{padding:8px 18px 12px; display:flex; justify-content:flex-end; border-top:1px solid var(--line);}
+  .panel-footer{padding:8px 18px 12px; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--line);}
   .btn-delete-park, .btn-advance-block{
     font-size:11px; font-weight:600; padding:5px 11px; border-radius:6px; cursor:pointer;
   }
@@ -1001,7 +1001,9 @@
 
   /* Bloco 1 (Parques Ativos): botão de excluir o projeto por inteiro.
      Blocos 2 (Mobilização) e 3 (Aprovação de Documentações): botão de
-     avançar o projeto pro bloco anterior na esteira (3→2, 2→1). Painéis em
+     avançar o projeto pro bloco anterior na esteira (3→2, 2→1) E, ao lado
+     dele, também o botão de excluir o projeto por inteiro (pedido do
+     Robson, 28/09/2026 — antes só existia em Parques Ativos). Painéis em
      branco (placeholder, ainda sem nome) normalmente não recebem nenhum dos
      dois — exceto quando há mais de 1 vaga em branco sobrando no Bloco 1
      (extraDeletableBlank), caso em que a vaga extra também ganha um botão
@@ -1015,7 +1017,10 @@
       return '<div class="panel-footer"><button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir projeto</button></div>';
     }
     if (p.Bloco === 'b2' || p.Bloco === 'b3'){
-      return '<div class="panel-footer"><button type="button" class="btn-advance-block" data-action="advance-block">Avançar ▸</button></div>';
+      return '<div class="panel-footer">' +
+        '<button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir projeto</button>' +
+        '<button type="button" class="btn-advance-block" data-action="advance-block">Avançar ▸</button>' +
+      '</div>';
     }
     return '';
   }
@@ -1764,10 +1769,12 @@
   async function deletePark(p){
     const isBlank = !!p.Placeholder;
     const nome = (p.NomeParque || '').trim() || 'este projeto';
+    const blocoLabel = BLOCO_LABEL[p.Bloco] || 'Parques Ativos';
     const msg = isBlank
       ? 'Remover esta vaga em branco de "Novo Projeto"? Isso ajuda a manter só 1 vaga aberta no Bloco 1.'
-      : 'Excluir "' + nome + '" por completo dos Parques Ativos?\n\nEssa ação remove o painel, a equipe e a lista de aprovados desse projeto. Se for engano, dá pra desfazer logo em seguida.';
+      : 'Excluir "' + nome + '" por completo de "' + blocoLabel + '"?\n\nEssa ação remove o painel, a equipe e a lista de aprovados desse projeto. Se for engano, dá pra desfazer logo em seguida.';
     if (!confirm(msg)) return;
+    const blocoOrigem = p.Bloco;
     // Guarda uma cópia completa (parque + equipe + aprovados) antes de excluir,
     // pra permitir desfazer via a caixinha que aparece no canto inferior esquerdo.
     const snapshot = {
@@ -1794,7 +1801,7 @@
     // servidor e o "Desfazer" continua disponível pra reverter.
     showUndoToast(snapshot, isBlank ? 'Vaga em branco removida.' : 'Projeto "' + nome + '" excluído.');
     try {
-      renderBlock('b1');
+      renderBlock(blocoOrigem);
       renderKpis();
     } catch (err){
       console.error('Erro ao atualizar a tela após excluir:', err);
@@ -1834,7 +1841,7 @@
         const r = await apiPost({ action:'addRow', sheet:'RD_Aprovados', template: ap });
         DATA.aprovados.push(Object.assign({}, ap, { _row: r && r.result ? r.result.newRow : null }));
       }
-      renderBlock('b1');
+      renderBlock(snapshot.park.Bloco || 'b1');
       renderKpis();
     } catch (err){
       console.error('Erro ao desfazer exclusão:', err);
