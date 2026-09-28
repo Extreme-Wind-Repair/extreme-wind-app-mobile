@@ -489,6 +489,13 @@
 
   <div class="block-view active" id="b1"><div class="loading">Carregando…</div></div>
   <div class="block-view" id="b2"></div>
+  <div id="b3Toolbar" style="display:none; margin-bottom:14px;">
+    <a href="https://extremewind-ferramentas-de-campo.github.io/administrativo/modulos/projetos-andamento.html"
+       target="_blank" rel="noopener"
+       style="display:inline-flex; align-items:center; gap:6px; background:var(--brand); color:#fff; font-weight:600; font-size:14px; padding:9px 16px; border-radius:8px; text-decoration:none;">
+      <span style="font-size:16px; line-height:1;">+</span> Novo projeto
+    </a>
+  </div>
   <div class="block-view" id="b3"></div>
   <div class="block-view" id="b4"></div>
   <div class="block-view" id="b5"></div>
@@ -2198,9 +2205,14 @@
     });
     /* 26/09/2026 (Robson): no Bloco 1 (Parques Ativos) NAO existe mais a vaga
        em branco para criar projeto manualmente -- projeto novo entra pelo RDO
-       (regra "nome do card = nome do RDO"). Os Blocos 2 e 3 seguem com a vaga. */
-    const ordered = bloco === 'b1' ? naoPlaceholder : naoPlaceholder.concat(placeholders);
-    const totalBlanks = bloco === 'b1' ? 0 : placeholders.length;
+       (regra "nome do card = nome do RDO").
+       28/09/2026 (Robson): Blocos 2 (Mobilização) e 3 (Aprovação de
+       Documentações) também deixam de ter a vaga em branco -- no Bloco 3, a
+       criação de projeto novo passa a ser pelo botão "+ Novo projeto" (link
+       pro Portal Administrativo), não mais pelo cartão em branco local. */
+    const semVagaEmBranco = bloco === 'b1' || bloco === 'b2' || bloco === 'b3';
+    const ordered = semVagaEmBranco ? naoPlaceholder : naoPlaceholder.concat(placeholders);
+    const totalBlanks = semVagaEmBranco ? 0 : placeholders.length;
     let blanksSeen = 0;
     ordered.forEach(function(p){
       let extraDeletableBlank = false;
@@ -2489,6 +2501,9 @@
       document.querySelectorAll('.block-view').forEach(function(v){ v.classList.remove('active'); });
       btn.classList.add('active');
       document.getElementById(btn.dataset.block).classList.add('active');
+      // Botão "+ Novo projeto" (link pro Portal Administrativo) só aparece no Bloco 3 (pedido do Robson, 28/09/2026)
+      const b3Toolbar = document.getElementById('b3Toolbar');
+      if (b3Toolbar) b3Toolbar.style.display = (btn.dataset.block === 'b3') ? 'block' : 'none';
     });
   });
 
