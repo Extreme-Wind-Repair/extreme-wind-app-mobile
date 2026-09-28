@@ -66,6 +66,43 @@
     background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:0 4px; line-height:1;
   }
   .undo-toast .undo-close:hover{color:var(--text);}
+
+  /* Modal "Novo Projeto" (Bloco 3) -- 28/09/2026, Robson */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:300; background:rgba(2,10,18,.65);
+    display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  .modal-overlay[hidden]{display:none;}
+  .modal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto;
+    box-shadow:0 8px 28px rgba(0,0,0,.4);
+  }
+  .modal-title{font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text);}
+  .modal-field{
+    display:block; font-size:12px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.02em; margin-bottom:12px;
+  }
+  .modal-field input{
+    display:block; width:100%; margin-top:5px; padding:8px 10px; font-size:14px;
+    background:var(--panel2); border:1px solid var(--line); border-radius:6px;
+    color:var(--text); font-family:inherit;
+  }
+  .modal-field input:focus{outline:none; border-color:var(--brand);}
+  .modal-error{
+    color:#e0483c; font-size:12.5px; margin:-4px 0 12px;
+  }
+  .modal-error[hidden]{display:none;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:6px;}
+  .modal-btn-cancel, .modal-btn-add{
+    font-size:13px; font-weight:600; padding:8px 16px; border-radius:7px; cursor:pointer;
+  }
+  .modal-btn-cancel{background:transparent; border:1px solid var(--line); color:var(--muted);}
+  .modal-btn-cancel:hover{color:var(--text); border-color:var(--muted);}
+  .modal-btn-add{background:var(--brand); border:1px solid var(--brand); color:#fff;}
+  .modal-btn-add:hover{background:var(--brand-dark);}
+  .modal-btn-add:disabled{opacity:.6; cursor:default;}
+
   *{box-sizing:border-box;}
   body{
     margin:0; font-family:Segoe UI,Arial,sans-serif; background:var(--bg); color:var(--text);
@@ -490,13 +527,45 @@
   <div class="block-view active" id="b1"><div class="loading">Carregando…</div></div>
   <div class="block-view" id="b2"></div>
   <div id="b3Toolbar" style="display:none; margin-bottom:14px;">
-    <a href="https://extremewind-ferramentas-de-campo.github.io/administrativo/modulos/projetos-andamento.html"
-       target="_blank" rel="noopener"
-       style="display:inline-flex; align-items:center; gap:6px; background:var(--brand); color:#fff; font-weight:600; font-size:14px; padding:9px 16px; border-radius:8px; text-decoration:none;">
+    <!-- 28/09/2026 (Robson): o botão deixou de linkar pro Portal Administrativo
+         externo e passou a abrir um formulário próprio (modal abaixo), que cria
+         o projeto direto no Bloco 3 via Google Sheets (mesmo mecanismo dos
+         demais painéis). -->
+    <button type="button" id="btnNovoProjeto"
+       style="display:inline-flex; align-items:center; gap:6px; background:var(--brand); color:#fff; font-weight:600; font-size:14px; padding:9px 16px; border-radius:8px; border:none; cursor:pointer;">
       <span style="font-size:16px; line-height:1;">+</span> Novo projeto
-    </a>
+    </button>
   </div>
   <div class="block-view" id="b3"></div>
+
+  <div class="modal-overlay" id="novoProjetoOverlay" hidden>
+    <div class="modal-card">
+      <div class="modal-title">Novo Projeto — Aprovação de Documentações</div>
+      <label class="modal-field">Projeto
+        <input type="text" id="npProjeto" placeholder="Nome do parque/projeto">
+      </label>
+      <label class="modal-field">Cliente
+        <input type="text" id="npCliente" placeholder="Ex.: GE, Siemens, Nordex...">
+      </label>
+      <label class="modal-field">Supervisor
+        <input type="text" id="npSupervisor" placeholder="Nome do supervisor">
+      </label>
+      <label class="modal-field">Técnico 1
+        <input type="text" id="npTecnico1" placeholder="Nome do técnico">
+      </label>
+      <label class="modal-field">Técnico 2
+        <input type="text" id="npTecnico2" placeholder="Nome do técnico">
+      </label>
+      <label class="modal-field">Técnico 3
+        <input type="text" id="npTecnico3" placeholder="Nome do técnico">
+      </label>
+      <div class="modal-error" id="npErro" hidden></div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" id="npCancelar">Cancelar</button>
+        <button type="button" class="modal-btn-add" id="npAcrescentar">Acrescentar</button>
+      </div>
+    </div>
+  </div>
   <div class="block-view" id="b4"></div>
   <div class="block-view" id="b5"></div>
 
@@ -1907,6 +1976,79 @@
       spawnNextPark(bloco, node.parentElement);
     });
   }
+
+  /* ============ Modal "Novo Projeto" (Bloco 3) -- 28/09/2026, Robson ============
+     Substitui o antigo link externo pro Portal Administrativo: agora cria o
+     projeto direto no Bloco 3, gravando em RD_Parques / RD_Equipe / RD_Aprovados
+     pelo mesmo Apps Script já usado pelo resto do dashboard. */
+  function abrirModalNovoProjeto(){
+    ['npProjeto','npCliente','npSupervisor','npTecnico1','npTecnico2','npTecnico3'].forEach(function(id){
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('npErro').hidden = true;
+    document.getElementById('novoProjetoOverlay').hidden = false;
+    document.getElementById('npProjeto').focus();
+  }
+  function fecharModalNovoProjeto(){
+    document.getElementById('novoProjetoOverlay').hidden = true;
+  }
+  async function acrescentarNovoProjeto(){
+    const nomeProjeto = document.getElementById('npProjeto').value.trim();
+    const erroEl = document.getElementById('npErro');
+    if (!nomeProjeto){
+      erroEl.textContent = 'Preencha o nome do projeto.';
+      erroEl.hidden = false;
+      return;
+    }
+    erroEl.hidden = true;
+    const cliente = document.getElementById('npCliente').value.trim();
+    const supervisor = document.getElementById('npSupervisor').value.trim();
+    const tecnicos = [
+      document.getElementById('npTecnico1').value.trim(),
+      document.getElementById('npTecnico2').value.trim(),
+      document.getElementById('npTecnico3').value.trim()
+    ];
+    const addBtn = document.getElementById('npAcrescentar');
+    addBtn.disabled = true;
+    addBtn.textContent = 'Acrescentando…';
+    try {
+      PARK_SEQ++;
+      const uniqueSuffix = Date.now().toString(36) + '-' + PARK_SEQ + '-' + Math.random().toString(36).slice(2, 6);
+      const p = {
+        ParkID: 'b3-novo-' + uniqueSuffix, Bloco: 'b3', Ordem: 999, Fabricante: 'GE', NomeParque: nomeProjeto,
+        Tipo:'', Card:'', Supervisor: supervisor, Cliente: cliente, Data:'', EHS:'', Condicao:'', Status:'standby',
+        ColunasEquipe:'Nome — Estado,Certificação,Observação', Placeholder:false, _row: null
+      };
+      const resp = await apiPost({ action:'addRow', sheet:'RD_Parques', template:{
+        ParkID:p.ParkID, Bloco:p.Bloco, Ordem:p.Ordem, Fabricante:p.Fabricante, NomeParque:p.NomeParque,
+        Supervisor:p.Supervisor, Cliente:p.Cliente, Status:p.Status, ColunasEquipe:p.ColunasEquipe, Placeholder:false
+      }});
+      if (!resp || resp.ok === false){
+        throw new Error(resp && resp.error ? resp.error : 'erro desconhecido ao gravar o projeto');
+      }
+      p._row = resp.result ? resp.result.newRow : null;
+      for (let i = 1; i <= 3; i++){
+        await apiPost({ action:'addRow', sheet:'RD_Equipe', template:{ ParkID:p.ParkID, Ordem:i, Val1: tecnicos[i-1] || '', Val2:'', Val3:'' } });
+        await apiPost({ action:'addRow', sheet:'RD_Aprovados', template:{ ParkID:p.ParkID, Ordem:i, Nome:'', Placeholder:true } });
+      }
+      DATA.parques.push(p);
+      renderBlock('b3');
+      renderKpis();
+      fecharModalNovoProjeto();
+    } catch (err){
+      erroEl.textContent = 'Falha ao criar o projeto: ' + err.message;
+      erroEl.hidden = false;
+    } finally {
+      addBtn.disabled = false;
+      addBtn.textContent = 'Acrescentar';
+    }
+  }
+  document.getElementById('btnNovoProjeto').addEventListener('click', abrirModalNovoProjeto);
+  document.getElementById('npCancelar').addEventListener('click', fecharModalNovoProjeto);
+  document.getElementById('npAcrescentar').addEventListener('click', acrescentarNovoProjeto);
+  document.getElementById('novoProjetoOverlay').addEventListener('click', function(e){
+    if (e.target.id === 'novoProjetoOverlay') fecharModalNovoProjeto();
+  });
 
   async function spawnNextAprovado(parkId, containerEl){
     const resp = await apiPost({ action:'addRow', sheet:'RD_Aprovados', template:{ ParkID: parkId, Ordem: 999, Nome:'', Placeholder:true } });
