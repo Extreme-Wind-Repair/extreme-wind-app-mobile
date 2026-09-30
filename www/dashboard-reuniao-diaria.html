@@ -2315,6 +2315,46 @@
     return m ? Number(m[1]) : 0;
   }
 
+  /* ORDEM = VAGAS MESTRE (30/09/2026, Robson): a sequencia dos cards em cada
+     bloco segue EXATAMENTE a aba "QUADRO DE REUNIÃO" da VAGAS MESTRE (que ja
+     traz a sequencia de clientes GE -> Siemens -> Nordex). Substitui a ordem
+     fixa GE -> Nordex -> Siemens de 26/09/2026 (FABRICANTE_ORDER continua so
+     como desempate para card que nao casar com nenhuma linha abaixo -- esses
+     vao para o fim do bloco).
+     Formato: nome base do projeto (sem cliente/UF), com o numero do card
+     quando houver ("OITIS 1"). Casa com o card se todas as palavras estiverem
+     no nome do card (sem acento) e o numero bater; sem numero casa com todos
+     os cards daquele projeto. NAO muda nome de card nenhum.
+     So entram os projetos ATUAIS do site (30/09/2026, Robson): projeto da
+     VAGAS MESTRE que nao tem card no site (ex.: LDV Externo 2, em
+     desmobilizacao) NAO entra na lista e NAO ganha card.
+     ATUALIZADO A CADA EXECUCAO pelas 3 tarefas de dashboard a partir da
+     VAGAS MESTRE (ver REGRAS_AUTOMACAO.md). Quadro de: 30/09/2026. */
+  const ORDEM_VAGAS_MESTRE = {
+    b1: ['OITIS 1', 'OITIS 2', 'LDV 1', 'LDV 2', 'SAO VITOR', 'SANTO AGOSTINHO', 'TUCANO', 'BAIXA DO FEIJAO', 'GERIBATU'],
+    b2: ['TERRA SANTA'],
+    b3: ['SANTANA DO LIVRAMENTO', 'DOLORES']
+  };
+  function palavrasOrdem(n){
+    return String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
+      .replace(/[^A-Z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+  }
+  function rankVagasMestre(bloco, nomeCard){
+    const lista = ORDEM_VAGAS_MESTRE[bloco] || [];
+    const pc = palavrasOrdem(nomeCard);
+    const numCard = pc.length && /^\d+$/.test(pc[pc.length - 1]) ? Number(pc[pc.length - 1]) : null;
+    for (let i = 0; i < lista.length; i++){
+      const pe = palavrasOrdem(lista[i]);
+      let numE = null;
+      if (pe.length && /^\d+$/.test(pe[pe.length - 1])) numE = Number(pe.pop());
+      if (!pe.length) continue;
+      if (!pe.every(function(w){ return pc.indexOf(w) !== -1; })) continue;
+      if (numE != null && numCard != null && numE !== numCard) continue;
+      return i;
+    }
+    return lista.length; // nao casou: vai pro fim do bloco
+  }
+
   function renderBlock(bloco){
     const containerEl = document.getElementById(bloco);
     containerEl.innerHTML = '';
@@ -2334,6 +2374,8 @@
       if (!(k in minOrdemProjeto) || o < minOrdemProjeto[k]) minOrdemProjeto[k] = o;
     });
     naoPlaceholder.sort(function(a,b){
+      const va = rankVagasMestre(bloco, a.NomeParque), vb = rankVagasMestre(bloco, b.NomeParque);
+      if (va !== vb) return va - vb;
       const fa = fabricanteRank(a.Fabricante), fb = fabricanteRank(b.Fabricante);
       if (fa !== fb) return fa - fb;
       const ka = fa + '|' + nomeBaseProjeto(a.NomeParque), kb = fb + '|' + nomeBaseProjeto(b.NomeParque);
