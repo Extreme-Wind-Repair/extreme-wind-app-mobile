@@ -796,10 +796,53 @@
      exatamente, cai para a linha de data mais próxima e não-posterior ao RDO
      (a última análise disponível até aquele dia); se nem isso existir, usa a
      mais antiga disponível. Retorna null se a turbina não tiver nenhuma linha. */
-  function buscarAnaliseTurbina(turbina, dataExpChaveRdo){
+  /* REGRA 30/09/2026 (Robson): NUNCA misturar dados de blades diferentes.
+     A blade pode variar de um RDO pro outro (quem define e o campo Blade do
+     proprio RDO), mas o quadro so pode mostrar a linha da aba analise da
+     MESMA turbina + MESMA blade do RDO exibido (e, se houver, do mesmo tipo
+     de reparo). Sem linha dessa blade -> "—", nunca a linha de outra blade.
+     Bug que originou: Tucano 1 / TUC 138, RDO 28/09 blade 62 exibia inicio
+     15/09, 91% planejado e 55% de avanco -- que eram da blade 63.
+     Mesma regra para o PARQUE: a linha tem que ser do mesmo parque do RDO
+     (achado no mesmo dia: LDV MCU 1/2, com turbina "N/A", mostravam os
+     numeros de GERIBATU 1, que tambem tinha turbina "N/A"). Turbina "N/A" ou
+     "0" so casa dentro do proprio parque + mesma blade. */
+  function normalizeBlade(b){
+    return String(b == null ? '' : b).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase().replace(/[^A-Z0-9,]/g, '');
+  }
+  function normalizeTipoReparo(t){
+    return String(t == null ? '' : t).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+  }
+  function normalizeParqueAnalise(p){
+    return String(p == null ? '' : p).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+  }
+  function buscarAnaliseTurbina(turbina, dataExpChaveRdo, bladeRdo, tipoRdo, parqueRdo){
     const key = normalizeTurbina(turbina);
-    const linhas = ANALISE_POR_TURBINA[key];
+    if (!key) return null;
+    let linhas = ANALISE_POR_TURBINA[key];
     if (!linhas || !linhas.length) return null;
+    const parque = normalizeParqueAnalise(parqueRdo);
+    if (!parque) return null;
+    linhas = linhas.filter(function(l){ return l.parque === parque; });
+    if (!linhas.length) return null;
+    const blade = normalizeBlade(bladeRdo);
+    if (blade){
+      linhas = linhas.filter(function(l){ return l.blade === blade; });
+    } else {
+      // RDO sem blade: so aceita se a turbina tiver uma unica blade na analise.
+      const blades = {};
+      linhas.forEach(function(l){ blades[l.blade] = true; });
+      if (Object.keys(blades).length !== 1) return null;
+    }
+    if (!linhas.length) return null;
+    const tipo = normalizeTipoReparo(tipoRdo);
+    if (tipo){
+      const mesmoTipo = linhas.filter(function(l){ return l.tipo === tipo; });
+      if (mesmoTipo.length) linhas = mesmoTipo;
+    }
     const exata = linhas.find(function(l){ return l.dataChave === dataExpChaveRdo; });
     if (exata) return exata;
     // Sem match exato: melhor linha é a mais recente que ainda seja <= data do RDO.
@@ -846,6 +889,9 @@
         const rdoRecebidoVal = valCel(c[16]); // Q = RDO recebido
         const dataChave = dataAnaliseParaChave(rdoRecebidoVal);
         (mapa[key] = mapa[key] || []).push({
+          parque: normalizeParqueAnalise(c[0] ? c[0].v : ''),                     // A = Parque
+          blade: normalizeBlade(c[2] ? (c[2].f != null ? c[2].f : c[2].v) : ''), // C = Blade
+          tipo: normalizeTipoReparo(c[3] ? c[3].v : ''),                        // D = Tipo de reparo
           dataChave: dataChave,
           dataInicio: dataInicioVal,
           dataFimPrev: dataFimPrevVal,
@@ -1239,7 +1285,17 @@
        tempo (reparo diferente depois, ou grafia duplicada do nome). Ver
        buscarAnaliseTurbina(). Antes o Avanço vinha de a.Avanco_reparo (campo
        digitado no RDO, aba Relatorios). */
-    const analiseLinha = buscarAnaliseTurbina(a.Turbina, dataExpParaChave(normalizeDateExp(a.Data_exp)));
+    const chaveRdo = dataExpParaChave(normalizeDateExp(a.Data_exp));
+    const analiseLinha = buscarAnaliseTurbina(a.Turbina, chaveRdo, a.Blade, a.Tipo_reparo, a.Parque);
+    /* A aba analise so guarda a situacao ATUAL de cada reparo (uma linha por
+       turbina/blade/tipo, com a data do ultimo registro). Se a linha usada nao
+       for do mesmo dia do RDO, avisa de qual dia sao os numeros -- pra nao
+       parecer que e o valor daquele dia (30/09/2026, Robson). */
+    let avisoDataHtml = '';
+    if (analiseLinha && analiseLinha.dataChave && analiseLinha.dataChave !== chaveRdo){
+      const dc = analiseLinha.dataChave;
+      avisoDataHtml = '<div class="ab-empty">Situação do reparo em ' + dc.slice(6, 8) + '/' + dc.slice(4, 6) + ' (aba análise)</div>';
+    }
     const pct = analiseLinha ? pctGvizParaInteiro(analiseLinha.avanco) : null;
     const pctStr = pct != null ? pct + '%' : '—';
     const planejadoInt = analiseLinha ? pctGvizParaInteiro(analiseLinha.planejado) : null;
@@ -1274,6 +1330,7 @@
         '<div class="ab-progress-bar"><div class="ab-progress-fill ab-progress-planejado" style="width:' + (planejadoInt == null ? 0 : Math.max(0, Math.min(100, planejadoInt))) + '%"></div></div>' +
         '<div class="ab-row"><span class="ab-label">Avanço</span><span class="ab-value">' + pctStr + '</span></div>' +
         '<div class="ab-progress-bar"><div class="ab-progress-fill' + avancoCorClass + '" style="width:' + (pct == null ? 0 : Math.max(0, Math.min(100, pct))) + '%"></div></div>' +
+        avisoDataHtml +
       '</div>' +
       statsHtml;
   }
