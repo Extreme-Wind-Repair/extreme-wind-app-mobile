@@ -850,6 +850,114 @@
     if (anteriores.length) return anteriores[anteriores.length - 1]; // linhas já vêm ordenadas por data asc.
     return linhas[0]; // nenhuma linha <= data do RDO: usa a mais antiga disponível como último recurso.
   }
+  /* SITUACAO NA DATA DO RDO (30/09/2026, Robson): a aba analise so guarda a
+     situacao ATUAL de cada reparo, entao o quadro Anteontem repetia os numeros
+     de Ontem (ex.: Tucano 1 / TUC 138 / blade 62: 2 dias / 27% / 82% nos dois).
+     Regra do Robson: "nao podemos inventar dados de campo, mas se forem os
+     mesmos, podemos recalcular". Entao o site RECALCULA os numeros do dia do
+     RDO usando SO dados de campo (abas Relatorios + Atividades) e a tabela de
+     etapas da aba Reparos, com a MESMA regra descrita no cabecalho da analise:
+       - Dias realizados = n de dias com RDO da obra (parque+turbina+blade+tipo)
+         entre a Data inicio da analise e o dia do RDO;
+       - % Planejado = soma dos pesos (col. G) das etapas com Dia-alvo (col. I)
+         <= dias realizados;
+       - Avanco = % acumulado (col. H) da etapa mais avancada lancada nos RDOs
+         ate aquele dia; 100% se algum RDO ate la tiver Reparo_finalizado=SIM;
+       - Data prev. fim = a da analise, voltando 1 dia util para cada RDO em
+         sabado/domingo DEPOIS do dia exibido (a analise antecipa o fim por eles).
+     TRAVA: antes de usar, o mesmo calculo e feito no dia do ultimo registro da
+     analise e TEM que bater com a linha dela (dias iguais, % com diferenca < 1).
+     Se nao bater, NAO mostra numero: "—" e aviso. Nunca mostra valor de outro dia.
+     Validado em 30/09/2026 contra a analise: 82 de 87 reparos batem (os 5 que
+     nao batem sao de agosto/inicio de setembro, com linhas duplicadas). */
+  let PLANO_REPAROS = null; // tipo normalizado -> [{ativ, peso, acum, alvo}]
+  function pctNum(v){
+    if (v == null || v === '') return null;
+    if (typeof v === 'number') return v <= 1.0001 ? v * 100 : v;
+    const m = String(v).replace(',', '.').match(/-?\d+(\.\d+)?/);
+    return m ? Number(m[0]) : null;
+  }
+  async function loadPlanoReparos(){
+    try{
+      const url = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=Reparos';
+      const j = await fetchGvizComRetry(url, 3);
+      const plano = {};
+      (j.table.rows || []).forEach(function(row){
+        const c = row.c || [];
+        const cel = function(i){ return c[i] ? c[i].v : null; };
+        const tipo = normalizeTipoReparo(cel(3));   // D = Tipo de Reparo
+        const ativ = normalizeTipoReparo(cel(2));   // C = Atividade
+        const alvo = Number(cel(8));                // I = Dia-alvo
+        const peso = pctNum(cel(6)), acum = pctNum(cel(7)); // G = peso, H = % acumulado
+        if (!tipo || !ativ || !isFinite(alvo) || peso == null || acum == null) return;
+        (plano[tipo] = plano[tipo] || []).push({ ativ: ativ, peso: peso, acum: acum, alvo: alvo });
+      });
+      PLANO_REPAROS = Object.keys(plano).length ? plano : null;
+    } catch(err){
+      console.error('Falha ao carregar aba Reparos (situacao na data do RDO):', err);
+      PLANO_REPAROS = null;
+    }
+  }
+  function ehFimDeSemana(chave){ // "AAAAMMDD"
+    const d = new Date(Date.UTC(+chave.slice(0, 4), +chave.slice(4, 6) - 1, +chave.slice(6, 8), 12));
+    const w = d.getUTCDay();
+    return w === 0 || w === 6;
+  }
+  function calcularObra(linha, chaveAte){
+    const plano = PLANO_REPAROS && PLANO_REPAROS[linha.tipo];
+    const ini = dataAnaliseParaChave(linha.dataInicio);
+    if (!plano || !ini) return null;
+    const rdos = (DATA.relatorios || []).filter(function(r){
+      const ch = dataExpParaChave(normalizeDateExp(r.Data_exp));
+      return ch && ch >= ini && ch <= chaveAte &&
+        normalizeTurbina(r.Turbina) === linha.turbina &&
+        normalizeParqueAnalise(r.Parque) === linha.parque &&
+        normalizeBlade(r.Blade) === linha.blade &&
+        normalizeTipoReparo(r.Tipo_reparo) === linha.tipo;
+    });
+    if (!rdos.length) return null;
+    const datas = {};
+    rdos.forEach(function(r){ datas[dataExpParaChave(normalizeDateExp(r.Data_exp))] = true; });
+    const dias = Object.keys(datas).length;
+    const planejado = plano.filter(function(e){ return e.alvo <= dias; }).reduce(function(t, e){ return t + e.peso; }, 0);
+    const ids = {};
+    rdos.forEach(function(r){ ids[String(r.ID)] = true; });
+    const feitas = {};
+    (DATA.atividades || []).forEach(function(at){ if (ids[String(at.Relatorio_ID)]) feitas[normalizeTipoReparo(at.Atividade)] = true; });
+    let avanco = 0;
+    plano.forEach(function(e){ if (feitas[e.ativ] && e.acum > avanco) avanco = e.acum; });
+    if (rdos.some(function(r){ return normalizeTipoReparo(r.Reparo_finalizado) === 'SIM'; })) avanco = 100;
+    return { dias: dias, planejado: planejado, avanco: avanco, datas: Object.keys(datas) };
+  }
+  /* Retorna os numeros do reparo NO DIA do RDO, ou null se nao der para
+     garantir (sem aba Reparos, calculo nao bate com a analise, etc.). */
+  function situacaoNaDataRdo(linha, chaveRdo){
+    if (!linha || !linha.dataChave || !chaveRdo) return null;
+    const conf = calcularObra(linha, linha.dataChave);
+    const aP = pctNum(linha.planejado), aR = pctNum(linha.avanco), aD = Number(linha.diasRealizados);
+    if (!conf || aP == null || aR == null || !isFinite(aD)) return null;
+    if (conf.dias !== aD || Math.abs(conf.planejado - aP) >= 1 || Math.abs(conf.avanco - aR) >= 1) return null; // trava
+    const s = calcularObra(linha, chaveRdo);
+    if (!s) return null;
+    // Data prev. fim: desfaz a antecipacao dos RDOs de fim de semana posteriores ao dia exibido.
+    let fimStr = linha.dataFimPrev || null;
+    const fimCh = dataAnaliseParaChave(fimStr);
+    const fdsDepois = conf.datas.filter(function(ch){ return ch > chaveRdo && ehFimDeSemana(ch); }).length;
+    if (fimCh && fdsDepois){
+      const d = new Date(Date.UTC(+fimCh.slice(0, 4), +fimCh.slice(4, 6) - 1, +fimCh.slice(6, 8), 12));
+      for (let i = 0; i < fdsDepois; i++){
+        do { d.setUTCDate(d.getUTCDate() + 1); } while (d.getUTCDay() === 0 || d.getUTCDay() === 6);
+      }
+      fimStr = String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + d.getUTCFullYear();
+    }
+    return {
+      diasRealizados: String(s.dias),
+      planejado: s.planejado.toFixed(2) + '%',
+      avanco: s.avanco.toFixed(2) + '%',
+      dataInicio: linha.dataInicio,
+      dataFimPrev: fimStr
+    };
+  }
   async function loadPlanejadoPorTurbina(){
     try{
       const j = await fetchGvizComRetry(ANALISE_GVIZ_URL, 5);
@@ -889,6 +997,7 @@
         const rdoRecebidoVal = valCel(c[16]); // Q = RDO recebido
         const dataChave = dataAnaliseParaChave(rdoRecebidoVal);
         (mapa[key] = mapa[key] || []).push({
+          turbina: key,
           parque: normalizeParqueAnalise(c[0] ? c[0].v : ''),                     // A = Parque
           blade: normalizeBlade(c[2] ? (c[2].f != null ? c[2].f : c[2].v) : ''), // C = Blade
           tipo: normalizeTipoReparo(c[3] ? c[3].v : ''),                        // D = Tipo de reparo
@@ -906,6 +1015,7 @@
         mapa[key].sort(function(a, b){ return a.dataChave.localeCompare(b.dataChave); });
       });
       ANALISE_POR_TURBINA = mapa;
+      await loadPlanoReparos();
       return true;
     } catch(err){
       console.error('Falha ao carregar % Planejado / % Avanço (aba análise):', err);
@@ -1292,20 +1402,28 @@
        for do mesmo dia do RDO, avisa de qual dia sao os numeros -- pra nao
        parecer que e o valor daquele dia (30/09/2026, Robson). */
     let avisoDataHtml = '';
+    let dadosDia = analiseLinha;
     if (analiseLinha && analiseLinha.dataChave && analiseLinha.dataChave !== chaveRdo){
-      const dc = analiseLinha.dataChave;
-      avisoDataHtml = '<div class="ab-empty">Situação do reparo em ' + dc.slice(6, 8) + '/' + dc.slice(4, 6) + ' (aba análise)</div>';
+      /* 30/09/2026: linha da analise e de outro dia -> recalcula o dia do RDO
+         (ver situacaoNaDataRdo). Se nao der para garantir, NAO mostra numero. */
+      const sit = situacaoNaDataRdo(analiseLinha, chaveRdo);
+      if (sit){
+        dadosDia = sit;
+      } else {
+        dadosDia = { dataInicio: analiseLinha.dataInicio, dataFimPrev: null, diasRealizados: null, planejado: null, avanco: null };
+        avisoDataHtml = '<div class="ab-empty">Sem histórico confiável para ' + chaveRdo.slice(6, 8) + '/' + chaveRdo.slice(4, 6) + ' (aba análise só tem a situação atual)</div>';
+      }
     }
-    const pct = analiseLinha ? pctGvizParaInteiro(analiseLinha.avanco) : null;
+    const pct = dadosDia ? pctGvizParaInteiro(dadosDia.avanco) : null;
     const pctStr = pct != null ? pct + '%' : '—';
-    const planejadoInt = analiseLinha ? pctGvizParaInteiro(analiseLinha.planejado) : null;
+    const planejadoInt = dadosDia ? pctGvizParaInteiro(dadosDia.planejado) : null;
     const planejadoStr = planejadoInt != null ? planejadoInt + '%' : '—';
     /* Campos vindos da aba analise a partir de 19/09/2026 -- antes eram "—" fixo
        no HTML (placeholder). Data inicio = G, Data fim previsto = H,
        Dias realizados = F. Quando a celula vem vazia, mantem o travessao. */
-    const dataInicioStr = (analiseLinha && analiseLinha.dataInicio) ? analiseLinha.dataInicio : '—';
-    const dataFimPrevStr = (analiseLinha && analiseLinha.dataFimPrev) ? analiseLinha.dataFimPrev : '—';
-    const diasRealizadosStr = (analiseLinha && analiseLinha.diasRealizados) ? analiseLinha.diasRealizados : '—';
+    const dataInicioStr = (dadosDia && dadosDia.dataInicio) ? dadosDia.dataInicio : '—';
+    const dataFimPrevStr = (dadosDia && dadosDia.dataFimPrev) ? dadosDia.dataFimPrev : '—';
+    const diasRealizadosStr = (dadosDia && dadosDia.diasRealizados) ? dadosDia.diasRealizados : '—';
     // Avanço real: barra verde quando Avanço >= Planejado, vermelha quando
     // Avanço < Planejado (pedido do Robson, 16/09/2026). Sem % Planejado
     // conhecido, não há base de comparação — mantém neutro (teal, como antes).
