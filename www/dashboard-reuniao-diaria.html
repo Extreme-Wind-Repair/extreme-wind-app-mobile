@@ -435,6 +435,11 @@
   td.cert-td:hover{background:rgba(28,140,232,.06);}
   td.cert-td[contenteditable="true"]{cursor:text; outline:none; background:rgba(28,140,232,.18); box-shadow:inset 0 0 0 1px var(--steel);}
   td.cert-td .badge-cert{font-size:11.5px; padding:1px 7px;}
+  /* ALERTA DE CERTIFICACAO VENCENDO (01/10/2026, Robson) */
+  .cert-alertas{display:flex; flex-direction:column; gap:4px; margin:6px 0 4px;}
+  .cert-alerta{font-size:12.5px; font-weight:700; padding:5px 10px; border-radius:6px; border-left:4px solid;}
+  .cert-alerta.venc{background:rgba(229,57,53,.16); border-color:#e53935; color:#ff8a80;}
+  .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
   .obs{color:var(--muted); font-size:11.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
@@ -1265,6 +1270,39 @@
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
   }
 
+  /* ALERTA DE CERTIFICACAO VENCENDO (01/10/2026, Robson): "essa informacao de
+     certificacoes vencendo tem que aparecer com alerta". Procura, em TODAS as
+     colunas da linha da equipe (inclusive as que o card nao mostra), uma
+     certificacao/documento seguida de data (ex.: "GWO ART 01/10",
+     "GWO - ART 27/08/26"). Vencida -> faixa vermelha; vence em ate 15 dias ->
+     faixa amarela. So le o que esta escrito -- nao inventa data nenhuma.
+     Fonte do dado: coluna "DOC. A VENCER" da VAGAS MESTRE (quadro de reuniao). */
+  const CERT_ALERTA_DIAS = 15;
+  const CERT_RE = /\b(GWO|ART|BST|BTT(?:-E)?|BRT|IRATA|LOTO|ASO|NR\s*-?\s*\d{1,2}|N[123])\b[^0-9\n]{0,15}(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/gi;
+  function certAlertasDaLinha(row){
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const nome = String(row.Val1 || '').split(/\s+[—-]\s+|\s*=\s*/)[0].trim() || 'Técnico';
+    const out = [];
+    for (let i = 2; i <= 7; i++){
+      const txt = String(row['Val' + i] || '');
+      let m; CERT_RE.lastIndex = 0;
+      while ((m = CERT_RE.exec(txt))){
+        const dia = +m[2], mes = +m[3];
+        let ano = m[4] ? +m[4] : hoje.getFullYear();
+        if (ano < 100) ano += 2000;
+        if (dia < 1 || dia > 31 || mes < 1 || mes > 12) continue;
+        const venc = new Date(ano, mes - 1, dia);
+        const dias = Math.round((venc - hoje) / 86400000);
+        if (dias > CERT_ALERTA_DIAS) continue;
+        const rotulo = txt.slice(m.index, m.index + m[0].length - m[0].match(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?$/)[0].length).replace(/[\s\-–—:]+$/, '').trim();
+        const dataStr = String(dia).padStart(2, '0') + '/' + String(mes).padStart(2, '0') + '/' + ano;
+        const quando = dias < 0 ? ('VENCIDO há ' + (-dias) + (dias === -1 ? ' dia' : ' dias')) :
+                       dias === 0 ? 'vence HOJE' : dias === 1 ? 'vence AMANHÃ' : ('vence em ' + dias + ' dias');
+        out.push({ cls: dias <= 0 ? 'venc' : 'prox', texto: '⚠ ' + nome + ' — ' + rotulo + ' ' + quando + ' (' + dataStr + ')' });
+      }
+    }
+    return out;
+  }
   function aprovadoChipHtml(row){
     return '<span class="ap-name' + (row.Placeholder ? ' blank-ap' : '') + '" draggable="true" data-row="' + row._row + '">' +
       '<span class="ap-handle">⠿</span>' +
@@ -1280,6 +1318,13 @@
     const colsEq = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
     const certIdx = colsEq.findIndex(function(h){ return /certifica/i.test(h); }) + 1;
     equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque, certIdx))); });
+    const alertas = [];
+    equipeRows.forEach(function(r){ certAlertasDaLinha(r).forEach(function(a){ alertas.push(a); }); });
+    if (alertas.length){
+      const box = el('<div class="cert-alertas">' + alertas.map(function(a){ return '<div class="cert-alerta ' + a.cls + '">' + escapeHtml(a.texto) + '</div>'; }).join('') + '</div>');
+      const tbl = tbody.closest('table');
+      tbl.parentNode.insertBefore(box, tbl);
+    }
 
     const apBody = node.querySelector('[data-aprovados-body]');
     const apRows = DATA.aprovados.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
