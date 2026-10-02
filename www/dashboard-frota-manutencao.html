@@ -263,10 +263,10 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--warn)">94%</div>
-    <div class="foot">WK 40 · 17 ações pendentes no total</div>
+    <div class="foot">WK 40 · 15 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergenciais</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programadas</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">5</span><span class="l">Administrativas</span></div>
     </div>
   </div>
@@ -656,8 +656,8 @@
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergencial</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programado</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">5</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
@@ -1367,23 +1367,21 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TYA7G48 - MEDIÇÃO PNEU N/OK (traseiro direito abaixo de 2,7mm)", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"João", status:"03/10/2026", obs:"O VEICULO SERA SUBSTITUIDO (SABADO 03/10 AGUARDAR A CONFIRMAÇÃO DA GERENTE02/10)", categoria:"Emergencial" },
   { acao:"TWY4C61 - REVISÃO GERAL", tipo:"CORRETIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"02/10/2026", obs:"AGENDADO PARA 02/10", categoria:"Emergencial" },
+  { acao:"TYA7G48 - MEDIÇÃO PNEU N/OK (traseiro direito abaixo de 2,7mm)", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"João", status:"03/10/2026", obs:"O VEICULO SERA SUBSTITUIDO (SABADO 03/10 AGUARDAR A CONFIRMAÇÃO DA GERENTE02/10)", categoria:"Emergencial" },
+  { acao:"TET3C50 - TROCA DO ESPELHO DO RETROVISOR DIREITO", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"03/10/2026", obs:"TROCA DO ESPELHO", categoria:"Emergencial" },
   { acao:"TZL6G42 - REVISÃO N/OK (venceu - confirmar km/data exata na ACOMPANHAMENTO)", tipo:"CORRETIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"05/10/2026", obs:"AGENDAR OFICINA - CONFIRMAR DATA/KM DE VENCIMENTO", categoria:"Emergencial" },
-  { acao:"TYD9F24- REALIZAR A PINTURA NO CAPO E POLIR AS LATERAIS DO CARRO", tipo:"CORRETIVA", parque:"SÃO VTOR/BA", quem:"Sandoval", status:"03/10/2026", obs:"SERVIÇO AGENDADO PARA DIA 03/10/2026", categoria:"Emergencial" },
-  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO DESDE WK37) + CHECKLIST 22/09: PARA-CHOQUE DIANTEIRO DIREITO SOLTO E FAROL DIREITO TRINCADO (NÃO REPORTADO) + CHECKLIST 28/09: RETROVISOR QUEBRADO E BANCO QUEIMADO CONFIRMADOS NOVAMENTE", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
-  { acao:"TET3C50 - 40K DE KM RODADOS (50.957 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"25/10/2026", obs:"AVALIAR TROCA OU RENOVAÇÃO COM A LOCADORA", categoria:"Programada" },
+  { acao:"TYD9F24- REALIZAR A PINTURA NO CAPO E POLIR AS LATERAIS DO CARRO", tipo:"ADMINISTRATIVA", parque:"SÃO VTOR/BA", quem:"Sandoval", status:"03/10/2026", obs:"SERVIÇO AGENDADO PARA DIA 03/10/2026", categoria:"Administrativa" },
   { acao:"TYA7G48 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"03/10/2026", obs:"ACOMPANHAMENTO DIARIO PARA TROCA DIA 03/10", categoria:"Programada" },
   { acao:"TET3C50 - 2.1 -  LATARIA MARCADA COM MANCHAS, AMASSADO NA TAMPA TRASEIRA E ARRANHÕES NAS LATERAIS - REALIZAR POLIMENTO, LAVAGEM E AVALIAR REPARO DO AMASSADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"03/10/2026", obs:"REALIZAÇÃO DA RETIRADA DE MANCHAS NA CIDADE", categoria:"Administrativa" },
-  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO (-1.982 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TYA7G48 - 40K de KM RODADOS", tipo:"ADMINISTRATIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"03/10/2026", obs:"TROCA DE VEÍCULO AGENDADA 03/10", categoria:"Programada" },
-  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TWY4C61 - ARRANHÃO NA LATARIA (PORTA TRASEIRA DIREITA) — CONFIRMADO NOVAMENTE NO CHECKLIST DE 18/09", tipo:"ADMINISTRATIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"08/10/2026", obs:"NO RETORNO, USAR A CANETA PARA CORREÇAO", categoria:"Administrativa" },
-  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TET3C50 - 40K DE KM RODADOS (50.957 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"25/10/2026", obs:"AVALIAR TROCA OU RENOVAÇÃO COM A LOCADORA", categoria:"Programada" },
+  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO (-1.982 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"CONSEGUIR OUTRO FORNECEDOR DE CARRO EM DOM INOCENCIO E REGIAO", tipo:"ADMINISTRATIVA", parque:"OITIS 1", quem:"João", status:"25/10/2026", obs:"CATALOGAR VALORES E CONTATOS DE NOVOS FORNECEDORES NA REGIAO (SÃO RAIMUNDO NONATO E CASA NOVA)", categoria:"Administrativa" },
-  { acao:"TXZ5J79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"ADM 1", quem:"Sandoval", status:"02/10/2026", obs:"PROJEÇAO PARA ZERAR EM 02 DIAS/ PREVISÃO DEV 02/10", categoria:"Programada" },
-  { acao:"TET3C50 - TROCA DO ESPELHO DO RETROVISOR DIREITO", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"03/10/2026", obs:"TROCA DO ESPELHO", categoria:"Emergencial" },
-  { acao:"CRIAR PLANILHA DE HORARIOS BLOQ/DESBLOQ DO FINAL DE SEMANA", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"Sandoval", status:"02/10/2026", obs:"ENVIAR HOJE NO GRUPO ATE AS 15:00", categoria:"Administrativa" }
+  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO DESDE WK37) + CHECKLIST 22/09: PARA-CHOQUE DIANTEIRO DIREITO SOLTO E FAROL DIREITO TRINCADO (NÃO REPORTADO) + CHECKLIST 28/09: RETROVISOR QUEBRADO E BANCO QUEIMADO CONFIRMADOS NOVAMENTE", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" }
 ];
 
 function categoriaTag(categoria){
