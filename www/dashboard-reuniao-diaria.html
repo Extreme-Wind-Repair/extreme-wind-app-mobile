@@ -2650,15 +2650,18 @@
       const r = await fetch('dashboard-envios-logisticos.html?_=' + Date.now(), { cache:'no-store' });
       if (!r.ok) throw new Error('status ' + r.status);
       const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
-      const itens = [];
-      [['acoesAlmox','Almoxarifado',4],['acoesLog','Logística',5],['acoesAssinatura','Aguardando assinatura',-1]].forEach(function(cfg){
-        const tb = doc.getElementById(cfg[0]); if (!tb) return;
-        tb.querySelectorAll('tr').forEach(function(tr){
-          const td = tr.querySelectorAll('td'); if (td.length < 3 || td[0].hasAttribute('colspan')) return;
-          const status = cfg[2] >= 0 && td[cfg[2]] ? td[cfg[2]].textContent.trim() : cfg[1];
-          itens.push({ projeto: td[0].textContent.trim(), resp: td[1].textContent.trim(), prazo: td[2].textContent.trim(), status: status || cfg[1] });
+      /* NOVO FORMATO 02/10/2026 (Robson): uma linha por item, "Item — Em trajeto" /
+         "Item — Entregue dd/mm" / "Item — Aguardando assinatura". Fonte: JSON
+         #itensEnvioData gerado pelo gerar_dashboards.py a partir da Sheet1. */
+      const el = doc.getElementById('itensEnvioData');
+      let itens = [];
+      if (el){
+        itens = JSON.parse(el.textContent || '[]').map(function(x){
+          let ent = '';
+          if (x.entrega && /^\d{4}-\d{2}-\d{2}$/.test(x.entrega)) ent = x.entrega.slice(8,10) + '/' + x.entrega.slice(5,7);
+          return { projeto: x.projeto, item: x.item, status: x.status, entrega: x.entrega || '', entregaBR: ent, resp: x.resp || '' };
         });
-      });
+      }
       ENVIOS = { itens: itens };
     } catch(err){
       console.error('Falha ao carregar Envios Logisticos:', err);
@@ -2667,32 +2670,35 @@
     preencherQuadrosEnvios();
   }
   function preencherQuadrosEnvios(){
-    document.querySelectorAll('[data-envios-auto]').forEach(function(el){
-      if (!ENVIOS) return;
-      if (ENVIOS.erro){ el.innerHTML = '<span class="frota-muted">Envios indisponíveis</span>'; return; }
-      const nomeCard = el.dataset.parkname || '';
-      /* So "em trajeto" e "falta assinatura" (Robson, 26/09/2026) -- "aguardando
-         coleta" e qualquer outro status ficam so no dashboard de Envios. */
-      const meus = ENVIOS.itens.filter(function(i){
-        if (!mesmoProjeto(nomeCard, i.projeto)) return false;
-        const st = String(i.status || '').toUpperCase();
-        if (/COLETA/.test(st)) return false;
-        return /TRAJETO|TR[AÂ]NSITO|EM ROTA|ASSINATURA/.test(st);
-      });
-      if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nada em trajeto nem pendente de assinatura</div>'; return; }
-      const grupos = {};
-      meus.forEach(function(i){
-        const k = (i.status || 'Em aberto').toUpperCase();
-        const g = grupos[k] || (grupos[k] = { n:0, prazo:null, resp:{} });
-        g.n++; if (i.resp) g.resp[i.resp] = 1;
-        if (/\d/.test(i.prazo) && (!g.prazo || chaveData(i.prazo) < chaveData(g.prazo))) g.prazo = i.prazo.replace(/\/20(\d\d)$/, '');
-      });
-      el.innerHTML = Object.keys(grupos).map(function(k){
-        const g = grupos[k];
-        const rot = k.charAt(0) + k.slice(1).toLowerCase();
-        return '<div class="frota-item frota-envio" title="Responsável: ' + escapeHtml(Object.keys(g.resp).join(', ')) + '">' +
-               '<span class="frota-rot">' + g.n + ' req.</span> <span class="frota-det">' + escapeHtml(rot) + '</span>' +
-               (g.prazo ? ' <span class="frota-muted">· prazo ' + escapeHtml(g.prazo) + '</span>' : '') + '</div>';
+    if (!ENVIOS) return;
+    const els = Array.prototype.slice.call(document.querySelectorAll('[data-envios-auto]'));
+    if (ENVIOS.erro){ els.forEach(function(el){ el.innerHTML = '<span class="frota-muted">Envios indisponíveis</span>'; }); return; }
+    /* Virada da semana: na segunda-feira os ENTREGUES da semana anterior somem;
+       Em trajeto / Aguardando assinatura seguem ate a baixa. */
+    const agora = new Date(); const seg = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    seg.setDate(seg.getDate() - ((seg.getDay() + 6) % 7));
+    const segISO = seg.getFullYear() + '-' + String(seg.getMonth()+1).padStart(2,'0') + '-' + String(seg.getDate()).padStart(2,'0');
+    const visiveis = ENVIOS.itens.filter(function(i){
+      if (i.status === 'Entregue') return i.entrega && i.entrega >= segISO;
+      return true;
+    });
+    /* Cada item vai para UM card: pedido sem numero do parque ("OITIS MCU", "LDV")
+       aparece so no primeiro card do projeto; com numero, no card do numero. */
+    const porCard = els.map(function(){ return []; });
+    visiveis.forEach(function(i){
+      const semNum = chaveProjeto(i.projeto).num == null;
+      for (let k = 0; k < els.length; k++){
+        if (mesmoProjeto(els[k].dataset.parkname || '', i.projeto)){ porCard[k].push(i); if (semNum) break; else break; }
+      }
+    });
+    const ordem = { 'Em trajeto':0, 'Aguardando assinatura':1, 'Entregue':2 };
+    els.forEach(function(el, k){
+      const meus = porCard[k].slice().sort(function(a,b){ return (ordem[a.status]||9) - (ordem[b.status]||9); });
+      if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nenhum envio em andamento</div>'; return; }
+      el.innerHTML = meus.map(function(i){
+        const sit = i.status === 'Entregue' && i.entregaBR ? 'Entregue ' + i.entregaBR : i.status;
+        return '<div class="frota-item frota-envio" title="Responsável: ' + escapeHtml(i.resp) + '">' +
+               '<span class="frota-rot">' + escapeHtml(i.item) + '</span> <span class="frota-det">— ' + escapeHtml(sit) + '</span></div>';
       }).join('');
     });
   }
