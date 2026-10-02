@@ -4,10 +4,6 @@
 // pro cache quando estiver offline. Para imagens/assets estaticos, usa cache-first
 // (nao mudam com frequencia).
 
-// v4 (01/10/2026, autorizado por Robson): arquivos de DADOS (.json, ex.: calibracao/data.json) e
-// requisicoes a outros dominios passaram a ser "network-first". Antes eram "cache-first" e o app
-// ficava preso na primeira copia do data.json (painel de Calibracao mostrava 21/09 mesmo com
-// versoes novas publicadas).
 // Bump este numero (v2 -> v3 -> v4...) sempre que o menu/estrutura do
 // index.html mudar de forma relevante -- forca todo cliente que ja tinha o
 // app/site aberto a descartar o cache antigo e buscar tudo de novo na
@@ -20,6 +16,7 @@ const PRECACHE_URLS = [
   "./dashboard-resumo-equipes.html",
   "./dashboard-frota-manutencao.html",
   "./dashboard-boletos.html",
+  "./dashboard-combustivel.html",
   "./dashboard-envios-logisticos.html",
   "./manifest.json",
   "./assets/icon-192.png",
@@ -57,9 +54,6 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   const isHTML = req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
-  const url = new URL(req.url);
-  const sameOrigin = url.origin === self.location.origin;
-  const isData = !sameOrigin || url.pathname.endsWith(".json");
 
   if (isHTML) {
     // network-first: dados de hoje em primeiro lugar, cache so como reserva offline
@@ -71,20 +65,6 @@ self.addEventListener("fetch", (event) => {
           return res;
         })
         .catch(() => caches.match(req).then((cached) => cached || caches.match("./index.html")))
-    );
-  } else if (isData) {
-    // network-first pra dados (.json) e requisicoes a outros dominios: sempre o mais novo,
-    // cache so como reserva offline (e so guarda respostas OK)
-    event.respondWith(
-      fetch(req, sameOrigin ? { cache: "no-store" } : undefined)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => caches.match(req))
     );
   } else {
     // cache-first pra imagens/estaticos
