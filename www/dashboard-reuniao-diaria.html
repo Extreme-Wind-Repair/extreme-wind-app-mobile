@@ -345,6 +345,8 @@
   .frota-item.frota-lat{border-left-color:var(--steel);}
   .frota-item.frota-troca{border-left-color:var(--teal);}
   .frota-item.frota-envio{border-left-color:var(--warn);}
+  .frota-item.frota-envio-ok{border-left-color:var(--ok);}
+  .frota-item.frota-envio-ok .frota-rot, .frota-item.frota-envio-ok .frota-det{color:var(--ok); opacity:1;}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -2696,8 +2698,9 @@
       const meus = porCard[k].slice().sort(function(a,b){ return (ordem[a.status]||9) - (ordem[b.status]||9); });
       if (!meus.length){ el.innerHTML = '<div class="frota-ok">✔ Nenhum envio em andamento</div>'; return; }
       el.innerHTML = meus.map(function(i){
-        const sit = i.status === 'Entregue' && i.entregaBR ? 'Entregue ' + i.entregaBR : i.status;
-        return '<div class="frota-item frota-envio" title="Responsável: ' + escapeHtml(i.resp) + '">' +
+        const ok = i.status === 'Entregue';
+        const sit = ok ? 'Concluído' : i.status;
+        return '<div class="frota-item frota-envio' + (ok ? ' frota-envio-ok' : '') + '" title="Responsável: ' + escapeHtml(i.resp) + '">' +
                '<span class="frota-rot">' + escapeHtml(i.item) + '</span> <span class="frota-det">— ' + escapeHtml(sit) + '</span></div>';
       }).join('');
     });
