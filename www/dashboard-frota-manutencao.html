@@ -262,7 +262,7 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--ok)">94%</div>
+    <div class="value" style="color:var(--warn)">94%</div>
     <div class="foot">WK 40 · 17 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergenciais</span></div>
@@ -874,10 +874,10 @@
 
 <div class="panel">
   <div class="panel-header">
-    <h2 style="margin-bottom:0">Tendência da Média Geral — Meta 90%</h2>
+    <h2 style="margin-bottom:0">Tendência da Média Geral — Meta 90% (95% a partir da WK38)</h2>
     <div class="chart-legend">
       <span><span class="swatch swatch-line"></span> Média Geral Semanal</span>
-      <span><span class="swatch swatch-dash"></span> Meta 90%</span>
+      <span><span class="swatch swatch-dash"></span> Meta 90% (95% a partir da WK38)</span>
     </div>
   </div>
   <svg viewBox="0 0 640 220" class="trend-chart">
@@ -934,10 +934,10 @@
       <circle cx="335.0" cy="120.1" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="335.0" y="108.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">86%</text>
 
-      <circle cx="467.5" cy="62.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <circle cx="467.5" cy="62.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="467.5" y="50.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
 
-      <circle cx="600.0" cy="62.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <circle cx="600.0" cy="62.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="600.0" y="50.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
     </g>
 
@@ -1032,14 +1032,14 @@
       <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Revisão</td><td class="cell-warn">71%</td><td class="cell-warn">86%</td><td class="cell-warn">86%</td><td class="cell-warn">80%</td><td class="cell-warn cur">80%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Medição Pneus</td><td class="cell-nok">57%</td><td class="cell-warn">71%</td><td class="cell-nok">43%</td><td class="cell-ok">90%</td><td class="cell-ok cur">90%</td></tr>
+      <tr><td>Medição Pneus</td><td class="cell-nok">57%</td><td class="cell-warn">71%</td><td class="cell-nok">43%</td><td class="cell-warn">90%</td><td class="cell-warn cur">90%</td></tr>
       <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Consumo KM/L</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
       <tr><td>Doc Postado (MOB)</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-warn">86%</td><td class="cell-ok">91%</td><td class="cell-warn">86%</td><td class="cell-ok">94%</td><td class="cell-ok cur">94%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-warn">86%</td><td class="cell-ok">91%</td><td class="cell-warn">86%</td><td class="cell-warn">94%</td><td class="cell-warn cur">94%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1279,9 +1279,11 @@ const histData = [
 // tabela gerada separadamente no Python e nao usa esta lista).
 const HIST_CAT_LABELS = ["KM Troca","Saldo Extra","Checklist","Revisão","Estepe Extra","Medição Pneus","Rastreador"];
 
-function histCellClass(v){
+function histCellClass(v, wk){
   if(v === null || v === undefined) return "nd";
-  if(v >= 90) return "cell-ok";
+  const mm = String(wk || "").match(/(\d+)/);
+  const meta = (mm && parseInt(mm[1],10) >= 38) ? 95 : 90;
+  if(v >= meta) return "cell-ok";
   if(v >= 70) return "cell-warn";
   return "cell-nok";
 }
@@ -1347,8 +1349,8 @@ function renderHistTable(){
 
   const tbody = document.getElementById("histTableBody");
   tbody.innerHTML = histData.map(d => {
-    const catCells = d.cats.slice(0,7).map(v => `<td class="${histCellClass(v)}">${histCellText(v)}</td>`).join("");
-    return `<tr><td style="text-align:left;color:var(--muted)">${d.wk}</td>${catCells}<td class="${histCellClass(d.geral)}" style="font-weight:700">${histCellText(d.geral)}</td></tr>`;
+    const catCells = d.cats.slice(0,7).map(v => `<td class="${histCellClass(v, d.wk)}">${histCellText(v)}</td>`).join("");
+    return `<tr><td style="text-align:left;color:var(--muted)">${d.wk}</td>${catCells}<td class="${histCellClass(d.geral, d.wk)}" style="font-weight:700">${histCellText(d.geral)}</td></tr>`;
   }).join("");
 }
 
