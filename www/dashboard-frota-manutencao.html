@@ -1062,7 +1062,7 @@
   <div class="collapsible" id="histBody">
     <div class="chart-legend" style="margin:6px 0 10px">
       <span><span class="swatch swatch-line"></span> Média Geral Semanal</span>
-      <span><span class="swatch swatch-dash"></span> Meta 90%</span>
+      <span><span class="swatch swatch-dash"></span> Meta 90% (95% a partir da WK38)</span>
     </div>
     <svg id="histChart" viewBox="0 0 1000 260" class="trend-chart"><defs>
     <lineargradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1311,8 +1311,20 @@ function renderHistChart(){
   svgHTML += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#3A567A" stroke-width="1.2"/>`;
   svgHTML += `<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#3A567A" stroke-width="1.2"/>`;
 
-  svgHTML += `<line x1="${padL}" y1="${y(90)}" x2="${W-padR}" y2="${y(90)}" stroke="#D89A2B" stroke-width="1.6" stroke-dasharray="6,5"/>`;
-  svgHTML += `<text x="${W-padR}" y="${y(90)-6}" fill="#D89A2B" font-size="11" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 90%</text>`;
+  /* META 02/10/2026 (Robson): 90% ate WK37, 95% a partir da WK38 -- mesma regra do grafico
+     "Tendencia da Media Geral" (ver REGRAS_AUTOMACAO.md). Degrau: um segmento por meta. */
+  const metaDe = wk => { const m = String(wk).match(/(\d+)/); return (m && parseInt(m[1],10) >= 38) ? 95 : 90; };
+  const i38 = data.findIndex(d => metaDe(d.wk) === 95);
+  const segs = i38 > 0 ? [[0, i38-1, 90], [i38, n-1, 95]] : (i38 === 0 ? [[0, n-1, 95]] : [[0, n-1, 90]]);
+  segs.forEach(sg => {
+    const x1 = sg[0] === 0 ? padL : x(sg[0]);
+    const x2 = sg[1] === n-1 ? W-padR : x(sg[1]);
+    svgHTML += `<line x1="${x1}" y1="${y(sg[2])}" x2="${x2}" y2="${y(sg[2])}" stroke="#D89A2B" stroke-width="1.6" stroke-dasharray="6,5"/>`;
+    const lblX = sg[2] === 95 ? x2 : x1 + 4;
+    const lblAnchor = sg[2] === 95 ? "end" : "start";
+    const lblY = sg[2] === 95 ? y(95) - 6 : y(90) + 14;
+    svgHTML += `<text x="${lblX}" y="${lblY}" fill="#D89A2B" font-size="11" font-weight="700" text-anchor="${lblAnchor}" font-family="Segoe UI,Arial,sans-serif">Meta ${sg[2]}%</text>`;
+  });
 
   const pts = data.map((d,i) => [x(i), y(d.geral)]);
   const linePath = "M" + pts.map(p => p.join(",")).join(" L");
@@ -1321,7 +1333,7 @@ function renderHistChart(){
   svgHTML += `<path d="${linePath}" fill="none" stroke="#00679A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
 
   data.forEach((d,i) => {
-    const color = d.geral >= 90 ? "#12A874" : (d.geral >= 70 ? "#D89A2B" : "#E0483C");
+    const color = d.geral >= metaDe(d.wk) ? "#12A874" : (d.geral >= 70 ? "#D89A2B" : "#E0483C");
     svgHTML += `<circle cx="${x(i)}" cy="${y(d.geral)}" r="4" fill="#0F2A40" stroke="${color}" stroke-width="2"/>`;
     svgHTML += `<text x="${x(i)}" y="${H-padB+20}" fill="#8FA9C0" font-size="9.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" transform="rotate(-45 ${x(i)} ${H-padB+20})">${d.wk}</text>`;
   });
