@@ -254,7 +254,7 @@
 <div class="kpis">
   <div class="kpi">
     <div class="label">Total de Veículos</div>
-    <div class="value">10</div>
+    <div class="value">12</div>
     <div class="locadoras">
       <div class="loc-badge loc-localiza"><span class="n">6</span><span class="l">Localiza</span></div>
       <div class="loc-badge loc-unidas"><span class="n">4</span><span class="l">Unidas</span></div>
@@ -262,17 +262,17 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--warn)">91%</div>
-    <div class="foot">WK 41 · 10 ações pendentes no total</div>
+    <div class="value" style="color:var(--warn)">94%</div>
+    <div class="foot">WK 41 · 13 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergenciais</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">4</span><span class="l">Programadas</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">4</span><span class="l">Administrativas</span></div>
     </div>
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="24999" style="color: var(--ok);">24.999</div>
+    <div class="value" id="kmValue" data-km="25072" style="color: var(--ok);">25.072</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
@@ -291,7 +291,7 @@
       <div class="chip" data-filter="clean">100% OK</div>
     </div>
   </div>
-  <div class="count-hint" id="countHint">10 de 10 veículos exibidos</div>
+  <div class="count-hint" id="countHint">12 de 12 veículos exibidos</div>
 
   <div class="tablewrap">
   <table id="detTable">
@@ -656,8 +656,8 @@
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergencial</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">4</span><span class="l">Programado</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">4</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
@@ -918,27 +918,27 @@
     <text x="600.0" y="49.0" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 95%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,80.2 C92.1,86.8 158.3,123.1 202.5,120.1 C246.7,117.1 290.8,71.7 335.0,62.0 C379.2,52.3 423.3,59.7 467.5,62.0 C511.7,64.3 577.9,73.7 600.0,76.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,99.8 C92.1,106.5 158.3,143.7 202.5,139.7 C246.7,135.7 290.8,86.6 335.0,76.0 C379.2,65.4 423.3,79.5 467.5,76.0 C511.7,72.5 577.9,58.5 600.0,55.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,80.2 C92.1,86.8 158.3,123.1 202.5,120.1 C246.7,117.1 290.8,71.7 335.0,62.0 C379.2,52.3 423.3,59.7 467.5,62.0 C511.7,64.3 577.9,73.7 600.0,76.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,99.8 C92.1,106.5 158.3,143.7 202.5,139.7 C246.7,135.7 290.8,86.6 335.0,76.0 C379.2,65.4 423.3,79.5 467.5,76.0 C511.7,72.5 577.9,58.5 600.0,55.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
-      <circle cx="70.0" cy="80.2" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="70.0" y="68.2" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">91%</text>
+      <circle cx="70.0" cy="99.8" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="70.0" y="87.8" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">89%</text>
 
-      <circle cx="202.5" cy="120.1" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="202.5" y="108.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">86%</text>
+      <circle cx="202.5" cy="139.7" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="202.5" y="127.7" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">83%</text>
 
-      <circle cx="335.0" cy="62.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="335.0" y="50.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
+      <circle cx="335.0" cy="76.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="335.0" y="64.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">92%</text>
 
-      <circle cx="467.5" cy="62.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="467.5" y="50.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
+      <circle cx="467.5" cy="76.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="467.5" y="64.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">92%</text>
 
-      <circle cx="600.0" cy="76.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="64.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">92%</text>
+      <circle cx="600.0" cy="55.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="43.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">95%</text>
     </g>
 
     <!-- x labels -->
@@ -978,7 +978,7 @@
       <rect x="196.0" y="203.2" width="46" height="28.1" rx="4" fill="#E0483C"></rect>
       <rect x="264.0" y="199.5" width="46" height="3.7" rx="4" fill="#12A874"></rect>
       <rect x="332.0" y="203.2" width="46" height="38.8" rx="4" fill="#E0483C"></rect>
-      <rect x="400.0" y="121.5" width="46" height="81.7" rx="4" fill="#E0483C"></rect>
+      <rect x="400.0" y="131.5" width="46" height="71.7" rx="4" fill="#E0483C"></rect>
       <rect x="468.0" y="26.0" width="46" height="177.2" rx="4" fill="#E0483C"></rect>
       <rect x="536.0" y="203.2" width="46" height="4.8" rx="4" fill="#E0483C"></rect>
       <rect x="604.0" y="203.2" width="46" height="7.1" rx="4" fill="#E0483C"></rect>
@@ -988,7 +988,7 @@
       <text x="219.0" y="217.2" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.024</text>
       <text x="287.0" y="191.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">267</text>
       <text x="355.0" y="217.2" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.793</text>
-      <text x="423.0" y="113.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">5.883</text>
+      <text x="423.0" y="123.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">5.162</text>
       <text x="491.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">12.763</text>
       <text x="559.0" y="217.2" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-344</text>
       <text x="627.0" y="217.2" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-512</text>
@@ -997,7 +997,7 @@
       <text x="151.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 237.2)">OITIS 2/PI</text>
       <text x="219.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 237.2)">OITIS 1/PI</text>
       <text x="287.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 237.2)">ST.AGOSTINHO/RN</text>
-      <text x="355.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 237.2)">GAMELEIRA</text>
+      <text x="355.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 237.2)">GAMELEIRA/RN</text>
       <text x="423.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 237.2)">SÃO VITOR/BA</text>
       <text x="491.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 237.2)">GERIBATU/RS</text>
       <text x="559.0" y="237.2" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 237.2)">LDV 1/PI</text>
@@ -1027,19 +1027,19 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>KM Ponto de Troca</td><td class="cell-nok">57%</td><td class="cell-nok">57%</td><td class="cell-warn">70%</td><td class="cell-warn">70%</td><td class="cell-warn cur">80%</td></tr>
-      <tr><td>Saldo Extra</td><td class="cell-nok">43%</td><td class="cell-nok">43%</td><td class="cell-nok">30%</td><td class="cell-nok">30%</td><td class="cell-nok cur">30%</td></tr>
+      <tr><td>KM Ponto de Troca</td><td class="cell-nok">67%</td><td class="cell-nok">67%</td><td class="cell-warn">78%</td><td class="cell-warn">78%</td><td class="cell-warn cur">80%</td></tr>
+      <tr><td>Saldo Extra</td><td class="cell-nok">50%</td><td class="cell-nok">50%</td><td class="cell-nok">33%</td><td class="cell-nok">33%</td><td class="cell-nok cur">30%</td></tr>
       <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Revisão</td><td class="cell-warn">86%</td><td class="cell-warn">86%</td><td class="cell-warn">80%</td><td class="cell-warn">80%</td><td class="cell-warn cur">70%</td></tr>
+      <tr><td>Revisão</td><td class="cell-warn">71%</td><td class="cell-warn">71%</td><td class="cell-warn">70%</td><td class="cell-warn">70%</td><td class="cell-warn cur">75%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Medição Pneus</td><td class="cell-warn">71%</td><td class="cell-nok">43%</td><td class="cell-warn">90%</td><td class="cell-warn">90%</td><td class="cell-warn cur">90%</td></tr>
+      <tr><td>Medição Pneus</td><td class="cell-warn">71%</td><td class="cell-nok">43%</td><td class="cell-warn">90%</td><td class="cell-warn">90%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Consumo KM/L</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
       <tr><td>Doc Postado (MOB)</td><td class="cell-ok">100%</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-ok">91%</td><td class="cell-warn">86%</td><td class="cell-warn">94%</td><td class="cell-warn">94%</td><td class="cell-warn cur">92%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-warn">89%</td><td class="cell-warn">83%</td><td class="cell-warn">92%</td><td class="cell-warn">92%</td><td class="cell-ok cur">95%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1100,12 +1100,14 @@ const rows = [
 ["TYQ5C48","LOCALIZA","","ST.AGOSTINHO/RN","NORDEX","03/10/2026","0,07","OK","ATENÇÃO","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
 ["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","4,83","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["TXZ5J79","LOCALIZA","","ADM 1","EXTREME","21/02/2026","7,53","OK","ATENÇÃO","-","OK","OK","OK","OK","None","N/A","N/A"],
-["TXY8H30","LOCALIZA","","GAMELEIRA","NORDEX","20/02/2026","7,57","OK","N/OK","OK","OK","OK","N/OK","OK","None","N/A","N/A"],
-["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","7,80","OK","OK","-","OK","OK","OK","OK","None","N/A","N/A"],
+["TXY8H30","LOCALIZA","","GAMELEIRA/RN","NORDEX","20/02/2026","7,57","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","7,80","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["TWY4C61","UNIDAS","","GERIBATU/RS","SIEMENS","18/08/2025","13,77","N/OK","OK","-","N/OK","OK","OK","OK","None","N/A","N/A"],
 ["UVN9J44","UNIDAS","","LDV 1/PI","GE","18/09/2026","0,57","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["UVN9J75","UNIDAS","","LDV 2/PI","GE","18/09/2026","0,57","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","0,47","OK","ATENÇÃO","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
+["NL9058D","","","DOLORES 1/MEX","","","","-","-","-","-","-","-","-","None","N/A","N/A"],
+["NC7492D","","","DOLORES 2/MEX","","","","-","-","-","-","-","-","-","None","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1257,23 +1259,23 @@ const histData = [
   { wk:"WK22", geral:82.9, cats:[80.0,60.0,61.9,71.4,90.5,76.2,100,null,100.0,100.0] },
   { wk:"WK23", geral:91.0, cats:[80.0,73.3,90.0,75.0,95.2,95.0,100,null,100.0,100.0] },
   { wk:"WK24", geral:85.0, cats:[80.0,73.3,80.0,65.0,90.0,90.0,100,null,100.0,100.0] },
-  { wk:"WK25", geral:89.0, cats:[50.0,50.0,90.0,70.0,100,85.0,100,null,100.0,100.0] },
-  { wk:"WK26", geral:91.6, cats:[50.0,50.0,89.5,78.9,94.7,100,94.7,null,100.0,null] },
-  { wk:"WK27", geral:96.2, cats:[50.0,66.7,93.8,93.8,100,100,93.8,null,100.0,null] },
-  { wk:"WK28", geral:98.8, cats:[50.0,50.0,93.8,100,100,100,100,null,100.0,null] },
-  { wk:"WK29", geral:94.7, cats:[50.0,50.0,100,93.3,86.7,93.3,100,null,100.0,null] },
-  { wk:"WK30", geral:96.2, cats:[50.0,50.0,100,93.8,100,87.5,100,null,100.0,null] },
-  { wk:"WK31", geral:96.0, cats:[50.0,50.0,100,86.7,100,93.3,100,null,100.0,null] },
-  { wk:"WK32", geral:92.7, cats:[50.0,50.0,100,90.9,100,72.7,100,null,100.0,null] },
-  { wk:"WK33", geral:90.0, cats:[50.0,50.0,100,90.0,100,60.0,100,null,100.0,null] },
-  { wk:"WK34", geral:82.0, cats:[50.0,50.0,100,50.0,100,60.0,100,null,100.0,null] },
-  { wk:"WK35", geral:84.4, cats:[50.0,50.0,100,55.6,100,66.7,100,null,100.0,null] },
-  { wk:"WK36", geral:85.7, cats:[50.0,50.0,100,71.4,100,57.1,100,null,100.0,null] },
-  { wk:"WK37", geral:91.4, cats:[57.1,42.9,100,85.7,100,71.4,100,null,100.0,null] },
-  { wk:"WK38", geral:85.7, cats:[57.1,42.9,100,85.7,100,42.9,100,null,null,null] },
-  { wk:"WK39", geral:94.0, cats:[70.0,30.0,100,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK40", geral:94.0, cats:[70.0,30.0,100,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK41", geral:92.0, cats:[80.0,30.0,100,70.0,100,90.0,100,null,null,null] },
+  { wk:"WK25", geral:89.0, cats:[66.7,60.0,90.0,70.0,100,85.0,100,null,100.0,100.0] },
+  { wk:"WK26", geral:91.6, cats:[66.7,60.0,89.5,78.9,94.7,100,94.7,null,100.0,null] },
+  { wk:"WK27", geral:96.2, cats:[66.7,66.7,93.8,93.8,100,100,93.8,null,100.0,null] },
+  { wk:"WK28", geral:98.8, cats:[66.7,66.7,93.8,100,100,100,100,null,100.0,null] },
+  { wk:"WK29", geral:94.7, cats:[60.0,60.0,100,93.3,86.7,93.3,100,null,100.0,null] },
+  { wk:"WK30", geral:96.2, cats:[60.0,60.0,100,93.8,100,87.5,100,null,100.0,null] },
+  { wk:"WK31", geral:96.0, cats:[60.0,60.0,100,86.7,100,93.3,100,null,100.0,null] },
+  { wk:"WK32", geral:92.7, cats:[60.0,60.0,100,90.9,100,72.7,100,null,100.0,null] },
+  { wk:"WK33", geral:90.0, cats:[60.0,60.0,100,90.0,100,60.0,100,null,100.0,null] },
+  { wk:"WK34", geral:80.0, cats:[60.0,60.0,100,40.0,100,60.0,100,null,100.0,null] },
+  { wk:"WK35", geral:82.2, cats:[60.0,60.0,100,44.4,100,66.7,100,null,100.0,null] },
+  { wk:"WK36", geral:82.9, cats:[60.0,60.0,100,57.1,100,57.1,100,null,100.0,null] },
+  { wk:"WK37", geral:88.6, cats:[66.7,50.0,100,71.4,100,71.4,100,null,100.0,null] },
+  { wk:"WK38", geral:82.9, cats:[66.7,50.0,100,71.4,100,42.9,100,null,null,null] },
+  { wk:"WK39", geral:92.0, cats:[77.8,33.3,100,70.0,100,90.0,100,null,null,null] },
+  { wk:"WK40", geral:92.0, cats:[77.8,33.3,100,70.0,100,90.0,100,null,null,null] },
+  { wk:"WK41", geral:95.0, cats:[80.0,30.0,100.0,75.0,100.0,100.0,100.0,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
@@ -1368,16 +1370,19 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TWY4C61 - REVISÃO GERAL", tipo:"CORRETIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"02/10/2026", obs:"AGENDADO PARA 02/10", categoria:"Emergencial" },
-  { acao:"TZL6G42 - REVISÃO N/OK (venceu - confirmar km/data exata na ACOMPANHAMENTO)", tipo:"CORRETIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"05/10/2026", obs:"AGENDAR OFICINA - CONFIRMAR DATA/KM DE VENCIMENTO", categoria:"Emergencial" },
-  { acao:"TET3C50 - 2.1 -  LATARIA MARCADA COM MANCHAS, AMASSADO NA TAMPA TRASEIRA E ARRANHÕES NAS LATERAIS - REALIZAR POLIMENTO, LAVAGEM E AVALIAR REPARO DO AMASSADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"1910/2026", obs:"REALIZAÇÃO DA RETIRADA DE MANCHAS NA CIDADE", categoria:"Administrativa" },
+  { acao:"TWY4C61 - REVISÃO GERAL", tipo:"CORRETIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"09/10/2026", obs:"ALINHANDO COM O SUPERVISOR E CONDUTOR PARA LEVAR O VEICULO PARA OFICINA", categoria:"Emergencial" },
+  { acao:"TZL6G42 - REVISÃO N/OK (venceu - confirmar km/data exata na ACOMPANHAMENTO)", tipo:"CORRETIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"06/10/2026", obs:"AGENDAR OFICINA - CONFIRMAR DATA/KM DE VENCIMENTO", categoria:"Emergencial" },
+  { acao:"TXY8H30 - NÍVEL DA ÁGUA DO RADIADOR ABAIXO DO MÍNIMO (CHECKLIST 05/10)", tipo:"CORRETIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"06/10/2026", obs:"COMPLETAR O NÍVEL E ACOMPANHAR (VERIFICAR VAZAMENTO)", categoria:"Emergencial" },
+  { acao:"TET3C50 - 2.1 -  LATARIA MARCADA COM MANCHAS, AMASSADO NA TAMPA TRASEIRA E ARRANHÕES NAS LATERAIS - REALIZAR POLIMENTO, LAVAGEM E AVALIAR REPARO DO AMASSADO | CHECKLIST 04/10 CONFIRMA AS MESMAS AVARIAS + TRAVA DA CAPOTA QUEBRADA NOS 2 LADOS", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"1910/2026", obs:"REALIZAÇÃO DA RETIRADA DE MANCHAS NA CIDADE", categoria:"Administrativa" },
   { acao:"TWY4C61 - ARRANHÃO NA LATARIA (PORTA TRASEIRA DIREITA) — CONFIRMADO NOVAMENTE NO CHECKLIST DE 18/09", tipo:"ADMINISTRATIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"08/10/2026", obs:"NO RETORNO, USAR A CANETA PARA CORREÇAO", categoria:"Administrativa" },
-  { acao:"TET3C50 - 40K DE KM RODADOS (50.957 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"25/10/2026", obs:"AVALIAR TROCA OU RENOVAÇÃO COM A LOCADORA", categoria:"Programada" },
-  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO (-1.982 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TET3C50 - 40K DE KM RODADOS (54.087 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"25/10/2026", obs:"AVALIAR TROCA OU RENOVAÇÃO COM A LOCADORA", categoria:"Programada" },
+  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO (-2.024 KM)", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"CONSEGUIR OUTRO FORNECEDOR DE CARRO EM DOM INOCENCIO E REGIAO", tipo:"ADMINISTRATIVA", parque:"OITIS 1", quem:"João", status:"25/10/2026", obs:"CATALOGAR VALORES E CONTATOS DE NOVOS FORNECEDORES NA REGIAO (SÃO RAIMUNDO NONATO E CASA NOVA)", categoria:"Administrativa" },
-  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO DESDE WK37) + CHECKLIST 22/09: PARA-CHOQUE DIANTEIRO DIREITO SOLTO E FAROL DIREITO TRINCADO (NÃO REPORTADO) + CHECKLIST 28/09: RETROVISOR QUEBRADO E BANCO QUEIMADO CONFIRMADOS NOVAMENTE", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA", quem:"Sandoval", status:"30/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" }
+  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO (-2.793 KM)", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO (SALDO ATUAL: +128 KM - ATENÇÃO)", categoria:"Programada" },
+  { acao:"TXY8H30 - AVARIA NÃO REPORTADA (BANCO QUEIMADO DE CIGARRO, RETROVISOR QUEBRADO DESDE WK37) + CHECKLIST 22/09: PARA-CHOQUE DIANTEIRO DIREITO SOLTO E FAROL DIREITO TRINCADO (NÃO REPORTADO) + CHECKLIST 28/09: RETROVISOR QUEBRADO E BANCO QUEIMADO CONFIRMADOS NOVAMENTE + CHECKLIST 05/10: LENTE DO PISCA DO RETROVISOR DIREITO QUEBRADA E BANCO QUEIMADO CONFIRMADOS NOVAMENTE", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/10/2026", obs:"COBERTO PELO SEGURO( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
+  { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO (-512 KM)", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO (-344 KM)", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" }
 ];
 
 function categoriaTag(categoria){

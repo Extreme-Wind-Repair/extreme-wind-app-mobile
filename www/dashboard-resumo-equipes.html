@@ -110,9 +110,9 @@
 
 <div class="panel active" id="panel-ativos">
 <div class="kpis">
-  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">30</div><div class="sub">em campo agora</div></div>
+  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">31</div><div class="sub">em campo agora</div></div>
   <div class="kpi"><div class="label">Planejado (headcount)</div><div class="value">34</div><div class="sub">meta de equipes</div></div>
-  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-4</div><div class="sub">abaixo do plano</div></div>
+  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-3</div><div class="sub">abaixo do plano</div></div>
   <div class="kpi" style="display:flex; gap:12px; padding:0; overflow:hidden;">
     <div style="flex:1; padding:16px 14px;"><div class="label">Parques ativos</div><div class="value">8</div></div>
     <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">1</div></div>
@@ -277,7 +277,7 @@ Chart.defaults.font.family = "'Segoe UI',Arial,sans-serif";
 var parques = [
   {nome:"OITIS/PI", cliente:"GE", suop:"EVAIR", real:6, plano:6},
   {nome:"LDV3/PI", cliente:"GE", suop:"EVAIR", real:5, plano:5},
-  {nome:"DOLORES/NL - MEX", cliente:"NORDEX", suop:"-", real:5, plano:6},
+  {nome:"DOLORES/NL - MEX", cliente:"NORDEX", suop:"EVAIR", real:6, plano:6},
   {nome:"SÃO VITOR/BA", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
   {nome:"GAMELEIRA/RN", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
   {nome:"SANTO AGOSTINHO/RN", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
@@ -309,20 +309,15 @@ trTot.innerHTML = '<td>Total Geral</td><td></td><td></td><td class="num">'+totRe
 tbody.appendChild(trTot);
 
 var tecnicosAtivos = [
-  {mat:"30", nome:"FELIPE DE LIMA SERPA", acumulado:46297, parque:"DOLORES/NL - MEX", suop:"-"},
-  {mat:"98", nome:"TAYLAN DE OLIVEIRA CAMPOS", acumulado:46297, parque:"DOLORES/NL - MEX", suop:"-"},
-  {mat:"130", nome:"ODILON BRAZ DA SILVA", acumulado:46297, parque:"DOLORES/NL - MEX", suop:"-"},
-  {mat:"43", nome:"MATEUS GOMES DA SILVA", acumulado:46297, parque:"DOLORES/NL - MEX", suop:"-"},
-  {mat:"46", nome:"WILLAMES LEANDRO SILVA DA HORA", acumulado:46297, parque:"DOLORES/NL - MEX", suop:"-"},
-  {mat:"899", nome:"PEDRO LUCAS DA CRUZ DA SILVA", acumulado:270, parque:"OITIS/PI", suop:"EVAIR"},
-  {mat:"295", nome:"SANDRELINO MACIEL DE FREITAS", acumulado:267, parque:"OITIS/PI", suop:"EVAIR"},
+  {mat:"899", nome:"PEDRO LUCAS DA CRUZ DA SILVA", acumulado:273, parque:"OITIS/PI", suop:"EVAIR"},
+  {mat:"295", nome:"SANDRELINO MACIEL DE FREITAS", acumulado:270, parque:"OITIS/PI", suop:"EVAIR"},
   {mat:"192", nome:"JEFERSON APARECIDO ANTENOR", acumulado:166, parque:"SANTO AGOSTINHO/RN", suop:"EVAIR"},
-  {mat:"49", nome:"JOHN LENON VIEIRA ALVES", acumulado:154, parque:"OITIS/PI", suop:"EVAIR"},
+  {mat:"49", nome:"JOHN LENON VIEIRA ALVES", acumulado:157, parque:"OITIS/PI", suop:"EVAIR"},
   {mat:"189", nome:"FRANCSICO AVILA LIMA DA SILVA", acumulado:140, parque:"GAMELEIRA/RN", suop:"EVAIR"},
   {mat:"285", nome:"DIEGO BARBOSA DA SILVA", acumulado:100, parque:"TUCANO/BA", suop:"EVAIR"},
-  {mat:"318", nome:"ANTONIO ERIVAGUINO ALVES MOTA", acumulado:94, parque:"TUCANO/BA", suop:"EVAIR"},
-  {mat:"248", nome:"MEZAC MARQUES DA ROCHA", acumulado:92, parque:"SÃO VITOR/BA", suop:"EVAIR"},
-  {mat:"308", nome:"ELIELSON SANTOS DA SILVA", acumulado:91, parque:"SÃO VITOR/BA", suop:"EVAIR"}
+  {mat:"248", nome:"MEZAC MARQUES DA ROCHA", acumulado:95, parque:"SÃO VITOR/BA", suop:"EVAIR"},
+  {mat:"308", nome:"ELIELSON SANTOS DA SILVA", acumulado:94, parque:"SÃO VITOR/BA", suop:"EVAIR"},
+  {mat:"318", nome:"ANTONIO ERIVAGUINO ALVES MOTA", acumulado:94, parque:"TUCANO/BA", suop:"EVAIR"}
 ];
 var tbodyTec = document.getElementById('tbodyTecnicos');
 tecnicosAtivos.forEach(function(t){
@@ -411,7 +406,7 @@ var rankingCliente = [
   ["NORDEX / LWS",62,56,0],
   ["SINOMA BLADES",21,21,1],
   ["LM",11,11,0],
-  ["NORDEX",5,6,0],
+  ["NORDEX",6,6,0],
   ["EÓLICAS BABILÔNIA",5,5,0],
   ["ELETROBRAS",4,4,0],
   ["VESTAS",2,2,0]
@@ -431,7 +426,7 @@ var chartRankingCliente = new Chart(document.getElementById('chartRankingCliente
 });
 
 var mesesTodos = ["Jan/24","Fev/24","Mar/24","Abr/24","Mai/24","Jun/24","Jul/24","Ago/24","Set/24","Out/24","Nov/24","Dez/24","Jan/25","Fev/25","Mar/25","Abr/25","Mai/25","Jun/25","Jul/25","Ago/25","Set/25","Out/25","Nov/25","Dez/25","Jan/26","Fev/26","Mar/26","Abr/26","Mai/26","Jun/26","Jul/26","Ago/26","Set/26","Out/26"];
-var motivoClienteTodos = [16,3,16,26,15,24,10,21,21,6,25,10,38,15,20,29,43,28,30,34,33,25,50,59,71,34,42,41,44,25,30,15,19,8];
+var motivoClienteTodos = [16,3,16,26,15,24,10,21,21,6,25,10,38,15,20,29,43,28,30,34,33,25,50,59,71,34,42,41,44,25,30,15,19,9];
 var motivoExtremeTodos = [11,5,5,7,14,22,17,14,11,17,16,8,7,7,15,11,21,19,10,12,7,9,9,18,19,19,28,56,34,22,20,4,10,0];
 
 // Mes atual + ultimos 12 meses (13 barras no total)
