@@ -286,6 +286,7 @@ var parques = [
   {nome:"TERRA SANTA/RN", cliente:"SIEMENS", suop:"-", real:0, plano:3}
 ];
 var emDesmobQtd = 0;
+var emMobQtd = 7;
 function badgeClass(c){ return {GE:'ge',NORDEX:'nordex',SIEMENS:'siemens'}[c] || 'ge'; }
 var tbody = document.getElementById('tbodyParques');
 parques.forEach(function(p){
@@ -302,6 +303,12 @@ if (emDesmobQtd > 0) {
   trDesmob.style.color = '#f0ad4e';
   trDesmob.innerHTML = '<td>EM DESMOBILIZAÇÃO</td><td></td><td>Responsável: Robson Lins</td><td class="num">'+emDesmobQtd+'</td><td class="num">-</td><td class="num">-</td>';
   tbody.appendChild(trDesmob);
+}
+if (emMobQtd > 0) {
+  var trMob = document.createElement('tr');
+  trMob.style.color = '#f0ad4e';
+  trMob.innerHTML = '<td>EM MOBILIZAÇÃO (em viagem)</td><td></td><td>Responsável: Robson Lins</td><td class="num">'+emMobQtd+'</td><td class="num">-</td><td class="num">-</td>';
+  tbody.appendChild(trMob);
 }
 var trTot = document.createElement('tr');
 trTot.style.fontWeight='700'; trTot.style.borderTop='2px solid #2a3746';
