@@ -110,14 +110,14 @@
 
 <div class="panel active" id="panel-ativos">
 <div class="kpis">
-  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">25</div><div class="sub">em campo agora</div></div>
+  <div class="kpi"><div class="label">Tecnicos ativos</div><div class="value">31</div><div class="sub">em campo agora</div></div>
   <div class="kpi"><div class="label">Planejado (headcount)</div><div class="value">34</div><div class="sub">meta de equipes</div></div>
-  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-9</div><div class="sub">abaixo do plano</div></div>
+  <div class="kpi"><div class="label">Deficit total</div><div class="value red">-3</div><div class="sub">abaixo do plano</div></div>
   <div class="kpi" style="display:flex; gap:12px; padding:0; overflow:hidden;">
-    <div style="flex:1; padding:16px 14px;"><div class="label">Parques ativos</div><div class="value">7</div></div>
-    <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">2</div></div>
+    <div style="flex:1; padding:16px 14px;"><div class="label">Parques ativos</div><div class="value">8</div></div>
+    <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">1</div></div>
   </div>
-  <div class="kpi"><div class="label">Em mobilizacao</div><div class="value" style="color:var(--ok,#4caf82)">7</div><div class="sub">ja em viagem, chegada prevista ate 05/10/2026, 06/10/2026</div></div>
+  <div class="kpi"><div class="label">Em mobilizacao</div><div class="value" style="color:var(--ok,#4caf82)">7</div><div class="sub">em viagem (ja contados como ativos), chegada ate 05/10/2026, 06/10/2026</div></div>
 </div>
 <div class="grid2">
   <div class="card"><h2>Por cliente <span>tecnicos ativos</span></h2><canvas id="chartCliente" style="max-height:187px;"></canvas></div>
@@ -277,7 +277,7 @@ Chart.defaults.font.family = "'Segoe UI',Arial,sans-serif";
 var parques = [
   {nome:"OITIS/PI", cliente:"GE", suop:"EVAIR", real:6, plano:6},
   {nome:"LDV3/PI", cliente:"GE", suop:"EVAIR", real:5, plano:5},
-  {nome:"DOLORES/NL - MEX", cliente:"NORDEX", suop:"EVAIR", real:0, plano:6},
+  {nome:"DOLORES/NL - MEX", cliente:"NORDEX", suop:"EVAIR", real:6, plano:6},
   {nome:"SÃO VITOR/BA", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
   {nome:"GAMELEIRA/RN", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
   {nome:"SANTO AGOSTINHO/RN", cliente:"SIEMENS", suop:"EVAIR", real:3, plano:3},
@@ -307,7 +307,7 @@ if (emDesmobQtd > 0) {
 if (emMobQtd > 0) {
   var trMob = document.createElement('tr');
   trMob.style.color = '#f0ad4e';
-  trMob.innerHTML = '<td>EM MOBILIZAÇÃO — '+emMobQtd+' técnico(s) em viagem (fora do Real até chegar)</td><td></td><td>Responsável: Robson Lins</td><td class="num">-</td><td class="num">-</td><td class="num">-</td>';
+  trMob.innerHTML = '<td>EM MOBILIZAÇÃO — '+emMobQtd+' técnico(s) em viagem (já contados no Real do projeto)</td><td></td><td>Responsável: Robson Lins</td><td class="num">-</td><td class="num">-</td><td class="num">-</td>';
   tbody.appendChild(trMob);
 }
 var trTot = document.createElement('tr');
