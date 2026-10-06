@@ -1180,7 +1180,7 @@
     const statusOptions = STATUS_OPTIONS.map(function(o){
       return '<option value="' + o.value + '"' + (p.Status === o.value ? ' selected' : '') + '>' + o.label + '</option>';
     }).join('');
-    const cols = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
+    const cols = colunasEquipe(p);
     const theadHtml = bonusTheadHtml(cols);
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
@@ -1287,6 +1287,22 @@
     });
     return achados.length === 1 ? B[achados[0]] : null;
   }
+  /* COLUNAS PADRAO DA TABELA DE EQUIPE (06/10/2026, Robson): todos os parques mostram
+     Nome — Estado | Certificação | Observação | Sistema | Smart | Cliente (antes das Bonificações).
+     As colunas que o parque já tem na planilha (RD_Parques.ColunasEquipe) ficam como estão, na mesma ordem
+     (a posição define Val1..ValN); só entram no fim as do padrão que faltam. */
+  const COLUNAS_PADRAO_EQUIPE = ['Nome — Estado','Certificação','Observação','Sistema','Smart','Cliente'];
+  function colunasEquipe(p){
+    const cols = String((p && p.ColunasEquipe) || 'Nome — Estado,Certificação').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    const norm = function(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,''); };
+    const tem = cols.map(norm);
+    COLUNAS_PADRAO_EQUIPE.forEach(function(c){
+      const n = norm(c);
+      const achou = tem.some(function(x){ return x === n || (n === 'nomeestado' && x.indexOf('nome') === 0); });
+      if (!achou){ cols.push(c); tem.push(n); }
+    });
+    return cols;
+  }
   function bonusSemanas(){
     const B = (typeof BONUS_SEMANAL !== 'undefined') ? BONUS_SEMANAL : null;
     // mais recente primeiro (a da esquerda é a atual)
@@ -1382,10 +1398,10 @@
   function renderPark(container, p, extraDeletableBlank){
     const node = el(panelHtml(p, extraDeletableBlank));
     container.appendChild(node);
-    const colCount = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',').length;
+    const colCount = colunasEquipe(p).length;
     const tbody = node.querySelector('[data-equipe-body]');
     const equipeRows = DATA.equipe.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
-    const colsEq = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
+    const colsEq = colunasEquipe(p);
     const certIdx = colsEq.findIndex(function(h){ return /certifica/i.test(h); }) + 1;
     equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque, certIdx))); });
     const alertas = [];
