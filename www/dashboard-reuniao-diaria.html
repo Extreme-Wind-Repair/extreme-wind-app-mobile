@@ -444,14 +444,18 @@
   .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
   /* BONUS SEMANAL (06/10/2026, Robson): coluna "Bonus" da tabela de equipe -- semana atual + 4 anteriores, com motivo quando perdeu. Nao editavel. */
-  td.bonus-td, th.bonus-th{min-width:84px; text-align:center; vertical-align:top;}
-  td.bonus-td{max-width:130px;}
+  td.bonus-td, th.bonus-th{width:1%; min-width:0; padding-left:5px; padding-right:5px; text-align:center; white-space:nowrap;}
+  th.bonus-group{text-align:center; font-weight:800; letter-spacing:.04em; border-left:2px solid var(--line); border-bottom:1px solid var(--line);}
+  td.bonus-first, th.bonus-th:first-of-type{border-left:2px solid var(--line);}
+  .panel > table.has-bonus th, .panel > table.has-bonus td{width:1%; white-space:nowrap;}
+  .panel > table.has-bonus .bonus-mot-td, .panel > table.has-bonus th.bonus-mot-th{text-align:left; width:190px; min-width:190px; white-space:normal; padding-left:8px; padding-right:8px;}
+  .panel > table.has-bonus .bonus-fill{width:auto;}
   .bonus-chips{display:flex; flex-wrap:wrap; gap:4px;}
   .bonus-chip{font-size:11px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
   .bonus-chip.ok{color:#2ec4a1; border-color:rgba(46,196,161,.55);}
   .bonus-chip.perda{color:#ff8a80; border-color:#e53935; background:rgba(229,57,53,.12);}
   .bonus-chip.parcial{border-style:dashed; opacity:.85;}
-  .bonus-motivo{font-size:10px; color:#ff8a80; margin-top:3px; line-height:1.25; white-space:normal;}
+  .bonus-motivo{font-size:11px; color:#ff8a80; line-height:1.25; white-space:normal;}
   .obs{color:var(--muted); font-size:11.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
   .aprovados-box .ap-title{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
@@ -1177,8 +1181,7 @@
       return '<option value="' + o.value + '"' + (p.Status === o.value ? ' selected' : '') + '>' + o.label + '</option>';
     }).join('');
     const cols = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
-    const theadHtml = cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') +
-      bonusHeadHtml();
+    const theadHtml = bonusTheadHtml(cols);
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
@@ -1225,7 +1228,7 @@
           '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
         '</div>' +
       '</div>' +
-      '<table><thead><tr>' + theadHtml + '</tr></thead><tbody data-equipe-body></tbody></table>' +
+      '<table' + (bonusSemanas().length ? ' class="has-bonus"' : '') + '>' + theadHtml + '<tbody data-equipe-body></tbody></table>' +
       '<div class="aprovados-box"><div class="ap-title">Aprovados (backup)</div><div class="ap-names" data-aprovados-body></div></div>' +
       panelFooterHtml(p, extraDeletableBlank) +
     '</div>';
@@ -1286,28 +1289,43 @@
   }
   function bonusSemanas(){
     const B = (typeof BONUS_SEMANAL !== 'undefined') ? BONUS_SEMANAL : null;
-    return (B && B.semanas) ? B.semanas : [];
+    // mais recente primeiro (a da esquerda é a atual)
+    return (B && B.semanas) ? B.semanas.slice().reverse() : [];
   }
-  function bonusHeadHtml(){
-    return bonusSemanas().map(function(sw){
-      return '<th class="bonus-th" title="' + escapeHtml('Bônus ' + sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — semana em apuração' : '')) + '">' + escapeHtml(sw.s) + (sw.parcial ? '*' : '') + '</th>';
+  function bonusTheadHtml(cols){
+    const base = cols.map(function(h){ return '<th rowspan="2">' + escapeHtml(h) + '</th>'; }).join('');
+    const sems = bonusSemanas();
+    if (!sems.length) return '<thead><tr>' + cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '</tr></thead>';
+    const semHead = sems.map(function(sw, i){
+      const h = '<th class="bonus-th" title="' + escapeHtml('Bônus ' + sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — semana em apuração' : '')) + '">' + escapeHtml(sw.s) + (sw.parcial ? '*' : '') + '</th>';
+      return i === 0 ? h + '<th class="bonus-th bonus-mot-th">Motivo da perda</th>' : h;
     }).join('');
+    return '<thead><tr>' + base + '<th class="bonus-group" colspan="' + (sems.length + 1) + '">Bonificações</th><th rowspan="2" class="bonus-fill"></th></tr><tr>' + semHead + '</tr></thead>';
   }
   function bonusCellHtml(row){
     const sems = bonusSemanas();
     if (!sems.length) return '';
     const nome = String(row.Val1 || '').split(/\s+[—-]\s+|\s*=\s*/)[0].trim();
     const p = bonusDoTecnico(nome);
-    return sems.map(function(sw){
-      if (!p) return '<td class="bonus-td"><span class="tech-cert-empty">—</span></td>';
-      const e = p.sem[sw.s];
-      if (!e) return '<td class="bonus-td" title="' + escapeHtml(sw.s + ' (' + sw.p + '): sem lançamento') + '"><span class="tech-cert-empty">—</span></td>';
-      const perdeu = !sw.parcial && e.perf === 0;
-      const cls = 'bonus-chip ' + (perdeu ? 'perda' : (e.perf > 0 ? 'ok' : '')) + (sw.parcial ? ' parcial' : '');
-      const tip = sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — em apuração' : '') + (e.motivo ? ': ' + e.motivo : '');
-      return '<td class="bonus-td" title="' + escapeHtml(tip) + '"><span class="' + cls + '">R$' + e.v + (sw.parcial ? '*' : '') + '</span>' +
-        (perdeu ? '<div class="bonus-motivo">' + escapeHtml(e.motivo || 'motivo não informado') + '</div>' : '') + '</td>';
-    }).join('');
+    let out = '';
+    sems.forEach(function(sw, i){
+      const first = (i === 0);
+      const cls0 = 'bonus-td' + (first ? ' bonus-first' : '');
+      let cell, motivo = '';
+      const e = p ? p.sem[sw.s] : null;
+      if (!e){
+        cell = '<td class="' + cls0 + '"' + (p ? ' title="' + escapeHtml(sw.s + ' (' + sw.p + '): sem lançamento') + '"' : '') + '><span class="tech-cert-empty">—</span></td>';
+      } else {
+        const perdeu = !sw.parcial && e.perf === 0;
+        const cls = 'bonus-chip ' + (perdeu ? 'perda' : (e.perf > 0 ? 'ok' : '')) + (sw.parcial ? ' parcial' : '');
+        const tip = sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — em apuração' : '') + (e.motivo ? ': ' + e.motivo : '');
+        cell = '<td class="' + cls0 + '" title="' + escapeHtml(tip) + '"><span class="' + cls + '">R$' + e.v + (sw.parcial ? '*' : '') + '</span></td>';
+        if (first && e.motivo && (perdeu || sw.parcial)) motivo = e.motivo;
+      }
+      out += cell;
+      if (first) out += '<td class="bonus-mot-td">' + (motivo ? '<span class="bonus-motivo">' + escapeHtml(motivo) + '</span>' : '') + '</td>';
+    });
+    return out + '<td class="bonus-fill"></td>';
   }
   function equipeRowHtml(row, colCount, nomeParque, certIdx){
     let tds = '';
