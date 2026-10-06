@@ -443,6 +443,14 @@
   .cert-alerta.venc{background:rgba(229,57,53,.16); border-color:#e53935; color:#ff8a80;}
   .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
+  /* BONUS SEMANAL (06/10/2026, Robson): coluna "Bonus" da tabela de equipe -- semana atual + 4 anteriores, com motivo quando perdeu. Nao editavel. */
+  td.bonus-td{min-width:230px;}
+  .bonus-chips{display:flex; flex-wrap:wrap; gap:4px;}
+  .bonus-chip{font-size:11px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
+  .bonus-chip.ok{color:#2ec4a1; border-color:rgba(46,196,161,.55);}
+  .bonus-chip.perda{color:#ff8a80; border-color:#e53935; background:rgba(229,57,53,.12);}
+  .bonus-chip.parcial{border-style:dashed; opacity:.85;}
+  .bonus-motivo{font-size:11px; color:#ff8a80; margin-top:3px; line-height:1.3;}
   .obs{color:var(--muted); font-size:11.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
   .aprovados-box .ap-title{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
@@ -693,6 +701,11 @@
      Última atualização: 05/10/2026. */
   const BDH_VAGAS_MESTRE = {
   };
+  /* BONUS SEMANAL (06/10/2026, Robson): bonus por tecnico (semana mais recente + 4 anteriores) vindo da planilha "Bonus" (Google Sheets de outro setor, SO LEITURA).
+     Dado ESTATICO atualizado pelas 3 tarefas de dashboard (ver REGRAS_AUTOMACAO.md, secao Bonus semanal). Sem CPF. Nao editar a mao. */
+  /* BONUS_SEMANAL:INICIO (conteudo gerado por _scripts/gerar_bonus_reuniao.py) */
+  const BONUS_SEMANAL = {"semanas":[{"s":"S36","p":"31/08–06/09","parcial":false},{"s":"S37","p":"06/09–12/09","parcial":false},{"s":"S38","p":"13/09–19/09","parcial":false},{"s":"S39","p":"20/09–26/09","parcial":false},{"s":"S40","p":"27/09–03/10","parcial":true}],"pessoas":{"49":{"nome":"JOHN LENON VIEIRA ALVES","sem":{"S36":{"v":100,"perf":0,"motivo":"Não realizou inventário MP","nao":["Equipamentos"]},"S37":{"v":250,"perf":150,"motivo":"","nao":[]},"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"295":{"nome":"SANDRELINO MACIEL DE FREITAS","sem":{"S36":{"v":250,"perf":150,"motivo":"","nao":[]},"S37":{"v":250,"perf":150,"motivo":"","nao":[]},"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"216":{"nome":"PEDRO LUCAS DA CRUZ DA SILVA","sem":{"S36":{"v":150,"perf":150,"motivo":"","nao":[]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"43":{"nome":"MATEUS GOMES DA SILVA","sem":{"S36":{"v":350,"perf":150,"motivo":"","nao":[]},"S37":{"v":350,"perf":150,"motivo":"","nao":[]},"S38":{"v":350,"perf":150,"motivo":"","nao":[]},"S39":{"v":200,"perf":0,"motivo":"Não realizou check list","nao":["Equipamentos"]}}},"248":{"nome":"MEZAC MARQUES DA ROCHA","sem":{"S36":{"v":0,"perf":0,"motivo":"Não realizou check list acesso por cordas","nao":["Equipamentos"]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"Não realizou check list de ferramentas","nao":["Equipamentos"]}}},"308":{"nome":"Elielson santos da silva","sem":{"S36":{"v":0,"perf":0,"motivo":"Não realizou check list acesso por cordas","nao":["Equipamentos"]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"296":{"nome":"ALDEMIR CORREIA DE JESUS","sem":{"S36":{"v":150,"perf":150,"motivo":"","nao":[]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"192":{"nome":"JEFERSON APARECIDO ANTENOR","sem":{"S36":{"v":250,"perf":150,"motivo":"","nao":[]},"S37":{"v":100,"perf":0,"motivo":"Não realizou check list de ferramentas","nao":["Equipamentos"]},"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"105":{"nome":"HELIO COSTA DE FREITAS","sem":{"S36":{"v":100,"perf":0,"motivo":"Check list (cordas) com repetições 4 fotos","nao":["Equipamentos"]},"S37":{"v":250,"perf":150,"motivo":"","nao":[]},"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"189":{"nome":"FRANCISCO AVILA LIMA DA SILVA","sem":{"S36":{"v":150,"perf":150,"motivo":"","nao":[]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"46":{"nome":"WILLAMES LEANDRO SILVA DA HORA","sem":{"S36":{"v":350,"perf":150,"motivo":"","nao":[]},"S37":{"v":350,"perf":150,"motivo":"","nao":[]},"S38":{"v":350,"perf":150,"motivo":"","nao":[]},"S39":{"v":200,"perf":0,"motivo":"Não realizou inventário de matéria prima","nao":["Equipamentos"]}}},"221":{"nome":"JAIR DUTRA JUNIOR","sem":{"S36":{"v":150,"perf":150,"motivo":"","nao":[]},"S37":{"v":150,"perf":150,"motivo":"","nao":[]},"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"979":{"nome":"ANTONIO ERIVAGUINO ALVES MOTA","sem":{"S36":{"v":250,"perf":150,"motivo":"","nao":[]},"S37":{"v":100,"perf":0,"motivo":"Não realizou check list de equipamentos de acesso por cordas","nao":["Equipamentos","RDO Garantia"]},"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":100,"perf":0,"motivo":"Reparo não conforme (Qualidade)","nao":["Engenharia"]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"285":{"nome":"DIEGO BARBOSA DA SILVA","sem":{"S36":{"v":150,"perf":150,"motivo":"","nao":[]},"S37":{"v":0,"perf":0,"motivo":"Não realizou check list de ferramentas","nao":["Equipamentos","RDO Garantia"]},"S38":{"v":250,"perf":150,"motivo":"Não realizou check list de acesso por cordas","nao":[]},"S39":{"v":150,"perf":150,"motivo":"Reparo não conforme (Qualidade)","nao":["Engenharia"]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"353":{"nome":"EDIPO CARDOSO DE OLIVEIRA","sem":{"S36":{"v":0,"perf":0,"motivo":"Não realizou inventário de MP","nao":["Equipamentos"]}}},"331":{"nome":"ANTONIO ERIVANDO AGOSTINHO DA SILVA","sem":{"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":100,"perf":0,"motivo":"Fotos das ferramentas reutilizadas do dia da mobilização","nao":["Equipamentos"]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"279":{"nome":"LENNON ALMEIDA DE SOUZA","sem":{"S38":{"v":250,"perf":150,"motivo":"","nao":[]},"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"919":{"nome":"ARTHUR LEONIDAS ARAUJO DA SILVA","sem":{"S38":{"v":150,"perf":150,"motivo":"","nao":[]},"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"310":{"nome":"LUANN CANAL ARAUJO","sem":{"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"44":{"nome":"CARLOS EDUARDO RODRIGUES MARQUES","sem":{"S39":{"v":250,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"110":{"nome":"JOSE MARIA DA SILVA ALBERTO","sem":{"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"233":{"nome":"SAMUEL SANTOS ARAUJO","sem":{"S39":{"v":350,"perf":150,"motivo":"","nao":[]},"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"374":{"nome":"WILLIAN DUARTE DA COSTA","sem":{"S39":{"v":150,"perf":150,"motivo":"","nao":[]},"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}},"106":{"nome":"VICTOR HUGO GOMES","sem":{"S40":{"v":100,"perf":0,"motivo":"","nao":[]}}},"355":{"nome":"ALEX SALES DA CUNHA","sem":{"S40":{"v":0,"perf":0,"motivo":"","nao":[]}}}},"atualizado":"06/10/2026"};
+  /* BONUS_SEMANAL:FIM */
   let PARK_SEQ = 0;
   /* % PLANEJADO 15/09/2026 (pedido do Robson): a aba "análise" da planilha
      "banco de dados RDO" já calcula, por Turbina, o "% Planejado" (coluna I
@@ -1163,7 +1176,8 @@
       return '<option value="' + o.value + '"' + (p.Status === o.value ? ' selected' : '') + '>' + o.label + '</option>';
     }).join('');
     const cols = (p.ColunasEquipe || 'Nome — Estado,Certificação').split(',');
-    const theadHtml = cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('');
+    const theadHtml = cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') +
+      '<th title="Bônus semanal por técnico: semana mais recente + 4 anteriores. Tracejado = semana ainda em apuração. Vermelho = perdeu o bônus de performance (motivo abaixo).">Bônus (5 sem.)</th>';
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
@@ -1251,6 +1265,43 @@
     if (!itens.length) return '<span class="tech-cert-empty">—</span>';
     return '<span class="tech-cert-badges">' + itens.map(function(c){ return '<span class="badge-cert">' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
   }
+  /* BONUS SEMANAL (06/10/2026, Robson): casa o nome da linha com a planilha "Bonus"
+     (dado estatico BONUS_SEMANAL, sem CPF). Casa por nome normalizado: 2 primeiros
+     nomes iguais (nome com 1 palavra so NAO casa). Ambiguo = nao mostra. */
+  function normTokBonus(s){
+    return String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
+      .replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function bonusDoTecnico(nomeCelula){
+    const B = (typeof BONUS_SEMANAL !== 'undefined' && BONUS_SEMANAL && BONUS_SEMANAL.pessoas) || null;
+    if (!B) return null;
+    const n = normTokBonus(nomeCelula); if (!n) return null;
+    const t = n.split(' ');
+    const achados = Object.keys(B).filter(function(m){
+      const bt = normTokBonus(B[m].nome).split(' ');
+      return t.length >= 2 && bt[0] === t[0] && bt[1] === t[1];
+    });
+    return achados.length === 1 ? B[achados[0]] : null;
+  }
+  function bonusCellHtml(row){
+    const vazio = '<td class="bonus-td"><span class="tech-cert-empty">—</span></td>';
+    const B = (typeof BONUS_SEMANAL !== 'undefined') ? BONUS_SEMANAL : null;
+    if (!B || !B.semanas) return vazio;
+    const nome = String(row.Val1 || '').split(/\s+[—-]\s+|\s*=\s*/)[0].trim();
+    const p = bonusDoTecnico(nome);
+    if (!p) return vazio;
+    let chips = '', motivos = '';
+    B.semanas.forEach(function(sw){
+      const e = p.sem[sw.s];
+      if (!e){ chips += '<span class="bonus-chip" title="' + escapeHtml(sw.s + ' (' + sw.p + '): sem lançamento') + '">' + sw.s + ' —</span>'; return; }
+      const perdeu = !sw.parcial && e.perf === 0;
+      const cls = 'bonus-chip ' + (perdeu ? 'perda' : (e.perf > 0 ? 'ok' : '')) + (sw.parcial ? ' parcial' : '');
+      const tip = sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — em apuração' : '') + (e.motivo ? ': ' + e.motivo : '');
+      chips += '<span class="' + cls + '" title="' + escapeHtml(tip) + '">' + sw.s + ' R$' + e.v + (sw.parcial ? '*' : '') + '</span>';
+      if (perdeu) motivos += '<div class="bonus-motivo">' + sw.s + ': ' + escapeHtml(e.motivo || 'motivo não informado') + '</div>';
+    });
+    return '<td class="bonus-td"><div class="bonus-chips">' + chips + '</div>' + motivos + '</td>';
+  }
   function equipeRowHtml(row, colCount, nomeParque, certIdx){
     let tds = '';
     for (let i = 1; i <= colCount; i++){
@@ -1260,6 +1311,7 @@
       }
       tds += '<td contenteditable="true" data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
+    tds += bonusCellHtml(row);
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
   }
 
