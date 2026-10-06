@@ -34,6 +34,7 @@
   --blue:#3987e5; --red:#e66767; --mid:#383835;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth;scroll-padding-top:84px}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--font);-webkit-text-size-adjust:100%}
 .page{max-width:1320px;margin:0 auto;padding-inline:var(--gutter);padding-block:0 56px}
@@ -294,6 +295,34 @@ td.pr small.dn{color:var(--crit-text)}td.pr small.up{color:var(--good-text)}
   .seg button{flex:1 1 auto;border-left:0 !important;box-shadow:inset 0 0 0 .5px var(--ring)}
 }
 
+/* comparativo mensal */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-top:14px}
+.mgrid .card{min-width:0;display:flex;flex-direction:column;gap:10px}
+.mgrid h4{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+.pt{display:grid;gap:12px;margin-top:2px}
+.pt-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.6fr) 104px;gap:4px 14px;align-items:center}
+.pt-l{font-size:13px;min-width:0;overflow-wrap:anywhere}
+.pt-l small{display:block;font-size:11.5px;color:var(--ink2)}
+.pt-b{position:relative;height:10px;background:var(--track);border-radius:5px}
+.pt-b .z{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--ink2)}
+.pt-b .f{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--ink2)}
+.pt-b .f.c-up{background:var(--crit)}.pt-b .f.c-dn{background:var(--good)}
+.pt-v{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.pt-row.tot{border-top:1px solid var(--axis);padding-top:10px}
+.pt-row.tot .pt-b{visibility:hidden}
+@media (max-width:640px){
+  .pt-row{grid-template-columns:minmax(0,1fr) auto}
+  .pt-row .pt-b{grid-column:1/-1;order:3}
+  .pt-row.tot .pt-b{display:none}
+}
+.ch .f-b{fill:var(--blue)}.ch .f-a{fill:var(--ink2)}.ch .f-o{fill:color-mix(in srgb,var(--ink2) 35%,var(--surface))}
+.ch .par{opacity:.6}
+.ch .hit.pick{cursor:pointer}
+tr.sel-b td{background:color-mix(in srgb,var(--blue) 11%,transparent)}
+tr.sel-a td{background:var(--hover)}
+.tag.ab{margin-left:4px;font-weight:600}
+.tag.ab.b{color:var(--ink);border-color:var(--blue)}
+
 </style>
 </head>
 <body>
@@ -311,6 +340,7 @@ td.pr small.dn{color:var(--crit-text)}td.pr small.up{color:var(--good-text)}
     <a href="#parques">Parques e setores</a>
     <a href="#ranking">Ranking de condutores</a>
     <a href="#preco">Preço do litro</a>
+    <a href="#mensal">Comparativo mensal</a>
     <a href="#anual">Custo anual</a>
     <a href="#revisar">Revisar abastecimentos</a>
     <a href="#dados">Dados e método</a>
@@ -351,6 +381,24 @@ td.pr small.dn{color:var(--crit-text)}td.pr small.up{color:var(--good-text)}
     <div class="sec-h" style="margin-top:26px"><h3 style="font-size:16px">Por posto</h3><span class="per" id="per-prPosto"></span></div>
     <div class="rk-ctl" id="prpostoctl"></div>
     <div class="card tw" id="prPosto"></div>
+  </section>
+
+  <section id="mensal" aria-labelledby="h-mensal">
+    <div class="sec-h"><h2 id="h-mensal">Comparativo mensal</h2><span class="per" id="per-mensal"></span></div>
+    <p class="lead" id="lead-mensal"></p>
+    <div class="rk-ctl" id="mctl"></div>
+    <p class="rkread" id="mread" aria-live="polite"></p>
+    <div class="kpis" id="mkpis"></div>
+    <div class="mgrid" id="mponte"></div>
+    <div class="charts3" style="margin-top:14px">
+      <figure class="card"><figcaption><b>Gasto por mês</b><span id="cap-mgasto"></span></figcaption><div class="legend" id="lg-mgasto"></div><div id="chMGasto"></div></figure>
+      <figure class="card"><figcaption><b>Gasto por placa</b><span id="cap-mpl"></span></figcaption><div class="legend" id="lg-mpl"></div><div id="chMPl"></div></figure>
+    </div>
+    <div class="sec-h" style="margin-top:26px"><h3 style="font-size:16px">Gasto por placa nos dois meses</h3><span class="per" id="per-mpl"></span></div>
+    <div class="card tw" id="mtabPl"></div>
+    <p class="small muted" id="mplfoot" style="margin-top:8px"></p>
+    <div class="sec-h" style="margin-top:26px"><h3 style="font-size:16px">Mês a mês</h3><span class="per" id="per-mmes"></span></div>
+    <div class="card tw" id="mtabMes"></div>
   </section>
 
   <section id="anual" aria-labelledby="h-anual">
@@ -468,13 +516,33 @@ function icon(kind, cls) { const t = document.createElement('template'); t.inner
 function chip(c, small) { return h('span', { class: 'chip ' + c.k + (small ? ' sm' : '') }, icon(c.k), c.t); }
 function sdot(i) { return h('i', { class: 'dot ' + SCLS[i], 'aria-hidden': 'true' }); }
 
+/* ---------- nomes dos condutores ----------
+   Só a exibição muda: a planilha continua com as grafias originais (histórico imutável). Cada grafia abaixo
+   passa a aparecer com o nome do cadastro atual da frota ou, quando a pessoa não está no cadastro, com a
+   grafia mais completa. "#N/A" é a linha que veio sem condutor (o vínculo da planilha não resolveu). */
+const SEM_COND = 'Sem condutor cadastrado';
+const NOMES = {
+  'MATHEUS GOMES': 'MATEUS GOMES',
+  'SAMEUL SANTOS': 'SAMUEL SANTOS', 'SAMUEL': 'SAMUEL SANTOS',
+  'ANTONIO CESAR': 'ANTÔNIO CÉSAR',
+  'ANTÔNIO ERIVAGUINO': 'ANTÔNIO ERIVAGUINO ALVES MOTA',
+  'APARECIDO': 'APARECIDO PINTO',
+  'FELIPE SERPA': 'FELIPE DE LIMA SERPA',
+  'LERNITON MAX': 'LERNINTON MAX',
+  'PEDRO LUCAS': 'PEDRO LUCAS DA CRUZ',
+  'ROBSON LINS': 'ROBSON ANTONIO ALMEIDA LINS (COOD)',
+  'JOHN LENNON': 'LENNON ALMEIDA',
+  '#N/A': SEM_COND
+};
+const nomeCond = c => NOMES[c] || c;
+
 /* ---------- dados ---------- */
 const ATIV = new Set(D.ativas);
 const RALL = D.rows.map(a => {
   const [linha, iso, hora, wk, pi, ci, ki, li, st, L, V, km, fl, ei] = a;
   const loc = D.locais[li];
   return {
-    linha, iso, hora, wk, mes: +iso.slice(5, 7), placa: D.placas[pi], cond: D.conds[ci], posto: D.estabs[ei],
+    linha, iso, hora, wk, mes: +iso.slice(5, 7), placa: D.placas[pi], cond: nomeCond(D.conds[ci]), condRaw: D.conds[ci], posto: D.estabs[ei],
     pk: ki, parque: D.parques[ki][0], parqueUf: D.parques[ki][1], loc: li, cidade: loc[0], uf: loc[1], kmMar: loc[2],
     set: st, L, R: V, km, ger: !!(fl & 1), bm: !!(fl & 2), dup: !!(fl & 4), incons: !!(fl & 8), eta: !!(fl & 16), die: !!(fl & 32), ativa: ATIV.has(D.placas[pi]),
     valid: km > 1 && km <= KM_MAX && L > 0
@@ -541,12 +609,32 @@ function wkRange(wk) {
 }
 const NPLACAS_ANO = new Set(R.filter(r => !r.ger).map(r => r.placa)).size;
 
+/* ---------- meses ---------- */
+const ULT_MES = +ULT.slice(5, 7), ULT_DIA = +ULT.slice(8, 10);
+const diasNoMes = m => new Date(Date.UTC(2026, m, 0)).getUTCDate();
+const MES_PARCIAL = ULT_DIA < diasNoMes(ULT_MES);                  // o último mês com dados ainda está em andamento?
+const MES_FECH = MES_PARCIAL ? ULT_MES - 1 : ULT_MES;              // último mês fechado (janela padrão do ranking)
+const MESES_DADOS = [...new Set(R.filter(r => !r.ger).map(r => r.mes))].sort((a, b) => a - b);
+const cap1 = s => s[0].toUpperCase() + s.slice(1);
+const mesNome = m => cap1(MESES_L[m - 1]);
+const mesEmAndamento = m => m === ULT_MES && MES_PARCIAL;
+const dd2 = n => String(n).padStart(2, '0');
+const mesIniTxt = m => '01/' + dd2(m);
+const mesFimTxt = m => dd2(mesEmAndamento(m) ? ULT_DIA : diasNoMes(m)) + '/' + dd2(m);
+const mesLabel = m => mesNome(m) + ' de 2026';
+const mesAnterior = m => MESES_DADOS.filter(x => x < m).pop();
+const mesSeguinte = m => MESES_DADOS.find(x => x > m);
+/* semanas (WEEKNUM) que tocam o mês: a primeira e a última podem ser divididas com o mês vizinho */
+const wkMes = m => { const w = R.filter(r => r.mes === m).map(r => r.wk); return w.length ? [Math.min(...w), Math.max(...w)] : [WKNOW, WKNOW]; };
+
 /* ---------- estado ---------- */
 const S = {
   escopo: 'ativa', escA: 'todas', per: 'ano', mRkm: 0.75, mKml: 10,
   nivel: 'setor', ordem: 'idx', fSet: 'todos', fUf: 'todos', ctx: 'setor', heat: 'rkm',
-  rk: 'wk38',                    // janela do ranking: wk38 | s4 | s8 | ano
+  mes: MES_FECH,                 // mês escolhido nas janelas "Mês" (ranking, parques e setores, preço do litro)
+  rk: 'mes',                     // janela do ranking: mes | wk38 | s4 | s8 | ano (abre no último mês fechado)
   pr: 'ano', prOrd: 'caro', allPr: false,   // seção Preço do litro
+  cmpB: MES_FECH, cmpA: Math.max(1, MES_FECH - 1), cmpAuto: true, mAll: false,   // comparativo mensal
   escQ: 'todas', qTipo: 'todos', qMax: 25,  // fila de revisão
   open: new Set(), allPk: { 0: false, 1: false }, allHeat: { 0: false, 1: false }
 };
@@ -554,11 +642,14 @@ const META0 = { mRkm: 0.75, mKml: 10 };
 const scoped = () => R.filter(r => !r.ger && (S.escopo === 'todas' || r.ativa));
 const scopedA = () => R.filter(r => !r.ger && (S.escA === 'todas' || r.ativa));
 const naJanela = r => r.wk >= WK0;
-/* janela do ranking (seletor próprio): WK38 → hoje, últimas 4 ou 8 semanas, ano */
-const RK_JAN = [{ v: 'wk38', t: 'WK' + WK0 + ' → hoje' }, { v: 's4', t: 'Últimas 4 semanas' }, { v: 's8', t: 'Últimas 8 semanas' }, { v: 'ano', t: 'Ano 2026' }];
-const rkWk0 = () => S.rk === 'wk38' ? WK0 : S.rk === 's4' ? Math.max(1, WKNOW - 3) : S.rk === 's8' ? Math.max(1, WKNOW - 7) : 1;
-const naRk = r => r.wk >= rkWk0();
-const rkLabel = () => rkWk0() === 1 ? 'Ano 2026 (WK1 a WK' + WKNOW + ')' : 'WK' + rkWk0() + ' a WK' + WKNOW;
+/* janela do ranking (seletor próprio): mês escolhido, WK38 → hoje, últimas 4 ou 8 semanas, ano */
+const RK_JAN = [{ v: 'mes', t: 'Mês' }, { v: 'wk38', t: 'WK' + WK0 + ' → hoje' }, { v: 's4', t: 'Últimas 4 semanas' }, { v: 's8', t: 'Últimas 8 semanas' }, { v: 'ano', t: 'Ano 2026' }];
+const rkWk0 = () => S.rk === 'mes' ? wkMes(S.mes)[0] : S.rk === 'wk38' ? WK0 : S.rk === 's4' ? Math.max(1, WKNOW - 3) : S.rk === 's8' ? Math.max(1, WKNOW - 7) : 1;
+const naRk = r => S.rk === 'mes' ? r.mes === S.mes : r.wk >= rkWk0();
+const rkLabel = () => S.rk === 'mes' ? mesLabel(S.mes) : rkWk0() === 1 ? 'Ano 2026 (WK1 a WK' + WKNOW + ')' : 'WK' + rkWk0() + ' a WK' + WKNOW;
+const rkPeriodo = () => S.rk === 'mes' ? mesIniTxt(S.mes) + ' a ' + mesFimTxt(S.mes) : wkRange(rkWk0()).slice(0, 5) + ' a ' + dm(ULT.slice(0, 10));
+const rkKey = () => S.rk === 'mes' ? 'm' + S.mes : String(rkWk0());           // semente do sorteio da faixa de confiança
+const rkSemanas = () => S.rk === 'mes' ? wkMes(S.mes) : [Math.max(rkWk0(), WKNOW - 11), WKNOW];
 
 function agg(list) {
   let n = 0, nV = 0, L = 0, V = 0, kmV = 0, LV = 0, VV = 0; const pls = new Set(), cic = new Set();
@@ -621,11 +712,22 @@ const synchers = [];
 function seg(label, opts, get, set) {
   const wrap = h('div', { class: 'ctl' }, label ? h('span', { class: 'lab' }, label) : null);
   const box = h('div', { class: 'seg', role: 'group', 'aria-label': label || 'opções' });
-  const btns = opts.map(o => h('button', { type: 'button', onclick: () => { set(o.v); sync(); render(); } }, o.t));
+  const btns = opts.map(o => h('button', { type: 'button', onclick: () => { set(o.v); synchers.forEach(f => f()); render(); } }, o.t));
   btns.forEach(b => box.append(b));
   const sync = () => btns.forEach((b, i) => b.setAttribute('aria-pressed', String(get() === opts[i].v)));
   synchers.push(sync); sync();
   wrap.append(box);
+  return wrap;
+}
+/* igual ao seg, com uma opção "Mês" que mostra o seletor de mês (compartilhado: S.mes) */
+function segMes(label, opts, get, set) {
+  const wrap = seg(label, opts, get, set);
+  const sel = h('select', { class: 'sel', 'aria-label': 'Mês de ' + label.toLowerCase() });
+  MESES_DADOS.forEach(m => sel.append(h('option', { value: String(m) }, mesNome(m) + (mesEmAndamento(m) ? ' (em andamento)' : ''))));
+  sel.addEventListener('change', () => { S.mes = +sel.value; synchers.forEach(f => f()); render(); });
+  const sync = () => { sel.value = String(S.mes); sel.hidden = get() !== 'mes'; };
+  synchers.push(sync); sync();
+  wrap.append(sel);
   return wrap;
 }
 function numField(label, unit, get, set, dec) {
@@ -644,7 +746,7 @@ function buildBar() {
   const nAt = D.ativas.length;
   bar.append(
     seg('Resumo, parques, ranking e preço', [{ v: 'ativa', t: 'Frota ativa (' + nAt + ')' }, { v: 'todas', t: 'Todas as placas (' + NPLACAS_ANO + ')' }], () => S.escopo, v => S.escopo = v),
-    seg('Parques e setores', [{ v: 'ano', t: 'Ano 2026' }, { v: 'janela', t: 'WK' + WK0 + ' → hoje' }], () => S.per, v => S.per = v),
+    segMes('Parques e setores', [{ v: 'ano', t: 'Ano 2026' }, { v: 'mes', t: 'Mês' }, { v: 'janela', t: 'WK' + WK0 + ' → hoje' }], () => S.per, v => S.per = v),
     h('div', { class: 'ctl' }, h('span', { class: 'lab' }, 'Metas'),
       numField('Custo', 'R$/km', () => S.mRkm, v => S.mRkm = v, 2),
       numField('Eficiência', 'km/l', () => S.mKml, v => S.mKml = v, 1),
@@ -693,10 +795,11 @@ function meter(label, val, meta, lowerIsBetter, fmt, cls) {
 }
 function renderSetores() {
   const base = scoped();
-  const rows = S.per === 'ano' ? base : base.filter(naJanela);
+  const rows = S.per === 'ano' ? base : S.per === 'mes' ? base.filter(r => r.mes === S.mes) : base.filter(naJanela);
   const tot = agg(rows);
   document.getElementById('per-parques').textContent = S.per === 'ano'
     ? 'Janeiro a ' + MESES_L[MESNOW - 1] + ' de 2026 (até ' + dm(ULT.slice(0, 10)) + ')'
+    : S.per === 'mes' ? mesLabel(S.mes) + ' (' + mesIniTxt(S.mes) + ' a ' + mesFimTxt(S.mes) + ')' + (mesEmAndamento(S.mes) ? ' · mês em andamento' : '')
     : 'WK' + WK0 + ' a WK' + WKNOW + ' · ' + wkRange(WK0).slice(0, 5) + ' a ' + dm(ULT.slice(0, 10));
   document.getElementById('lead-parques').textContent =
     'O setor de cada abastecimento vem da cidade do posto: a menos de ' + CORTE_MAR + ' km do mar é Setor 1 (Litoral); a ' + CORTE_MAR + ' km ou mais é Setor 2 (Sertão). ' +
@@ -712,7 +815,7 @@ function painelSetor(s, rows, tot, litrosPk) {
   for (const r of rs) {
     let e = g.get(r.pk);
     if (!e) { e = { pk: r.pk, nome: r.parque, uf: r.parqueUf, rows: [], placas: new Set(), conds: new Set(), ufs: new Map() }; g.set(r.pk, e); }
-    e.rows.push(r); e.placas.add(r.placa); e.conds.add(r.cond); e.ufs.set(r.uf, (e.ufs.get(r.uf) || 0) + r.L);
+    e.rows.push(r); e.placas.add(r.placa); if (r.cond !== SEM_COND) e.conds.add(r.cond); e.ufs.set(r.uf, (e.ufs.get(r.uf) || 0) + r.L);
   }
   const lista = [...g.values()].map(e => ({ ...e, a: agg(e.rows) })).sort((x, y) => y.a.R - x.a.R);
   const maxR = Math.max(1, ...lista.map(e => e.a.R));
@@ -811,7 +914,7 @@ function faixa(cs, chave) {
 }
 function buildDrivers() {
   const g = new Map();
-  for (const r of janelaRows()) { if (!g.has(r.cond)) g.set(r.cond, []); g.get(r.cond).push(r); }
+  for (const r of janelaRows()) { if (r.cond === SEM_COND) continue; if (!g.has(r.cond)) g.set(r.cond, []); g.get(r.cond).push(r); }
   const out = [];
   for (const [cond, rs] of g) {
     rs.sort((a, b) => (a.iso + a.hora).localeCompare(b.iso + b.hora));
@@ -832,7 +935,7 @@ function buildDrivers() {
     }
     const exp = (a.kmV && expL) ? a.kmV / expL : null;
     const dif = (ok(exp) && ok(a.kml)) ? a.kml / exp - 1 : null;
-    const fx = faixa([...cyc.values()], cond + '|' + rkWk0() + '|' + S.nivel + '|' + S.escopo);
+    const fx = faixa([...cyc.values()], cond + '|' + rkKey() + '|' + S.nivel + '|' + S.escopo);
     const sep = fx ? (fx.dLo > 0 ? 'up' : fx.dHi < 0 ? 'dn' : 'tie') : null;
     // preço pago contra a mediana do estado no mês (mesmo combustível)
     let pL = 0, pEf = 0;
@@ -891,7 +994,7 @@ function refNivelTxt(d) {
   return m.length === 1 && m[0] === S.nivel ? NIVEL_CURTO[m[0]] : m.map(l => NIVEL_CURTO[l] + ' ' + u[l] + '/' + tot).join(', ');
 }
 function semanaChart(d) {
-  const wks = []; for (let w = Math.max(rkWk0(), WKNOW - 11); w <= WKNOW; w++) wks.push(w);
+  const wks = [], [wa, wb] = rkSemanas(); for (let w = wa; w <= wb; w++) wks.push(w);
   const data = wks.map(w => ({ w, a: agg(d.rs.filter(r => r.wk === w)) }));
   const W = 260, H = 118, m = { l: 8, r: 8, t: 18, b: 22 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
   const vals = data.map(x => x.a.kml).filter(ok);
@@ -975,7 +1078,7 @@ function detalhe(d) {
         h('thead', null, h('tr', null, ...['Cidade', 'Setor', 'Do mar', 'Abast.', 'km/l dele', 'km/l ref.', 'Nível da referência'].map((t, i) => h('th', { class: i > 1 && i < 6 ? 'r' : '' }, t)))),
         h('tbody', null, cidades)))),
     h('div', null, h('h4', null, 'km/l por semana'), semanaChart(d),
-      h('p', { class: 'small muted' }, '* semana em andamento. Referência usada: ' + refNivelTxt(d) + '.')),
+      h('p', { class: 'small muted' }, (S.rk === 'mes' ? 'As semanas que cruzam o mês mostram só os dias de ' + MESES_L[S.mes - 1] + '. ' : '') + '* semana em andamento. Referência usada: ' + refNivelTxt(d) + '.')),
     h('div', { class: 'full' }, h('h4', null, 'Preço e consumo'),
       h('p', { class: 'small', style: 'margin-bottom:8px' },
         ok(d.pv) && ok(a.kml)
@@ -1031,11 +1134,12 @@ function leitura(el) {
   return 'Leitura com 80% de confiança: ' + (p.length ? p.join(' e ') + '. ' : '') + t + ' A ordem entre condutores cujas faixas se encostam não é conclusiva.';
 }
 function renderRanking() {
-  const w0 = rkWk0();
-  document.getElementById('per-ranking').textContent = rkLabel() + ' (' + wkRange(w0).slice(0, 5) + ' a ' + dm(ULT.slice(0, 10)) + ') · semana ' + WKNOW + ' em andamento';
+  document.getElementById('per-ranking').textContent = rkLabel() + ' (' + rkPeriodo() + ')' +
+    (S.rk === 'mes' ? (mesEmAndamento(S.mes) ? ' · mês em andamento, dados até ' + dm(ULT.slice(0, 10)) : ' · mês fechado') : ' · semana ' + WKNOW + ' em andamento');
   document.getElementById('lead-ranking').textContent =
     'Cada condutor é comparado com o que os outros veículos da frota renderam em 2026 nos mesmos lugares onde ele abasteceu. ' +
-    'Quem roda em região mais pesada não perde posição só por isso. A coluna "Vs. esperado" decide a ordem; a "Faixa (80%)" mostra o quanto esse número pode mudar com outra amostra: quando a faixa cruza o zero, a posição entre vizinhos não é conclusiva. O km/l e a situação seguem a meta de ' + f1(S.mKml) + ' km/l.';
+    'Quem roda em região mais pesada não perde posição só por isso. A coluna "Vs. esperado" decide a ordem; a "Faixa (80%)" mostra o quanto esse número pode mudar com outra amostra: quando a faixa cruza o zero, a posição entre vizinhos não é conclusiva. O km/l e a situação seguem a meta de ' + f1(S.mKml) + ' km/l.' +
+    (S.rk === 'mes' ? ' Em um mês só há poucos tanques por condutor: as faixas ficam largas e quem não chega a ' + MIN_ABAST + ' tanques e ' + f0(MIN_KM) + ' km fica sem posição. Para mais amostra, troque a janela para WK' + WK0 + ' → hoje.' : '');
   const all = buildDrivers();
   const el = all.filter(d => d.elegivel), ne = all.filter(d => !d.elegivel);
   const sorted = sortDrivers(el);
@@ -1057,8 +1161,13 @@ function renderRanking() {
     tbody.append(h('tr', { class: 'sub' }, h('td', { colspan: nCols }, 'Amostra insuficiente (menos de ' + MIN_ABAST + ' tanques com km válido ou menos de ' + f0(MIN_KM) + ' km na janela). Aparecem sem posição.')));
     sortDrivers(ne).forEach(d => driverRow(d, 0, 0, tbody, nCols));
   }
+  const sem = janelaRows().filter(r => r.cond === SEM_COND);
+  if (sem.length) {
+    const sL = sem.reduce((t, r) => t + r.L, 0), sR = sem.reduce((t, r) => t + r.R, 0);
+    tbody.append(h('tr', { class: 'sub' }, h('td', { colspan: nCols }, 'Fora do ranking: ' + plural(sem.length, 'abastecimento', 'abastecimentos') + ' sem condutor cadastrado na planilha (' + f0(sL) + ' L, ' + brl(sR) + '). Contam no gasto da frota, mas não podem ser atribuídos a ninguém.')));
+  }
   const host = document.getElementById('rktab');
-  if (!all.length) host.replaceChildren(h('p', { class: 'pad muted' }, 'Nenhum abastecimento na janela com os filtros escolhidos.'));
+  if (!all.length && !sem.length) host.replaceChildren(h('p', { class: 'pad muted' }, 'Nenhum abastecimento na janela com os filtros escolhidos.'));
   else host.replaceChildren(h('table', null, thead, tbody));
   document.getElementById('explain').replaceChildren(
     h('div', { class: 'card' }, h('b', null, 'Esperado'), 'km/l que os outros veículos fizeram em 2026 nos postos do mesmo ' + (S.nivel === 'none' ? 'contexto' : NIVEL_CURTO[S.nivel]) + ' do condutor, ponderado pelos km de cada abastecimento. Se o contexto tem poucos pares (menos de ' + MIN_BENCH.cidade[0] + ' abastecimentos ou ' + MIN_BENCH.cidade[1] + ' placas), a conta sobe um nível.'),
@@ -1080,7 +1189,7 @@ function renderCtx() {
     if (!e) { e = { key: k, nome: tab === 'setor' ? SETOR[k] : tab === 'uf' ? r.uf : r.cidade + '/' + r.uf, set: r.set, kmMar: r.kmMar, rows: [] }; m.set(k, e); }
     e.rows.push(r);
   }
-  const list = [...m.values()].map(e => ({ ...e, a: agg(e.rows), conds: new Set(e.rows.map(r => r.cond)), ref: IX[tab].get(e.key) })).sort((x, y) => y.a.n - x.a.n);
+  const list = [...m.values()].map(e => ({ ...e, a: agg(e.rows), conds: new Set(e.rows.map(r => r.cond).filter(c => c !== SEM_COND)), ref: IX[tab].get(e.key) })).sort((x, y) => y.a.n - x.a.n);
   const th = ['Contexto', ...(tab === 'cidade' ? ['Setor', 'Do mar'] : tab === 'uf' ? ['Setor predominante'] : []), 'Abast.', 'Condutores', 'km/l na janela', 'km/l referência 2026', 'Diferença', 'Pares na referência'];
   const rcls = new Set(['Abast.', 'Condutores', 'km/l na janela', 'km/l referência 2026', 'Diferença', 'Do mar']);
   const body = list.map(e => {
@@ -1109,7 +1218,7 @@ function buildRankControls() {
   const selUf = h('select', { class: 'sel', id: 'f-uf', 'aria-label': 'Estado' }, h('option', { value: 'todos' }, 'Todos os estados'), ufs.map(u => h('option', { value: u }, u)));
   selUf.addEventListener('change', () => { S.fUf = selUf.value; renderRanking(); });
   host.append(
-    seg('Janela', RK_JAN, () => S.rk, v => S.rk = v),
+    segMes('Janela', RK_JAN, () => S.rk, v => S.rk = v),
     seg('Comparar com', [{ v: 'setor', t: 'Setor' }, { v: 'uf', t: 'Estado' }, { v: 'cidade', t: 'Cidade' }, { v: 'none', t: 'Só a meta' }], () => S.nivel, v => S.nivel = v),
     seg('Ordenar por', [{ v: 'idx', t: 'Vs. esperado' }, { v: 'kml', t: 'km/l' }, { v: 'rkm', t: 'R$/km' }], () => S.ordem, v => S.ordem = v),
     h('div', { class: 'ctl' }, h('span', { class: 'lab' }, 'Só abastecimentos em'), selSet, selUf));
@@ -1122,10 +1231,11 @@ function buildRankControls() {
    Gasolina (etanol e diesel têm preço próprio e ficam de fora). Referência de cada abastecimento:
    mediana da frota inteira no mesmo estado e mês (calculada em app.js). Limite = meta de R$/km × meta de km/l.
    ===================================================================== */
-const PR_JAN = [{ v: 'ano', t: 'Ano 2026' }, { v: 's8', t: 'Últimas 8 semanas' }, { v: 'wk38', t: 'WK' + WK0 + ' → hoje' }];
-const prWk0 = () => S.pr === 'ano' ? 1 : S.pr === 's8' ? Math.max(1, WKNOW - 7) : WK0;
-const prLabel = () => prWk0() === 1 ? 'Ano 2026' : 'WK' + prWk0() + ' a WK' + WKNOW;
-const prRows = () => scoped().filter(r => r.wk >= prWk0() && tipoC(r) === 'G' && r.L > 0);
+const PR_JAN = [{ v: 'ano', t: 'Ano 2026' }, { v: 'mes', t: 'Mês' }, { v: 's8', t: 'Últimas 8 semanas' }, { v: 'wk38', t: 'WK' + WK0 + ' → hoje' }];
+const prWk0 = () => S.pr === 'ano' || S.pr === 'mes' ? 1 : S.pr === 's8' ? Math.max(1, WKNOW - 7) : WK0;
+const prLabel = () => S.pr === 'mes' ? mesLabel(S.mes) + (mesEmAndamento(S.mes) ? ' (até ' + dm(ULT.slice(0, 10)) + ')' : '') : prWk0() === 1 ? 'Ano 2026' : 'WK' + prWk0() + ' a WK' + WKNOW;
+const naPr = r => S.pr === 'mes' ? r.mes === S.mes : r.wk >= prWk0();
+const prRows = () => scoped().filter(r => naPr(r) && tipoC(r) === 'G' && r.L > 0);
 
 function renderPreco() {
   const lim = limPreco(), rows = prRows(), N = rows.length;
@@ -1180,7 +1290,7 @@ function renderPrecoPosto(rows) {
   for (const r of rows) {
     const k = r.posto + '|' + r.loc; let e = m.get(k);
     if (!e) m.set(k, e = { posto: r.posto, cidade: r.cidade + '/' + r.uf, n: 0, L: 0, V: 0, efp: 0, Lr: 0, refV: 0, conds: new Set(), ult: '' });
-    e.n++; e.L += r.L; e.V += r.R; e.conds.add(r.cond); if (r.iso > e.ult) e.ult = r.iso;
+    e.n++; e.L += r.L; e.V += r.R; if (r.cond !== SEM_COND) e.conds.add(r.cond); if (r.iso > e.ult) e.ult = r.iso;
     if (r.efp != null) { e.efp += r.efp; e.Lr += r.L; e.refV += r.pref * r.L; }
   }
   const todos = [...m.values()].filter(e => e.n >= 3 && e.Lr > 0);
@@ -1291,6 +1401,253 @@ function qCopiar(list) {
     btn.textContent = 'Selecione o texto abaixo e copie (Ctrl+C)';
   };
   try { navigator.clipboard.writeText(txt).then(ok1, fallback); } catch (e) { fallback(); }
+}
+
+
+/* =====================================================================
+   COMPARATIVO MENSAL
+   Dois meses lado a lado (B = comparado, A = referência). A variação do gasto é decomposta em
+   km rodados, eficiência (km/l) e preço do litro; a soma das três partes fecha exatamente a variação:
+     volume     = (kmB − kmA) · eA · pA
+     eficiência = kmB · (eB − eA) · pA
+     preço      = LB · (pB − pA)
+   com e = litros ÷ km válido do mês e p = valor pago ÷ litros do mês (todos os abastecimentos do mês).
+   A origem da variação separa as placas que entraram, as que saíram e as que ficaram.
+   ===================================================================== */
+const mn = m => MESES_L[m - 1];
+const parcTxt = m => mesEmAndamento(m) ? ' (até ' + dm(ULT.slice(0, 10)) + ')' : '';
+const tkfmt = v => v === 0 ? '0' : v >= 1000 ? ((v / 1000) % 1 === 0 ? NF0 : NF1).format(v / 1000) + ' mil' : NF0.format(v);
+const kfmt2 = (v, curto) => v >= 1000 ? NF1.format(v / 1000) + (curto ? 'k' : ' mil') : NF0.format(v);
+const brl0 = v => brl(v, 0);
+
+function dadosMes(rows, m) {
+  const rs = rows.filter(r => r.mes === m), pl = new Map();
+  for (const r of rs) { let e = pl.get(r.placa); if (!e) pl.set(r.placa, e = { placa: r.placa, rs: [] }); e.rs.push(r); }
+  for (const e of pl.values()) e.a = agg(e.rs);
+  const gas = rs.filter(r => tipoC(r) === 'G' && r.L > 0);
+  const gL = gas.reduce((t, r) => t + r.L, 0), gR = gas.reduce((t, r) => t + r.R, 0);
+  const a = agg(rs);
+  return { m, rs, a, pl, pg: gL ? gR / gL : null, rpp: a.pl ? a.R / a.pl : null };
+}
+function condPrincipal(e) {
+  const m = new Map(); for (const r of e.rs) if (r.cond !== SEM_COND) m.set(r.cond, (m.get(r.cond) || 0) + r.L);
+  const l = [...m.entries()].sort((x, y) => y[1] - x[1]);
+  return l.length ? l[0][0] : '—';
+}
+/* variação do gasto: km, eficiência e preço (soma exata) */
+function ponte(a, b) {
+  const A = a.a, B = b.a;
+  if (!(A.kmV > 0 && B.kmV > 0 && A.L > 0 && B.L > 0)) return null;
+  const pA = A.R / A.L, pB = B.R / B.L, eA = A.L / A.kmV, eB = B.L / B.kmV;
+  return { pA, pB, eA, eB, vol: (B.kmV - A.kmV) * eA * pA, efi: B.kmV * (eB - eA) * pA, pre: B.L * (pB - pA), tot: B.R - A.R };
+}
+/* de quais placas veio a variação */
+function origem(a, b) {
+  const o = { ent: 0, sai: 0, fic: 0, nE: 0, nS: 0, nF: 0 };
+  for (const [p, y] of b.pl) { const x = a.pl.get(p); if (x) { o.fic += y.a.R - x.a.R; o.nF++; } else { o.ent += y.a.R; o.nE++; } }
+  for (const [p, x] of a.pl) if (!b.pl.has(p)) { o.sai -= x.a.R; o.nS++; }
+  return o;
+}
+function porPlaca(a, b) {
+  const ps = new Set([...a.pl.keys(), ...b.pl.keys()]);
+  return [...ps].map(p => {
+    const x = a.pl.get(p), y = b.pl.get(p);
+    return { placa: p, sit: x && y ? 'dois' : y ? 'entrou' : 'saiu', RA: x ? x.a.R : 0, RB: y ? y.a.R : 0, d: (y ? y.a.R : 0) - (x ? x.a.R : 0),
+      kmlA: x ? x.a.kml : null, kmlB: y ? y.a.kml : null, cond: condPrincipal(y || x) };
+  }).sort((p, q) => Math.abs(q.d) - Math.abs(p.d) || p.placa.localeCompare(q.placa));
+}
+/* b contra a: texto colorido só quando há um lado bom ('low' = menor é melhor, 'high' = maior é melhor) */
+function dlt(b, a, fn, casas, bom, comPct) {
+  if (!ok(b) || !ok(a)) return h('span', { class: 'muted' }, '—');
+  const d = b - a, zero = Math.abs(d) < 0.5 * Math.pow(10, -casas);
+  const cls = zero || !bom ? '' : ((bom === 'low') === (d > 0) ? 'dn' : 'up');
+  return h('span', { class: cls }, sgnR(d, fn, casas) + (comPct && a ? ' (' + sgnR(d / a, v => pct(v, 0), 2) + ')' : ''));
+}
+
+/* lista de barras divergentes: cada linha é uma parte da variação; a última é o total */
+function barList(rows, total) {
+  const lo = Math.min(0, ...rows.map(r => r.v)), hi = Math.max(0, ...rows.map(r => r.v)), span = (hi - lo) || 1, z = -lo / span * 100;
+  const linha = (r, tot) => {
+    const w = Math.abs(r.v) / span * 100, left = r.v >= 0 ? z : z - w;
+    const cls = r.tom === 'cost' && Math.abs(r.v) >= 0.5 ? (r.v > 0 ? 'dn' : 'up') : '';
+    return h('div', { class: 'pt-row' + (tot ? ' tot' : '') },
+      h('div', { class: 'pt-l' }, r.l, r.sub ? h('small', null, r.sub) : null),
+      h('div', { class: 'pt-b', role: 'img', 'aria-label': r.l + ': ' + sgnR(r.v, brl0, 0) },
+        h('i', { class: 'z', style: 'left:' + z.toFixed(2) + '%' }),
+        h('i', { class: 'f ' + (r.tom === 'cost' ? (r.v > 0 ? 'c-up' : 'c-dn') : ''), style: 'left:' + left.toFixed(2) + '%;width:' + Math.max(w, Math.abs(r.v) >= 0.5 ? 0.8 : 0).toFixed(2) + '%' })),
+      h('div', { class: 'pt-v ' + cls }, sgnR(r.v, brl0, 0)));
+  };
+  return h('div', { class: 'pt' }, rows.map(r => linha(r, false)), linha(total, true));
+}
+
+function leituraMensal(a, b, P, O) {
+  const A = a.a, B = b.a, d = B.R - A.R, p = [];
+  p.push(mesNome(b.m) + parcTxt(b.m) + ' gastou ' + brl(B.R) + ', ' + brl(Math.abs(d)) + (d >= 0 ? ' a mais' : ' a menos') + ' que ' + mn(a.m) + parcTxt(a.m) + (A.R ? ' (' + sgnR(d / A.R, v => pct(v, 0), 2) + ')' : '') + '.');
+  if (P) p.push('Por causa: ' + listaTxt([
+    'km rodados ' + sgnR(P.vol, brl0, 0) + ' (' + f0(B.kmV) + ' km contra ' + f0(A.kmV) + ')',
+    'eficiência ' + sgnR(P.efi, brl0, 0) + ' (' + f2(B.kml) + ' contra ' + f2(A.kml) + ' km/l)',
+    'preço do litro ' + sgnR(P.pre, brl0, 0) + ' (' + brl(P.pB, 2) + ' contra ' + brl(P.pA, 2) + ')']) + '.');
+  p.push('Placas que abasteceram: ' + A.pl + ' em ' + mn(a.m) + ' e ' + B.pl + ' em ' + mn(b.m) + '; gasto por placa ' + brl(b.rpp) + ' contra ' + brl(a.rpp) +
+    '. ' + plural(O.nF, 'placa abasteceu', 'placas abasteceram') + ' nos dois meses (' + sgnR(O.fic, brl0, 0) + ')' + (O.nE ? ', ' + plural(O.nE, 'entrou', 'entraram') + ' (' + sgnR(O.ent, brl0, 0) + ')' : '') + (O.nS ? ' e ' + plural(O.nS, 'saiu', 'saíram') + ' (' + sgnR(O.sai, brl0, 0) + ')' : '') + '.');
+  const par = [a.m, b.m].filter(mesEmAndamento);
+  if (par.length) p.push('Atenção: ' + mn(par[0]) + ' tem dados só até ' + dm(ULT.slice(0, 10)) + '; os totais não são comparáveis com um mês completo. Compare as taxas (km/l, R$/km, R$/L) ou espere o fechamento.');
+  return p.join(' ');
+}
+
+/* ---------- gráficos de colunas: um mês por coluna, B e A em destaque ---------- */
+function escolherB(m) {
+  hideTip();
+  S.cmpB = m;
+  if (S.cmpAuto) S.cmpA = mesAnterior(m) ?? mesSeguinte(m) ?? S.cmpA;
+  synchers.forEach(f => f());
+  renderMensal();
+}
+function chartMes(host, L, getv, aria, tipFn) {
+  const W = Math.max(300, Math.round(host.getBoundingClientRect().width)), H = Math.round(clamp(W * .62, 230, 300));
+  const m = { l: 46, r: 6, t: 20, b: 24 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const tk = niceTicks(0, Math.max(1, ...L.map(getv).filter(ok)), 4), ymax = tk[tk.length - 1];
+  const y = v => m.t + ih - (v / ymax) * ih, band = iw / L.length, bw = Math.min(34, band * .62);
+  const s = sv('svg', { class: 'ch', viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': aria });
+  tk.forEach(v => { s.append(sv('line', { class: 'gr', x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) })); s.append(sv('text', { x: m.l - 6, y: y(v) + 3.5, 'text-anchor': 'end' }, tkfmt(v))); });
+  s.append(sv('line', { class: 'ax', x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih }));
+  L.forEach((d, i) => {
+    const cx = m.l + band * (i + .5), v = getv(d), sel = d.m === S.cmpB || d.m === S.cmpA;
+    const cls = (d.m === S.cmpB ? 'f-b' : d.m === S.cmpA ? 'f-a' : 'f-o') + (mesEmAndamento(d.m) ? ' par' : '');
+    s.append(sv('text', { x: cx, y: H - 7, 'text-anchor': 'middle', class: sel ? 'ink' : '' }, MESES[d.m - 1] + (mesEmAndamento(d.m) ? '*' : '')));
+    if (ok(v) && v > 0) {
+      s.append(sv('path', { d: topRound(cx - bw / 2, y(v), bw, v / ymax * ih, 4), class: cls }));
+      if (sel) s.append(sv('text', { x: cx, y: y(v) - 5, 'text-anchor': 'middle', class: 'ink' }, kfmt2(v, band < 48)));
+    }
+    const hit = sv('rect', { class: 'hit pick', x: m.l + band * i, y: m.t, width: band, height: ih + 2, tabindex: '0', role: 'button', 'aria-label': mesNome(d.m) + ': ' + aria.split('.')[0] + ' ' + (ok(v) ? f0(v) : '—') + '. Escolher como mês comparado.' });
+    bindTip(hit, () => tipFn(d));
+    hit.addEventListener('click', () => escolherB(d.m));
+    hit.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); escolherB(d.m); } });
+    s.append(hit);
+  });
+  host.replaceChildren(s);
+}
+
+/* ---------- tabelas ---------- */
+function tagAB(m) { return m === S.cmpB ? h('span', { class: 'tag ab b' }, 'comparado') : m === S.cmpA ? h('span', { class: 'tag ab a' }, 'referência') : null; }
+function tabMes(M, rows) {
+  const trs = MESES_DADOS.map((m, i) => {
+    const d = M.get(m), p = i ? M.get(MESES_DADOS[i - 1]) : null, dR = p ? d.a.R - p.a.R : null;
+    const kk = clsKml(d.a.kml), rr = clsRkm(d.a.rkm);
+    const go = () => escolherB(m);
+    return h('tr', { class: 'row' + (m === S.cmpB ? ' sel-b' : m === S.cmpA ? ' sel-a' : ''), tabindex: '0', onclick: go, onkeydown: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); } },
+      title: 'Clique para escolher ' + mn(m) + ' como mês comparado' },
+      h('td', null, mesNome(m) + parcTxt(m), ' ', tagAB(m)),
+      h('td', { class: 'num' }, f0(d.a.pl)), h('td', { class: 'num' }, f0(d.a.n)),
+      h('td', { class: 'num' }, h('b', null, brl(d.a.R))),
+      h('td', { class: 'num', title: mesEmAndamento(m) ? 'Mês em andamento: a variação não é comparável' : null }, p && !mesEmAndamento(m) ? sgnR(dR, brl0, 0) : '—'),
+      h('td', { class: 'num' }, p && p.a.R && !mesEmAndamento(m) ? sgnR(dR / p.a.R, v => pct(v, 0), 2) : '—'),
+      h('td', { class: 'num' }, brl(d.rpp)),
+      h('td', { class: 'num' }, h('span', { style: 'display:inline-flex;align-items:center;gap:6px' }, icon(kk.k, 'ico ' + kk.k), f2(d.a.kml))),
+      h('td', { class: 'num' }, h('span', { style: 'display:inline-flex;align-items:center;gap:6px' }, icon(rr.k, 'ico ' + rr.k), f2(d.a.rkm))),
+      h('td', { class: 'num' }, ok(d.pg) ? brl(d.pg, 2) : '—'));
+  });
+  const y = agg(rows), gas = rows.filter(r => tipoC(r) === 'G' && r.L > 0), gL = gas.reduce((t, r) => t + r.L, 0), gR = gas.reduce((t, r) => t + r.R, 0);
+  trs.push(h('tr', { class: 'tot' }, h('td', null, 'Ano 2026'), h('td', { class: 'num' }, f0(y.pl)), h('td', { class: 'num' }, f0(y.n)), h('td', { class: 'num' }, brl(y.R)),
+    h('td', { class: 'num' }, '—'), h('td', { class: 'num' }, '—'), h('td', { class: 'num', title: 'Gasto do ano ÷ placas que abasteceram no ano' }, brl(y.pl ? y.R / y.pl : null)),
+    h('td', { class: 'num' }, f2(y.kml)), h('td', { class: 'num' }, f2(y.rkm)), h('td', { class: 'num' }, gL ? brl(gR / gL, 2) : '—')));
+  return h('table', null,
+    h('thead', null, h('tr', null, ...['Mês', 'Placas', 'Abast.', 'Gasto', 'Var. R$', 'Var. %', 'R$ por placa', 'km/l', 'R$/km', 'R$/L gasolina'].map((t, i) => h('th', { class: i ? 'r' : '', title: t === 'Var. R$' || t === 'Var. %' ? 'Contra o mês anterior da tabela' : t === 'R$ por placa' ? 'Gasto do mês ÷ placas que abasteceram no mês' : t === 'Placas' ? 'Placas que abasteceram no mês' : null }, t)))),
+    h('tbody', null, trs));
+}
+function tabPlacasMes(a, b, P) {
+  const vis = S.mAll ? P : P.slice(0, 10), SIT = { dois: 'Nos dois', entrou: 'Entrou', saiu: 'Saiu' };
+  const kc = v => { if (!ok(v)) return '—'; const k = clsKml(v); return h('span', { style: 'display:inline-flex;align-items:center;gap:6px' }, icon(k.k, 'ico ' + k.k), f2(v)); };
+  const body = vis.map(r => h('tr', null,
+    h('td', null, h('b', null, r.placa)), h('td', null, r.cond),
+    h('td', null, h('span', { class: 'pill' }, SIT[r.sit])),
+    h('td', { class: 'num' }, r.sit === 'entrou' ? '—' : brl(r.RA)), h('td', { class: 'num' }, r.sit === 'saiu' ? '—' : brl(r.RB)),
+    h('td', { class: 'num' }, h('b', null, sgnR(r.d, brl0, 0))),
+    h('td', { class: 'num' }, kc(r.kmlA)), h('td', { class: 'num' }, kc(r.kmlB))));
+  const foot = h('tr', { class: 'tot' }, h('td', { colspan: 3 }, 'Total (' + plural(P.length, 'placa', 'placas') + ')'), h('td', { class: 'num' }, brl(a.a.R)), h('td', { class: 'num' }, brl(b.a.R)),
+    h('td', { class: 'num' }, sgnR(b.a.R - a.a.R, brl0, 0)), h('td', { class: 'num' }, f2(a.a.kml)), h('td', { class: 'num' }, f2(b.a.kml)));
+  return h('table', null,
+    h('thead', null, h('tr', null, ...['Placa', 'Condutor', 'Situação', 'Gasto ' + MESES[a.m - 1], 'Gasto ' + MESES[b.m - 1], 'Variação', 'km/l ' + MESES[a.m - 1], 'km/l ' + MESES[b.m - 1]].map((t, i) => h('th', { class: i > 2 ? 'r' : '' }, t)))),
+    h('tbody', null, body, foot));
+}
+
+/* ---------- controles e render ---------- */
+function buildMensalControls() {
+  const host = document.getElementById('mctl');
+  const opt = m => h('option', { value: String(m) }, mesNome(m) + (mesEmAndamento(m) ? ' (em andamento)' : ''));
+  const selB = h('select', { class: 'sel', 'aria-label': 'Mês comparado' }, MESES_DADOS.map(opt));
+  const selA = h('select', { class: 'sel', 'aria-label': 'Mês de referência' }, MESES_DADOS.map(opt));
+  selB.addEventListener('change', () => escolherB(+selB.value));
+  selA.addEventListener('change', () => { S.cmpA = +selA.value; S.cmpAuto = false; synchers.forEach(f => f()); renderMensal(); });
+  const btn = h('button', { class: 'btn', type: 'button', onclick: () => { S.cmpAuto = true; S.cmpA = mesAnterior(S.cmpB) ?? mesSeguinte(S.cmpB) ?? S.cmpA; synchers.forEach(f => f()); renderMensal(); } }, 'Usar o mês anterior');
+  const sync = () => { selB.value = String(S.cmpB); selA.value = String(S.cmpA); btn.hidden = S.cmpAuto; };
+  synchers.push(sync); sync();
+  host.append(
+    seg('Frota', [{ v: 'todas', t: 'Toda a frota (' + NPLACAS_ANO + ' placas)' }, { v: 'ativa', t: 'Só frota ativa (' + D.ativas.length + ')' }], () => S.escA, v => S.escA = v),
+    h('div', { class: 'ctl' }, h('span', { class: 'lab' }, 'Comparar'), selB, h('span', { class: 'lab' }, 'com'), selA, btn));
+}
+
+function renderMensal() {
+  const rows = scopedA(), todas = S.escA === 'todas';
+  const M = new Map(MESES_DADOS.map(m => [m, dadosMes(rows, m)]));
+  const a = M.get(S.cmpA), b = M.get(S.cmpB), $ = id => document.getElementById(id);
+  $('per-mensal').textContent = (todas ? 'Toda a frota' : 'Só frota ativa (' + D.ativas.length + ' placas)') + ' · ' + mesNome(b.m) + ' contra ' + mn(a.m);
+  $('lead-mensal').textContent = 'Escolha dois meses (ou clique em uma coluna ou linha) para ver quanto o gasto mudou e por quê: se a frota rodou mais, rendeu menos ou pagou mais caro pelo litro, e de quais placas veio a diferença. ' +
+    'A escolha de frota vale também para o custo anual. O mês em andamento aparece marcado com * e não deve ser comparado em total com um mês fechado.';
+  const L = MESES_DADOS.map(m => M.get(m));
+  const lg = [{ c: 'var(--blue)', t: mn(b.m) + ' (comparado)' }, { c: 'var(--ink2)', t: mn(a.m) + ' (referência)' }, { c: 'color-mix(in srgb,var(--ink2) 35%,var(--surface))', t: 'outros meses' }];
+  $('lg-mgasto').replaceChildren(...legendItems(lg)); $('lg-mpl').replaceChildren(...legendItems(lg));
+  const ast = MES_PARCIAL ? ' * ' + mesNome(ULT_MES) + ' em andamento, dados até ' + dm(ULT.slice(0, 10)) + '.' : '';
+  $('cap-mgasto').textContent = 'R$ por mês · clique para escolher' + ast;
+  $('cap-mpl').textContent = 'R$ por placa que abasteceu' + ast;
+  const tip = d => { const p = mesAnterior(d.m), dp = p ? M.get(p) : null;
+    return { title: mesNome(d.m) + parcTxt(d.m), rows: [
+      { l: 'Gasto', v: brl(d.a.R) }, ...(dp ? [{ l: 'Vs. ' + mn(p), v: sgnR(d.a.R - dp.a.R, brl0, 0) }] : []),
+      { l: 'Placas que abasteceram', v: f0(d.a.pl) }, { l: 'Gasto por placa', v: brl(d.rpp) },
+      { l: 'km/l', v: f2(d.a.kml) }, { l: 'R$/km', v: brl(d.a.rkm, 2) }, { l: 'Gasolina R$/L', v: ok(d.pg) ? brl(d.pg, 2) : '—' }] }; };
+  chartMes($('chMGasto'), L, d => d.a.R, 'Gasto por mês em reais. Valores na tabela Mês a mês.', tip);
+  chartMes($('chMPl'), L, d => d.rpp, 'Gasto por placa por mês em reais. Valores na tabela Mês a mês.', tip);
+  $('mtabMes').replaceChildren(tabMes(M, rows));
+  $('per-mmes').textContent = 'Clique em uma linha para comparar o mês com o anterior · variação contra o mês anterior da tabela';
+
+  const sem = a.m === b.m;
+  if (sem) {
+    $('mread').textContent = 'Escolha dois meses diferentes para comparar.';
+    ['mkpis', 'mponte', 'mtabPl'].forEach(id => $(id).replaceChildren());
+    $('per-mpl').textContent = ''; $('mplfoot').textContent = '';
+    return;
+  }
+  const P = ponte(a, b), O = origem(a, b), PL = porPlaca(a, b);
+  $('mread').textContent = leituraMensal(a, b, P, O);
+  const A = a.a, B = b.a, vs = ' vs ' + mn(a.m);
+  const dsub = (v, fn) => mn(a.m) + ': ' + fn(v);
+  $('mkpis').replaceChildren(
+    kpi('Gasto em ' + mn(b.m), brl(B.R), [dlt(B.R, A.R, brl0, 0, null, true), h('span', { class: 'muted' }, vs)], dsub(A.R, brl)),
+    kpi('Gasto por placa', brl(b.rpp), [dlt(b.rpp, a.rpp, brl0, 0, null, true), h('span', { class: 'muted' }, vs)], plural(B.pl, 'placa abasteceu', 'placas abasteceram') + ' contra ' + A.pl + ' em ' + mn(a.m)),
+    kpi('Km rodados (válidos)', f0(B.kmV) + ' km', [dlt(B.kmV, A.kmV, v => f0(v) + ' km', 0, null, true), h('span', { class: 'muted' }, vs)], (B.pl ? f0(B.kmV / B.pl) : '—') + ' km por placa contra ' + (A.pl ? f0(A.kmV / A.pl) : '—')),
+    kpi('Eficiência', ok(B.kml) ? f2(B.kml) + ' km/l' : '—', [chip(clsKml(B.kml), true), dlt(B.kml, A.kml, f2, 2, 'high'), h('span', { class: 'muted' }, vs)], dsub(A.kml, v => f2(v) + ' km/l')),
+    kpi('Custo por km', brl(B.rkm, 2), [chip(clsRkm(B.rkm), true), dlt(B.rkm, A.rkm, v => brl(v, 2), 2, 'low'), h('span', { class: 'muted' }, vs)], dsub(A.rkm, v => brl(v, 2)) + ' · meta ' + brl(S.mRkm, 2)),
+    kpi('Preço da gasolina', ok(b.pg) ? brl(b.pg, 2) + '/L' : '—', [chip(clsPreco(b.pg), true), dlt(b.pg, a.pg, v => brl(v, 2), 2, 'low'), h('span', { class: 'muted' }, vs)], dsub(a.pg, v => brl(v, 2)) + ' · limite ' + brl(limPreco(), 2)));
+
+  const causa = P ? barList([
+    { l: 'Km rodados', sub: f0(B.kmV) + ' km contra ' + f0(A.kmV) + ' km', v: P.vol, tom: 'neu' },
+    { l: 'Eficiência (km/l)', sub: f2(B.kml) + ' contra ' + f2(A.kml) + ' km/l', v: P.efi, tom: 'cost' },
+    { l: 'Preço do litro', sub: brl(P.pB, 2) + ' contra ' + brl(P.pA, 2) + ' por litro', v: P.pre, tom: 'cost' }],
+    { l: 'Variação do gasto', sub: brl(B.R) + ' contra ' + brl(A.R), v: P.tot, tom: 'neu' })
+    : h('p', { class: 'muted small' }, 'Um dos meses não tem km válido: a decomposição não se aplica.');
+  const orig = barList([
+    { l: 'Placas que entraram (' + O.nE + ')', sub: 'abasteceram em ' + mn(b.m) + ' e não em ' + mn(a.m), v: O.ent, tom: 'neu' },
+    { l: 'Placas que saíram (' + O.nS + ')', sub: 'abasteceram em ' + mn(a.m) + ' e não em ' + mn(b.m), v: O.sai, tom: 'neu' },
+    { l: 'Placas nos dois meses (' + O.nF + ')', sub: 'variação do gasto dessas placas', v: O.fic, tom: 'neu' }],
+    { l: 'Variação do gasto', sub: 'soma das três linhas', v: B.R - A.R, tom: 'neu' });
+  $('mponte').replaceChildren(
+    h('div', { class: 'card pad' }, h('h4', null, 'Por causa'), h('p', { class: 'small muted' }, 'O que explica a variação: as três partes somam exatamente a diferença do gasto. Vermelho encarece, verde barateia.'), causa),
+    h('div', { class: 'card pad' }, h('h4', null, 'Por placa'), h('p', { class: 'small muted' }, 'De onde veio a variação: placas que passaram a abastecer, que deixaram de abastecer e as que ficaram.'), orig));
+
+  $('per-mpl').textContent = mesNome(b.m) + ' contra ' + mn(a.m) + ' · ' + plural(PL.length, 'placa', 'placas') + ', ordenadas pelo tamanho da variação';
+  const host = $('mtabPl');
+  host.replaceChildren(tabPlacasMes(a, b, PL));
+  if (PL.length > 10) host.append(h('div', { class: 'pad' }, h('button', { class: 'btn', type: 'button', onclick: () => { S.mAll = !S.mAll; renderMensal(); } }, S.mAll ? 'Mostrar menos' : 'Mostrar todas as ' + PL.length + ' placas')));
+  $('mplfoot').textContent = 'Entrou = abasteceu em ' + mn(b.m) + ' e não em ' + mn(a.m) + '; Saiu = o contrário (inclui placa que só não abasteceu no mês). Condutor = quem mais abasteceu a placa no mês.';
 }
 
 
@@ -1497,7 +1854,7 @@ function tabelaPlacas(rows, comGer) {
   const body = lista.map(e => h('tr', null,
     h('td', null, h('b', null, e.placa)), h('td', null, (D.modelos[e.placa] || '').replace('FIAT / ', '').replace('FIAT/', '').replace(' FREEDON 1.3', ' Freedom')),
     h('td', null, chip(ATIV.has(e.placa) ? { k: 'good', t: 'Ativa' } : { k: 'neutral', t: 'Saiu' }, true)),
-    h('td', null, e.ult.cond), h('td', null, e.ult.parque === SEM_PARQUE ? h('i', null, 'Sem parque cadastrado') : e.ult.parque),
+    h('td', null, e.ult.cond === SEM_COND ? h('i', null, SEM_COND) : e.ult.cond), h('td', null, e.ult.parque === SEM_PARQUE ? h('i', null, 'Sem parque cadastrado') : e.ult.parque),
     h('td', null, dm(e.ini.iso)), h('td', null, dm(e.ult.iso)),
     h('td', { class: 'num' }, f0(e.a.n)), h('td', { class: 'num' }, f0(e.a.L)), h('td', { class: 'num' }, brl(e.a.R)), h('td', { class: 'num' }, pct(T ? e.a.R / T : null, 1))));
   const foot = [h('tr', { class: 'sub' }, h('td', { colspan: 7 }, 'Veículos (' + lista.length + ' placas)'), h('td', { class: 'num' }, f0(rows.length)), h('td', { class: 'num' }, f0(rows.reduce((t, r) => t + r.L, 0))), h('td', { class: 'num' }, brl(T)), h('td', { class: 'num' }, '100%'))];
@@ -1526,7 +1883,7 @@ function renderAnual() {
   chartLinhas(document.getElementById('chRkm'), M, x => x.rkm, S.mRkm, v => brl(v, 2), 'meta ' + f2(S.mRkm), v => f2(v));
   chartLinhas(document.getElementById('chKml'), M, x => x.kml, S.mKml, v => f2(v) + ' km/l', 'meta ' + f1(S.mKml), v => f1(v));
   document.getElementById('tabMensal').replaceChildren(tabelaMensal(M));
-  document.getElementById('tabnote').textContent = 'Custo na meta = km válido × ' + brl(S.mRkm, 2) + '. Diferença = custo dos abastecimentos com km válido menos o custo na meta; positivo significa que gastou acima do que a meta permitia. Pontos dos gráficos só aparecem com ' + MIN_SERIE + ' ou mais abastecimentos com km válido.';
+  document.getElementById('tabnote').textContent = 'Custo na meta = km válido × ' + brl(S.mRkm, 2) + '. Diferença = custo dos abastecimentos com km válido menos o custo na meta; positivo significa que gastou acima do que a meta permitia. Pontos dos gráficos só aparecem com ' + MIN_SERIE + ' ou mais abastecimentos com km válido. A variação contra o mês anterior e o gasto por placa estão no Comparativo mensal.';
   document.getElementById('tabComb').replaceChildren(tabelaCombustivel(rows));
   document.getElementById('per-comb').textContent = 'Etanol e diesel têm km/l diferente da gasolina; entram no custo e no km/l como na planilha';
   document.getElementById('per-heat').textContent = 'Cada célula é um parque em um mês';
@@ -1547,7 +1904,27 @@ function renderNotas() {
   const semPk = scA.filter(r => r.parque === SEM_PARQUE), semPkJ = semPk.filter(naJanela);
   const sum = l => l.reduce((t, r) => t + r.R, 0);
   const lim = [...new Map(sc.filter(naJanela).filter(r => ok(r.kmMar) && Math.abs(r.kmMar - CORTE_MAR) <= 15).map(r => [r.loc, r])).values()];
-  const ali = Object.entries(D.aliases).map(([c, l]) => h('li', null, h('b', null, c), ' aparece na base como ' + l.map(x => '"' + x + '"').join(', ') + '.'));
+  // nomes de condutores: grafias unificadas só na exibição (mapa NOMES em app.js + apelidos já tratados na extração)
+  const nUni = new Map(), nLin = nome => R.filter(r => !r.ger && r.condRaw === nome).length;
+  const addV = (c, v, n) => { let e = nUni.get(c); if (!e) nUni.set(c, e = new Map()); if (!e.has(v)) e.set(v, n); };
+  for (const r of R) if (!r.ger && r.condRaw !== r.cond && r.cond !== SEM_COND) addV(r.cond, r.condRaw, nLin(r.condRaw));
+  for (const [c, l] of Object.entries(D.aliases)) for (const x of l) addV(nomeCond(c), x, null);
+  const ali = [h('li', null, h('b', null, 'Nomes de condutores unificados na exibição: '),
+    plural(nUni.size, 'condutor aparece', 'condutores aparecem') + ' com mais de uma grafia na planilha e são mostrados com o nome do cadastro atual ou, na falta dele, com o nome mais completo. A planilha não foi alterada.',
+    h('ul', null, [...nUni.entries()].sort((x, y) => x[0].localeCompare(y[0], 'pt-BR')).map(([c, e]) => h('li', null, h('b', null, c), ' aparece na base como ' + [...e.entries()].map(([v, n]) => '"' + v + '"' + (n ? ' (' + plural(n, 'linha', 'linhas') + ')' : '')).join(', ') + '.'))))];
+  const semC = R.filter(r => r.cond === SEM_COND && !r.ger), semCG = R.filter(r => r.cond === SEM_COND && r.ger);
+  if (semC.length || semCG.length) {
+    const pl = new Map(); for (const r of semC) pl.set(r.placa, (pl.get(r.placa) || 0) + 1);
+    const ds = semC.map(r => r.iso).sort();
+    ali.push(h('li', null, h('b', null, 'Linhas sem condutor: '),
+      (semC.length ? plural(semC.length, 'abastecimento', 'abastecimentos') + ' de veículos (' + brl(sum(semC)) + ', ' + [...pl.entries()].sort((x, y) => y[1] - x[1]).map(([p, n]) => p + ' ' + n).join(', ') + ', de ' + dmy(ds[0]) + ' a ' + dmy(ds[ds.length - 1]) + ')' : '') +
+      (semC.length && semCG.length ? ' e ' : '') + (semCG.length ? plural(semCG.length, 'abastecimento', 'abastecimentos') + ' dos geradores' : '') +
+      ' vieram com #N/A no condutor (o vínculo externo da planilha não resolveu). Aparecem como "' + SEM_COND + '", contam no gasto e ficam fora do ranking porque não dá para atribuir a ninguém.'));
+  }
+  ali.push(h('li', null, h('b', null, 'Nomes para você confirmar: '),
+    'a unificação de SAMUEL, SAMEUL SANTOS e SAMUEL SANTOS, de APARECIDO, PEDRO LUCAS, ROBSON LINS, FELIPE SERPA e ANTÔNIO ERIVAGUINO com as grafias completas, e de JOHN LENNON com LENNON ALMEIDA (confirmada por você) vale pela semelhança do nome; em vários casos as placas e os períodos não se cruzam. ' +
+    'LERNINTON MAX (' + plural(nLin('LERNINTON MAX'), 'linha', 'linhas') + ') e LERNITON MAX (' + plural(nLin('LERNITON MAX'), 'linha', 'linhas') + ') ficaram com a grafia mais frequente. ' +
+    'WILLAM DUARTE (' + plural(nLin('WILLAM DUARTE'), 'linha', 'linhas') + ') foi mantido separado de WILLAMES LEANDRO SILVA DA HORA (' + plural(nLin('WILLAMES LEANDRO SILVA DA HORA'), 'linha', 'linhas') + '); se for a mesma pessoa, basta incluir no mapa de nomes.'));
   // km que não fecha com o hodômetro (entra no km/l)
   const incA = scA.filter(r => r.valid && r.incons), aOk = agg(scA), aSem = agg(scA.map(r => (r.valid && r.incons) ? { ...r, valid: false } : r));
   const tdt = (iso, hora) => dm(iso) + ' ' + hora;
@@ -1571,6 +1948,7 @@ function renderNotas() {
       h('li', null, h('b', null, 'Abastecimentos fora do padrão: '), 'litros muito altos ou baixos, km/l da linha fora de ' + KML_LINHA[0] + '–' + KML_LINHA[1] + ', tanque dividido, hodômetro e repetidas estão listados, com o número da linha, na seção Revisar abastecimentos. Nenhum desses abastecimentos foi tirado dos números (só as transações repetidas).'),
       h('li', null, h('b', null, 'Etanol e diesel: '), 'entram no custo e no km/l como qualquer abastecimento. O km/l do etanol (cerca de 30% menor) e do diesel (S10 e Ranger) não é comparável ao da gasolina; a tabela por combustível no custo anual mostra o peso de cada um.'))));
   const t2 = h('details', { class: 'card', open: '' }, h('summary', null, 'Para você confirmar'), h('div', { class: 'in' }, h('ul', null,
+    MES_PARCIAL ? h('li', null, h('b', null, mesNome(ULT_MES) + ' em andamento: '), 'a base vai até ' + dmy(ULT.slice(0, 10)) + ' às ' + ULT.slice(11) + ' e ' + mn(ULT_MES) + ' tem ' + plural(R.filter(r => !r.ger && r.mes === ULT_MES).length, 'abastecimento', 'abastecimentos') + ' (' + brl(sum(R.filter(r => !r.ger && r.mes === ULT_MES))) + '). Falta extrair do Ticket Log os dias seguintes; até lá, ' + mn(ULT_MES) + ' não serve de comparação em total.') : null,
     D.suspeitos.length ? h('li', null, h('b', null, 'Abastecimentos idênticos com poucos minutos de diferença: '), D.suspeitos.map(x => x[4] + ' em ' + tdt(x[2], x[3]) + ' (' + f1(x[5]) + ' L e ' + brl(x[6]) + ' duas vezes, ' + x[7] + ' min de diferença, linhas ' + x[0] + ' e ' + x[1] + ')').join('; ') + '. Têm códigos de transação diferentes, então foram mantidos; vale conferir se foi cobrança dupla.') : null,
     D.codRep.length ? h('li', null, h('b', null, 'Mesmo código de transação em dias diferentes: '), D.codRep.map(x => 'linhas ' + x[0] + ' e ' + x[1] + ' (' + x[3] + ', ' + dm(x[5]) + ' e ' + dm(x[6]) + ')').join('; ') + '. Litros e datas são diferentes, então foram mantidas as duas; provável erro de digitação no código.') : null,
     semPk.length
@@ -1587,11 +1965,14 @@ function renderNotas() {
     h('li', null, h('b', null, 'Limite de preço do litro'), ' = meta de R$/km × meta de km/l. Com ' + brl(S.mRkm, 2) + ' por km e ' + f1(S.mKml) + ' km/l, o litro pode custar até ' + brl(S.mRkm * S.mKml, 2) + ' para as duas metas fecharem juntas.'),
     h('li', null, h('b', null, 'Semana'), ': a mesma coluna SEMANA da planilha (WEEKNUM, semana de domingo a sábado). A WK' + WK0 + ' vai de ' + wkRange(WK0) + '; a WK' + WKNOW + ' está em andamento (' + wkRange(WKNOW) + ').'),
     h('li', null, h('b', null, 'Setor'), ': definido pela cidade e UF do posto (aba SETOR_CIDADE): a menos de ' + CORTE_MAR + ' km do mar é Litoral, a ' + CORTE_MAR + ' km ou mais é Sertão. Não depende da placa nem do parque.'),
-    h('li', null, h('b', null, 'Condutor e parque'), ' são os que estão gravados em cada linha da base; linhas antigas não são reescritas quando alguém troca de carro. Grafias foram unificadas só na exibição. Nada foi alterado na planilha: as transações repetidas são ignoradas só aqui.'),
+    h('li', null, h('b', null, 'Condutor e parque'), ' são os que estão gravados em cada linha da base; linhas antigas não são reescritas quando alguém troca de carro. Grafias foram unificadas só na exibição, e as linhas sem condutor ficam fora do ranking. Nada foi alterado na planilha: as transações repetidas são ignoradas só aqui.'),
     h('li', null, h('b', null, 'Esperado no ranking'), ': para cada abastecimento com km válido, km/l dos outros veículos (Strada e Montana a gasolina, todas as placas de 2026) no mesmo contexto, sem contar as placas do próprio condutor. Contexto precisa de ' + MIN_BENCH.cidade[0] + ' abastecimentos e ' + MIN_BENCH.cidade[1] + ' placas na cidade (' + MIN_BENCH.uf[0] + ' e ' + MIN_BENCH.uf[1] + ' no estado e no setor); senão sobe de nível. O esperado do condutor é Σkm ÷ Σ(km ÷ km/l de referência).'),
     h('li', null, h('b', null, 'Faixa de 80% do ranking'), ': para cada condutor, os tanques da janela são sorteados ' + f0(IC_B) + ' vezes (com reposição, sorteio com semente fixa) e o "vs. esperado" é refeito a cada sorteio; a faixa vai do 10º ao 90º percentil. Toda acima de zero = rende acima do esperado; toda abaixo = abaixo; cruzando o zero = empate com o esperado. Quando as faixas de dois condutores se encostam, a ordem entre eles não é conclusiva.'),
     h('li', null, h('b', null, 'Tanque dividido'), ': abastecimentos da mesma placa com menos de ' + CICLO_H + ' h de diferença contam como um tanque só na amostra mínima e no sorteio. O corte de ' + CICLO_H + ' h vem dos dados: nessa faixa, 5 de 10 linhas têm km/l individual fora de 5–20, contra 7% a 16% dos intervalos maiores. Intervalos de 2 a 24 h são, em geral, paradas legítimas de viagem longa e contam separadas.'),
     h('li', null, h('b', null, 'Preço do litro'), ': a referência de cada abastecimento é a mediana da frota inteira no mesmo estado, mês e tipo de combustível (mínimo de 5 abastecimentos; senão a mediana do estado no ano). "Diferença para o posto mais barato da cidade" compara cada abastecimento com o menor preço da cidade no mesmo mês, só quando a cidade teve 2 ou mais postos naquele mês; é um valor teórico.'),
+    h('li', null, h('b', null, 'Comparativo mensal'), ': a variação do gasto entre dois meses (B contra A) é dividida em três partes que somam exatamente a diferença. Km rodados = (km de B − km de A) × litros por km de A × preço do litro de A. Eficiência = km de B × (litros por km de B − litros por km de A) × preço do litro de A. Preço = litros de B × (preço do litro de B − preço do litro de A). Litros por km = litros do mês ÷ km válido do mês; preço do litro = valor pago ÷ litros, com todos os abastecimentos e combustíveis do mês. Por isso os litros de abastecimentos sem km válido (em geral o primeiro de uma placa nova) entram no efeito da eficiência, e uma mudança na proporção de etanol e diesel entra no efeito do preço. O "Preço da gasolina" dos cartões considera só a gasolina.'),
+    h('li', null, h('b', null, 'Origem da variação por placa'), ': a placa "entrou" quando abasteceu no mês comparado e não no de referência, "saiu" no caso contrário (inclui placa que só não abasteceu naquele mês) e "ficou" quando abasteceu nos dois. A soma por placa fecha com a variação total. O gasto por placa é o gasto do mês dividido pelas placas que abasteceram no mês; depende de quanto cada veículo rodou, então não é uma meta.'),
+    h('li', null, h('b', null, 'Mês como janela'), ': a opção "Mês" do ranking, dos parques e setores e do preço do litro usa os abastecimentos de um mês-calendário (pela data do abastecimento). O ranking abre no último mês fechado (' + mn(MES_FECH) + '). A referência do "esperado" continua sendo o ano inteiro; a amostra mínima (' + MIN_ABAST + ' tanques e ' + f0(MIN_KM) + ' km) vale dentro do mês, por isso em um mês só poucos condutores ganham posição. Semanas que cruzam dois meses entram só com os dias do mês escolhido.'),
     h('li', null, h('b', null, 'Limites da leitura'), ': o km de cada abastecimento é o rodado desde o abastecimento anterior da placa e é atribuído ao condutor e ao posto da linha. O painel não sabe se o tanque estava cheio, então em janelas curtas o km/l pode variar mais do que o consumo real do veículo; a faixa de 80% e a coluna Abast. mostram o peso de cada resultado.'))));
   host.replaceChildren(t1, t2, t3);
 }
@@ -1600,14 +1981,15 @@ function renderNotas() {
    INÍCIO
    ===================================================================== */
 function render() {
-  renderKpis(); renderSetores(); renderRanking(); renderPreco(); renderAnual(); renderRevisar(); renderNotas();
+  renderKpis(); renderSetores(); renderRanking(); renderPreco(); renderMensal(); renderAnual(); renderRevisar(); renderNotas();
   document.getElementById('sub').textContent = 'Eficiência, custo por km e ranking de condutores da frota, com parques e setores em destaque. Metas: ' + brl(S.mRkm, 2) + ' por km rodado e ' + f1(S.mKml) + ' km/l.';
 }
 document.getElementById('src').textContent = 'Fonte: ' + D.fonte + '. Última transação em ' + dmy(ULT.slice(0, 10)) + ' às ' + ULT.slice(11) + ' (semana ' + WKNOW + ').';
 document.getElementById('foot').textContent = 'Painel gerado em ' + dmy(D.gerado) + ' a partir da planilha de controle. Os números acompanham a aba Consumo 2026; para atualizar, gere o painel de novo depois de gravar novas extrações do Ticket Log.';
 buildBar();
 buildRankControls();
-document.getElementById('prctl').append(seg('Período', PR_JAN, () => S.pr, v => { S.pr = v; S.allPr = false; }));
+buildMensalControls();
+document.getElementById('prctl').append(segMes('Período', PR_JAN, () => S.pr, v => { S.pr = v; S.allPr = false; }));
 document.getElementById('prpostoctl').append(seg('Ordenar', [{ v: 'caro', t: 'Mais acima da mediana' }, { v: 'barato', t: 'Mais abaixo da mediana' }], () => S.prOrd, v => S.prOrd = v));
 document.getElementById('anualctl').append(
   seg('Custo anual de', [{ v: 'todas', t: 'Toda a frota (' + NPLACAS_ANO + ' placas)' }, { v: 'ativa', t: 'Só frota ativa (' + D.ativas.length + ')' }], () => S.escA, v => S.escA = v));
@@ -1615,7 +1997,7 @@ document.getElementById('heatctl').append(
   seg('Mostrar', [{ v: 'rkm', t: 'R$ por km' }, { v: 'kml', t: 'km/l' }, { v: 'custo', t: 'Custo (R$)' }], () => S.heat, v => S.heat = v),
   h('div', { class: 'scale', id: 'heatscale' }));
 render();
-let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderAnual, 120); });
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { renderAnual(); renderMensal(); }, 120); });
 
 </script>
 </body>
