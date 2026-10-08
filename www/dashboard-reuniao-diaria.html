@@ -1290,7 +1290,22 @@
       const bt = normTokBonus(B[m].nome).split(' ');
       return t.length >= 2 && bt[0] === t[0] && bt[1] === t[1];
     });
-    return achados.length === 1 ? B[achados[0]] : null;
+    if (achados.length === 1) return B[achados[0]];
+    if (achados.length > 1) return null;
+    /* Fallback (08/10/2026): nome abreviado na celula (ex.: "ANT. ERIVAGUINO" x "ANTONIO ERIVAGUINO ALVES MOTA"). Cada palavra da celula (min. 2 palavras) precisa ser inicio (min. 3 letras) de uma palavra DIFERENTE do nome da planilha, na mesma ordem; so vale se for unico. */
+    if (t.length < 2) return null;
+    const ach2 = Object.keys(B).filter(function(m){
+      const bt = normTokBonus(B[m].nome).split(' ');
+      let pos = 0;
+      for (let i = 0; i < t.length; i++){
+        if (t[i].length < 3) return false;
+        let ok = false;
+        while (pos < bt.length){ if (bt[pos].indexOf(t[i]) === 0){ ok = true; pos++; break; } pos++; }
+        if (!ok) return false;
+      }
+      return true;
+    });
+    return ach2.length === 1 ? B[ach2[0]] : null;
   }
   /* COLUNAS PADRAO DA TABELA DE EQUIPE (06/10/2026, Robson): todos os parques mostram
      Nome — Estado | Certificação | Observação | Sistema | Smart | Cliente (antes das Bonificações).
