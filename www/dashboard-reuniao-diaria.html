@@ -33,6 +33,11 @@
      — nada é bloqueado, só o header some visualmente. */
   body.focus-mode header{display:none;}
   body.focus-mode{padding-top:14px;}
+  /* MODO EMBUTIDO (08/10/2026, Robson): dentro do index.html o cabecalho proprio da pagina some (a barra do topo do app ja mostra titulo/caminho/data) e os botoes Modo Diurno/Tela Cheia sobem para a barra do topo, ao lado de "Atualizado". Fora do index.html (pagina aberta direto) nada muda. */
+  body.embedded header{display:none;}
+  body.embedded .theme-toggle, body.embedded .fullscreen-toggle{display:none;}
+  body.embedded .sync-inline:not(.err){display:none;}
+  body.embedded .sync-inline{margin:0 0 12px;}
   @media (max-width: 640px){
     .fullscreen-toggle{top:auto; bottom:16px; right:16px;}
   }
@@ -3014,7 +3019,7 @@
   function updateThemeBtn(){
     const btn = document.getElementById('themeToggleBtn');
     const isLight = document.body.classList.contains('light-mode');
-    btn.textContent = isLight ? '🌙 Modo Noturno' : '☀️ Modo Diurno';
+    btn.textContent = isLight ? '🌙 Modo Noturno' : '☀️ Modo Diurno'; syncTopBtns();
   }
   (function(){
     let saved = null;
@@ -3032,7 +3037,7 @@
   }
   function updateFullscreenBtn(){
     const btn = document.getElementById('fullscreenToggleBtn');
-    btn.textContent = isFocusModeOn() ? '↩️ Sair da Tela Cheia' : '⛶ Tela Cheia';
+    btn.textContent = isFocusModeOn() ? '↩️ Sair da Tela Cheia' : '⛶ Tela Cheia'; syncTopBtns();
   }
   function toggleFullscreen(){
     if (!isFocusModeOn()){
@@ -3060,6 +3065,51 @@
       }
     });
   });
+
+  /* MODO EMBUTIDO (08/10/2026, Robson): ver CSS "body.embedded". Cria os botoes na barra do topo do index.html (mesma origem) e os mostra so quando esta aba esta ativa. */
+  function syncTopBtns(){
+    try{
+      const t = document.getElementById('themeToggleBtn'), f = document.getElementById('fullscreenToggleBtn');
+      if (window.__rdTopTheme && t) window.__rdTopTheme.textContent = t.textContent;
+      if (window.__rdTopFs && f) window.__rdTopFs.textContent = f.textContent;
+    }catch(e){}
+  }
+  (function embutirBotoesNoTopo(){
+    try{
+      if (window.parent === window) return;
+      const pd = window.parent.document;
+      const badge = pd.getElementById('topBadge');
+      if (!badge) return;
+      const hdr = document.querySelector('header'), sb = document.getElementById('syncBanner');
+      if (hdr && sb) document.body.insertBefore(sb, hdr);
+      const old = pd.getElementById('rdTopActions'); if (old) old.remove();
+      const wrap = pd.createElement('div');
+      wrap.id = 'rdTopActions';
+      wrap.style.cssText = 'display:flex;gap:8px;align-items:center;margin-left:auto;margin-right:8px;';
+      function mk(fn){
+        const b = pd.createElement('button');
+        b.type = 'button'; b.className = 'badge';
+        b.style.cssText = 'cursor:pointer;font-weight:700;color:var(--text);font-family:inherit;white-space:nowrap;';
+        b.addEventListener('click', fn);
+        wrap.appendChild(b);
+        return b;
+      }
+      window.__rdTopTheme = mk(function(){ toggleTheme(); });
+      window.__rdTopFs = mk(function(){ toggleFullscreen(); });
+      badge.parentNode.insertBefore(wrap, badge);
+      function vis(){
+        const fe = window.frameElement;
+        wrap.style.display = (fe && fe.classList.contains('active')) ? 'flex' : 'none';
+      }
+      vis();
+      if (window.frameElement && window.MutationObserver){
+        new MutationObserver(vis).observe(window.frameElement, {attributes:true, attributeFilter:['class']});
+      }
+      window.addEventListener('pagehide', function(){ try{ wrap.remove(); }catch(e){} });
+      document.body.classList.add('embedded');
+      syncTopBtns();
+    }catch(e){}
+  })();
 
   boot();
 </script>
