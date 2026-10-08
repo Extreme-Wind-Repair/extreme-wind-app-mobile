@@ -161,6 +161,8 @@
   .tech-parques-empty{color:var(--muted); font-style:italic; font-size:11px;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:10px; padding:16px 18px;}
   .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+  /* 08/10/2026 (Robson): titulo do quadro Banco de Horas em destaque */
+  .tech-box > .label{font-size:17px; font-weight:800; color:var(--text); letter-spacing:.04em; margin-bottom:6px;}
   .kpi .n{font-size:26px; font-weight:700; margin-top:4px;}
   .kpi.warn{border-left-color:var(--warn);}
   .kpi.ok{border-left-color:var(--ok);}
@@ -172,7 +174,7 @@
   }
   .block-btn{
     background:var(--panel); border:1px solid var(--line); color:var(--muted);
-    padding:8px 6px; border-radius:8px; font-size:10.5px; font-weight:600; cursor:pointer;
+    padding:18px 8px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer;
     transition:background .15s, color .15s, border-color .15s;
     display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
     flex:1 1 0; min-width:0;
@@ -181,11 +183,11 @@
   .block-btn:hover{background:var(--panel2); color:var(--text);}
   .block-btn.active{background:var(--brand); color:#fff; border-color:var(--brand);}
   .block-btn img.gif-icon{
-    height:20px; width:auto; border-radius:5px; vertical-align:middle; margin-right:4px;
+    height:30px; width:auto; border-radius:6px; vertical-align:middle; margin-right:6px;
     display:inline-block; border:1px solid rgba(255,255,255,.25);
   }
   .btn-icons{display:inline-flex; margin-right:4px;}
-  .block-btn .count{font-weight:400; opacity:.8; margin-left:4px;}
+  .block-btn .count{font-weight:700; font-size:13px; opacity:.85; margin-left:4px;}
 
   /* No celular, blocos fixos (sticky) tomam espaço da tela e atrapalham ver
      as informações do parque ao rolar — vira barra normal (rola junto). */
@@ -201,8 +203,8 @@
        preencher a largura toda da pagina, sem sobrar espaco e sem precisar de
        barra de rolagem. O texto quebra em ate 2 linhas quando necessario
        (already coberto por white-space:normal / flex-wrap:wrap da regra base). */
-    .block-btn{flex:1 1 0; min-width:0; padding:8px 4px; font-size:9.5px;}
-    .block-btn img.gif-icon{height:18px;}
+    .block-btn{flex:1 1 0; min-width:0; padding:10px 4px; font-size:11px; font-weight:800;}
+    .block-btn img.gif-icon{height:20px;}
   }
 
   .block-view{display:none;}
