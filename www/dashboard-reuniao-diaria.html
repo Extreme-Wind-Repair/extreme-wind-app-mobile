@@ -1294,6 +1294,19 @@
     if (achados.length > 1) return null;
     /* Fallback (08/10/2026): nome abreviado na celula (ex.: "ANT. ERIVAGUINO" x "ANTONIO ERIVAGUINO ALVES MOTA"). Cada palavra da celula (min. 2 palavras) precisa ser inicio (min. 3 letras) de uma palavra DIFERENTE do nome da planilha, na mesma ordem; so vale se for unico. */
     if (t.length < 2) return null;
+    /* Fallback 2 (08/10/2026): grafia com 1 letra trocada/faltando no 1o nome (ex.: "WILLIAM DUARTE" x "WILLIAN DUARTE DA COSTA"): 1o nome a distancia de edicao <= 1 (min. 5 letras), 2o nome igual, unico. */
+    function dist1(a, b){
+      if (a === b) return true;
+      if (Math.abs(a.length - b.length) > 1 || a.length < 5 || b.length < 5) return false;
+      let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+      if (a.length === b.length) return a.slice(i + 1) === b.slice(i + 1);
+      return a.length > b.length ? a.slice(i + 1) === b.slice(i) : a.slice(i) === b.slice(i + 1);
+    }
+    const ach1 = Object.keys(B).filter(function(m){
+      const bt = normTokBonus(B[m].nome).split(' ');
+      return bt.length >= 2 && bt[1] === t[1] && dist1(bt[0], t[0]);
+    });
+    if (ach1.length === 1) return B[ach1[0]];
     const ach2 = Object.keys(B).filter(function(m){
       const bt = normTokBonus(B[m].nome).split(' ');
       let pos = 0;
