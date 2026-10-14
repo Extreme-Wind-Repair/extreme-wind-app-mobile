@@ -263,9 +263,9 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--warn)">91%</div>
-    <div class="foot">WK 42 · 18 ações pendentes no total</div>
+    <div class="foot">WK 42 · 17 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">6</span><span class="l">Administrativas</span></div>
     </div>
@@ -656,7 +656,7 @@
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">6</span><span class="l">Administrativa</span></div>
     </div>
@@ -1369,10 +1369,9 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TZL6G42 - 1.2 AGENDADA PARA 13/10", tipo:"CORRETIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"14/10/2026", obs:"ACOMPAMHAR COM  A OFICINA, CONDUTOR/SUPERVISOR OS PROCEDIMENTOS PARA REALIZAÇÃO DA REVISÃO NO DIA 10/10", categoria:"Emergencial" },
+  { acao:"TZL6G42 - 1.2 AGENDADA PARA 13/10", tipo:"CORRETIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"15/10/2026", obs:"ACOMPAMHAR COM  A OFICINA, CONDUTOR/SUPERVISOR OS PROCEDIMENTOS PARA REALIZAÇÃO DA REVISÃO NO DIA 15/10", categoria:"Emergencial" },
   { acao:"UHS5E92 - REVISÃO PRÓXIMA (9.352 KM; FALTAM 648 KM)", tipo:"CORRETIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"20/10/2026", obs:"AGENDAR A REVISÃO COM A LOCADORA ANTES DE ATINGIR 10.000 KM (CHECKLIST 10/10)", categoria:"Emergencial" },
-  { acao:"NC7492D - VEÍCULO SEM TRIÂNGULO DE SEGURANÇA E SEM PAQUÍMETRO PARA MEDIR OS PNEUS (CHECKLIST 11/10)", tipo:"CORRETIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"12/10/2026", obs:"PROVIDENCIAR TRIÂNGULO E PAQUÍMETRO COM A LOCADORA/SUPERVISOR (CHECKLIST MARCOU \"CONFORME\" EM MACACO/CHAVE/TRIÂNGULO; VEÍCULO NÃO POSSUI ESTEPE EXTRA)", categoria:"Emergencial" },
-  { acao:"NL9058D - VEÍCULO SEM TRIÂNGULO DE SEGURANÇA (CHECKLIST 13/10: MACACO, CHAVE DE RODA E TRIÂNGULO \"NÃO CONFORME\")", tipo:"CORRETIVA", parque:"DOLORES 1/MEX", quem:"Sandoval", status:"13/10/2026", obs:"PROVIDENCIAR TRIÂNGULO COM A LOCADORA/SUPERVISOR (CHECKLIST 13/10)", categoria:"Emergencial" },
+  { acao:"NC7492D - VEÍCULO SEM PAQUÍMETRO PARA MEDIR OS PNEUS (CHECKLIST 11/10)", tipo:"CORRETIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"12/10/2026", obs:"PROVIDENCIAR PAQUÍMETRO COM A LOCADORA/SUPERVISOR (VEÍCULO NÃO POSSUI ESTEPE EXTRA)", categoria:"Emergencial" },
   { acao:"TYD9F24 - MEDIÇÃO DE PNEUS N/OK (DIANTEIRO DIREITO ABAIXO DE 2,7 MM) - CHECKLIST 13/10", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"13/10/2026", obs:"CONFIRMAR COM PAQUÍMETRO E AGENDAR A TROCA COM A LOCADORA", categoria:"Emergencial" },
   { acao:"TET3C50 - 2.1 -  LATARIA MARCADA COM MANCHAS, AMASSADO NA TAMPA TRASEIRA E ARRANHÕES NAS LATERAIS - REALIZAR POLIMENTO, LAVAGEM E AVALIAR REPARO DO AMASSADO | CHECKLIST 04/10 CONFIRMA AS MESMAS AVARIAS + TRAVA DA CAPOTA QUEBRADA NOS 2 LADOS", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"14/10/2026", obs:"BUSCAR NOVOS LOCAIS PARA REALIZAR O SERVIÇO", categoria:"Administrativa" },
   { acao:"TWY4C61 - ARRANHÃO NA LATARIA (PORTA TRASEIRA DIREITA) — CONFIRMADO NOVAMENTE NO CHECKLIST DE 18/09", tipo:"ADMINISTRATIVA", parque:"GERIBATU/RS", quem:"Sandoval", status:"08/11/2026", obs:"NO RETORNO, USAR A CANETA PARA CORREÇAO", categoria:"Administrativa" },
