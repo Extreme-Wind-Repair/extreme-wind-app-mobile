@@ -4,12 +4,18 @@ name: Deploy Pages (dados ao vivo pro app)
 # O app (configurado com "server.url" no capacitor.config.json) carrega os
 # dashboards direto desse link, entao os dados aparecem atualizados sem
 # precisar recompilar/reinstalar o app.
+#
+# LOGIN (Acesso EW): as automacoes continuam enviando arquivos PUROS para www/.
+# O login NAO fica no repositorio: e aplicado aqui, so na copia que sera publicada
+# (passo "Aplicar login"). Por decisao do dono, o passo FALHA ABERTO: se der erro,
+# o site e publicado mesmo assim (sem login) e o erro vira aviso na execucao.
 
 on:
   push:
     branches: [ main, master ]
     paths:
       - 'www/**'
+      - 'login/**'
   workflow_dispatch: {}
 
 permissions:
@@ -36,6 +42,34 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Aplicar login (Acesso EW) - falha ABERTA
+        # continue-on-error: NUNCA bloqueia a publicacao. Se falhar, o passo seguinte
+        # desfaz qualquer alteracao parcial e avisa.
+        id: login_ew
+        continue-on-error: true
+        run: |
+          set -e
+          if grep -q "COLE_AQUI_A_URL_EXEC" login/tpl/ew-auth.js; then
+            echo "URL do backend ainda nao foi colada em login/tpl/ew-auth.js"; exit 1
+          fi
+          python3 login/aplicar_login_site.py www --sem-reuniao --sem-backup
+          grep -q "ewLogin" www/index.html
+          grep -q "ew-auth.js" www/index.html
+          test -f www/ew-auth.js
+
+      - name: Resultado do login (desfaz se falhou)
+        if: always()
+        run: |
+          if [ "${{ steps.login_ew.outcome }}" = "success" ]; then
+            echo "### LOGIN APLICADO neste deploy" >> "$GITHUB_STEP_SUMMARY"
+          else
+            # desfaz alteracao parcial para nao publicar um site pela metade
+            git checkout -- www/index.html www/sw.js 2>/dev/null || true
+            rm -f www/ew-auth.js
+            echo "### SEM LOGIN neste deploy (o site foi publicado ABERTO)" >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::SEM LOGIN: o passo Aplicar login falhou. O site foi publicado sem protecao. Ver o passo anterior."
+          fi
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
