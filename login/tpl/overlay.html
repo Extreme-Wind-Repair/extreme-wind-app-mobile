@@ -1,0 +1,44 @@
+<div id="ewLogin" role="dialog" aria-label="Acesso">
+  <div class="box">
+    <img class="logo" src="assets/logo-extreme-wind-white.png" alt="Extreme Wind">
+    <h1>Painel Geral</h1>
+    <p class="s" id="ewSub">Acesso restrito. Entre com sua matrícula.</p>
+    <div class="tabs" id="ewTabs">
+      <button data-p="entrar" class="on">Entrar</button>
+      <button data-p="ativar">Primeiro acesso</button>
+      <button data-p="esqueci">Esqueci a senha</button>
+      <button data-p="visita">Código de visita</button>
+    </div>
+
+    <div class="painel on" data-p="entrar">
+      <label for="ewL_mat">Matrícula</label><input id="ewL_mat" inputmode="numeric" autocomplete="username">
+      <label for="ewL_sen">Senha</label><input id="ewL_sen" type="password" autocomplete="current-password">
+      <label class="lem"><input type="checkbox" id="ewL_lem"> Manter conectado neste aparelho</label>
+      <button class="go" id="ewL_go">Entrar</button><div class="m" id="ewL_m"></div>
+    </div>
+
+    <div class="painel" data-p="ativar">
+      <label for="ewA_mat">Matrícula</label><input id="ewA_mat" inputmode="numeric" autocomplete="off">
+      <label for="ewA_cpf">CPF</label><input id="ewA_cpf" type="password" inputmode="numeric" autocomplete="off">
+      <label for="ewA_nas">Nascimento (ddmmaaaa, 8 dígitos)</label><input id="ewA_nas" type="password" inputmode="numeric" maxlength="10" autocomplete="off">
+      <label for="ewA_sen">Crie sua senha (mínimo 10, com letra e número)</label><input id="ewA_sen" type="password" autocomplete="new-password">
+      <button class="go" id="ewA_go">Ativar e entrar</button><div class="m" id="ewA_m"></div>
+    </div>
+
+    <div class="painel" data-p="esqueci">
+      <label for="ewR_mat">Matrícula</label><input id="ewR_mat" inputmode="numeric" autocomplete="off">
+      <button class="go" id="ewR_pedir" style="background:transparent;border:1px solid #0b5cad;color:#8ec1ff;">Enviar código por e-mail</button><div class="m" id="ewR_m1"></div>
+      <label for="ewR_cod">Código recebido (6 dígitos)</label><input id="ewR_cod" inputmode="numeric" maxlength="6" autocomplete="off">
+      <label for="ewR_nas">Nascimento (ddmmaaaa)</label><input id="ewR_nas" type="password" inputmode="numeric" maxlength="10" autocomplete="off">
+      <label for="ewR_sen">Senha nova</label><input id="ewR_sen" type="password" autocomplete="new-password">
+      <button class="go" id="ewR_conf">Trocar a senha</button><div class="m" id="ewR_m2"></div>
+    </div>
+
+    <div class="painel" data-p="visita">
+      <label for="ewV_cod">Código de visita (válido por 72 h)</label><input id="ewV_cod" autocomplete="off" maxlength="12" style="text-transform:uppercase">
+      <button class="go" id="ewV_go">Entrar como visitante</button><div class="m" id="ewV_m"></div>
+    </div>
+    <div class="m" id="ewCfg"></div>
+  </div>
+</div>
+

@@ -1,0 +1,70 @@
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var MOT = { CREDENCIAIS:'Dados não conferem (ou a conta não está pronta para isso).', BLOQUEADO:'Muitas tentativas. Aguarde alguns minutos.',
+    TENTE_MAIS_TARDE:'Muitas tentativas no sistema. Tente mais tarde.', SENHA_FRACA:'Senha fraca: mínimo 10 caracteres, com letra e número. CPF e nascimento não servem.',
+    CODIGO_INVALIDO:'Código inválido ou expirado.', SEM_REDE:'Sem conexão com o servidor.', RESPOSTA_INVALIDA:'Resposta inesperada do servidor.',
+    NAO_CONFIGURADO:'Backend de login ainda não configurado (ew-auth.js).', ERRO_INTERNO:'Erro no servidor.' };
+  var carregado = false;
+
+  function msg(el, t, ok){ el.className = 'm ' + (ok ? 'ok' : 'er'); el.textContent = t; }
+  function falha(el, r){ msg(el, (MOT[r && r.motivo] || ('Falhou: ' + (r && r.motivo))) + (r && r.regra ? '\n' + r.regra : ''), false); }
+  function painel(p){
+    document.querySelectorAll('#ewLogin .painel').forEach(function(x){ x.classList.toggle('on', x.dataset.p === p); });
+    document.querySelectorAll('#ewTabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.p === p); });
+  }
+  document.querySelectorAll('#ewTabs button').forEach(function(b){ b.addEventListener('click', function(){ painel(b.dataset.p); }); });
+
+  function carregarIframes(){
+    if (carregado) return; carregado = true;
+    document.querySelectorAll('iframe[data-src]').forEach(function(f){ f.src = f.dataset.src; });
+  }
+  function abrir(r){
+    if (r.perfil === 'VISITANTE') {                 // visitante ainda não tem nenhum painel liberado
+      $('ewSub').textContent = 'Acesso de visita ativo, mas nenhum painel foi liberado para visitantes ainda.';
+      return;
+    }
+    document.body.classList.remove('ew-locked');
+    carregarIframes();
+  }
+  function bloquear(){ document.body.classList.add('ew-locked'); $('ewSub').textContent = 'Acesso restrito. Entre com sua matrícula.'; }
+
+  function ligar(btn, el, fn){
+    btn.addEventListener('click', function(){
+      btn.disabled = true; msg(el, 'Aguarde...', true);
+      fn().then(function(r){
+        if (r && r.ok) { msg(el, 'Ok.', true); abrir(r); } else { falha(el, r); }
+      }).then(function(){ btn.disabled = false; });
+    });
+  }
+  ligar($('ewL_go'), $('ewL_m'), function(){ var s = $('ewL_sen').value; $('ewL_sen').value = ''; return EWAuth.login($('ewL_mat').value.trim(), s, $('ewL_lem').checked); });
+  ligar($('ewA_go'), $('ewA_m'), function(){
+    var d = { matricula: $('ewA_mat').value.trim(), cpf: $('ewA_cpf').value.trim(), nascimento: $('ewA_nas').value.trim(), senhaNova: $('ewA_sen').value };
+    $('ewA_cpf').value = ''; $('ewA_nas').value = ''; $('ewA_sen').value = ''; return EWAuth.ativar(d);
+  });
+  ligar($('ewV_go'), $('ewV_m'), function(){ return EWAuth.entrarConvite($('ewV_cod').value.trim()); });
+
+  $('ewR_pedir').addEventListener('click', function(){
+    var b = $('ewR_pedir'); b.disabled = true; msg($('ewR_m1'), 'Aguarde...', true);
+    EWAuth.pedirRecuperacao($('ewR_mat').value.trim()).then(function(r){
+      if (r && r.ok) msg($('ewR_m1'), r.mensagem || 'Pedido enviado.', true); else falha($('ewR_m1'), r);
+    }).then(function(){ b.disabled = false; });
+  });
+  $('ewR_conf').addEventListener('click', function(){
+    var b = $('ewR_conf'); b.disabled = true; msg($('ewR_m2'), 'Aguarde...', true);
+    var d = { matricula: $('ewR_mat').value.trim(), codigo: $('ewR_cod').value.trim(), nascimento: $('ewR_nas').value.trim(), senhaNova: $('ewR_sen').value };
+    $('ewR_cod').value = ''; $('ewR_nas').value = ''; $('ewR_sen').value = '';
+    EWAuth.confirmarRecuperacao(d).then(function(r){
+      if (r && r.ok) { msg($('ewR_m2'), 'Senha trocada. Volte para "Entrar" e use a senha nova.', true); } else falha($('ewR_m2'), r);
+    }).then(function(){ b.disabled = false; });
+  });
+
+  $('ewSair').addEventListener('click', function(){ EWAuth.sair().then(function(){ location.reload(); }); });
+  window.addEventListener('message', function(ev){
+    if (ev.origin === location.origin && ev.data && ev.data.ew === 'sessao-perdida') { EWAuth.limpar(); location.reload(); }
+  });
+
+  if (!EWAuth.configurado()) { $('ewCfg').className = 'm er'; $('ewCfg').textContent = MOT.NAO_CONFIGURADO; }
+  EWAuth.validar().then(function(r){ if (r) abrir(r); else { EWAuth.limpar(); bloquear(); } });
+})();
+</script>
