@@ -20,18 +20,22 @@
   }
   document.querySelectorAll('#ewTabs button').forEach(function(b){ b.addEventListener('click', function(){ painel(b.dataset.p); }); });
 
-  function carregarIframes(){
+  var VISITA_VIEWS = ['view-reuniao-diaria'];     // painéis que o VISITANTE enxerga (além do Início). Ajuste aqui + no CSS (ew-visita).
+  function carregarIframes(visita){
     if (carregado) return; carregado = true;
-    document.querySelectorAll('iframe[data-src]').forEach(function(f){ f.src = f.dataset.src; });
+    document.querySelectorAll('iframe[data-src]').forEach(function(f){
+      if (visita && VISITA_VIEWS.indexOf(f.id) < 0) return;   // visitante: os demais painéis nem são baixados
+      f.src = f.dataset.src;
+    });
   }
   function abrir(r){
-    if (r.perfil === 'VISITANTE') {                 // visitante ainda não tem nenhum painel liberado
-      $('ewSub').textContent = 'Acesso de visita ativo, mas nenhum painel foi liberado para visitantes ainda.';
-      return;
-    }
-    marcarOk(); fimVerificacao();
+    var visita = r.perfil === 'VISITANTE';
+    document.body.classList.toggle('ew-visita', visita);          // visitante: só Início + Reunião Diária (menu e cards)
+    if (visita) { var bi = $('menuBuscaTecInput'); if (bi && bi.parentNode) bi.parentNode.style.display = 'none'; }
+    else marcarOk();                                               // visitante sempre confirma no servidor antes de abrir
+    fimVerificacao();
     document.body.classList.remove('ew-locked');
-    carregarIframes();
+    carregarIframes(visita);
     adminUI(r.perfil);
   }
 
@@ -123,7 +127,8 @@
   var tok = EWAuth.token();
   if (!tok) { bloquear(); }
   else {
-    if (recente()) { document.body.classList.remove('ew-locked'); carregarIframes(); fimVerificacao(); }   // abre na hora; o servidor confirma em segundo plano
+    var inf = EWAuth.info();
+    if (recente() && !(inf && inf.perfil === 'VISITANTE')) { document.body.classList.remove('ew-locked'); carregarIframes(false); fimVerificacao(); }   // abre na hora; o servidor confirma em segundo plano
     EWAuth.raw({ action: 'sessao', token: tok }).then(function(r){
       if (r && r.ok) abrir(r);
       else if (r && r.motivo === 'SESSAO') { EWAuth.limpar(); bloquear(); }                 // sessão vencida/revogada: só aqui pede senha
