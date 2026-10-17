@@ -6,6 +6,11 @@
     CODIGO_INVALIDO:'Código inválido ou expirado.', SEM_REDE:'Sem conexão com o servidor.', RESPOSTA_INVALIDA:'Resposta inesperada do servidor.',
     NAO_CONFIGURADO:'Backend de login ainda não configurado (ew-auth.js).', ERRO_INTERNO:'Erro no servidor.' };
   var carregado = false;
+  /* Marca da última validação OK neste aparelho: permite abrir na hora (sem esperar o servidor) e revalidar em segundo plano. */
+  function marcarOk(){ try { localStorage.setItem('ew_ok_ts', String(Date.now())); } catch (e) {} }
+  function limparOk(){ try { localStorage.removeItem('ew_ok_ts'); } catch (e) {} }
+  function recente(){ try { var t = Number(localStorage.getItem('ew_ok_ts') || 0); return t > 0 && (Date.now() - t) < 6 * 3600 * 1000; } catch (e) { return false; } }
+  function fimVerificacao(){ document.documentElement.classList.remove('ew-checking'); }
 
   function msg(el, t, ok){ el.className = 'm ' + (ok ? 'ok' : 'er'); el.textContent = t; }
   function falha(el, r){ msg(el, (MOT[r && r.motivo] || ('Falhou: ' + (r && r.motivo))) + (r && r.regra ? '\n' + r.regra : ''), false); }
@@ -24,10 +29,11 @@
       $('ewSub').textContent = 'Acesso de visita ativo, mas nenhum painel foi liberado para visitantes ainda.';
       return;
     }
+    marcarOk(); fimVerificacao();
     document.body.classList.remove('ew-locked');
     carregarIframes();
   }
-  function bloquear(){ document.body.classList.add('ew-locked'); $('ewSub').textContent = 'Acesso restrito. Entre com sua matrícula.'; }
+  function bloquear(){ fimVerificacao(); limparOk(); document.body.classList.add('ew-locked'); $('ewSub').textContent = 'Acesso restrito. Entre com sua matrícula.'; }
 
   function ligar(btn, el, fn){
     btn.addEventListener('click', function(){
@@ -59,12 +65,23 @@
     }).then(function(){ b.disabled = false; });
   });
 
-  $('ewSair').addEventListener('click', function(){ EWAuth.sair().then(function(){ location.reload(); }); });
+  $('ewSair').addEventListener('click', function(){ limparOk(); EWAuth.sair().then(function(){ location.reload(); }); });
   window.addEventListener('message', function(ev){
-    if (ev.origin === location.origin && ev.data && ev.data.ew === 'sessao-perdida') { EWAuth.limpar(); location.reload(); }
+    if (ev.origin === location.origin && ev.data && ev.data.ew === 'sessao-perdida') { EWAuth.limpar(); limparOk(); location.reload(); }
   });
 
   if (!EWAuth.configurado()) { $('ewCfg').className = 'm er'; $('ewCfg').textContent = MOT.NAO_CONFIGURADO; }
-  EWAuth.validar().then(function(r){ if (r) abrir(r); else { EWAuth.limpar(); bloquear(); } });
+  var tok = EWAuth.token();
+  if (!tok) { bloquear(); }
+  else {
+    if (recente()) { document.body.classList.remove('ew-locked'); carregarIframes(); fimVerificacao(); }   // abre na hora; o servidor confirma em segundo plano
+    EWAuth.raw({ action: 'sessao', token: tok }).then(function(r){
+      if (r && r.ok) abrir(r);
+      else if (r && r.motivo === 'SESSAO') { EWAuth.limpar(); bloquear(); }                 // sessão vencida/revogada: só aqui pede senha
+      else if (document.body.classList.contains('ew-locked')) {                              // sem rede / erro do servidor: MANTÉM o token
+        fimVerificacao(); falha($('ewL_m'), r);
+      }
+    });
+  }
 })();
 </script>
