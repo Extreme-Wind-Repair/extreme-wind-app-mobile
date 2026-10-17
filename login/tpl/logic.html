@@ -32,7 +32,56 @@
     marcarOk(); fimVerificacao();
     document.body.classList.remove('ew-locked');
     carregarIframes();
+    adminUI(r.perfil);
   }
+
+  /* ---- ADMIN: gerar/revogar código de visita (72 h). Só aparece para o perfil ADMIN; o servidor também exige ADMIN. ---- */
+  function adminUI(perfil){
+    var sair = $('ewSair');
+    if (perfil !== 'ADMIN' || $('ewVisBtn') || !sair) return;
+    var b = document.createElement('button'); b.id = 'ewVisBtn'; b.type = 'button'; b.className = 'ew-sair'; b.textContent = 'Visitas';
+    sair.parentNode.insertBefore(b, sair);
+    var m = document.createElement('div'); m.id = 'ewVis';
+    m.innerHTML = '<div class="vbox"><h2>Código de visita</h2>' +
+      '<label for="ewVis_cli">Nome do visitante / cliente</label><input id="ewVis_cli" maxlength="80" autocomplete="off">' +
+      '<button class="go" id="ewVis_go" type="button">Gerar código (72 h)</button>' +
+      '<div class="cod" id="ewVis_cod" style="display:none"></div><button class="cp" id="ewVis_cp" type="button" style="display:none">Copiar</button>' +
+      '<div class="m" id="ewVis_m"></div>' +
+      '<label for="ewVis_rev">Revogar um código</label><input id="ewVis_rev" maxlength="12" autocomplete="off" style="text-transform:uppercase">' +
+      '<button class="go sec" id="ewVis_rv" type="button">Revogar</button>' +
+      '<button class="go sec" id="ewVis_x" type="button">Fechar</button></div>';
+    document.body.appendChild(m);
+    var cod = $('ewVis_cod'), cp = $('ewVis_cp'), mm = $('ewVis_m');
+    function fechar(){ m.classList.remove('on'); cod.style.display = 'none'; cp.style.display = 'none'; cod.textContent = ''; mm.textContent = ''; $('ewVis_cli').value = ''; $('ewVis_rev').value = ''; }
+    b.addEventListener('click', function(){ m.classList.add('on'); $('ewVis_cli').focus(); });
+    $('ewVis_x').addEventListener('click', fechar);
+    $('ewVis_go').addEventListener('click', function(){
+      var g = $('ewVis_go'), cli = $('ewVis_cli').value.trim();
+      if (!cli) { msg(mm, 'Informe o nome do visitante.', false); return; }
+      g.disabled = true; msg(mm, 'Aguarde...', true); cod.style.display = 'none'; cp.style.display = 'none';
+      EWAuth.post({ action: 'criarConvite', cliente: cli }).then(function(r){
+        if (r && r.ok) {
+          cod.textContent = r.codigo; cod.style.display = 'block'; cp.style.display = 'block';
+          msg(mm, 'Código gerado para ' + r.cliente + '. Vale ' + r.validoHoras + ' h. Ele aparece só agora: copie e envie.', true);
+        } else {
+          msg(mm, r && r.motivo === 'NEGADO' ? 'Sem permissão.' : (r && r.motivo === 'CLIENTE_OBRIGATORIO' ? 'Informe o nome do visitante.' : (MOT[r && r.motivo] || ('Falhou: ' + (r && r.motivo)))), false);
+        }
+      }).then(function(){ g.disabled = false; });
+    });
+    cp.addEventListener('click', function(){
+      var t = cod.textContent;
+      try { navigator.clipboard.writeText(t).then(function(){ cp.textContent = 'Copiado'; setTimeout(function(){ cp.textContent = 'Copiar'; }, 1500); }, function(){}); } catch (e) {}
+    });
+    $('ewVis_rv').addEventListener('click', function(){
+      var c = $('ewVis_rev').value.trim().toUpperCase().replace(/\s/g, '');
+      if (!c) { msg(mm, 'Informe o código a revogar.', false); return; }
+      EWAuth.post({ action: 'revogarConvite', codigo: c }).then(function(r){
+        if (r && r.ok) { msg(mm, 'Código revogado.', true); $('ewVis_rev').value = ''; }
+        else msg(mm, r && r.motivo === 'NAO_ENCONTRADO' ? 'Código não encontrado.' : (r && r.motivo === 'NEGADO' ? 'Sem permissão.' : ('Falhou: ' + (r && r.motivo))), false);
+      });
+    });
+  }
+
   function bloquear(){ fimVerificacao(); limparOk(); document.body.classList.add('ew-locked'); $('ewSub').textContent = 'Acesso restrito. Entre com sua matrícula.'; }
 
   function ligar(btn, el, fn){
