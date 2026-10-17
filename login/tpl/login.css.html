@@ -19,6 +19,18 @@
   #ewLogin .m{margin-top:10px; font-size:13.5px; min-height:18px; white-space:pre-wrap;} #ewLogin .m.er{color:#ff8a80;} #ewLogin .m.ok{color:#59d38c;}
   #ewLogin .painel{display:none;} #ewLogin .painel.on{display:block;}
   #ewLogin img.logo{height:64px; width:auto; display:block; margin:0 auto 6px;}
+  #ewVis{position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; background:rgba(5,10,16,.8); padding:16px; overflow:auto;}
+  #ewVis.on{display:flex;}
+  #ewVis .vbox{width:100%; max-width:380px; background:#13222f; border:1px solid #243645; border-radius:12px; padding:18px; color:#e8eef3; font-family:system-ui,Segoe UI,Roboto,sans-serif;}
+  #ewVis h2{font-size:17px; margin:0 0 6px;}
+  #ewVis label{display:block; font-size:12.5px; color:#93a4b3; margin:10px 0 3px;}
+  #ewVis input{width:100%; box-sizing:border-box; padding:10px; border-radius:7px; border:1px solid #2b4357; background:#0e1b26; color:#e8eef3; font:inherit; font-size:15px;}
+  #ewVis .go{width:100%; margin-top:12px; padding:10px; border:0; border-radius:7px; background:#0b5cad; color:#fff; font:inherit; font-size:14.5px; cursor:pointer;}
+  #ewVis .go.sec{background:transparent; border:1px solid #2b4357; color:#9fb4c6;}
+  #ewVis .go:disabled{opacity:.55; cursor:wait;}
+  #ewVis .cod{margin-top:12px; padding:12px; text-align:center; font:700 24px/1 ui-monospace,Consolas,monospace; letter-spacing:3px; background:#0e1b26; border:1px dashed #0b5cad; border-radius:8px; user-select:all;}
+  #ewVis .cp{width:100%; margin-top:8px; padding:8px; border-radius:7px; border:1px solid #0b5cad; background:transparent; color:#8ec1ff; cursor:pointer;}
+  #ewVis .m{margin-top:10px; font-size:13px; min-height:16px; white-space:pre-wrap;} #ewVis .m.er{color:#ff8a80;} #ewVis .m.ok{color:#59d38c;}
   .ew-sair{margin-left:10px; padding:5px 10px; font-size:12px; border-radius:7px; border:1px solid #2b4357; background:transparent; color:#9fb4c6; cursor:pointer;}
 </style>
 <script>try{ if (sessionStorage.getItem('ew_tok') || localStorage.getItem('ew_tok')) document.documentElement.classList.add('ew-checking'); }catch(e){}</script>
