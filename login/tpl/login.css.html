@@ -1,6 +1,8 @@
 <style>
   /* ===== Login (Acesso EW) ===== */
   body.ew-locked .app{display:none;}
+  html.ew-checking #ewLogin .box{display:none;}
+  html.ew-checking #ewLogin::after{content:'Verificando acesso...'; color:#93a4b3; font:14px system-ui,Segoe UI,Roboto,sans-serif;}
   #ewLogin{position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:#0b1620; padding:16px; overflow:auto;}
   body.ew-locked #ewLogin{display:flex;}
   #ewLogin .box{width:100%; max-width:380px; background:#13222f; border:1px solid #243645; border-radius:12px; padding:20px 18px; color:#e8eef3; font-family:system-ui,Segoe UI,Roboto,sans-serif;}
@@ -19,3 +21,4 @@
   #ewLogin img.logo{height:64px; width:auto; display:block; margin:0 auto 6px;}
   .ew-sair{margin-left:10px; padding:5px 10px; font-size:12px; border-radius:7px; border:1px solid #2b4357; background:transparent; color:#9fb4c6; cursor:pointer;}
 </style>
+<script>try{ if (sessionStorage.getItem('ew_tok') || localStorage.getItem('ew_tok')) document.documentElement.classList.add('ew-checking'); }catch(e){}</script>
