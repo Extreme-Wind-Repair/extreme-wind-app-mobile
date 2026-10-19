@@ -53,9 +53,10 @@ jobs:
           if grep -q "COLE_AQUI_A_URL_EXEC" login/tpl/ew-auth.js; then
             echo "URL do backend ainda nao foi colada em login/tpl/ew-auth.js"; exit 1
           fi
-          python3 login/aplicar_login_site.py www --sem-reuniao --sem-backup
+          python3 login/aplicar_login_site.py www --sem-backup
           grep -q "ewLogin" www/index.html
           grep -q "ew-auth.js" www/index.html
+          grep -q "ew-auth.js" www/dashboard-reuniao-diaria.html
           test -f www/ew-auth.js
 
       - name: Resultado do login (desfaz se falhou)
@@ -65,8 +66,8 @@ jobs:
             echo "### LOGIN APLICADO neste deploy" >> "$GITHUB_STEP_SUMMARY"
           else
             # desfaz alteracao parcial para nao publicar um site pela metade
-            git checkout -- www/index.html www/sw.js 2>/dev/null || true
-            rm -f www/ew-auth.js
+            git checkout -- www/index.html www/sw.js www/dashboard-reuniao-diaria.html 2>/dev/null || true
+            rm -f www/ew-auth.js www/config-servico.html
             echo "### SEM LOGIN neste deploy (o site foi publicado ABERTO)" >> "$GITHUB_STEP_SUMMARY"
             echo "::warning::SEM LOGIN: o passo Aplicar login falhou. O site foi publicado sem protecao. Ver o passo anterior."
           fi
