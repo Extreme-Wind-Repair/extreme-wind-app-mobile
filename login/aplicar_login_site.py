@@ -44,6 +44,28 @@ def patch_index(t):
     t = t[:k] + tpl('logic.html') + t[k:]
     return t, f'aplicado ({n_if} iframes ficam carregados só após o login)'
 
+
+LOCK_LEITURA = """<script>
+/* Somente leitura: só ADMIN, EDITOR e SERVICO (automação) editam. Os demais veem, mas campos e listas ficam travados.
+   (O backend também recusa a gravação; isto só evita o usuário digitar e perder o texto.) */
+(function () {
+  var i = window.EWAuth && EWAuth.info(), p = i && i.perfil;
+  if (['ADMIN', 'EDITOR', 'SERVICO'].indexOf(p) >= 0) return;
+  var busy = false;
+  function trava() {
+    busy = true;
+    document.querySelectorAll('[contenteditable]').forEach(function (e) { if (e.getAttribute('contenteditable') !== 'false') e.setAttribute('contenteditable', 'false'); });
+    document.querySelectorAll('select[data-field],input[data-field],textarea[data-field]').forEach(function (e) { e.disabled = true; });
+    busy = false;
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    trava();
+    new MutationObserver(function () { if (!busy) trava(); }).observe(document.body, { childList: true, subtree: true });
+  });
+})();
+</script>
+"""
+
 def patch_reuniao(t):
     if 'EWAuth' in t: return t, 'já aplicado'
     m = re.search(r"  const API_URL = '[^']*';[^\n]*\n", t)          # aceita comentário depois do ';' (versão atual da página)
@@ -75,7 +97,7 @@ def patch_reuniao(t):
     g = t.index('  async function apiGet(){'); s = t.index('  function setSyncStatus')
     t = t[:g] + novo_api + t[s:]
     k = t.index('<script>\n  /* ============ CONFIG')
-    t = t[:k] + '<script src="ew-auth.js"></script>\n' + t[k:]
+    t = t[:k] + '<script src="ew-auth.js"></script>\n' + LOCK_LEITURA + t[k:]
     return t, 'aplicado'
 
 def patch_sw(t):
@@ -86,7 +108,7 @@ def patch_sw(t):
     t = t.replace(m.group(0), f'const CACHE_NAME = "extreme-wind-v{int(m.group(1)) + 1}";', 1)
     t = t.replace('  "./manifest.json",', '  "./ew-auth.js",\n  "./manifest.json",', 1)
     t = t.replace(a, a[:-1] + ' || /\\.js(\\?|$)/.test(req.url);', 1)
-    return t, 'aplicado (versão do cache incrementada)'
+    return t, 'aplicado (versão do cache incrementada')
 
 def main():
     if len(sys.argv) < 2: raise SystemExit(__doc__)
@@ -99,7 +121,13 @@ def main():
         p = os.path.join(www, nome)
         if not os.path.isfile(p):
             print(f'- {nome}: não existe nesta pasta (pulado)'); continue
-        t, crlf = ler(p); novo, st = fn(t)
+        t, crlf = ler(p)
+        if nome == 'dashboard-reuniao-diaria.html':      # a Reunião Diária muda muito: se as âncoras sumirem, NÃO derruba o login do resto do site
+            try: novo, st = fn(t)
+            except SystemExit as e:
+                print(f'- {nome}: PULADA ({e}). A Reunião Diária ficou SEM TRAVA neste deploy.'); print('::warning::Reunião Diária sem trava: âncoras da página mudaram. Avisar o Claude.'); continue
+        else:
+            novo, st = fn(t)
         print(f'- {nome}: {st}'); saidas.append((p, novo, crlf, novo != t))
     if so_ver: print('\nSó verificação: nada foi gravado.'); return
     for p, novo, crlf, mudou in saidas:
@@ -116,5 +144,7 @@ def main():
             novo = re.sub(r"var URL_BACKEND = '[^']*';", lambda _m: "var URL_BACKEND = '" + mu.group(1) + "';", novo, count=1)
             if not sem_bak: shutil.copyfile(dst, dst + '.bak_login')
             gravar(dst, novo, crlf); print('- ew-auth.js: atualizado (URL preservada)')
+    cfg = os.path.join(AQUI, 'tpl', 'config-servico.html')
+    if os.path.exists(cfg): shutil.copyfile(cfg, os.path.join(www, 'config-servico.html')); print('- config-servico.html: copiado')
     print('\nPronto. Edite a constante URL_BACKEND em ew-auth.js com a URL do aplicativo da Web (/exec).')
 main()
