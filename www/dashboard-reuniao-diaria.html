@@ -360,6 +360,8 @@
   .ehsr-dia b{display:block; font-size:9.5px; font-weight:600; opacity:.8;}
   .ehsr-dia.ok{color:var(--ok); border-color:var(--ok);}
   .ehsr-dia.nok{color:var(--nok); border-color:var(--nok);}
+  .ehsr-dia.warn{color:var(--warn); border-color:var(--warn);}
+  .ehsr-ult a{color:inherit; text-decoration:underline;}
   .ehsr-dia.hoje{color:var(--muted);}
   .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
@@ -2895,33 +2897,43 @@
   }
 
   /* ============ Quadro Segurança / EHS -- Report EHS diário (19/10/2026, Robson) ============
-     Fonte: aba "Report EHS" da MESMA planilha do RDO (ANALISE_SHEET_ID), so leitura,
-     via gviz. Colunas: Ciclo, Checklist (veiculo/materiais/cordas/ferramentas/loto),
-     Matricula, Nome, Parque, Data (AAAA-MM-DD), Hora. Regra do Robson: o report e
-     DIARIO por equipe -- o quadro mostra, para os ultimos 5 dias, se a equipe ENVIOU
-     (verde, com os checklists no tooltip) ou NAO ENVIOU (vermelho). Hoje fica cinza
-     ate chegar o envio (a reuniao e de manha). Casamento: Parque do report x card por
-     mesmoProjeto(); linha sem Parque cai no card cuja equipe tem aquela matricula
-     (NOMES_OFICIAIS). Cada linha conta em UM card so. Planilha de outro setor: nunca
-     escrever nela. O texto manual (OcorrenciaEHS) continua abaixo, sem mudanca. */
-  let REPORT_EHS = null; // {linhas:[{data,tipo,mat,nome,parque,hora}]}
+     Fonte: aba "Reports EHS" (com S) da MESMA planilha do RDO (ANALISE_SHEET_ID), so
+     leitura, via gviz. Uma linha = um report diario de seguranca da equipe (Protocolo,
+     Data, Parque, TECNICO 01/02/03 + matriculas, HOUVE DDS?, itens CONFORME/NAO CONFORME,
+     Link_PDF). CORRECAO 19/10/2026 (Robson): a 1a versao lia "Report EHS" (sem S); o gviz
+     NAO da erro com nome de aba inexistente -- devolve a PRIMEIRA aba (Checklist_Feitos:
+     veiculo/materiais), que NAO e seguranca. Por isso: nome exato + trava pela coluna
+     "Protocolo" (se nao vier, mostra "indisponivel" em vez de dado errado).
+     Quadro: ultimos 5 dias UTEIS -- verde = enviou; amarelo = enviou com DDS "Nao" ou
+     item NAO CONFORME; vermelho = nao enviou; cinza = hoje ainda sem envio. Casamento:
+     Parque do report x card por mesmoProjeto(); se nao casar, pela matricula de um dos
+     tecnicos na equipe do card (NOMES_OFICIAIS). Nunca escrever nessa planilha. */
+  let REPORT_EHS = null; // {linhas:[{data,proto,parque,mats:[],tecs:[],dds,nc:[],pdf,hora}]}
   const REPORT_EHS_DIAS = 5;
-  const REPORT_EHS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('Report EHS');
+  const REPORT_EHS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('Reports EHS');
   async function loadReportEhs(){
     try{
       const j = await fetchGvizComRetry(REPORT_EHS_URL, 3);
-      const cols = j.table.cols.map(function(c){ return String(c.label || '').trim().toLowerCase(); });
-      const ix = function(n){ return cols.indexOf(n); };
-      const iT = ix('checklist'), iM = ix('matricula'), iN = ix('nome'), iP = ix('parque'), iD = ix('data'), iH = ix('hora');
-      if (iD === -1 || iT === -1) throw new Error('colunas Data/Checklist nao encontradas');
+      const labels = j.table.cols.map(function(c){ return String(c.label || '').trim(); });
+      const up = labels.map(function(l){ return l.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase(); });
+      const ix = function(n){ return up.indexOf(n); };
+      const iProt = ix('PROTOCOLO'), iD = ix('DATA'), iP = ix('PARQUE'), iRec = ix('RECEBIDO_EM'), iPdf = ix('LINK_PDF'), iDds = ix('HOUVE DDS?'), iLog = ix('MATRICULA_LOGIN');
+      if (iProt === -1 || iD === -1) throw new Error('aba "Reports EHS" nao encontrada (gviz devolveu outra aba)');
+      const iTec = [], iMat = [];
+      up.forEach(function(l, i){ if (/^TECNICO 0\d$/.test(l)) iTec.push(i); if (/^TECNICO 0\d \(MATRICULA\)$/.test(l)) iMat.push(i); });
       const val = function(r, i){ const c = i >= 0 ? r.c[i] : null; return c ? (c.f != null ? c.f : c.v) : null; };
       const linhas = (j.table.rows || []).map(function(r){
-        return { data: dataAnaliseParaChave(val(r, iD)), tipo: String(val(r, iT) || '').trim(), mat: String(val(r, iM) || '').trim(),
-                 nome: String(val(r, iN) || '').trim(), parque: String(val(r, iP) || '').trim(), hora: String(val(r, iH) || '').trim() };
+        const nc = [];
+        labels.forEach(function(l, i){ if (/^N[AÃ]O CONFORME$/i.test(String(val(r, i) || '').trim())) nc.push(l.replace(/^VIS[AÃ]O GERAL\s*[—-]\s*/i, '')); });
+        const mats = iMat.map(function(i){ return String(val(r, i) || '').trim(); }).concat([String(val(r, iLog) || '').trim()]).filter(Boolean);
+        return { data: dataAnaliseParaChave(val(r, iD)), proto: String(val(r, iProt) || ''), parque: String(val(r, iP) || '').trim(),
+                 mats: mats, tecs: iTec.map(function(i){ return String(val(r, i) || '').replace(/\s+[—-]\s+\d+\s*$/, '').trim(); }).filter(Boolean),
+                 dds: String(val(r, iDds) || '').trim(), nc: nc, pdf: String(val(r, iPdf) || '').trim(),
+                 hora: (String(val(r, iRec) || '').match(/\d{1,2}:\d{2}/) || [''])[0] };
       }).filter(function(x){ return x.data; });
       REPORT_EHS = { linhas: linhas };
     } catch(err){
-      console.error('Falha ao carregar Report EHS:', err);
+      console.error('Falha ao carregar Reports EHS:', err);
       REPORT_EHS = { erro: true, linhas: [] };
     }
     preencherQuadrosReportEhs();
@@ -2945,32 +2957,38 @@
     REPORT_EHS.linhas.forEach(function(x){
       let k = -1;
       if (x.parque){ for (let i = 0; i < els.length; i++){ if (mesmoProjeto(els[i].dataset.parkname || '', x.parque)){ k = i; break; } } }
-      else if (matCard[x.mat] != null) k = matCard[x.mat];
+      if (k < 0){ for (let m = 0; m < x.mats.length; m++){ if (matCard[x.mats[m]] != null){ k = matCard[x.mats[m]]; break; } } }
       if (k < 0) return;
       (porCard[k][x.data] = porCard[k][x.data] || []).push(x);
     });
-    const hoje = new Date();
+    /* ultimos REPORT_EHS_DIAS dias uteis (seg-sex), terminando hoje (ou na ultima sexta, no fim de semana) */
     const chave = function(d){ return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
-    const dias = [];
-    for (let i = REPORT_EHS_DIAS - 1; i >= 0; i--){ const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i); dias.push({ k: chave(d), br: String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'), hoje: i === 0 }); }
-    const nomeCurto = function(n){ const w = String(n || '').trim().split(/\s+/); return [w[0]].concat(w.slice(1).filter(function(x){ return !/^(DE|DA|DO|DOS|DAS|E)$/i.test(x); }).slice(0, 1)).join(' '); };
+    const agora = new Date(); const hojeK = chave(agora);
+    const dias = []; const d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    while (dias.length < REPORT_EHS_DIAS){
+      if (d.getDay() !== 0 && d.getDay() !== 6) dias.unshift({ k: chave(d), br: String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') });
+      d.setDate(d.getDate() - 1);
+    }
+    const temAlerta = function(x){ return /^n[aã]o$/i.test(x.dds) || x.nc.length > 0; };
+    const resumo = function(x){ return 'DDS: ' + (x.dds || '—') + (x.nc.length ? ' · ' + x.nc.length + ' não conforme' + (x.nc.length > 1 ? 's' : '') : ' · tudo conforme'); };
     els.forEach(function(el, k){
       const meus = porCard[k];
-      const chips = dias.map(function(d){
-        const l = meus[d.k] || [];
+      const chips = dias.map(function(dd){
+        const l = meus[dd.k] || [];
         if (l.length){
-          const tip = l.map(function(x){ return x.tipo + ' — ' + nomeCurto(x.nome) + (x.hora ? ' ' + x.hora : ''); }).join('\n');
-          return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + d.br + '</b>✔</span>';
+          const alerta = l.some(temAlerta);
+          const tip = l.map(function(x){ return x.proto + (x.hora ? ' · ' + x.hora : '') + '\n' + resumo(x) + (x.nc.length ? '\n- ' + x.nc.join('\n- ') : ''); }).join('\n\n');
+          return '<span class="ehsr-dia ' + (alerta ? 'warn' : 'ok') + '" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>' + (alerta ? '⚠' : '✔') + '</span>';
         }
-        if (d.hoje) return '<span class="ehsr-dia hoje" title="Hoje: ainda sem envio"><b>' + d.br + '</b>…</span>';
-        return '<span class="ehsr-dia nok" title="Não enviou"><b>' + d.br + '</b>✖</span>';
+        if (dd.k === hojeK) return '<span class="ehsr-dia hoje" title="Hoje: ainda sem report"><b>' + dd.br + '</b>…</span>';
+        return '<span class="ehsr-dia nok" title="Não enviou o Report EHS"><b>' + dd.br + '</b>✖</span>';
       }).join('');
       const datas = Object.keys(meus).sort();
-      let ult = '<div class="ehsr-ult">Nenhum envio registrado</div>';
+      let ult = '<div class="ehsr-ult">Nenhum Report EHS registrado</div>';
       if (datas.length){
-        const ud = datas[datas.length - 1], l = meus[ud];
-        const tipos = Array.from(new Set(l.map(function(x){ return x.tipo; }))).join(', ');
-        ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(tipos) + ' · ' + escapeHtml(nomeCurto(l[l.length-1].nome)) + '</div>';
+        const ud = datas[datas.length - 1], x = meus[ud][meus[ud].length - 1];
+        ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
+              (x.pdf && /^https:\/\//.test(x.pdf) ? ' · <a href="' + escapeHtml(x.pdf) + '" target="_blank" rel="noopener">PDF</a>' : '') + '</div>';
       }
       el.innerHTML = '<div class="frota-muted" style="font-size:10px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
     });
