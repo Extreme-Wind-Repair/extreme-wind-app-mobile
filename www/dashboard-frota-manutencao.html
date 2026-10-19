@@ -673,6 +673,13 @@
 </div>
 <div class="ck-cnt" id="ckC"></div>
 <div class="ck-wrap" id="ckW" style="display:none"><table><thead><tr><th>Semana</th><th>Data</th><th>Projeto</th><th>Local / descrição</th><th>Placa</th><th>Tam.</th><th></th></tr></thead><tbody id="ckT"></tbody></table></div>
+<div id="ckV" style="display:none;margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden">
+  <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--panel2)">
+    <span id="ckVt" style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <span style="display:flex;gap:8px;flex-shrink:0"><a id="ckVa" class="ck-abrir" target="_blank" rel="noopener" href="#">Abrir em outra aba</a><button class="ck-lim" id="ckVf" type="button" style="align-self:auto">Fechar</button></span>
+  </div>
+  <iframe id="ckVi" title="Checklist" style="width:100%;height:78vh;min-height:420px;border:0;background:#fff;display:block"></iframe>
+</div>
 </div>
 <script>
 (function(){
@@ -691,10 +698,20 @@ function render(){
   const rows=DATA.filter(x=>(!s||String(x.s)===s)&&(!p||x.p===p)&&(!q||norm(x.pl+x.l+x.p).replace(/[\s\-]/g,"").includes(q)));
   $("ckW").style.display="";
   $("ckC").textContent=rows.length+" checklist(s)"+(s?" · W"+s:"")+(p?" · "+p:"");
-  $("ckT").innerHTML=rows.length?rows.map(x=>'<tr><td>W'+x.s+(x.i?' <span class="ck-tag">pasta sem semana</span>':'')+'</td><td>'+fdata(x.d)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.l)+'</td><td>'+(x.pl?esc(x.pl):'—')+'</td><td>'+x.mb+' MB</td><td><a class="ck-abrir" target="_blank" rel="noopener" href="'+esc(x.u)+'">Abrir</a></td></tr>').join(""):'<tr><td colspan="7" style="text-align:center;color:var(--muted)">Nenhum checklist encontrado.</td></tr>';
+  $("ckT").innerHTML=rows.length?rows.map(x=>'<tr><td>W'+x.s+(x.i?' <span class="ck-tag">pasta sem semana</span>':'')+'</td><td>'+fdata(x.d)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.l)+'</td><td>'+(x.pl?esc(x.pl):'—')+'</td><td>'+x.mb+' MB</td><td><a class="ck-abrir" target="_blank" rel="noopener" data-nome="'+esc((x.p||"")+" · "+(x.l||"")+" · "+fdata(x.d))+'" href="'+esc(x.u)+'">Abrir</a></td></tr>').join(""):'<tr><td colspan="7" style="text-align:center;color:var(--muted)">Nenhum checklist encontrado.</td></tr>';
 }
 ["ckS","ckP"].forEach(i=>$(i).addEventListener("change",render));
 $("ckQ").addEventListener("input",render);
+$("ckT").addEventListener("click",function(ev){
+  const a=ev.target.closest("a.ck-abrir"); if(!a) return;
+  const u=a.getAttribute("href");
+  if(u.indexOf("/scl/fo/")<0) return;
+  ev.preventDefault();
+  const raw=u.replace(/([?&])dl=0/,"$1raw=1");
+  $("ckVi").src=raw; $("ckVa").href=u; $("ckVt").textContent=a.getAttribute("data-nome")||"";
+  $("ckV").style.display="block"; $("ckV").scrollIntoView({behavior:"smooth",block:"nearest"});
+});
+$("ckVf").addEventListener("click",function(){$("ckV").style.display="none";$("ckVi").src="about:blank";});
 $("ckL").addEventListener("click",()=>{$("ckS").value="";$("ckP").value="";$("ckQ").value="";render();});
 render();
 })();
