@@ -108,7 +108,7 @@ def patch_sw(t):
     t = t.replace(m.group(0), f'const CACHE_NAME = "extreme-wind-v{int(m.group(1)) + 1}";', 1)
     t = t.replace('  "./manifest.json",', '  "./ew-auth.js",\n  "./manifest.json",', 1)
     t = t.replace(a, a[:-1] + ' || /\\.js(\\?|$)/.test(req.url);', 1)
-    return t, 'aplicado (versão do cache incrementada')
+    return t, 'aplicado (versão do cache incrementada)'
 
 def main():
     if len(sys.argv) < 2: raise SystemExit(__doc__)
