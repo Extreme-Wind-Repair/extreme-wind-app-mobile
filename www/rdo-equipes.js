@@ -10,26 +10,26 @@
  *     somente leitura "Equipe" (indicação do sistema; só a alternativa nº 1).
  *  3) Página #equipes: Busca com as mesmas escolhas; lista todas as alternativas.
  *
- * Dados: NÃO ficam neste arquivo nem no repositório. Configure antes de carregar:
- *   window.RDO_EQUIPES_CONFIG = { fonte: 'URL_PROTEGIDA_DO_JSON_DE_CENARIOS' };
- * Sem fonte configurada, a Busca mostra um aviso e não inventa nada.
+ * Dados: NÃO ficam neste arquivo, nem no repositório, nem em URL pública. Não há JSON estático nem URL de dados no front.
+ *  - Cada consulta é um POST autenticado: EWAuth.post({action:'indicarEquipes', cli, atv, abr, qtd, n}) no backend de LOGIN
+ *    (Equipes_login.gs). O servidor só responde a ADMIN, EDITOR e SERVICO; qualquer outro caso volta {ok:false,motivo:'NEGADO'}.
+ *  - Perfil sem permissão (ou EWAuth ausente): a lupa e o card NÃO aparecem. Mesmo assim, se o servidor devolver NEGADO/SESSAO
+ *    (sessão expirada, perfil alterado), a tela mostra "sem permissão ou sessão expirada" e nunca inventa equipe.
+ *  - Requer a página carregar ew-auth.js (EWAuth) antes deste arquivo, ou ao menos até 15 s depois.
  *
- * Técnicos que já aparecem como titulares em equipes do Bloco 3 ("Em tramitação") são ocultados
- * em tempo real (lê DATA.parques/DATA.equipe da página); se o nome sair de lá, a alternativa volta.
+ * Técnicos titulares de equipes do Bloco 3 ("Em tramitação") são excluídos NO SERVIDOR, a cada consulta.
  */
 (function () {
   'use strict';
   if (window.__rdoEquipesLoaded) return; window.__rdoEquipesLoaded = true;
 
-  var CFG = window.RDO_EQUIPES_CONFIG || {};
   var CLIENTES = [['ge', 'GE'], ['siemens', 'Siemens'], ['nordex', 'Nordex']];
   var ATIVIDADES = [
     ['inspecao_cordas', 'Inspeção (cordas)', 'c'], ['mcu', 'MCU (cordas)', 'c'], ['reparo_cordas', 'Reparo (cordas)', 'c'],
     ['troca_tip', 'Troca de TIP (cordas)', 'c'], ['tower_light', 'Tower light (cordas)', 'c'],
     ['reparo_solo', 'Reparo solo', 's'], ['inspecao_solo', 'Inspeção solo', 's'], ['inspecao_interna', 'Inspeção interna', 's']
   ];
-  var DADOS = null, ERRO = '';
-
+  
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function norm(s) {
     return String(s || '').split(/\s[—–-]\s/)[0].normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
@@ -58,42 +58,27 @@
   ].join('\n');
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  /* ---------- dados ---------- */
-  function carregar() {
-    if (DADOS || ERRO) return Promise.resolve();
-    if (!CFG.fonte) { ERRO = 'Fonte de dados das equipes não configurada (window.RDO_EQUIPES_CONFIG.fonte).'; return Promise.resolve(); }
-    return fetch(CFG.fonte, { cache: 'no-store' }).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status); return r.json();
-    }).then(function (j) {
-      if (!j || !j.cenarios) throw new Error('formato inesperado'); DADOS = j;
-    }).catch(function (e) { ERRO = 'Não foi possível carregar as indicações de equipe (' + e.message + ').'; });
+  /* ---------- dados (sempre ao vivo, POST autenticado) ---------- */
+  var PERFIS_OK = ['ADMIN', 'EDITOR', 'SERVICO'];
+  function permitido() {
+    try { var i = (typeof EWAuth === 'object' && EWAuth && EWAuth.info) ? EWAuth.info() : null; return !!(i && PERFIS_OK.indexOf(String(i.perfil)) >= 0); } catch (e) { return false; }
   }
-
-  /* técnicos titulares em equipes do Bloco 3 (lidos da própria página, em tempo real) */
-  function ocupados() {
-    var s = {};
-    try {
-      var d = (typeof DATA !== 'undefined') ? DATA : null; if (!d) return s;
-      var b3 = {}; (d.parques || []).forEach(function (p) { if (p.Bloco === 'b3') b3[p.ParkID] = 1; });
-      (d.equipe || []).forEach(function (e) { if (b3[e.ParkID] && e.Val1) s[norm(e.Val1)] = 1; });
-    } catch (e) { }
-    return s;
+  var MSG_NEGADO = 'Sem permissão ou sessão expirada.';
+  function negadoErr() { var e = new Error(MSG_NEGADO); e.negado = true; return e; }
+  function obter(f, n) {
+    if (typeof EWAuth !== 'object' || !EWAuth || !EWAuth.post) return Promise.reject(negadoErr());
+    return EWAuth.post({ action: 'indicarEquipes', cli: f.cli, atv: f.atv, abr: f.abr, qtd: f.qtd, n: n || 0 }).then(function (j) {
+      if (j && (j.motivo === 'NEGADO' || j.motivo === 'SESSAO')) throw negadoErr();
+      if (!j || j.ok !== true || !j.equipes) throw new Error(j && j.error ? j.error : (j && j.motivo ? 'servidor: ' + j.motivo : 'resposta inesperada'));
+      return { c: { faltam: j.faltam, aviso_contratacao: j.aviso_contratacao, perfis_contratar: [] }, equipes: j.equipes, vivo: true, gerado_em: j.gerado_em };
+    });
   }
-  function livre(eq, oc) { return !eq.membros.some(function (m) { return oc[norm(m.nome)]; }); }
-
-  function chave(f) { return [f.cli, f.atv, f.abr, f.qtd].join('|'); }
-  function buscar(f) {
-    if (!DADOS) return null;
-    var c = DADOS.cenarios[chave(f)]; if (!c) return { vazio: true };
-    var oc = ocupados(), ok = c.equipes.filter(function (e) { return livre(e, oc); });
-    return { c: c, equipes: ok, ocultas: c.equipes.length - ok.length };
-  }
+  function msgErro(e, prefixo) { return e && e.negado ? MSG_NEGADO : prefixo + ' (' + (e && e.message) + ').'; }
   function membrosHtml(eq, atv) {
     return eq.membros.map(function (m) {
       return '<div class="rdoeq-memb">' + esc(m.nome) + ' <small>(' + esc(m.nivel) + ')' + (m.hist ? '' : ' · sem histórico comprovado na atividade') + '</small></div>';
     }).join('');
   }
-  function dataGer() { return DADOS && DADOS.gerado_em ? 'Gerado em ' + esc(DADOS.gerado_em) + ' (foto da última rodada).' : ''; }
 
   /* ---------- seletores ---------- */
   function opts(arr, vazioTxt) { return '<option value="">' + vazioTxt + '</option>' + arr.map(function (o) { return '<option value="' + o[0] + '">' + esc(o[1]) + '</option>'; }).join(''); }
@@ -120,6 +105,7 @@
 
   /* ---------- 2) campos no modal "Novo Projeto" ---------- */
   function montarModal() {
+    if (!permitido()) return;
     var ov = document.getElementById('novoProjetoOverlay'); if (!ov || ov.querySelector('#rdoeqCard')) return;
     var erro = ov.querySelector('#npErro'); if (!erro) return;
     var wrap = document.createElement('div'); wrap.id = 'rdoeqCard';
@@ -131,22 +117,25 @@
     wrap.querySelector('#rdoeqMVer').addEventListener('click', function () {
       var f = ler('rdoeqM', wrap); ov.hidden = true; irParaEquipes(f);
     });
-    carregar().then(function () { atualizarCard(wrap); });
+    atualizarCard(wrap);
   }
+  var seqCard = 0, seqBusca = 0;
   function atualizarCard(wrap) {
-    var box = wrap.querySelector('#rdoeqMEq'), f = ler('rdoeqM', wrap);
-    if (ERRO) { box.textContent = ERRO; return; }
+    var box = wrap.querySelector('#rdoeqMEq'), f = ler('rdoeqM', wrap), id = ++seqCard;
     if (!completo(f)) { box.textContent = 'Escolha cliente, atividade e abrangência.'; return; }
-    var r = buscar(f);
-    if (!r || r.vazio) { box.textContent = 'Sem indicação para esta combinação.'; return; }
-    if (!r.equipes.length) { box.textContent = 'Nenhuma alternativa disponível agora (técnicos em tramitação no Bloco 3).'; return; }
-    box.innerHTML = membrosHtml(r.equipes[0], f.atv) + (r.c.faltam ? '<div class="rdoeq-tag">' + esc(r.c.aviso_contratacao) + '</div>' : '') +
-      (r.equipes[0].avisos && r.equipes[0].avisos.length ? '<div class="rdoeq-tag">' + esc(r.equipes[0].avisos.join(' · ')) + '</div>' : '');
+    box.textContent = 'Montando equipe…';
+    obter(f, 1).then(function (r) {
+      if (id !== seqCard) return;
+      if (!r.equipes.length) { box.textContent = 'Nenhuma alternativa disponível agora (técnicos em tramitação no Bloco 3).'; return; }
+      box.innerHTML = membrosHtml(r.equipes[0], f.atv) + (r.c.faltam ? '<div class="rdoeq-tag">' + esc(r.c.aviso_contratacao) + '</div>' : '') +
+        (r.equipes[0].avisos && r.equipes[0].avisos.length ? '<div class="rdoeq-tag">' + esc(r.equipes[0].avisos.join(' · ')) + '</div>' : '');
+    }).catch(function (e) { if (id === seqCard) box.textContent = msgErro(e, 'Não foi possível montar a equipe agora'); });
   }
 
   /* ---------- 1) item "Equipes" na barra + 3) página #equipes ---------- */
   var tab, page;
   function montarBarra() {
+    if (!permitido()) return;
     var nav = document.getElementById('blockNav'); if (!nav || nav.querySelector('.rdoeq-tab')) return;
     tab = document.createElement('button'); tab.type = 'button'; tab.className = 'block-btn rdoeq-tab'; tab.setAttribute('data-block', 'equipes');
     tab.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>Equipes';
@@ -162,7 +151,7 @@
       tab.classList.add('active'); page.classList.add('active');
       var tb = document.getElementById('b3Toolbar'); if (tb) tb.style.display = 'none';
       try { if (location.hash !== '#equipes') history.replaceState(null, '', location.pathname + location.search + '#equipes'); } catch (e) { }
-      carregar().then(renderBusca); renderBusca();
+      renderBusca();
     });
     nav.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.block-btn') : null;
@@ -171,21 +160,21 @@
   }
   function renderBusca() {
     var out = document.getElementById('rdoeqBRes'); if (!out) return;
-    if (ERRO) { out.innerHTML = '<div class="rdoeq-warn">' + esc(ERRO) + '</div>'; return; }
-    if (!DADOS) { out.innerHTML = '<div class="rdoeq-meta">Carregando…</div>'; return; }
-    var f = ler('rdoeqB', page);
-    if (!completo(f)) { out.innerHTML = '<div class="rdoeq-meta">Escolha cliente, atividade e abrangência. ' + dataGer() + '</div>'; return; }
-    var r = buscar(f);
-    if (!r || r.vazio) { out.innerHTML = '<div class="rdoeq-warn">Sem indicação para esta combinação.</div>'; return; }
-    var h = '<div class="rdoeq-meta">' + dataGer() + ' Técnicos titulares em equipes do Bloco 3 estão fora das alternativas.' + (r.ocultas ? ' ' + r.ocultas + ' alternativa(s) ocultada(s) agora.' : '') + '</div>';
-    if (r.c.faltam) h += '<div class="rdoeq-warn"><b>' + esc(r.c.aviso_contratacao) + '</b>' + (r.c.perfis_contratar && r.c.perfis_contratar.length ? '<br>' + r.c.perfis_contratar.map(esc).join('<br>') : '') + '</div>';
-    if (!r.equipes.length) h += '<div class="rdoeq-warn">Nenhuma alternativa disponível agora.</div>';
-    r.equipes.forEach(function (eq, i) {
-      h += '<div class="rdoeq-team' + (eq.base ? '' : ' folga') + '"><h3><span>Alternativa ' + (i + 1) + '</span><span class="rdoeq-tag">' + (eq.base ? 'base' : 'reserva') + '</span></h3>' + membrosHtml(eq, f.atv) +
-        (eq.avisos && eq.avisos.length ? '<div class="rdoeq-tag">' + esc(eq.avisos.join(' · ')) + '</div>' : '') + '</div>';
-    });
-    h += '<div class="rdoeq-foot">Indicação do sistema</div>';
-    out.innerHTML = h;
+    var f = ler('rdoeqB', page), id = ++seqBusca;
+    if (!completo(f)) { out.innerHTML = '<div class="rdoeq-meta">Escolha cliente, atividade e abrangência.</div>'; return; }
+    out.innerHTML = '<div class="rdoeq-meta">Montando equipes…</div>';
+    obter(f, 0).then(function (r) {
+      if (id !== seqBusca) return;
+      var ger = r.gerado_em || '';
+      var h = '<div class="rdoeq-meta">' + 'Calculado agora, com o Bloco 3 do momento. Base de técnicos da rodada de ' + esc(ger) + '. Titulares de equipes do Bloco 3 estão fora das alternativas.' + '</div>';
+      if (r.c.faltam) h += '<div class="rdoeq-warn"><b>' + esc(r.c.aviso_contratacao) + '</b>' + (r.c.perfis_contratar && r.c.perfis_contratar.length ? '<br>' + r.c.perfis_contratar.map(esc).join('<br>') : '') + '</div>';
+      if (!r.equipes.length) h += '<div class="rdoeq-warn">Nenhuma alternativa disponível agora.</div>';
+      r.equipes.forEach(function (eq, i) {
+        h += '<div class="rdoeq-team' + (eq.base ? '' : ' folga') + '"><h3><span>Alternativa ' + (i + 1) + '</span><span class="rdoeq-tag">' + (eq.base ? 'base' : 'reserva') + '</span></h3>' + membrosHtml(eq, f.atv) +
+          (eq.avisos && eq.avisos.length ? '<div class="rdoeq-tag">' + esc(eq.avisos.join(' · ')) + '</div>' : '') + '</div>';
+      });
+      out.innerHTML = h + '<div class="rdoeq-foot">Indicação do sistema</div>';
+    }).catch(function (e) { if (id === seqBusca) out.innerHTML = '<div class="rdoeq-warn">' + esc(msgErro(e, 'Não foi possível montar as equipes agora')) + '</div>'; });
   }
   function irParaEquipes(f) {
     if (!tab) return;
@@ -196,12 +185,22 @@
     tab.click();
   }
 
+  var iniciado = false;
   function init() {
-    montarBarra(); montarModal();
-    var ov = document.getElementById('novoProjetoOverlay');
-    if (ov) new MutationObserver(function () { if (!ov.hidden) montarModal(); }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
+    if (!permitido()) return false;
+    if (!iniciado) {
+      iniciado = true;
+      montarBarra(); montarModal();
+      var ov = document.getElementById('novoProjetoOverlay');
+      if (ov) new MutationObserver(function () { if (!ov.hidden) montarModal(); }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
+      window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
+    }
     if (location.hash === '#equipes' && tab) tab.click();
-    window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
+    return true;
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  function iniciar() {                       // EWAuth/sessão podem chegar depois do DOM: tenta por até 15 s
+    if (init()) return;
+    var t = 0, h = setInterval(function () { if (init() || ++t >= 15) clearInterval(h); }, 1000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
