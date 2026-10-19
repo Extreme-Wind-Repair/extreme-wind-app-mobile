@@ -177,7 +177,6 @@
       <div class="menu-item" data-view="frota"><span class="ic">&#128663;</span> Manutenção</div>
       <div class="menu-item" data-view="boletos"><span class="ic">&#129534;</span> Controle de Boletos</div>
       <div class="menu-item" data-view="combustivel"><span class="ic">&#9981;</span> Combustível</div>
-      <div class="menu-item" data-view="checklists"><span class="ic">&#128203;</span> Checklists</div>
       <div class="menu-label">Almoxarifado</div>
       <div class="menu-item" data-view="calibracao"><span class="ic">&#128295;</span> Calibração</div>
       <div class="menu-item" data-view="radar-campo"><span class="ic">&#128225;</span> Radar de Campo</div>
@@ -302,7 +301,6 @@
       <iframe id="view-frota" src="dashboard-frota-manutencao.html" title="Frota - Manutenção"></iframe>
       <iframe id="view-boletos" src="dashboard-boletos.html" title="Controle de Boletos"></iframe>
       <iframe id="view-combustivel" src="dashboard-combustivel.html" title="Combustível"></iframe>
-      <iframe id="view-checklists" src="dashboard-checklists.html" title="Checklists de Veículos"></iframe>
       <iframe id="view-envios" src="dashboard-envios-logisticos.html" title="Envios Logísticos"></iframe>
       <iframe id="view-reembolso" src="dashboard-reembolso.html" title="Reembolso"></iframe>
       <iframe id="view-calibracao" src="calibracao/index.html" title="Calibração"></iframe>
@@ -325,7 +323,6 @@
     frota: { title: "Frota — Manutenção", path: "Extreme Wind / Painel Geral / Frotas / Manutenção" },
     boletos: { title: "Controle de Boletos", path: "Extreme Wind / Painel Geral / Frotas / Controle de Boletos" },
     combustivel: { title: "Combustível", path: "Extreme Wind / Painel Geral / Frotas / Combustível" },
-    checklists: { title: "Checklists de Veículos", path: "Extreme Wind / Painel Geral / Frotas / Checklists" },
     envios: { title: "Envios Logísticos", path: "Extreme Wind / Painel Geral / Envios Logísticos" },
     reembolso: { title: "Reembolso", path: "Extreme Wind / Painel Geral / Reembolso" },
     calibracao: { title: "Calibração", path: "Extreme Wind / Painel Geral / Almoxarifado / Calibração" },
@@ -344,7 +341,6 @@
     document.getElementById("view-frota").classList.toggle("active", view === "frota");
     document.getElementById("view-boletos").classList.toggle("active", view === "boletos");
     document.getElementById("view-combustivel").classList.toggle("active", view === "combustivel");
-    document.getElementById("view-checklists").classList.toggle("active", view === "checklists");
     document.getElementById("view-envios").classList.toggle("active", view === "envios");
     document.getElementById("view-reembolso").classList.toggle("active", view === "reembolso");
     document.getElementById("view-calibracao").classList.toggle("active", view === "calibracao");
