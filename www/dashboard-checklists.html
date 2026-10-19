@@ -23,11 +23,11 @@ a.abrir{background:var(--teal);color:#032;text-decoration:none;font-weight:600;p
 @media(max-width:640px){th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}}
 </style></head><body>
 <h1>Checklists de Veículos</h1>
-<div class="sub">Busca por semana, projeto ou placa · últimas 12 semanas. Atualizado em 19/10/2026 01:49 · última semana: W43</div>
+<div class="sub">Busca por semana, projeto ou placa · últimas 12 semanas. Atualizado em 19/10/2026 01:50 · última semana: W43</div>
 <div class="bar">
   <label>Semana<select id="fs"></select></label>
   <label>Projeto<select id="fp"></select></label>
-  <label>Placa ou texto<input id="fq" placeholder="ex.: TET3C50, Oitis, Dom Inocêncio" autocomplete="off"></label>
+  <label>Placa ou texto<input id="fq" placeholder="digite a placa ou o local, ex.: TET3C50" autocomplete="off"></label>
   <button id="lim" type="button">Limpar</button>
 </div>
 <div class="cnt" id="cnt"></div>
@@ -41,10 +41,9 @@ function fdata(iso){if(!iso)return "—";const p=iso.split("-");return p[2]+"/"+
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 (function init(){
   const sems=[...new Set(DATA.map(x=>x.s))].sort((a,b)=>b-a);
-  $("fs").innerHTML='<option value="">Todas</option>'+sems.map(s=>'<option value="'+s+'">W'+s+'</option>').join("");
+  $("fs").innerHTML='<option value="">Escolha...</option>'+sems.map(s=>'<option value="'+s+'">W'+s+'</option>').join("");
   const projs=[...new Set(DATA.map(x=>x.p))].sort((a,b)=>a.localeCompare(b,"pt"));
-  $("fp").innerHTML='<option value="">Todos</option>'+projs.map(p=>'<option>'+esc(p)+'</option>').join("");
-  if(sems.length) $("fs").value=String(sems[0]);
+  $("fp").innerHTML='<option value="">Escolha...</option>'+projs.map(p=>'<option>'+esc(p)+'</option>').join("");
   ["fs","fp"].forEach(i=>$(i).addEventListener("change",render));
   $("fq").addEventListener("input",render);
   $("lim").addEventListener("click",()=>{$("fs").value="";$("fp").value="";$("fq").value="";render();});
@@ -52,6 +51,11 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 })();
 function render(){
   const s=$("fs").value,p=$("fp").value,q=norm($("fq").value).replace(/[\s\-]/g,"");
+  if(!s&&!p&&!q){
+    $("cnt").textContent="";
+    $("tb").innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">Escolha uma semana ou um projeto, ou digite uma placa, para buscar o checklist.</td></tr>';
+    return;
+  }
   const rows=DATA.filter(x=>(!s||String(x.s)===s)&&(!p||x.p===p)&&(!q||norm(x.pl+x.l+x.p).replace(/[\s\-]/g,"").includes(q)));
   $("cnt").textContent=rows.length+" checklist(s)"+(s?" · W"+s:"")+(p?" · "+p:"");
   $("tb").innerHTML=rows.length?rows.map(x=>'<tr><td>W'+x.s+(x.i?' <span class="tag">pasta sem semana</span>':'')+'</td><td>'+fdata(x.d)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.l)+'</td><td>'+(x.pl?esc(x.pl):'—')+'</td><td>'+x.mb+' MB</td><td><a class="abrir" target="_blank" rel="noopener" href="'+esc(x.u)+'">Abrir</a></td></tr>').join(""):'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Nenhum checklist encontrado.</td></tr>';
