@@ -354,6 +354,14 @@
   .frota-item.frota-envio{border-left-color:var(--warn);}
   .frota-item.frota-envio-ok{border-left-color:var(--ok);}
   .frota-item.frota-envio-ok .frota-rot, .frota-item.frota-envio-ok .frota-det{color:var(--ok); opacity:1;}
+  /* Report EHS diario (19/10/2026, Robson) */
+  .ehsr-dias{display:flex; gap:3px; flex-wrap:wrap; margin:2px 0 3px;}
+  .ehsr-dia{font-size:10px; line-height:1.2; padding:2px 4px; border-radius:4px; border:1px solid var(--line); text-align:center; min-width:30px; cursor:default;}
+  .ehsr-dia b{display:block; font-size:9.5px; font-weight:600; opacity:.8;}
+  .ehsr-dia.ok{color:var(--ok); border-color:var(--ok);}
+  .ehsr-dia.nok{color:var(--nok); border-color:var(--nok);}
+  .ehsr-dia.hoje{color:var(--muted);}
+  .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -449,6 +457,12 @@
   .cert-alerta{font-size:12.5px; font-weight:700; padding:5px 10px; border-radius:6px; border-left:4px solid;}
   .cert-alerta.venc{background:rgba(229,57,53,.16); border-color:#e53935; color:#ff8a80;}
   .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
+  /* 19/10/2026 (Robson): a celula da linha do tecnico onde esta a certificacao
+     vencida (ex.: Observacao "GWO ART 01/10") fica em vermelho; vencendo em ate 15 dias, amarelo. */
+  td.cert-cell-venc{color:#ff5252 !important; font-weight:800; background:rgba(229,57,53,.12);}
+  td.cert-cell-prox{color:#ffb300 !important; font-weight:800; background:rgba(255,179,0,.10);}
+  body.light-mode td.cert-cell-venc{color:#c62828 !important;}
+  body.light-mode td.cert-cell-prox{color:#b26a00 !important;}
   tbody tr:hover{background:rgba(255,255,255,.02);}
   /* BONUS SEMANAL (06/10/2026, Robson): coluna "Bonus" da tabela de equipe -- semana atual + 4 anteriores, com motivo quando perdeu. Nao editavel. */
   td.bonus-td, th.bonus-th{width:1%; min-width:0; padding-left:5px; padding-right:5px; text-align:center; white-space:nowrap;}
@@ -1212,6 +1226,7 @@
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
             '<div class="ehs-box" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Segurança / EHS</div>' +
+              '<div class="frota-auto" data-ehs-report-auto data-parkid="' + escapeHtml(p.ParkID) + '" data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando Report EHS…</span></div>' +
               '<div class="box-texto" contenteditable="true" data-field="OcorrenciaEHS" data-vazio="—">' + escapeHtml(p.OcorrenciaEHS || '') + '</div>' +
             '</div>' +
             '<div class="ehs-box frota-box" data-frota-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
@@ -1415,7 +1430,9 @@
           continue;
         }
       }
-      tds += '<td contenteditable="true" data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
+      const certSt = certStatusTexto(row['Val' + i]);
+      const certCls = certSt ? ' class="cert-cell-' + certSt.cls + '" title="' + escapeHtml(certSt.quando) + '"' : '';
+      tds += '<td contenteditable="true"' + certCls + ' data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
     tds += bonusCellHtml(row);
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
@@ -1453,6 +1470,26 @@
       }
     }
     return out;
+  }
+  /* Status da certificacao escrita numa celula (19/10/2026): 'venc' se alguma
+     data ja passou (ou e hoje), 'prox' se vence em ate CERT_ALERTA_DIAS. Mesma regra da faixa de alerta. */
+  function certStatusTexto(txt){
+    txt = String(txt == null ? '' : txt);
+    if (!txt) return null;
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    let pior = null, m; CERT_RE.lastIndex = 0;
+    while ((m = CERT_RE.exec(txt))){
+      const dia = +m[2], mes = +m[3];
+      let ano = m[4] ? +m[4] : hoje.getFullYear();
+      if (ano < 100) ano += 2000;
+      if (dia < 1 || dia > 31 || mes < 1 || mes > 12) continue;
+      const dias = Math.round((new Date(ano, mes - 1, dia) - hoje) / 86400000);
+      if (dias > CERT_ALERTA_DIAS) continue;
+      if (!pior || dias < pior.dias) pior = { dias: dias, cls: dias <= 0 ? 'venc' : 'prox',
+        quando: dias < 0 ? ('VENCIDO há ' + (-dias) + (dias === -1 ? ' dia' : ' dias')) : dias === 0 ? 'vence HOJE' : ('vence em ' + dias + ' dias') };
+    }
+    CERT_RE.lastIndex = 0;
+    return pior;
   }
   function aprovadoChipHtml(row){
     return '<span class="ap-name' + (row.Placeholder ? ' blank-ap' : '') + '" draggable="true" data-row="' + row._row + '">' +
@@ -2789,6 +2826,7 @@
     renderNotes('b5', document.getElementById('b5'));
     preencherQuadrosFrota();
     preencherQuadrosEnvios();
+    preencherQuadrosReportEhs();
   }
 
   /* ============ Quadro Envios Logísticos / Requisições (26/09/2026, Robson) ============
@@ -2853,6 +2891,88 @@
         return '<div class="frota-item frota-envio' + (ok ? ' frota-envio-ok' : '') + '" title="Responsável: ' + escapeHtml(i.resp) + '">' +
                '<span class="frota-rot">' + escapeHtml(i.item) + '</span> <span class="frota-det">— ' + escapeHtml(sit) + '</span></div>';
       }).join('');
+    });
+  }
+
+  /* ============ Quadro Segurança / EHS -- Report EHS diário (19/10/2026, Robson) ============
+     Fonte: aba "Report EHS" da MESMA planilha do RDO (ANALISE_SHEET_ID), so leitura,
+     via gviz. Colunas: Ciclo, Checklist (veiculo/materiais/cordas/ferramentas/loto),
+     Matricula, Nome, Parque, Data (AAAA-MM-DD), Hora. Regra do Robson: o report e
+     DIARIO por equipe -- o quadro mostra, para os ultimos 5 dias, se a equipe ENVIOU
+     (verde, com os checklists no tooltip) ou NAO ENVIOU (vermelho). Hoje fica cinza
+     ate chegar o envio (a reuniao e de manha). Casamento: Parque do report x card por
+     mesmoProjeto(); linha sem Parque cai no card cuja equipe tem aquela matricula
+     (NOMES_OFICIAIS). Cada linha conta em UM card so. Planilha de outro setor: nunca
+     escrever nela. O texto manual (OcorrenciaEHS) continua abaixo, sem mudanca. */
+  let REPORT_EHS = null; // {linhas:[{data,tipo,mat,nome,parque,hora}]}
+  const REPORT_EHS_DIAS = 5;
+  const REPORT_EHS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('Report EHS');
+  async function loadReportEhs(){
+    try{
+      const j = await fetchGvizComRetry(REPORT_EHS_URL, 3);
+      const cols = j.table.cols.map(function(c){ return String(c.label || '').trim().toLowerCase(); });
+      const ix = function(n){ return cols.indexOf(n); };
+      const iT = ix('checklist'), iM = ix('matricula'), iN = ix('nome'), iP = ix('parque'), iD = ix('data'), iH = ix('hora');
+      if (iD === -1 || iT === -1) throw new Error('colunas Data/Checklist nao encontradas');
+      const val = function(r, i){ const c = i >= 0 ? r.c[i] : null; return c ? (c.f != null ? c.f : c.v) : null; };
+      const linhas = (j.table.rows || []).map(function(r){
+        return { data: dataAnaliseParaChave(val(r, iD)), tipo: String(val(r, iT) || '').trim(), mat: String(val(r, iM) || '').trim(),
+                 nome: String(val(r, iN) || '').trim(), parque: String(val(r, iP) || '').trim(), hora: String(val(r, iH) || '').trim() };
+      }).filter(function(x){ return x.data; });
+      REPORT_EHS = { linhas: linhas };
+    } catch(err){
+      console.error('Falha ao carregar Report EHS:', err);
+      REPORT_EHS = { erro: true, linhas: [] };
+    }
+    preencherQuadrosReportEhs();
+  }
+  function preencherQuadrosReportEhs(){
+    const els = Array.prototype.slice.call(document.querySelectorAll('[data-ehs-report-auto]'));
+    if (!REPORT_EHS){ return; }
+    if (REPORT_EHS.erro){ els.forEach(function(el){ el.innerHTML = '<span class="frota-muted">Report EHS indisponível</span>'; }); return; }
+    /* matricula -> indice do card (pela equipe do card, inclusive substituto "A = B") */
+    const matCard = {};
+    els.forEach(function(el, k){
+      (DATA.equipe || []).filter(function(e){ return e.ParkID === el.dataset.parkid; }).forEach(function(e){
+        String(e.Val1 || '').split('=').forEach(function(seg){
+          const nome = String(seg).replace(/\s+[—-]\s+.*$/s, '').replace(/\(.*?\)/g, '');
+          const mat = (typeof NOMES_OFICIAIS !== 'undefined') ? NOMES_OFICIAIS[nomeSemAcento(nome)] : null;
+          if (mat && matCard[mat] == null) matCard[mat] = k;
+        });
+      });
+    });
+    const porCard = els.map(function(){ return {}; });
+    REPORT_EHS.linhas.forEach(function(x){
+      let k = -1;
+      if (x.parque){ for (let i = 0; i < els.length; i++){ if (mesmoProjeto(els[i].dataset.parkname || '', x.parque)){ k = i; break; } } }
+      else if (matCard[x.mat] != null) k = matCard[x.mat];
+      if (k < 0) return;
+      (porCard[k][x.data] = porCard[k][x.data] || []).push(x);
+    });
+    const hoje = new Date();
+    const chave = function(d){ return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
+    const dias = [];
+    for (let i = REPORT_EHS_DIAS - 1; i >= 0; i--){ const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i); dias.push({ k: chave(d), br: String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'), hoje: i === 0 }); }
+    const nomeCurto = function(n){ const w = String(n || '').trim().split(/\s+/); return [w[0]].concat(w.slice(1).filter(function(x){ return !/^(DE|DA|DO|DOS|DAS|E)$/i.test(x); }).slice(0, 1)).join(' '); };
+    els.forEach(function(el, k){
+      const meus = porCard[k];
+      const chips = dias.map(function(d){
+        const l = meus[d.k] || [];
+        if (l.length){
+          const tip = l.map(function(x){ return x.tipo + ' — ' + nomeCurto(x.nome) + (x.hora ? ' ' + x.hora : ''); }).join('\n');
+          return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + d.br + '</b>✔</span>';
+        }
+        if (d.hoje) return '<span class="ehsr-dia hoje" title="Hoje: ainda sem envio"><b>' + d.br + '</b>…</span>';
+        return '<span class="ehsr-dia nok" title="Não enviou"><b>' + d.br + '</b>✖</span>';
+      }).join('');
+      const datas = Object.keys(meus).sort();
+      let ult = '<div class="ehsr-ult">Nenhum envio registrado</div>';
+      if (datas.length){
+        const ud = datas[datas.length - 1], l = meus[ud];
+        const tipos = Array.from(new Set(l.map(function(x){ return x.tipo; }))).join(', ');
+        ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(tipos) + ' · ' + escapeHtml(nomeCurto(l[l.length-1].nome)) + '</div>';
+      }
+      el.innerHTML = '<div class="frota-muted" style="font-size:10px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
     });
   }
 
@@ -3039,6 +3159,7 @@
       setSyncStatus(tentativa > 1 ? ('Carregando dados do Google Sheets… (tentativa ' + tentativa + '/' + MAX_TENTATIVAS_BOOT + ')') : 'Carregando dados do Google Sheets…', false);
       if (!FROTA) loadFrota();
       if (!ENVIOS) loadEnvios();
+      if (!REPORT_EHS) loadReportEhs();
       const [dataResult, analiseOk] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
