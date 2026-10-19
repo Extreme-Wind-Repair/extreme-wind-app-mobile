@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Configurar automação</title>
+<style>body{font-family:system-ui,Segoe UI,Arial,sans-serif;background:#0b1620;color:#e6eef5;max-width:520px;margin:40px auto;padding:0 16px}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #34506a;background:#10202d;color:#fff;box-sizing:border-box}
+button{margin:10px 8px 0 0;padding:10px 16px;border:0;border-radius:8px;background:#1c8ce8;color:#fff;font-weight:600;cursor:pointer}
+button.sec{background:#34506a}#st{margin-top:14px;font-size:14px}</style></head><body>
+<h2>Token de serviço (automações)</h2>
+<p>Use <b>uma vez</b>, no navegador que a automação usa. O token fica só neste navegador e é enviado apenas ao backend de login. Não é senha de pessoa.</p>
+<input id="t" type="password" autocomplete="off" placeholder="Cole o token de serviço aqui">
+<button id="salvar">Salvar neste navegador</button><button id="remover" class="sec">Remover</button>
+<div id="st"></div>
+<script src="ew-auth.js"></script>
+<script>
+(function () {
+  var st = document.getElementById('st');
+  function msg(t) { st.textContent = t; }
+  function ok() { try { return !!localStorage.getItem('ew_svc'); } catch (e) { return false; } }
+  msg(ok() ? 'Já existe um token de serviço salvo neste navegador.' : 'Nenhum token salvo neste navegador.');
+  document.getElementById('salvar').onclick = function () {
+    var v = document.getElementById('t').value.trim();
+    if (!v) { msg('Cole o token primeiro.'); return; }
+    try { localStorage.setItem('ew_svc', v); } catch (e) { msg('Este navegador não permite guardar o token.'); return; }
+    document.getElementById('t').value = '';
+    msg('Salvo. Conferindo com o backend...');
+    EWAuth.post({ action: 'sessao' }).then(function (r) {
+      if (r && r.ok && r.perfil === 'SERVICO') msg('OK: token aceito pelo backend (perfil SERVICO).');
+      else { try { localStorage.removeItem('ew_svc'); } catch (e) {} msg('Token recusado pelo backend (' + (r && r.motivo) + '). Nada foi guardado.'); }
+    });
+  };
+  document.getElementById('remover').onclick = function () { try { localStorage.removeItem('ew_svc'); } catch (e) {} msg('Token removido deste navegador.'); };
+})();
+</script></body></html>
