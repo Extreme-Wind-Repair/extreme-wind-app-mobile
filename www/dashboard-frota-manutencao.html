@@ -1446,6 +1446,12 @@ function ordenarAcaoData(){
     const bHoje = db && db.getTime() === hoje.getTime();
     const aUrg = (a.status || "").trim() === "!!!";
     const bUrg = (b.status || "").trim() === "!!!";
+    // ORDEM POR CATEGORIA (19/10/2026, Robson): Emergencial -> Programada -> Administrativa,
+    // independente de datas. Dentro de cada categoria vale a regra de data abaixo.
+    const ORD_CAT = { "Emergencial": 0, "Programada": 1, "Administrativa": 2 };
+    const catA = ORD_CAT[a.categoria] !== undefined ? ORD_CAT[a.categoria] : 3;
+    const catB = ORD_CAT[b.categoria] !== undefined ? ORD_CAT[b.categoria] : 3;
+    if(catA !== catB) return catA - catB;
     const grupoA = aHoje ? 0 : (aUrg ? 1 : 2);
     const grupoB = bHoje ? 0 : (bUrg ? 1 : 2);
     if(grupoA !== grupoB) return grupoA - grupoB;
