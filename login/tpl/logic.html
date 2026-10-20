@@ -26,10 +26,6 @@
     if (carregado) return; carregado = true;
     document.querySelectorAll('iframe[data-src]').forEach(function(f){
       if (visita && VISITA_VIEWS.indexOf(f.id) < 0) return;   // visitante: os demais painéis nem são baixados
-      if (visita && f.id === 'view-calibracao') {   // Calibração: tela "Em implantação" para o visitante (nem baixa os dados)
-        f.srcdoc = '<!doctype html><meta charset="utf-8"><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#0f172a;color:#e2e8f0;text-align:center"><div>' + MASC_HTML + '<div style="font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:10px">EM IMPLANTAÇÃO</div><div style="font-size:18px;opacity:.8">Painel de Calibração</div></div></body>';
-        return;
-      }
       if (visita && f.id === 'view-combustivel') {   // Combustível: em manutenção para o visitante (nem baixa os dados)
         f.srcdoc = '<!doctype html><meta charset="utf-8"><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#0f172a;color:#e2e8f0;text-align:center"><div>' + MASC_HTML + '<div style="font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:10px">EM MANUTENÇÃO</div><div style="font-size:18px;opacity:.8">Este painel está temporariamente indisponível.</div></div></body>';
         return;
