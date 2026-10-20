@@ -181,7 +181,7 @@ function render(rows, refDate) {
   rows.forEach(r => counts[statusClass(r.status)]++);
 
   const buckets = [
-    { label: "Vencido", test: d => d <= 0 },
+    { label: "Em laboratório", test: d => d <= 0 },
     { label: "0–30 dias", test: d => d > 0 && d <= 30 },
     { label: "31–90 dias", test: d => d > 30 && d <= 90 },
     { label: "91–180 dias", test: d => d > 90 && d <= 180 },
@@ -198,7 +198,7 @@ function render(rows, refDate) {
     <div class="kpi-row">
       <div class="kpi"><div class="label">Total de Instrumentos</div><div class="value">${total}</div><div class="sub">itens sob controle</div></div>
       <div class="kpi warn"><div class="label">Prazo de 0 a 90 dias</div><div class="value">${dueSoon}</div><div class="sub">precisam de atenção em breve</div></div>
-      <div class="kpi risk"><div class="label">Vencido</div><div class="value">${counts.VENCIDO}</div><div class="sub">indisponível para uso</div></div>
+      <div class="kpi risk"><div class="label">Vencido</div><div class="value">${counts.VENCIDO}</div><div class="sub">EM LABORATÓRIO</div></div>
     </div>
 
     <div class="grid-2">
@@ -226,7 +226,7 @@ function render(rows, refDate) {
 
   const donutColors = ["#5b9bd5", "#2f6fa8", "#123a5e", "#9fc0e0"];
   const donutValues = [counts.OK, counts.VENCE, counts.VENCIDO, counts.SEM];
-  const donutLabelsBase = ["OK", "Vence em 90 dias", "Vencido", "Sem dados"];
+  const donutLabelsBase = ["OK", "Vence em 90 dias", "Em laboratório", "Sem dados"];
   const donutLabels = donutLabelsBase.map((l, i) => `${l}  (${donutValues[i]})`);
 
   const centerTextPlugin = {
