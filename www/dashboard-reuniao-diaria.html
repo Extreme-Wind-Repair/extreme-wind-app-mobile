@@ -228,6 +228,9 @@
   .gantt-rotulos span{min-width:0; font-size:9px; color:var(--muted); overflow:hidden; white-space:nowrap; padding-left:2px;}
   .gantt-rotulos span.fim{color:var(--text); font-weight:800; overflow:visible; position:relative; z-index:1;}
   .gantt-escala{display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-top:2px;}
+  .gantt-prox{margin-top:2px;}
+  .gantt-prox-leg{font-size:11px; color:var(--muted); margin:8px 0 3px;}
+  .gantt-prox-leg b{color:#42a5f5;}
   .gantt-vazio{font-size:11px; color:var(--muted); font-style:italic;}
   .panel.blank-panel:focus-within{opacity:1;}
   .placeholder-title{color:var(--muted); font-style:italic;}
@@ -1224,11 +1227,26 @@
     if (m) return new Date(+m[1], +m[2]-1, +m[3]);
     return null;
   }
+  /* 20/10/2026 (Robson): REGRA -- na duvida (sem Previsao de termino), assumir 2 MESES a frente ate a Reuniao Diaria informar a data.
+     PROXIMO_PROJETO: um projeto comeca quando o outro termina ("finaliza um, comeca o outro"): a barra do proximo aparece abaixo,
+     comecando no dia seguinte ao termino e durando 2 meses (ou ate a Previsao de termino do card de mesmo nome, se existir). */
+  const PROXIMO_PROJETO = { 'GAMELEIRA 1': 'Baixa do Feijão' };
+  function normNomeGantt(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
+  function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
   function ganttInnerHtml(p){
     const DIA = 86400000;
-    const fim = parseDataTermino(p.Data);
-    if (!fim) return '<div class="gantt-vazio">Prazo do projeto: sem previsão de término (preencha "Previsão de término" no formato dd/mm/aa).</div>';
     const hoje = new Date(); hoje.setHours(0,0,0,0);
+    let fim = parseDataTermino(p.Data); const estimado = !fim;
+    if (!fim) fim = maisMeses(hoje, 2);
+    const proxNome = PROXIMO_PROJETO[normNomeGantt(p.NomeParque)] || '';
+    let proxIni = null, proxFim = null, proxEst = false;
+    if (proxNome){
+      proxIni = new Date(fim.getTime() + DIA);
+      const alvo = normNomeGantt(proxNome);
+      const card = (DATA.parques || []).find(function(x){ return !x.Placeholder && normNomeGantt(x.NomeParque).indexOf(alvo) === 0; });
+      const cf = card ? parseDataTermino(card.Data) : null;
+      if (cf && cf >= proxIni) proxFim = cf; else { proxFim = maisMeses(proxIni, 2); proxEst = true; }
+    }
     const dd = function(d){ return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); };
     const dif = function(a, b){ return Math.round((b - a) / DIA); };
     const rest = dif(hoje, fim);
@@ -1241,7 +1259,7 @@
     }
     else if (rest <= 20){ cor = '#fbc02d'; status = 'Atenção · faltam ' + rest + ' dias'; }
     else { cor = '#43a047'; status = 'Faltam ' + rest + ' dias'; }
-    const janelaFim = new Date(Math.max(hoje.getTime() + 182 * DIA, fim.getTime() + DIA));
+    const janelaFim = new Date(Math.max(hoje.getTime() + 182 * DIA, fim.getTime() + DIA, proxFim ? proxFim.getTime() + DIA : 0));
     const cells = []; let t = new Date(hoje); let guard = 0;
     while (t < janelaFim && guard++ < 80){
       const r = dif(t, fim); let len, tipo;
@@ -1263,11 +1281,21 @@
       return '<span' + (c.fim ? ' class="fim"' : '') + ' style="flex:' + peso[c.tipo] + ' 1 0">' + rot + '</span>';
     }).join('');
     const vencido = rest < 0 ? '<span class="gantt-cell on fim" style="flex:6 1 0" title="Previsão de término já passou: atualizar a data"></span>' : '';
+    let proxHtml = '';
+    if (proxNome){
+      const ptrack = cells.map(function(c){
+        const on = c.ate >= proxIni && c.ini <= proxFim;
+        return '<span class="gantt-cell' + (on ? ' on' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + proxNome + ': ' + dd(c.ini) + (c.tipo === 'd' ? '' : ' a ' + dd(c.ate)) + '"></span>';
+      }).join('');
+      const pv = rest < 0 ? '<span class="gantt-cell" style="flex:6 1 0"></span>' : '';
+      proxHtml = '<div class="gantt-prox-leg"><b>Próximo: ' + proxNome + '</b> · início ' + dd(proxIni) + '/' + String(proxIni.getFullYear()).slice(2) + ' · término ' + dd(proxFim) + '/' + String(proxFim.getFullYear()).slice(2) + (proxEst ? ' (estimado: 2 meses, até a Reunião Diária informar a data)' : '') + '</div>' +
+        '<div class="gantt-track gantt-prox" style="--gcor:#42a5f5">' + pv + ptrack + '</div>';
+    }
     const rotVencido = rest < 0 ? '<span class="fim" style="flex:6 1 0">VENCIDO EM ' + dd(fim) + '</span>' : '';
-    return '<div class="gantt-head" style="--gcor:' + cor + '"><span>Prazo do projeto · término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span>' +
+    return '<div class="gantt-head" style="--gcor:' + cor + '"><span>Prazo do projeto · término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b>' + (estimado ? ' <i>(estimado: 2 meses, sem previsão informada)</i>' : '') + '</span>' +
       '<span class="gantt-status">' + status + '</span></div>' +
       '<div class="gantt-track" style="--gcor:' + cor + '">' + vencido + track + '</div>' +
-      '<div class="gantt-rotulos">' + rotVencido + rotulos + '</div>' +
+      '<div class="gantt-rotulos">' + rotVencido + rotulos + '</div>' + proxHtml +
       '<div class="gantt-escala"><span>Hoje ' + dd(hoje) + '</span><span>etapas: 15 dias › semanal (últimos 35 dias) › diária (última semana)</span><span>' + dd(janelaFim) + '</span></div>';
   }
   function atualizarGantt(panel){

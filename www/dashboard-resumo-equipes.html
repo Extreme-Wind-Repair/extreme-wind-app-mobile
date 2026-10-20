@@ -156,9 +156,9 @@
   function dd(d){ return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); }
   function dif(a, b){ return Math.round((b - a) / DIA); }
   function linha(nome, dataStr, hoje){
-    var fim = parseData(dataStr);
-    var nm = '<span class="gnt-nome">' + esc(nome) + '</span>';
-    if (!fim) return '<div class="gnt-row"><div class="gnt-head">' + nm + '</div><div class="gnt-vazio">sem previsão de término</div></div>';
+    var fim = parseData(dataStr), estim = false;
+    if (!fim){ fim = new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
+    var nm = '<span class="gnt-nome">' + esc(nome) + '</span>' + (estim ? ' <span class="gnt-vazio">(estimado: 2 meses, sem previsão informada)</span>' : '');
     var rest = dif(hoje, fim), cor, status;
     if (rest < 0){ cor = '#b71c1c'; status = 'Vencido há ' + (-rest) + ' dia' + (rest === -1 ? '' : 's'); }
     else if (rest <= 7){
