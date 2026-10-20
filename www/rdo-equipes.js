@@ -17,7 +17,7 @@
  *    (sessão expirada, perfil alterado), a tela mostra "sem permissão ou sessão expirada" e nunca inventa equipe.
  *  - Requer a página carregar ew-auth.js (EWAuth) antes deste arquivo, ou ao menos até 15 s depois.
  *
- * Técnicos titulares de equipes do Bloco 3 ("Em tramitação") são excluídos NO SERVIDOR, a cada consulta.
+ * Técnicos titulares de equipes de qualquer parque do RDO (Blocos 1, 2 e 3) são excluídos NO SERVIDOR, a cada consulta.
  */
 (function () {
   'use strict';
@@ -45,6 +45,7 @@
     '.rdoeq-field{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-bottom:12px}',
     '.rdoeq-field[hidden]{display:none}',
     '.rdoeq-memb{padding:2px 0}',
+    '.rdoeq-rh small{color:#b42318;font-weight:600;font-size:11.5px}',
     '.rdoeq-memb small,.rdoeq-tag{color:var(--muted);font-size:11.5px}',
     '.rdoeq-foot{font-size:11.5px;color:var(--muted);margin-top:6px}',
     '.rdoeq-foot a{color:var(--brand);cursor:pointer;text-decoration:underline}',
@@ -74,9 +75,16 @@
     });
   }
   function msgErro(e, prefixo) { return e && e.negado ? MSG_NEGADO : prefixo + ' (' + (e && e.message) + ').'; }
-  function membrosHtml(eq, atv) {
+  var CLI_NOME = { ge: 'GE', siemens: 'Siemens', nordex: 'Nordex' };
+  function nota1(n) { return (typeof n === 'number' && isFinite(n)) ? n.toFixed(1).replace('.', ',') : ''; }
+  function membrosHtml(eq, atv, cli) {
     return eq.membros.map(function (m) {
-      return '<div class="rdoeq-memb">' + esc(m.nome) + ' <small>(' + esc(m.nivel) + ')' + (m.hist ? '' : ' · sem histórico comprovado na atividade') + '</small></div>';
+      var fortes = [];
+      if (m.hist) fortes.push('Experiência comprovada na atividade');
+      if (m.dias > 0) fortes.push(esc(m.dias) + ' dias em ' + esc(CLI_NOME[cli] || 'cliente'));
+      return '<div class="rdoeq-memb">' + esc(m.nome) + ' <small>(' + esc(m.nivel) + ')' + (nota1(m.nota) ? ' · Nota ' + nota1(m.nota) : '') + (m.hist ? '' : ' · sem histórico comprovado na atividade') + '</small>' +
+        (m.indisp ? '<div class="rdoeq-rh"><small>INDISPONÍVEL hoje — RH entrar em contato (mat. ' + esc(m.mat) + (m.rh ? ' · ' + esc(m.rh) : '') + ')</small></div>' : '') +
+        (fortes.length ? '<div class="rdoeq-forte"><small>Pontos fortes: ' + fortes.join(' · ') + '</small></div>' : '') + '</div>';
     }).join('');
   }
 
@@ -96,39 +104,71 @@
     sf.closest('.rdoeq-field').hidden = !ehSolo; if (!ehSolo) sf.value = '';
   }
   function camposHtml(pref) {
-    return '<label class="rdoeq-field">Cliente (para equipe)<select class="rdoeq-sel" id="' + pref + 'Cli">' + opts(CLIENTES, 'Selecione…') + '</select></label>' +
+    return '<label class="rdoeq-field">Cliente<select class="rdoeq-sel" id="' + pref + 'Cli">' + opts(CLIENTES, 'Selecione…') + '</select></label>' +
       '<label class="rdoeq-field">Atividade<select class="rdoeq-sel" id="' + pref + 'Atv">' + opts(ATIVIDADES, 'Selecione…') + '</select></label>' +
       '<label class="rdoeq-field">Abrangência<select class="rdoeq-sel" id="' + pref + 'Abr"><option value="">Selecione…</option><option value="brasil">Brasil</option><option value="exterior">Exterior</option></select></label>' +
       '<label class="rdoeq-field" hidden>Formação<select class="rdoeq-sel" id="' + pref + 'For"><option value="">Selecione…</option><option value="2">Dupla</option><option value="3">Trio</option></select></label>';
   }
   function completo(f) { return f.cli && f.atv && f.abr && f.qtd; }
 
-  /* ---------- 2) campos no modal "Novo Projeto" ---------- */
+  /* ---------- 2) campos no modal "Novo Projeto" ----------
+     Só o necessário: Projeto, Supervisor (originais) + Cliente (lista), Atividade, Abrangência (e Formação p/ solo) + equipe indicada.
+     Os campos originais Cliente (texto) e Técnico 1-3 (manuais) ficam ocultos e são PREENCHIDOS por este arquivo, então o
+     "Acrescentar" original grava o cliente e os técnicos indicados sem nenhuma mudança na função da página. */
+  var ALTS = [], POS = 0;
+  function oculta(ov, id) { var e = ov.querySelector('#' + id); if (e) { var l = e.closest('label') || e; l.style.display = 'none'; } return e; }
+  function setv(ov, id, v) { var e = ov.querySelector('#' + id); if (e) e.value = v; }
+  function tecnicoTxt(m) { return m.nome + (m.uf ? ' \u2014 ' + m.uf : ''); }
+  function preencherOriginais(ov, f) {
+    setv(ov, 'npCliente', f && f.cli ? (CLI_NOME[f.cli] || '') : '');
+    var eq = ALTS[POS];
+    for (var i = 1; i <= 3; i++) setv(ov, 'npTecnico' + i, eq && eq.membros[i - 1] ? tecnicoTxt(eq.membros[i - 1]) : '');
+  }
   function montarModal() {
     if (!permitido()) return;
     var ov = document.getElementById('novoProjetoOverlay'); if (!ov || ov.querySelector('#rdoeqCard')) return;
-    var erro = ov.querySelector('#npErro'); if (!erro) return;
+    var t1 = ov.querySelector('#npTecnico1'); if (!t1) return;
+    var ref = t1.closest('label') || t1;
+    oculta(ov, 'npCliente'); oculta(ov, 'npTecnico1'); oculta(ov, 'npTecnico2'); oculta(ov, 'npTecnico3');
     var wrap = document.createElement('div'); wrap.id = 'rdoeqCard';
-    wrap.innerHTML = '<div class="rdoeq-box"><div class="rdoeq-rot">Indicação de equipe</div>' + camposHtml('rdoeqM') +
-      '<div class="rdoeq-rot">Equipe</div><div id="rdoeqMEq" class="rdoeq-memb" aria-live="polite">Escolha cliente, atividade e abrangência.</div>' +
-      '<div class="rdoeq-foot">Indicação do sistema · <a id="rdoeqMVer">ver outras alternativas</a></div></div>';
-    erro.parentNode.insertBefore(wrap, erro);
+    wrap.innerHTML = '<div class="rdoeq-box">' + camposHtml('rdoeqM') +
+      '<div class="rdoeq-rot">Equipe indicada</div><div id="rdoeqMEq" class="rdoeq-memb" aria-live="polite">Escolha cliente, atividade e abrangência.</div>' +
+      '<div class="rdoeq-foot"><a id="rdoeqMProx" hidden>Trocar por outra alternativa</a> <span id="rdoeqMPos"></span></div></div>';
+    ref.parentNode.insertBefore(wrap, ref);
     wrap.addEventListener('change', function () { aplicarRegras('rdoeqM', wrap); atualizarCard(wrap); });
-    wrap.querySelector('#rdoeqMVer').addEventListener('click', function () {
-      var f = ler('rdoeqM', wrap); ov.hidden = true; irParaEquipes(f);
+    wrap.querySelector('#rdoeqMProx').addEventListener('click', function () {
+      if (!ALTS.length) return; POS = (POS + 1) % ALTS.length; mostrarEquipe(wrap);
     });
-    atualizarCard(wrap);
+    resetModal();
+  }
+  function resetModal() {
+    var ov = document.getElementById('novoProjetoOverlay'), wrap = ov && ov.querySelector('#rdoeqCard'); if (!wrap) return;
+    ++seqCard; ALTS = []; POS = 0;
+    Array.prototype.forEach.call(wrap.querySelectorAll('select'), function (s) { s.value = ''; });
+    aplicarRegras('rdoeqM', wrap);
+    wrap.querySelector('#rdoeqMEq').textContent = 'Escolha cliente, atividade e abrangência.';
+    wrap.querySelector('#rdoeqMProx').hidden = true; wrap.querySelector('#rdoeqMPos').textContent = '';
+    preencherOriginais(ov, null);
   }
   var seqCard = 0, seqBusca = 0;
+  function mostrarEquipe(wrap) {
+    var ov = document.getElementById('novoProjetoOverlay'), box = wrap.querySelector('#rdoeqMEq'), f = ler('rdoeqM', wrap), eq = ALTS[POS];
+    box.innerHTML = membrosHtml(eq, f.atv, f.cli) + (eq.avisos && eq.avisos.length ? '<div class="rdoeq-tag">' + esc(eq.avisos.join(' · ')) + '</div>' : '');
+    wrap.querySelector('#rdoeqMProx').hidden = ALTS.length < 2;
+    wrap.querySelector('#rdoeqMPos').textContent = ALTS.length > 1 ? '(' + (POS + 1) + ' de ' + ALTS.length + ')' : '';
+    preencherOriginais(ov, f);
+  }
   function atualizarCard(wrap) {
-    var box = wrap.querySelector('#rdoeqMEq'), f = ler('rdoeqM', wrap), id = ++seqCard;
+    var ov = document.getElementById('novoProjetoOverlay'), box = wrap.querySelector('#rdoeqMEq'), f = ler('rdoeqM', wrap), id = ++seqCard;
+    ALTS = []; POS = 0; wrap.querySelector('#rdoeqMProx').hidden = true; wrap.querySelector('#rdoeqMPos').textContent = '';
+    preencherOriginais(ov, f);                                        // cliente já vale; técnicos ficam vazios até a equipe chegar
     if (!completo(f)) { box.textContent = 'Escolha cliente, atividade e abrangência.'; return; }
     box.textContent = 'Montando equipe…';
-    obter(f, 1).then(function (r) {
+    obter(f, 5).then(function (r) {
       if (id !== seqCard) return;
-      if (!r.equipes.length) { box.textContent = 'Nenhuma alternativa disponível agora (técnicos em tramitação no Bloco 3).'; return; }
-      box.innerHTML = membrosHtml(r.equipes[0], f.atv) + (r.c.faltam ? '<div class="rdoeq-tag">' + esc(r.c.aviso_contratacao) + '</div>' : '') +
-        (r.equipes[0].avisos && r.equipes[0].avisos.length ? '<div class="rdoeq-tag">' + esc(r.equipes[0].avisos.join(' · ')) + '</div>' : '');
+      if (!r.equipes.length) { box.textContent = 'Nenhuma alternativa disponível agora (técnicos já alocados em parques).'; return; }
+      ALTS = r.equipes; POS = 0; mostrarEquipe(wrap);
+      if (r.c.faltam) box.innerHTML += '<div class="rdoeq-tag">' + esc(r.c.aviso_contratacao) + '</div>';
     }).catch(function (e) { if (id === seqCard) box.textContent = msgErro(e, 'Não foi possível montar a equipe agora'); });
   }
 
@@ -166,11 +206,11 @@
     obter(f, 0).then(function (r) {
       if (id !== seqBusca) return;
       var ger = r.gerado_em || '';
-      var h = '<div class="rdoeq-meta">' + 'Calculado agora, com o Bloco 3 do momento. Base de técnicos da rodada de ' + esc(ger) + '. Titulares de equipes do Bloco 3 estão fora das alternativas.' + '</div>';
+      var h = '<div class="rdoeq-meta">' + 'Calculado agora, com o Bloco 3 do momento. Base de técnicos da rodada de ' + esc(ger) + '. Técnicos titulares em qualquer parque (ativos, mobilização e tramitação) estão fora das alternativas.' + '</div>';
       if (r.c.faltam) h += '<div class="rdoeq-warn"><b>' + esc(r.c.aviso_contratacao) + '</b>' + (r.c.perfis_contratar && r.c.perfis_contratar.length ? '<br>' + r.c.perfis_contratar.map(esc).join('<br>') : '') + '</div>';
       if (!r.equipes.length) h += '<div class="rdoeq-warn">Nenhuma alternativa disponível agora.</div>';
       r.equipes.forEach(function (eq, i) {
-        h += '<div class="rdoeq-team' + (eq.base ? '' : ' folga') + '"><h3><span>Alternativa ' + (i + 1) + '</span><span class="rdoeq-tag">' + (eq.base ? 'base' : 'reserva') + '</span></h3>' + membrosHtml(eq, f.atv) +
+        h += '<div class="rdoeq-team' + (eq.base ? '' : ' folga') + '"><h3><span>Alternativa ' + (i + 1) + '</span><span class="rdoeq-tag">' + (eq.base ? 'base' : 'reserva') + '</span></h3>' + membrosHtml(eq, f.atv, f.cli) +
           (eq.avisos && eq.avisos.length ? '<div class="rdoeq-tag">' + esc(eq.avisos.join(' · ')) + '</div>' : '') + '</div>';
       });
       out.innerHTML = h + '<div class="rdoeq-foot">Indicação do sistema</div>';
@@ -192,7 +232,7 @@
       iniciado = true;
       montarBarra(); montarModal();
       var ov = document.getElementById('novoProjetoOverlay');
-      if (ov) new MutationObserver(function () { if (!ov.hidden) montarModal(); }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
+      if (ov) new MutationObserver(function () { if (!ov.hidden) { montarModal(); resetModal(); } }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
       window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
     }
     if (location.hash === '#equipes' && tab) tab.click();

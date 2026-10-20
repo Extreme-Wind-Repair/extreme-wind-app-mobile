@@ -8,7 +8,7 @@
 // index.html mudar de forma relevante -- forca todo cliente que ja tinha o
 // app/site aberto a descartar o cache antigo e buscar tudo de novo na
 // proxima visita, em vez de ficar preso numa versao antiga do menu.
-const CACHE_NAME = "extreme-wind-v5";
+const CACHE_NAME = "extreme-wind-v6";
 const PRECACHE_URLS = [
   "./",
   "./index.html",
