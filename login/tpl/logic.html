@@ -67,6 +67,16 @@
           } catch (e) {}
         });
       }
+        if (visita && f.id === 'view-calibracao') {
+          f.addEventListener('load', function(){
+            try {
+              var d = f.contentDocument, st = d.createElement('style');
+              st.id = 'ew-tema';
+              st.textContent = ':root{color-scheme:dark;--navy:#055384;--navy-light:#123350;--steel:#1C8CE8;--bg:#081C2C;--card:#0F2A40;--border:#1E4363;--text:#EAF1F7;--muted:#8FA9C0;--amber:#D89A2B;--amber-bg:#3a2d12;--green:#12A874;--green-bg:#0f3a2e;--red:#E0483C;--red-bg:#3d1c20;--gray:#8FA9C0;--gray-bg:#123350}.kpi .label,.panel h2{color:#9FC9EE !important}.kpi .value{color:#6FB6F0}.kpi.risk .value{color:#E0483C}.gridjs-th{background:#123350 !important;color:#9FC9EE !important;border-color:#1E4363 !important}.gridjs-th .gridjs-th-content{color:#9FC9EE !important}.gridjs-search-input,.gridjs-input{background:#0F2A40 !important;color:#EAF1F7 !important;border:1px solid #1E4363 !important}.gridjs-footer,.gridjs-pagination,.gridjs-pagination .gridjs-summary,.gridjs-pagination button{background:#0F2A40 !important;color:#EAF1F7 !important;border-color:#1E4363 !important}.gridjs-wrapper{border-color:#1E4363 !important;box-shadow:none !important}table.gridjs-table td.gridjs-td{color:#EAF1F7;border-color:#1E4363 !important}#grid-table td{color:#EAF1F7 !important}#grid-table td span,#grid-table td b,#grid-table td strong{color:inherit}#grid-table td.row-vencido:nth-child(2),#grid-table td.row-vencido:nth-child(5){color:#FF6B5F !important}#grid-table td.row-ok:nth-child(2),#grid-table td.row-ok:nth-child(5){color:#3DDC97 !important}#grid-table td.row-vence:nth-child(2),#grid-table td.row-vence:nth-child(5){color:#F5B945 !important}';
+              d.head.appendChild(st);
+            } catch(e){}
+          });
+        }
       f.src = f.dataset.src;
     });
   }
