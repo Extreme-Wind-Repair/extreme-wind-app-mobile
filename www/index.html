@@ -174,6 +174,7 @@
 
       <div class="menu-label">SEGURANÇA/EHS</div>
       <div class="menu-item" data-view="ehs"><span class="ic">&#129466;</span> Controle Documental</div>
+      <div class="menu-item" data-view="ehs-painel"><span class="ic">&#128737;</span> Painel de Segurança</div>
 
       <div class="menu-label">Logística</div>
       <div class="menu-item" data-view="envios"><span class="ic">&#128230;</span> Envios Logísticos</div>
@@ -312,6 +313,7 @@
       <iframe id="view-calibracao" src="calibracao/index.html" title="Calibração"></iframe>
       <iframe id="view-radar-campo" src="radar-campo/index.html" title="Radar de Campo"></iframe>
       <iframe id="view-ehs" src="ehs/index.html" title="Controle Documental"></iframe>
+      <iframe id="view-ehs-painel" src="ehs/painel-seguranca.html" title="Painel de Segurança"></iframe>
       <iframe id="view-estoque" src="estoque/index.html" title="Estoque EPI e Matéria-Prima"></iframe>
     </div>
   </main>
@@ -336,6 +338,7 @@
     calibracao: { title: "Calibração", path: "Extreme Wind / Painel Geral / Almoxarifado / Calibração" },
     "radar-campo": { title: "Radar de Campo", path: "Extreme Wind / Painel Geral / Almoxarifado / Radar de Campo" },
     ehs: { title: "Controle Documental", path: "Extreme Wind / Painel Geral / SEGURANÇA/EHS / Controle Documental" },
+    "ehs-painel": { title: "Painel de Segurança", path: "Extreme Wind / Painel Geral / SEGURANÇA/EHS / Painel de Segurança" },
     estoque: { title: "Estoque EPI & Matéria-Prima", path: "Extreme Wind / Painel Geral / Almoxarifado / Estoque EPI & Matéria-Prima" }
   };
 
@@ -356,6 +359,7 @@
     document.getElementById("view-calibracao").classList.toggle("active", view === "calibracao");
     document.getElementById("view-radar-campo").classList.toggle("active", view === "radar-campo");
     document.getElementById("view-ehs").classList.toggle("active", view === "ehs");
+    document.getElementById("view-ehs-painel").classList.toggle("active", view === "ehs-painel");
     document.getElementById("view-estoque").classList.toggle("active", view === "estoque");
     document.getElementById("topTitle").textContent = TITLES[view].title;
     document.getElementById("topPath").textContent = TITLES[view].path;
