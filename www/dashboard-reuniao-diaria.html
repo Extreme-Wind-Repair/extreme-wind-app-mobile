@@ -461,6 +461,8 @@
   .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
   /* 19/10/2026 (Robson): a celula da linha do tecnico onde esta a certificacao
      vencida (ex.: Observacao "GWO ART 01/10") fica em vermelho; vencendo em ate 15 dias, amarelo. */
+  .chip-value.chip-data-passada{color:#ff5252 !important; font-weight:800;}
+  body.light-mode .chip-value.chip-data-passada{color:#c62828 !important;}
   td.cert-cell-venc{color:#ff5252 !important; font-weight:800; background:rgba(229,57,53,.12);}
   td.cert-cell-prox{color:#ffb300 !important; font-weight:800; background:rgba(255,179,0,.10);}
   body.light-mode td.cert-cell-venc{color:#c62828 !important;}
@@ -640,7 +642,7 @@
   // tiver algum desses campos preenchido (buildChipsHtml já filtra vazios),
   // então não afetam a exibição dos parques dos Blocos 1 e 3.
   const CHIP_LABELS = {
-    Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Estado:'Estado', Cliente:'Cliente', Data:'Data', EHS:'EHS', Condicao:'Condição',
+    Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Estado:'Estado', Cliente:'Cliente', Data:'Previsão de término', EHS:'EHS', Condicao:'Condição',
     Tramitacao:'Tramitação', OcorrenciaRH:'Ocorrência RH', OcorrenciaEHS:'Ocorrência EHS',
     MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO'
   };
@@ -1183,6 +1185,14 @@
     return v || ESTADO_PADRAO[p.ParkID] || '';
   }
 
+  /* 20/10/2026 (Robson): o campo "Data" do card passou a ser a PREVISAO DE TERMINO do projeto; data passada fica em vermelho. */
+  function dataChipPassada(v){
+    const m = String(v == null ? '' : v).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})/);
+    if (!m) return false;
+    let y = +m[3]; if (y < 100) y += 2000;
+    const d = new Date(y, +m[2]-1, +m[1]); const hoje = new Date(); hoje.setHours(0,0,0,0);
+    return d < hoje;
+  }
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
@@ -1193,7 +1203,7 @@
     return fields.map(function(k){
       const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade'].indexOf(k) !== -1;
       return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
-        '<span class="chip-value" contenteditable="true" data-field="' + k + '">' + escapeHtml(k === 'Estado' ? estadoDe(p) : p[k]) + '</span></span>';
+        '<span class="chip-value' + (k === 'Data' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '">' + escapeHtml(k === 'Estado' ? estadoDe(p) : p[k]) + '</span></span>';
     }).join('');
   }
 
