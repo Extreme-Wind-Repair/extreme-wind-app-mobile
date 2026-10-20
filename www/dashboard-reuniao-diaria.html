@@ -219,13 +219,15 @@
   .gantt-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-bottom:5px;}
   .gantt-head b{color:var(--text);}
   .gantt-head .gantt-status{font-weight:800; color:var(--gcor);}
-  .gantt-track{display:flex; gap:2px; height:24px;}
-  .gantt-cell{min-width:0; border-radius:3px; background:rgba(143,169,192,.14); color:var(--muted);
-    font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; overflow:hidden; white-space:nowrap;}
-  .gantt-cell.on{background:var(--gcor); color:#0b1b29;}
-  .gantt-cell.fim{box-shadow:inset 0 0 0 2px var(--text);}
-  .gantt-cell.hoje{box-shadow:inset 3px 0 0 0 var(--text);}
-  .gantt-escala{display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-top:3px;}
+  .gantt-track{display:flex; height:20px; border-radius:10px; overflow:hidden; background:rgba(143,169,192,.14); border:1px solid var(--line);}
+  .gantt-cell{min-width:0; border-left:1px solid rgba(8,28,44,.35);}
+  .gantt-cell:first-child{border-left:none;}
+  .gantt-cell.on{background:var(--gcor);}
+  .gantt-cell.fim{box-shadow:inset -3px 0 0 0 var(--text);}
+  .gantt-rotulos{display:flex; margin-top:3px;}
+  .gantt-rotulos span{min-width:0; font-size:9px; color:var(--muted); overflow:hidden; white-space:nowrap; padding-left:2px;}
+  .gantt-rotulos span.fim{color:var(--text); font-weight:800; overflow:visible; position:relative; z-index:1;}
+  .gantt-escala{display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-top:2px;}
   .gantt-vazio{font-size:11px; color:var(--muted); font-style:italic;}
   .panel.blank-panel:focus-within{opacity:1;}
   .placeholder-title{color:var(--muted); font-style:italic;}
@@ -510,6 +512,7 @@
   .btn-advance-block{background:rgba(46,196,161,.12); border:1px solid rgba(46,196,161,.5); color:var(--teal);}
   .btn-advance-block:hover{background:rgba(46,196,161,.22);}
   .ap-names{display:flex; flex-wrap:wrap; gap:6px;}
+  .ap-ocultos{font-size:10px; color:var(--muted); font-style:italic; align-self:center; cursor:help;}
   .ap-name{
     display:inline-flex; align-items:center; gap:4px;
     background:var(--panel2); border:1px solid var(--line); border-radius:12px;
@@ -1253,13 +1256,18 @@
     const peso = { q: 3, s: 2, d: 1 };
     const track = cells.map(function(c){
       const tip = (c.tipo === 'd' ? dd(c.ini) : dd(c.ini) + ' a ' + dd(c.ate)) + (c.fim ? ' · TÉRMINO' : '') + (c.on ? '' : ' · após o término');
-      const rot = c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini);
-      return '<span class="gantt-cell' + (c.on ? ' on' : '') + (c.fim ? ' fim' : '') + (c.hoje ? ' hoje' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + tip + '">' + rot + '</span>';
+      return '<span class="gantt-cell' + (c.on ? ' on' : '') + (c.fim ? ' fim' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + tip + '"></span>';
     }).join('');
-    const vencido = rest < 0 ? '<span class="gantt-cell on fim" style="flex:6 1 0; color:#fff" title="Previsão de término já passou: atualizar a data">VENCIDO EM ' + dd(fim) + '</span>' : '';
+    const rotulos = cells.map(function(c){
+      const rot = c.fim ? dd(fim) : (c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini));
+      return '<span' + (c.fim ? ' class="fim"' : '') + ' style="flex:' + peso[c.tipo] + ' 1 0">' + rot + '</span>';
+    }).join('');
+    const vencido = rest < 0 ? '<span class="gantt-cell on fim" style="flex:6 1 0" title="Previsão de término já passou: atualizar a data"></span>' : '';
+    const rotVencido = rest < 0 ? '<span class="fim" style="flex:6 1 0">VENCIDO EM ' + dd(fim) + '</span>' : '';
     return '<div class="gantt-head" style="--gcor:' + cor + '"><span>Prazo do projeto · término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span>' +
       '<span class="gantt-status">' + status + '</span></div>' +
       '<div class="gantt-track" style="--gcor:' + cor + '">' + vencido + track + '</div>' +
+      '<div class="gantt-rotulos">' + rotVencido + rotulos + '</div>' +
       '<div class="gantt-escala"><span>Hoje ' + dd(hoje) + '</span><span>etapas: 15 dias › semanal (últimos 35 dias) › diária (última semana)</span><span>' + dd(janelaFim) + '</span></div>';
   }
   function atualizarGantt(panel){
@@ -1603,12 +1611,45 @@
 
     const apBody = node.querySelector('[data-aprovados-body]');
     const apRows = DATA.aprovados.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
-    apRows.forEach(function(r){ apBody.appendChild(el(aprovadoChipHtml(r))); });
+    /* 20/10/2026 (Robson): tecnico marcado "(backup)" que ja esta na equipe de OUTRO projeto
+       (ativo no Bloco 1 ou alocado nos Blocos 2/3, inclusive como substituto "A = B") nao aparece
+       como backup -- nao esta disponivel. Fica so um aviso discreto com os nomes ocultos. */
+    const ocultos = [];
+    apRows.forEach(function(r){
+      const onde = /backup/i.test(r.Nome || '') ? backupAlocadoEm(r.Nome, p.ParkID) : null;
+      if (onde){ ocultos.push(String(r.Nome).replace(/\s*\(backup\)\s*/i, '') + ' → ' + onde); return; }
+      apBody.appendChild(el(aprovadoChipHtml(r)));
+    });
+    if (ocultos.length){
+      apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' backup' + (ocultos.length > 1 ? 's' : '') + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já alocado' + (ocultos.length > 1 ? 's' : '') + ' em outro projeto)</span>'));
+    }
 
     wirePanel(node, p);
     initActivityBox(node);
     initRdoResumoBox(node);
     return node;
+  }
+
+  /* 20/10/2026 (Robson): devolve o nome do card onde o backup ja esta escalado (equipe de outro projeto), ou null. */
+  function backupAlocadoEm(nome, parkId){
+    const norm = function(x){ return String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+      .replace(/\(.*?\)/g, ' ').replace(/\bFCO\b\.?/g, 'FRANCISCO').replace(/\bANT\b\.?/g, 'ANTONIO')
+      .replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim(); };
+    const STOP = { DE:1, DA:1, DO:1, DOS:1, DAS:1, E:1, N:1, BACKUP:1, NORDEX:1 };
+    const w = norm(nome).split(' ').filter(function(x){ return x && !STOP[x] && !/^N\d$/.test(x); });
+    if (!w.length || (w.length === 1 && w[0].length < 6)) return null;
+    const cards = {}; (DATA.parques || []).forEach(function(c){ cards[c.ParkID] = c; });
+    for (let i = 0; i < (DATA.equipe || []).length; i++){
+      const e = DATA.equipe[i]; const c = cards[e.ParkID];
+      if (!e.Val1 || e.ParkID === parkId || !c || c.Placeholder) continue;
+      const segs = String(e.Val1).split('=');
+      for (let k = 0; k < segs.length; k++){
+        const palavras = norm(String(segs[k]).replace(/\s+[—-]\s+.*$/, '')).split(' ');
+        const ok = w.length === 1 ? palavras[0] === w[0] : w.every(function(x){ return palavras.indexOf(x) !== -1; });
+        if (ok) return c.NomeParque;
+      }
+    }
+    return null;
   }
 
   /* ============ Quadro de Atividades (WTG) — lê a aba Relatorios (somente leitura) ============ */
