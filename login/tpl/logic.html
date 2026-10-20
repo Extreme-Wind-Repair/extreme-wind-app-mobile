@@ -42,6 +42,16 @@
           } catch (e) {}
         });
       }
+      if (visita && f.id === 'view-ehs') {   // Controle Documental: visitante vê só Resumo/Vencimento/Itens; de "Status por parque" para baixo mostra "Em implantação"
+        f.addEventListener('load', function(){
+          try {
+            var d = f.contentDocument, ids = ['parques', 'colaboradores', 'documentos'], primeiro = null;
+            ids.forEach(function(i){ var e = d.getElementById(i); if (e) { if (!primeiro) primeiro = e; e.style.display = 'none'; } });
+            ids.forEach(function(i){ d.querySelectorAll('a[href="#' + i + '"]').forEach(function(a){ a.style.display = 'none'; }); });
+            if (primeiro) { var m = d.createElement('section'); m.innerHTML = '<div class="sec-head"><h2>Detalhamento por parque e colaboradores</h2></div><p style="opacity:.75;padding:8px 0">Em implantação.</p>'; primeiro.parentNode.insertBefore(m, primeiro); }
+          } catch (e) {}
+        });
+      }
       f.src = f.dataset.src;
     });
   }
