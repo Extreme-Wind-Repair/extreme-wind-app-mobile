@@ -37,7 +37,7 @@
               var h = c.querySelector('h2');
               if (h && esc.indexOf(h.textContent.trim()) >= 0) { if (!primeiro) primeiro = c; c.style.display = 'none'; }
             });
-            if (primeiro) { var m = d.createElement('div'); m.className = 'card'; m.innerHTML = '<h2>Registro de ocorrências</h2><p style="opacity:.75">Em implantação.</p>'; primeiro.parentNode.insertBefore(m, primeiro); }
+            if (primeiro) { var m = d.createElement('div'); m.className = 'card'; m.style.cssText = 'grid-column:1/-1;text-align:center;padding:56px 16px'; m.innerHTML = '<div style="font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:10px">EM IMPLANTAÇÃO</div><div style="font-size:18px;opacity:.8">Registro de ocorrências</div>'; primeiro.parentNode.insertBefore(m, primeiro); }
             var mo = d.getElementById('modal-overlay'); if (mo) mo.remove();
           } catch (e) {}
         });
@@ -48,7 +48,7 @@
             var d = f.contentDocument, ids = ['parques', 'colaboradores', 'documentos'], primeiro = null;
             ids.forEach(function(i){ var e = d.getElementById(i); if (e) { if (!primeiro) primeiro = e; e.style.display = 'none'; } });
             ids.forEach(function(i){ d.querySelectorAll('a[href="#' + i + '"]').forEach(function(a){ a.style.display = 'none'; }); });
-            if (primeiro) { var m = d.createElement('section'); m.innerHTML = '<div class="sec-head"><h2>Detalhamento por parque e colaboradores</h2></div><p style="opacity:.75;padding:8px 0">Em implantação.</p>'; primeiro.parentNode.insertBefore(m, primeiro); }
+            if (primeiro) { var m = d.createElement('section'); m.style.cssText = 'text-align:center;padding:56px 16px'; m.innerHTML = '<div style="font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:10px">EM IMPLANTAÇÃO</div><div style="font-size:18px;opacity:.8">Detalhamento por parque e colaboradores</div>'; primeiro.parentNode.insertBefore(m, primeiro); }
           } catch (e) {}
         });
       }
