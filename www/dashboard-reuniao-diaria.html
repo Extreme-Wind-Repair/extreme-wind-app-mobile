@@ -212,6 +212,21 @@
 
   .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; margin-bottom:18px; overflow:hidden;}
   .panel.blank-panel{border-style:dashed; opacity:.72;}
+  /* 20/10/2026 (Robson): barra de prazo (tipo Gantt) por projeto -- min. 6 meses a frente,
+     etapas de 15 dias que viram semanais (ultimos 35 dias) e diarias (ultima semana).
+     Verde > 20 dias; amarelo <= 20 dias; ultima semana vai avermelhando; vencido = vermelho. */
+  .gantt{padding:8px 18px 10px; background:var(--panel2); border-top:1px solid var(--line);}
+  .gantt-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-bottom:5px;}
+  .gantt-head b{color:var(--text);}
+  .gantt-head .gantt-status{font-weight:800; color:var(--gcor);}
+  .gantt-track{display:flex; gap:2px; height:24px;}
+  .gantt-cell{min-width:0; border-radius:3px; background:rgba(143,169,192,.14); color:var(--muted);
+    font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; overflow:hidden; white-space:nowrap;}
+  .gantt-cell.on{background:var(--gcor); color:#0b1b29;}
+  .gantt-cell.fim{box-shadow:inset 0 0 0 2px var(--text);}
+  .gantt-cell.hoje{box-shadow:inset 3px 0 0 0 var(--text);}
+  .gantt-escala{display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-top:3px;}
+  .gantt-vazio{font-size:11px; color:var(--muted); font-style:italic;}
   .panel.blank-panel:focus-within{opacity:1;}
   .placeholder-title{color:var(--muted); font-style:italic;}
   .placeholder-title:focus{color:var(--text); font-style:normal;}
@@ -1193,6 +1208,65 @@
     const d = new Date(y, +m[2]-1, +m[1]); const hoje = new Date(); hoje.setHours(0,0,0,0);
     return d < hoje;
   }
+  /* ===== Barra de prazo (Gantt) por projeto -- 20/10/2026, Robson =====
+     Fonte: campo Data (Previsao de termino). Janela: de hoje ate no minimo 6 meses a frente
+     (ou ate o termino, se for depois). Etapas: 15 dias; nos ultimos 35 dias, semanais;
+     na ultima semana, diarias. Cor pelo prazo restante: verde > 20 dias, amarelo 8-20,
+     ultimos 7 dias do laranja ao vermelho, vencido = vermelho escuro. So no Bloco 1. */
+  function parseDataTermino(v){
+    const s = String(v == null ? '' : v).trim();
+    let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})\b/);
+    if (m){ let y = +m[3]; if (y < 100) y += 2000; return new Date(y, +m[2]-1, +m[1]); }
+    m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    return null;
+  }
+  function ganttInnerHtml(p){
+    const DIA = 86400000;
+    const fim = parseDataTermino(p.Data);
+    if (!fim) return '<div class="gantt-vazio">Prazo do projeto: sem previsão de término (preencha "Previsão de término" no formato dd/mm/aa).</div>';
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const dd = function(d){ return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); };
+    const dif = function(a, b){ return Math.round((b - a) / DIA); };
+    const rest = dif(hoje, fim);
+    let cor, status;
+    if (rest < 0){ cor = '#b71c1c'; status = 'Vencido há ' + (-rest) + ' dia' + (rest === -1 ? '' : 's'); }
+    else if (rest <= 7){
+      const f = (7 - rest) / 7; /* 0 = 7 dias (laranja) ... 1 = dia do fim (vermelho) */
+      const r = 255 - Math.round(f * 57), g = 112 - Math.round(f * 72), b = 67 - Math.round(f * 27);
+      cor = 'rgb(' + r + ',' + g + ',' + b + ')'; status = rest === 0 ? 'Termina hoje' : 'Última semana · faltam ' + rest + ' dia' + (rest === 1 ? '' : 's');
+    }
+    else if (rest <= 20){ cor = '#fbc02d'; status = 'Atenção · faltam ' + rest + ' dias'; }
+    else { cor = '#43a047'; status = 'Faltam ' + rest + ' dias'; }
+    const janelaFim = new Date(Math.max(hoje.getTime() + 182 * DIA, fim.getTime() + DIA));
+    const cells = []; let t = new Date(hoje); let guard = 0;
+    while (t < janelaFim && guard++ < 80){
+      const r = dif(t, fim); let len, tipo;
+      if (r > 35){ len = Math.min(15, r - 35); tipo = 'q'; }
+      else if (r > 7){ len = Math.min(7, r - 7); tipo = 's'; }
+      else if (r >= 0){ len = 1; tipo = 'd'; }
+      else { len = Math.max(1, Math.min(15, dif(t, janelaFim))); tipo = 'q'; }
+      const ate = new Date(t.getTime() + (len - 1) * DIA);
+      cells.push({ ini: new Date(t), ate: ate, tipo: tipo, on: t <= fim, fim: t <= fim && fim <= ate, hoje: cells.length === 0 });
+      t = new Date(t.getTime() + len * DIA);
+    }
+    const peso = { q: 3, s: 2, d: 1 };
+    const track = cells.map(function(c){
+      const tip = (c.tipo === 'd' ? dd(c.ini) : dd(c.ini) + ' a ' + dd(c.ate)) + (c.fim ? ' · TÉRMINO' : '') + (c.on ? '' : ' · após o término');
+      const rot = c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini);
+      return '<span class="gantt-cell' + (c.on ? ' on' : '') + (c.fim ? ' fim' : '') + (c.hoje ? ' hoje' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + tip + '">' + rot + '</span>';
+    }).join('');
+    const vencido = rest < 0 ? '<span class="gantt-cell on fim" style="flex:6 1 0; color:#fff" title="Previsão de término já passou: atualizar a data">VENCIDO EM ' + dd(fim) + '</span>' : '';
+    return '<div class="gantt-head" style="--gcor:' + cor + '"><span>Prazo do projeto · término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span>' +
+      '<span class="gantt-status">' + status + '</span></div>' +
+      '<div class="gantt-track" style="--gcor:' + cor + '">' + vencido + track + '</div>' +
+      '<div class="gantt-escala"><span>Hoje ' + dd(hoje) + '</span><span>etapas: 15 dias › semanal (últimos 35 dias) › diária (última semana)</span><span>' + dd(janelaFim) + '</span></div>';
+  }
+  function atualizarGantt(panel){
+    const g = panel && panel.querySelector('[data-gantt]'); if (!g) return;
+    const p = (DATA.parques || []).find(function(x){ return x.ParkID === panel.dataset.parkid; });
+    if (p) g.innerHTML = ganttInnerHtml(p);
+  }
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
@@ -1265,6 +1339,7 @@
           '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
         '</div>' +
       '</div>' +
+      (p.Bloco === 'b1' && !p.Placeholder ? '<div class="gantt" data-gantt>' + ganttInnerHtml(p) + '</div>' : '') +
       '<table' + (bonusSemanas().length ? ' class="has-bonus"' : '') + '>' + theadHtml + '<tbody data-equipe-body></tbody></table>' +
       '<div class="aprovados-box"><div class="ap-title">Aprovados (backup)</div><div class="ap-names" data-aprovados-body></div></div>' +
       panelFooterHtml(p, extraDeletableBlank) +
@@ -2188,7 +2263,10 @@
       const value = isSelect ? fieldEl.value : fieldEl.textContent.trim();
       const wasPlaceholder = rowHost.classList.contains('blank-panel') || rowHost.classList.contains('blank-ap') ||
                              rowHost.closest('.note-item.blank-item');
-      apiPost({ action:'updateCell', sheet: sheet, row: row, field: field, value: value, autoUnblank: !!wasPlaceholder });
+      /* 20/10/2026 (Robson): data digitada no card (dd/mm/aa) vai como TEXTO para o Sheets
+         (apostrofo na frente), senao o Sheets le no formato americano e troca dia/mes (07/01 -> 1o de julho). */
+      const valorGravar = (field === 'Data' && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value)) ? "'" + value : value;
+      apiPost({ action:'updateCell', sheet: sheet, row: row, field: field, value: valorGravar, autoUnblank: !!wasPlaceholder });
       if (field === 'Fabricante'){
         const img = fieldEl.parentElement.querySelector('.mfr-logo');
         img.src = LOGOS[value] || LOGOS.GE;
@@ -2196,6 +2274,12 @@
       }
       if (field === 'Status'){
         fieldEl.className = 'status-select st-' + value;
+      }
+      if (field === 'Data' && sheet === 'RD_Parques'){
+        const panel = fieldEl.closest('.panel');
+        const pp = panel ? (DATA.parques || []).find(function(x){ return x.ParkID === panel.dataset.parkid; }) : null;
+        if (pp){ pp.Data = value; atualizarGantt(panel); }
+        fieldEl.classList.toggle('chip-data-passada', dataChipPassada(value));
       }
     });
   }
@@ -2971,13 +3055,15 @@
       if (k < 0) return;
       (porCard[k][x.data] = porCard[k][x.data] || []).push(x);
     });
-    /* ultimos REPORT_EHS_DIAS dias uteis (seg-sex), terminando hoje (ou na ultima sexta, no fim de semana) */
+    /* SEMANA ATUAL: de segunda-feira ate hoje (semana fecha no domingo e reinicia na segunda -- Robson, 20/10/2026).
+       Sabado/domingo so aparecem se o card tiver report naquele dia (nao marca X no fim de semana). */
     const chave = function(d){ return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
     const agora = new Date(); const hojeK = chave(agora);
     const dias = []; const d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
-    while (dias.length < REPORT_EHS_DIAS){
-      if (d.getDay() !== 0 && d.getDay() !== 6) dias.unshift({ k: chave(d), br: String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') });
-      d.setDate(d.getDate() - 1);
+    const voltaSeg = (d.getDay() + 6) % 7; /* seg=0 ... dom=6 */
+    for (let i = voltaSeg; i >= 0; i--){
+      const x = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i);
+      dias.push({ k: chave(x), br: String(x.getDate()).padStart(2,'0') + '/' + String(x.getMonth()+1).padStart(2,'0'), fds: (x.getDay() === 0 || x.getDay() === 6) });
     }
     const temAlerta = function(x){ return /^n[aã]o$/i.test(x.dds) || x.nc.length > 0; };
     const resumo = function(x){ return 'DDS: ' + (x.dds || '—') + (x.nc.length ? ' · ' + x.nc.length + ' não conforme' + (x.nc.length > 1 ? 's' : '') : ' · tudo conforme'); };
@@ -2990,6 +3076,7 @@
           const tip = l.map(function(x){ return x.proto + (x.hora ? ' · ' + x.hora : '') + '\n' + resumo(x) + (x.nc.length ? '\n- ' + x.nc.join('\n- ') : ''); }).join('\n\n');
           return '<span class="ehsr-dia ' + (alerta ? 'warn' : 'ok') + '" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>' + (alerta ? '⚠' : '✔') + '</span>';
         }
+        if (dd.fds) return '';
         if (dd.k === hojeK) return '<span class="ehsr-dia hoje" title="Hoje: ainda sem report"><b>' + dd.br + '</b>…</span>';
         return '<span class="ehsr-dia nok" title="Não enviou o Report EHS"><b>' + dd.br + '</b>✖</span>';
       }).join('');
