@@ -79,7 +79,26 @@ def patch_reuniao(t):
     }
     const r = await EWAuth.post({ action:'lerTudo' });
     if (!r || !r.ok) throw new Error(r && r.motivo === 'NEGADO' ? 'Sem permissão para ver estes dados.' : ('Falha ao ler (' + (r && r.motivo) + ')'));
+    var __i = window.EWAuth && EWAuth.info();
+    if (__i && __i.perfil === 'VISITANTE') return __filtroCliente(r);
     return r;
+  }
+  /* VISITANTE = cliente externo (Siemens): só parques com Fabricante = Siemens (campo Cliente = dono do parque é ignorado).
+     Sem dados pessoais, sem notas e sem lista de técnicos. Filtro no navegador; o filtro definitivo deve ficar no backend. */
+  function __n(s){ return String(s==null?'':s).normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').trim().toLowerCase(); }
+  function __filtroCliente(d){
+    var parques = (d.parques||[]).filter(function(p){ return __n(p.Fabricante)==='siemens'; });
+    var ids = {}; parques.forEach(function(p){ ids[String(p.ParkID)] = 1; });
+    var relatorios = (d.relatorios||[]).filter(function(r){
+      return parques.some(function(p){ return parkMatchesReport(p.NomeParque, r.Parque); });
+    }).map(function(r){ var c = Object.assign({}, r); delete c.Email; delete c.Matriculas; delete c.Matricula_login; delete c.Link_PDF; return c; });
+    var rid = {}; relatorios.forEach(function(r){ rid[String(r.ID)] = 1; });
+    return { ok:true, parques:parques,
+      equipe:(d.equipe||[]).filter(function(x){ return ids[String(x.ParkID)]; }),
+      aprovados:(d.aprovados||[]).filter(function(x){ return ids[String(x.ParkID)]; }),
+      relatorios:relatorios,
+      atividades:(d.atividades||[]).filter(function(x){ return rid[String(x.Relatorio_ID)]; }),
+      notas:[], tecnicos:[], classificacao:(d.classificacao||[]) };
   }
   async function apiPost(payload){
     if (!API_URL){
