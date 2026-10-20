@@ -266,13 +266,13 @@
     <div class="foot">WK 43 · 12 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergenciais</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">3</span><span class="l">Administrativas</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programadas</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">2</span><span class="l">Administrativas</span></div>
     </div>
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="18992" style="color: var(--ok);">18.992</div>
+    <div class="value" id="kmValue" data-km="18543" style="color: var(--ok);">18.543</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
@@ -730,8 +730,8 @@ render();
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergencial</span></div>
-      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">3</span><span class="l">Administrativa</span></div>
+      <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">7</span><span class="l">Programado</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">2</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
       <table class="conftable" id="acaoTable">
@@ -1439,15 +1439,15 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TYD9F24 - 1.2 TROCA DE PNEU", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"23/10/2026", obs:"AGENDADO PARA 23/10 (ENTRAR EM CONTATO COM A OFICINA PARA FAZER O SERVIÇO DIA 24/10)", categoria:"Emergencial" },
-  { acao:"TYD9F24 - 1.1 TROCA DE PNEU", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"24/10/2026", obs:"TROCA DOS PNEUS COM A OFICINA", categoria:"Emergencial" },
-  { acao:"UHS5E92 - REVISÃO VENCIDA", tipo:"CORRETIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"26/11/2026", obs:"ACOMPANHAR A REDUÇÃO DO SALDO NEGATIVO", categoria:"Emergencial" },
   { acao:"TWY4C61 - 1.4 - AVALIAR DEVOLUÇÃO/TROCA DO VEICULO", tipo:"ADMINISTRATIVA", parque:"ADM 1", quem:"Sandoval", status:"20/10/2026", obs:"AVALIAR TROCA OU DEVOLUÇÃO A LOCADORA", categoria:"Administrativa" },
-  { acao:"TWY4C61 - 1.3 - ARRANHÃO NA PORTA DIREITA TRASEIRA/LATERAL TRASEIRA DIREITA/RESINA", tipo:"ADMINISTRATIVA", parque:"ADM 1", quem:"Sandoval", status:"20/10/2026", obs:"BUSCAR O VEICULO NA OFICINA E REALIZAR O PAGAMENTO", categoria:"Administrativa" },
+  { acao:"TWY4C61 - 1.3 - ARRANHÃO NA PORTA DIREITA TRASEIRA/LATERAL TRASEIRA DIREITA/RESINA", tipo:"CORRETIVA", parque:"ADM 1", quem:"Sandoval", status:"20/10/2026", obs:"BUSCAR O VEICULO NA OFICINA E REALIZAR O PAGAMENTO", categoria:"Emergencial" },
+  { acao:"TYD9F24 - 1.2 TROCA DE PNEU", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"23/10/2026", obs:"AGENDADO PARA 23/10 (ENTRAR EM CONTATO COM A OFICINA PARA FAZER O SERVIÇO DIA 24/10)", categoria:"Emergencial" },
+  { acao:"TYD9F24 - 1.3 TROCA DE PNEU", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"24/10/2026", obs:"TROCA DOS PNEUS COM A OFICINA", categoria:"Emergencial" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN2B79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"13/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"UHS5E92 - REVISÃO VENCIDA", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"26/11/2026", obs:"ACOMPANHAR A REDUÇÃO DO SALDO NEGATIVO", categoria:"Programada" },
   { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"26/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" }
