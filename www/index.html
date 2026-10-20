@@ -171,6 +171,7 @@
       <div class="menu-label">RH/DP</div>
       <div class="menu-item" data-view="equipes"><span class="ic">&#128101;</span> Controle de Equipes</div>
             <div class="menu-item" data-view="efetivo"><span class="ic">🚩</span> Controle de Efetivo</div>
+      <div class="menu-item" data-view="contratacao"><span class="ic">&#129309;</span> Contratação e Convocação</div>
 
       <div class="menu-label">SEGURANÇA/EHS</div>
       <div class="menu-item" data-view="ehs"><span class="ic">&#129466;</span> Controle Documental</div>
@@ -313,6 +314,7 @@
       <iframe id="view-calibracao" src="calibracao/index.html" title="Calibração"></iframe>
       <iframe id="view-radar-campo" src="radar-campo/index.html" title="Radar de Campo"></iframe>
       <iframe id="view-ehs" src="ehs/index.html" title="Controle Documental"></iframe>
+      <iframe id="view-contratacao" src="dashboard-contratacao.html" title="Contratação e Convocação"></iframe>
       <iframe id="view-ehs-painel" src="ehs/painel-seguranca.html" title="Painel de Segurança"></iframe>
       <iframe id="view-estoque" src="estoque/index.html" title="Estoque EPI e Matéria-Prima"></iframe>
     </div>
@@ -338,6 +340,7 @@
     calibracao: { title: "Calibração", path: "Extreme Wind / Painel Geral / Almoxarifado / Calibração" },
     "radar-campo": { title: "Radar de Campo", path: "Extreme Wind / Painel Geral / Almoxarifado / Radar de Campo" },
     ehs: { title: "Controle Documental", path: "Extreme Wind / Painel Geral / SEGURANÇA/EHS / Controle Documental" },
+    contratacao: { title: "Contratação e Convocação", path: "Extreme Wind / Painel Geral / RH/DP / Contratação e Convocação" },
     "ehs-painel": { title: "Painel de Segurança", path: "Extreme Wind / Painel Geral / SEGURANÇA/EHS / Painel de Segurança" },
     estoque: { title: "Estoque EPI & Matéria-Prima", path: "Extreme Wind / Painel Geral / Almoxarifado / Estoque EPI & Matéria-Prima" }
   };
@@ -359,6 +362,7 @@
     document.getElementById("view-calibracao").classList.toggle("active", view === "calibracao");
     document.getElementById("view-radar-campo").classList.toggle("active", view === "radar-campo");
     document.getElementById("view-ehs").classList.toggle("active", view === "ehs");
+    document.getElementById("view-contratacao").classList.toggle("active", view === "contratacao");
     document.getElementById("view-ehs-painel").classList.toggle("active", view === "ehs-painel");
     document.getElementById("view-estoque").classList.toggle("active", view === "estoque");
     document.getElementById("topTitle").textContent = TITLES[view].title;

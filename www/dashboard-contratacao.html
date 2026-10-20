@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contratação e Convocação</title>
+<!-- Sem dados neste arquivo, no repositório ou em URL pública: cada abertura faz um POST autenticado
+     EWAuth.post({action:'indicarEquipes', modo:'contratacao'}) no backend de LOGIN. O servidor só responde a ADMIN, EDITOR e SERVICO;
+     qualquer outro caso volta {ok:false,motivo:'NEGADO'} e a tela não mostra nada. Requer ew-auth.js (mesma pasta). -->
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#0b1220; --panel:#111a2e; --panel-2:#0f1830; --border:#233150;
+    --text:#e6ebf5; --muted:#8b98b5; --accent:#3b82f6; --accent-2:#60a5fa;
+    --green:#22c55e; --green-bg:rgba(34,197,94,0.12);
+    --amber:#f59e0b; --amber-bg:rgba(245,158,11,0.12);
+    --red:#ef4444; --red-bg:rgba(239,68,68,0.12);
+    --gray:#94a3b8; --gray-bg:rgba(148,163,184,0.12);
+    --blue-bg:rgba(59,130,246,0.14);
+  }
+  body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
+  .container{ max-width:1280px; margin:0 auto; padding:24px 20px 60px; }
+  .breadcrumb{ font-size:0.85em; color:var(--muted); margin-bottom:16px; }
+  .header{ background:var(--panel); border:1px solid var(--border); padding:20px 24px; border-radius:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  .header h1{ font-size:1.6em; font-weight:700; letter-spacing:.2px; }
+  .header-sub{ font-size:0.8em; color:var(--muted); margin-top:4px; max-width:760px; }
+  .header-timestamp{ font-size:0.8em; color:var(--muted); text-align:right; }
+  .btn{ background:var(--panel-2); color:var(--text); border:1px solid var(--border); padding:7px 12px; border-radius:8px; font-size:0.82em; cursor:pointer; }
+  .btn:hover{ border-color:var(--accent); }
+  .kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:18px; }
+  .kpi-box{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .kpi-label{ font-size:0.78em; color:var(--muted); margin-bottom:8px; }
+  .kpi-value{ font-size:1.9em; font-weight:700; }
+  .kpi-value.red{ color:var(--red); } .kpi-value.amber{ color:var(--amber); } .kpi-value.green{ color:var(--green); } .kpi-value.blue{ color:var(--accent-2); }
+  .sec{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin-bottom:18px; }
+  .sec h2{ font-size:1.1em; margin-bottom:4px; }
+  .sec .sub{ font-size:0.82em; color:var(--muted); margin-bottom:14px; }
+  .sec-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .info-box{ background:var(--blue-bg); border-left:3px solid var(--accent); padding:11px 14px; margin-bottom:14px; border-radius:6px; font-size:0.83em; color:var(--muted); }
+  .warn-box{ background:var(--amber-bg); border-left:3px solid var(--amber); padding:11px 14px; margin-bottom:14px; border-radius:6px; font-size:0.83em; color:var(--muted); }
+  .warn-box strong,.info-box strong{ color:var(--text); }
+  .empty{ color:var(--muted); font-size:0.88em; padding:6px 0; }
+  .table-scroll{ overflow-x:auto; }
+  table.data-table{ width:100%; border-collapse:collapse; font-size:0.88em; }
+  .data-table thead{ background:var(--panel-2); }
+  .data-table th, .data-table td{ padding:10px 12px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; }
+  .data-table th{ font-weight:600; color:var(--muted); font-size:0.8em; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
+  .data-table tbody tr:hover{ background:rgba(59,130,246,0.07); }
+  .badge{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:0.76em; font-weight:600; white-space:nowrap; }
+  .b-red{ background:var(--red-bg); color:var(--red); } .b-amber{ background:var(--amber-bg); color:var(--amber); } .b-green{ background:var(--green-bg); color:var(--green); } .b-blue{ background:var(--blue-bg); color:var(--accent-2); } .b-gray{ background:var(--gray-bg); color:var(--gray); }
+  .muted{ color:var(--muted); } .small{ font-size:0.82em; }
+  .center{ text-align:center; padding:60px 20px; color:var(--muted); }
+  .center h2{ color:var(--text); margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb">Extreme Wind / Painel Geral / RH/DP / Contratação e Convocação</div>
+  <div id="app"><div class="center"><h2>Carregando…</h2>Verificando sessão.</div></div>
+</div>
+<script src="ew-auth.js"></script>
+<script>
+(function () {
+  'use strict';
+  var PERFIS = ['ADMIN', 'EDITOR', 'SERVICO'];   // espelho do servidor (a regra valendo é a do servidor)
+  var app = document.getElementById('app');
+  var ULTIMO = null;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function aviso(t, msg) { app.innerHTML = '<div class="sec center"><h2>' + esc(t) + '</h2>' + esc(msg) + '</div>'; }
+  function tabela(cab, linhas) {
+    return '<div class="table-scroll"><table class="data-table"><thead><tr>' + cab.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      linhas.map(function (l) { return '<tr>' + l.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function vazio(msg) { return '<div class="empty">' + esc(msg) + '</div>'; }
+  function diasTxt(d) { return d === 0 ? 'hoje' : d === 1 ? 'em 1 dia' : d > 0 ? 'em ' + d + ' dias' : 'há ' + (-d) + ' dias'; }
+
+  function secVagas(r) {
+    var h = '<div class="sec"><h2>Vagas em falta por perfil</h2><div class="sub">Geradas automaticamente: perfis que nenhum técnico elegível (nem Indisponível) fecha nas equipes pedidas (10 no Brasil, 5 no exterior).</div>';
+    if (!r.vagas.length) return h + vazio('Nenhuma vaga em falta: todas as equipes fecham com o pessoal elegível.') + '</div>';
+    h += '<div class="info-box"><strong>Como ler:</strong> “Vagas” é o máximo que falta em um único cenário (não é soma entre cenários, que usam as mesmas pessoas). Os perfis se sobrepõem: um líder N3 com IRATA, BST, ART e passaporte válido cobre todos os perfis de líder abaixo.</div>';
+    h += tabela(['Cliente', 'Perfil a contratar', 'Vagas', 'Cenários afetados', 'Atividades'], r.vagas.map(function (v) {
+      var at = []; v.cenarios.forEach(function (c) { if (at.indexOf(c) < 0) at.push(c); });
+      return [esc(v.cliente), esc(v.perfil), '<span class="badge b-red">' + esc(v.qtd) + '</span>', esc(v.cenarios.length), '<span class="small muted">' + esc(at.join(' · ')) + '</span>'];
+    }));
+    return h + '</div>';
+  }
+
+  function secIndisp(r) {
+    var h = '<div class="sec"><div class="sec-head"><div><h2>Indisponíveis para o RH contatar</h2><div class="sub">Técnicos hoje Indisponíveis que o sistema usa como último recurso para completar equipes. “Em equipes” = quantos dos ' + esc(r.cenarios) + ' cenários dependem deles.</div></div>' +
+      (r.indisponiveis.length ? '<button class="btn" id="csvIndisp">Baixar CSV</button>' : '') + '</div>';
+    if (!r.indisponiveis.length) return h + vazio('Nenhum Indisponível foi necessário.') + '</div>';
+    h += tabela(['Matrícula', 'Nome', 'Nível', 'UF', 'Motivo conhecido', 'Em equipes'], r.indisponiveis.map(function (x) {
+      return [esc(x.mat), esc(x.nome), esc(x.nivel), esc(x.uf), x.rh ? '<span class="badge b-amber">' + esc(x.rh) + '</span>' : '<span class="muted small">não consta na base — RH apura</span>', '<span class="badge b-blue">' + esc(x.usos) + '</span>'];
+    }));
+    return h + '</div>';
+  }
+
+  function futuroTxt(fs) {
+    return fs.map(function (f) { return esc(f.parque) + ' <span class="badge b-green">início ' + esc(f.inicio || 's/ data') + '</span>'; }).join('<br>');
+  }
+  function secTermina(r) {
+    var h = '<div class="sec"><h2>Ativos terminando em até 15 dias</h2><div class="sub">Titulares de parque ativo do Bloco 1 cuja data (fim do projeto) é de hoje a 15 dias. Com projeto futuro: data de previsão de ida ao novo projeto. Sem projeto futuro: futura desconvocação.</div>';
+    h += '<h2 style="font-size:0.98em;margin:6px 0 8px">Indo para novo projeto</h2>';
+    h += r.terminando.length ? tabela(['Matrícula', 'Nome', 'UF', 'Parque atual', 'Termina', 'Próximo projeto e previsão de início'], r.terminando.map(function (x) {
+      return [esc(x.mat), esc(x.nome), esc(x.uf), esc(x.parque), esc(x.fim) + ' <span class="badge b-amber">' + esc(diasTxt(x.dias)) + '</span>', futuroTxt(x.futuros)];
+    })) : vazio('Nenhum no momento.');
+    h += '<h2 style="font-size:0.98em;margin:18px 0 8px">Futuras desconvocações (sem projeto futuro)</h2>';
+    h += r.desconvocacoes.length ? tabela(['Matrícula', 'Nome', 'UF', 'Status', 'Parque atual', 'Termina'], r.desconvocacoes.map(function (x) {
+      return [esc(x.mat), esc(x.nome), esc(x.uf), '<span class="badge b-gray">' + esc(x.status) + '</span>', esc(x.parque), esc(x.fim) + ' <span class="badge b-red">' + esc(diasTxt(x.dias)) + '</span>'];
+    })) : vazio('Nenhuma no momento.');
+    return h + '<div class="info-box" style="margin-top:14px"><strong>Regra de equipes:</strong> quem termina em até 15 dias sem projeto marcado já pode entrar nas equipes novas do Bloco 3, com preferência por ser mais experiente. Quem tem projeto futuro continua ocupado.</div></div>';
+  }
+
+  function secCorrigir(r) {
+    if (!r.datas_vencidas.length && !r.datas_sem_leitura.length) return '';
+    var h = '<div class="sec"><h2>Datas a corrigir no RDO</h2><div class="sub">O dashboard não consegue prever o término destes parques. Corrija a data no Bloco 1 para entrarem nos cálculos.</div>';
+    h += '<div class="warn-box"><strong>Atenção:</strong> data vencida com parque ativo é tratada como desatualizada: o técnico continua ocupado e não é liberado para novas equipes.</div>';
+    if (r.datas_vencidas.length) {
+      h += '<h2 style="font-size:0.98em;margin:6px 0 8px">Data de fim já passou (' + esc(r.datas_vencidas.length) + ' técnicos)</h2>' + tabela(['Parque', 'Fim registrado', 'Técnico', 'Matrícula'], r.datas_vencidas.map(function (x) {
+        return [esc(x.parque), esc(x.fim) + ' <span class="badge b-red">' + esc(diasTxt(x.dias)) + '</span>', esc(x.nome), esc(x.mat)];
+      }));
+    }
+    if (r.datas_sem_leitura.length) {
+      h += '<h2 style="font-size:0.98em;margin:18px 0 8px">Data em texto livre (' + esc(r.datas_sem_leitura.length) + ' parques)</h2>' + tabela(['Parque', 'Data registrada'], r.datas_sem_leitura.map(function (x) { return [esc(x.parque), esc(x.data || '(vazia)')]; }));
+    }
+    return h + '</div>';
+  }
+
+  function render(r) {
+    ULTIMO = r;
+    var qtdVagas = r.vagas.reduce(function (a, v) { return a + v.qtd; }, 0);
+    app.innerHTML =
+      '<div class="header"><div><h1>Contratação e Convocação</h1><div class="header-sub">Painel para RH/DP: o que falta contratar, quem contatar entre os Indisponíveis e quem sai de projeto nas próximas semanas. Calculado na hora a partir da base semanal de técnicos e do RDO; sem informação guardada nesta página.</div></div>' +
+      '<div class="header-timestamp">Base de técnicos: ' + esc(r.gerado_em || 's/ data') + '<br><button class="btn" id="recarregar" style="margin-top:8px">Atualizar</button></div></div>' +
+      '<div class="kpi-grid">' +
+      '<div class="kpi-box"><div class="kpi-label">Perfis em falta</div><div class="kpi-value ' + (r.vagas.length ? 'red' : 'green') + '">' + esc(r.vagas.length) + '</div></div>' +
+      '<div class="kpi-box"><div class="kpi-label">Vagas (soma dos perfis)</div><div class="kpi-value ' + (qtdVagas ? 'red' : 'green') + '">' + esc(qtdVagas) + '</div></div>' +
+      '<div class="kpi-box"><div class="kpi-label">Indisponíveis a contatar</div><div class="kpi-value amber">' + esc(r.indisponiveis.length) + '</div></div>' +
+      '<div class="kpi-box"><div class="kpi-label">Terminam em ≤ 15 dias</div><div class="kpi-value blue">' + esc(r.terminando.length + r.desconvocacoes.length) + '</div></div>' +
+      '<div class="kpi-box"><div class="kpi-label">Futuras desconvocações</div><div class="kpi-value ' + (r.desconvocacoes.length ? 'amber' : 'green') + '">' + esc(r.desconvocacoes.length) + '</div></div>' +
+      '<div class="kpi-box"><div class="kpi-label">Datas a corrigir</div><div class="kpi-value ' + ((r.datas_vencidas.length + r.datas_sem_leitura.length) ? 'amber' : 'green') + '">' + esc(r.datas_vencidas.length + r.datas_sem_leitura.length) + '</div></div>' +
+      '</div>' + secVagas(r) + secIndisp(r) + secTermina(r) + secCorrigir(r);
+    var b = document.getElementById('recarregar'); if (b) b.onclick = carregar;
+    var c = document.getElementById('csvIndisp'); if (c) c.onclick = csvIndisp;
+  }
+
+  function csvIndisp() {
+    if (!ULTIMO) return;
+    function cel(v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }
+    var l = [['Matricula', 'Nome', 'Nivel', 'UF', 'Motivo conhecido', 'Cenarios que dependem'].map(cel).join(';')];
+    ULTIMO.indisponiveis.forEach(function (x) { l.push([x.mat, x.nome, x.nivel, x.uf, x.rh, x.usos].map(cel).join(';')); });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + l.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'indisponiveis_rh.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function carregar() {
+    aviso('Carregando…', 'Calculando vagas e convocações.');
+    EWAuth.post({ action: 'indicarEquipes', modo: 'contratacao' }).then(function (r) {
+      if (r && r.ok === true && r.vagas) render(r);
+      else if (r && (r.motivo === 'NEGADO' || r.motivo === 'SESSAO')) aviso('Sem permissão ou sessão expirada', 'Este painel é restrito. Entre novamente ou peça acesso a um administrador.');
+      else if (r && r.motivo === 'SEM_REDE') aviso('Sem conexão', 'Não foi possível falar com o servidor. Tente atualizar.');
+      else aviso('Não foi possível carregar', 'Tente atualizar em instantes.');
+    });
+  }
+
+  function iniciar(tentativa) {
+    if (!window.EWAuth) { if (tentativa < 30) return setTimeout(function () { iniciar(tentativa + 1); }, 500); return aviso('Login indisponível', 'ew-auth.js não carregou.'); }
+    var info = EWAuth.info();
+    if (!EWAuth.token() || !info) return aviso('Entre para ver este painel', 'Faça login no Painel Geral e abra esta tela novamente.');
+    if (PERFIS.indexOf(info.perfil) < 0) return aviso('Sem permissão', 'Este painel é restrito a administradores e editores.');
+    carregar();
+  }
+  iniciar(0);
+})();
+</script>
+</body>
+</html>
