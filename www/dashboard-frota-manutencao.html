@@ -263,9 +263,9 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--ok)">98%</div>
-    <div class="foot">WK 43 · 12 ações pendentes no total</div>
+    <div class="foot">WK 43 · 11 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">3</span><span class="l">Administrativas</span></div>
     </div>
@@ -729,7 +729,7 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">3</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">3</span><span class="l">Administrativa</span></div>
     </div>
@@ -1439,12 +1439,11 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TYD9F24 - MEDIÇÃO DE PNEUS N/OK (DIANTEIRO DIREITO ABAIXO DE 2,7 MM) - CHECKLIST 13/10", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"26/10/2026", obs:"AGUARDAR O DESGASTE DO PNEU ATE 2,0", categoria:"Emergencial" },
+  { acao:"TYD9F24 - MEDIÇÃO DE PNEUS N/OK (DIANTEIRO DIREITO ABAIXO DE 2,7 MM)", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"26/10/2026", obs:"AGUARDAR O DESGASTE DO PNEU ATE 2,0", categoria:"Emergencial" },
   { acao:"UHS5E92 - REVISÃO PRÓXIMA (9.766 KM; FALTAM 234 KM)", tipo:"CORRETIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"26/10/2026", obs:"AGENDAR A REVISÃO ASSIM QUE PASSAR DOS 10.000 KM E ACOMPANHAR A REDUÇÃO DO SALDO NEGATIVO", categoria:"Emergencial" },
-  { acao:"TYQ5C48 - REVISÃO PRÓXIMA (28.971 KM; FALTAM 1.029 KM PARA 30.000 KM)", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"26/10/2026", obs:"AGENDAR A REVISÃO ASSIM QUE PASSAR DOS 30.000 KM", categoria:"Emergencial" },
-  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"26/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/10/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO (SALDO ATUAL: +549 KM EM 18/10 - ATENÇÃO)", categoria:"Programada" },
+  { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"26/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
+  { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TXY8H30 - AVARIA-BANCO QUEIMADO DE CIGARRO-RETROVISOR-PARA-CHOQUE DIANTEIRO ARRANHADO-CALOTA QUEBRADA", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
