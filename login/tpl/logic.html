@@ -29,6 +29,19 @@
         f.srcdoc = '<!doctype html><meta charset="utf-8"><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#0f172a;color:#e2e8f0;text-align:center"><div><h2>Em manutenção</h2><p style="color:#94a3b8">Este painel está temporariamente indisponível.</p></div></body>';
         return;
       }
+      if (visita && f.id === 'view-ehs-painel') {   // Painel de Segurança: visitante vê só os resumos; do "por parque/local" para baixo mostra "Em implantação"
+        f.addEventListener('load', function(){
+          try {
+            var d = f.contentDocument, esc = ['Ocorrências por parque / local', 'Ocorrências por cliente', 'Registro completo'], primeiro = null;
+            d.querySelectorAll('.card').forEach(function(c){
+              var h = c.querySelector('h2');
+              if (h && esc.indexOf(h.textContent.trim()) >= 0) { if (!primeiro) primeiro = c; c.style.display = 'none'; }
+            });
+            if (primeiro) { var m = d.createElement('div'); m.className = 'card'; m.innerHTML = '<h2>Registro de ocorrências</h2><p style="opacity:.75">Em implantação.</p>'; primeiro.parentNode.insertBefore(m, primeiro); }
+            var mo = d.getElementById('modal-overlay'); if (mo) mo.remove();
+          } catch (e) {}
+        });
+      }
       f.src = f.dataset.src;
     });
   }
