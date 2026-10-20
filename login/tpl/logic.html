@@ -52,6 +52,20 @@
           } catch (e) {}
         });
       }
+      if (visita && f.id === 'view-frota') {   // Manutenção: visitante vê até "Gerenciamento de Saldo de KM por Parque"; daí para baixo mostra "Em implantação"
+        f.addEventListener('load', function(){
+          try {
+            var d = f.contentDocument, alvo = null;
+            d.querySelectorAll('.panel').forEach(function(p){ var h = p.querySelector('h2'); if (h && h.textContent.indexOf('Saldo de KM por Parque') >= 0) alvo = p; });
+            if (!alvo) return;
+            var e = alvo.nextElementSibling, primeiro = null;
+            while (e) { if (e.tagName !== 'SCRIPT') { if (!primeiro) primeiro = e; e.style.display = 'none'; } e = e.nextElementSibling; }
+            var m = d.createElement('div'); m.style.cssText = 'text-align:center;padding:56px 16px';
+            m.innerHTML = '<div style="font-size:40px;font-weight:800;letter-spacing:2px;margin-bottom:10px">EM IMPLANTAÇÃO</div><div style="font-size:18px;opacity:.8">Detalhamento de conformidade e histórico semanal</div>';
+            alvo.parentNode.insertBefore(m, alvo.nextElementSibling);
+          } catch (e) {}
+        });
+      }
       f.src = f.dataset.src;
     });
   }
