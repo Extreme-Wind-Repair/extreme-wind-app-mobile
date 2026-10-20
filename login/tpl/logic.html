@@ -20,7 +20,7 @@
   }
   document.querySelectorAll('#ewTabs button').forEach(function(b){ b.addEventListener('click', function(){ painel(b.dataset.p); }); });
 
-  var VISITA_VIEWS = ['view-reuniao-diaria', 'view-frota', 'view-calibracao', 'view-ehs', 'view-combustivel'];     // painéis que o VISITANTE enxerga (além do Início). Ajuste aqui + no CSS (ew-visita).
+  var VISITA_VIEWS = ['view-reuniao-diaria', 'view-frota', 'view-calibracao', 'view-ehs', 'view-combustivel', 'view-efetivo', 'view-ehs-painel'];     // painéis que o VISITANTE enxerga (além do Início). Ajuste aqui + no CSS (ew-visita).
   function carregarIframes(visita){
     if (carregado) return; carregado = true;
     document.querySelectorAll('iframe[data-src]').forEach(function(f){
