@@ -105,7 +105,9 @@
               };
               var re = /Resolver m[a\u00E1]quina e plataforma[^\n]*?\(John\)\s*/;
               var fixT = function(){ var w = d.createTreeWalker(d.body, 4), n; while ((n = w.nextNode())) { if (re.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(re, ''); } };
-              var fixAll = function(){ fixG(); fixT(); };
+              // Novas Demandas / Temas Diversos: abrem com linhas em branco, sem informações (somente leitura)
+              var fixB = function(){ ['b4', 'b5'].forEach(function(id){ var ul = d.querySelector('#' + id + ' .note-list'); if (!ul || ul.children.length) return; for (var q = 1; q <= 8; q++) { var li = d.createElement('li'); li.className = 'note-item blank-item'; li.innerHTML = '<span class="num">' + q + '</span><span class="txt" contenteditable="false"></span>'; ul.appendChild(li); } }); };
+              var fixAll = function(){ fixG(); fixT(); fixB(); };
               fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
