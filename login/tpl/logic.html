@@ -156,7 +156,8 @@
                 bt.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Equipes';
                 bt.addEventListener('click', eqAbrir); ref.parentNode.appendChild(bt);
               };
-              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); fixR(); fixE(); };
+              var fixP = function(){ var rows = d.querySelectorAll('.ab-row'); for (var z = 0; z < rows.length; z++) { var lb = rows[z].querySelector('.ab-label'); if (lb && /^(Stand by|Produtivo|Setup|Garantia)$/i.test((lb.textContent || '').trim())) rows[z].style.display = 'none'; } };
+              var fixAll = function(){ fixP(); fixG(); fixT(); fixB(); fixM(); fixR(); fixE(); };
               fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
