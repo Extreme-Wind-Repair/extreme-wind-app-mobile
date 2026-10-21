@@ -90,7 +90,7 @@
           f.addEventListener('load', function(){
             try {
               var d = f.contentDocument, st = d.createElement('style');
-              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast{display:none !important}.ehsr-dia.nok{color:var(--warn) !important;border-color:var(--warn) !important}';
+              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast,#countB3{display:none !important}.ehsr-dia.nok{color:var(--warn) !important;border-color:var(--warn) !important}';
               d.head.appendChild(st);
               var nn = function(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); };
               var fixG = function(){
