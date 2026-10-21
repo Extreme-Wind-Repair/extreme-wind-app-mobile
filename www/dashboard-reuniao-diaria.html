@@ -667,7 +667,7 @@
   const CHIP_LABELS = {
     Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Estado:'Estado', Cliente:'Cliente', Data:'Previsão de término', EHS:'EHS', Condicao:'Condição',
     Tramitacao:'Tramitação', OcorrenciaRH:'Ocorrência RH', OcorrenciaEHS:'Ocorrência EHS',
-    MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO'
+    MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO', Cintos:'Cintos de Alpinismo'
   };
   /* Estado (26/09/2026, pedido do Robson): caixa fixa ao lado de Supervisor,
      sempre visivel (mesmo vazia) -- o nome do card passou a ser o nome exato do
@@ -675,7 +675,7 @@
      coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
     'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
-    'OcorrenciaQualidade'
+    'OcorrenciaQualidade','Cintos'
   ];
   /* 26/09/2026 (Robson): MaterialCompras saiu das caixinhas -- virou o quadro
      "Solicitação de Compras / Aluguel" (editavel, mesma coluna MaterialCompras),
@@ -1338,17 +1338,43 @@
     const p = (DATA.parques || []).find(function(x){ return x.ParkID === panel.dataset.parkid; });
     if (p) g.innerHTML = ganttInnerHtml(p);
   }
+  /* CINTOS DE ALPINISMO (20/10/2026, Robson): coluna "Cintos" da aba RD_Parques (precisa existir no cabecalho).
+     Valor inicial dos cards (blocos 1, 2 e 3) que constam na 'Lista de Cintos por Parque'; quando a coluna estiver
+     vazia vale este padrao, quando alguem editar vale o da planilha (nunca sobrescreve edicao humana).
+     Um humano apaga/ajusta linhas; para limpar tudo o campo grava '—'. */
+  const CINTOS_PADRAO = {
+    'b3-vm-uniao-ventos-e1': 'Linha de vida: Trilha Miller - Glideloc · Cinto: Paraquedista c/ cinto de posicionamento – Revolution R6 (CA 40.851)',
+    'b3-vm-uniao-ventos-e2': 'Linha de vida: Trilha Miller - Glideloc · Cinto: Paraquedista c/ cinto de posicionamento – Revolution R6 (CA 40.851)',
+    'b3-vm-gameleira-b3': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Paraquedista/abdominal – Hailo Wind Systems (CA 43.701)',
+    'b3-vm-dolores-e3': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Miller Revolution R6 Honeywell (CA 40.851) · Trava-quedas: Trava-Queda Soll Viggo · Talabarte: Talabarte Y 980MAL-RR-BR + Talabarte de Posicionamento 20210-BR',
+    'b3-vm-los-canones': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Miller Revolution R6 Honeywell (CA 40.851) · Trava-quedas: Trava-Queda Soll Viggo · Talabarte: Talabarte Y 980MAL-RR-BR + Talabarte de Posicionamento 20210-BR',
+    'b1-07': 'Linha de vida: Trilha Miller - Glideloc · Cinto: Paraquedista c/ cinto de posicionamento – Revolution R6 (CA 40.851)',
+    'b1-08': 'Linha de vida: Trilha Miller - Glideloc · Cinto: Paraquedista c/ cinto de posicionamento – Revolution R6 (CA 40.851)',
+    'b1-09': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Paraquedista/abdominal – Hailo Wind Systems (CA 43.701)',
+    'b3-08': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Miller Revolution R6 Honeywell (CA 40.851) · Trava-quedas: Trava-Queda Soll Viggo · Talabarte: Talabarte Y 980MAL-RR-BR + Talabarte de Posicionamento 20210-BR',
+    'b3-09': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Miller Revolution R6 Honeywell (CA 40.851) · Trava-quedas: Trava-Queda Soll Viggo · Talabarte: Talabarte Y 980MAL-RR-BR + Talabarte de Posicionamento 20210-BR',
+    'b3-01': 'Linha de vida: Cabo de Aço 3/8 9,5mm · Cinto: Paraquedista/abdominal – Hailo Wind Systems (CA 43.701)',
+    'b2-03': 'Linha de vida: Trilha Hailo · Cinto: Hailo (CA 43.701) · Trava-quedas: Trava-Queda Trava-quedas H-50.2 · Talabarte: Talabarte Y 36014749',
+    'b2-04': 'Linha de vida: Trilha Hailo · Cinto: Hailo (CA 43.701) · Trava-quedas: Trava-Queda Trava-quedas H-50.2 · Talabarte: Talabarte Y 36014749'
+  };
+  function cintosDe(p){
+    const v = (p.Cintos != null) ? String(p.Cintos).trim() : '';
+    if (v === '—') return '';
+    return v || CINTOS_PADRAO[p.ParkID] || '';
+  }
+
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
+      if (k === 'Cintos') return true;   // caixa em todos os cards (blocos 1, 2 e 3), editavel
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
       if (k === 'Estado') return true;
       return p[k] !== undefined && String(p[k]).trim() !== '';
     });
     if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
     return fields.map(function(k){
-      const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade'].indexOf(k) !== -1;
+      const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade','Cintos'].indexOf(k) !== -1;
       return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
-        '<span class="chip-value' + (k === 'Data' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '">' + escapeHtml(k === 'Estado' ? estadoDe(p) : p[k]) + '</span></span>';
+        '<span class="chip-value' + (k === 'Data' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '"' + (k === 'Cintos' ? ' data-vazio="—" style="white-space:pre-line;min-height:1.4em"' : '') + '>' + escapeHtml(k === 'Estado' ? estadoDe(p) : (k === 'Cintos' ? cintosDe(p) : p[k])) + '</span></span>';
     }).join('');
   }
 
@@ -1713,6 +1739,11 @@
       apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já ativo' + (ocultos.length > 1 ? 's' : '') + ' em projeto)</span>'));
     }
 
+    const cintosEl = node.querySelector('.info-chips [data-field="Cintos"]');
+    if (cintosEl){
+      cintosEl.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); document.execCommand('insertText', false, '\n'); } });
+      cintosEl.addEventListener('blur', function(){ if (cintosEl.textContent.trim() === '') cintosEl.textContent = '—'; }, true);
+    }
     wirePanel(node, p);
     initActivityBox(node);
     initRdoResumoBox(node);
@@ -2657,6 +2688,7 @@
     erroEl.hidden = true;
     const cliente = document.getElementById('npCliente').value.trim();
     const supervisor = document.getElementById('npSupervisor').value.trim();
+    const cintosNP = (document.getElementById('npCintos') || { value: '' }).value.trim();
     const tecnicos = [
       document.getElementById('npTecnico1').value.trim(),
       document.getElementById('npTecnico2').value.trim(),
@@ -2670,12 +2702,12 @@
       const uniqueSuffix = Date.now().toString(36) + '-' + PARK_SEQ + '-' + Math.random().toString(36).slice(2, 6);
       const p = {
         ParkID: 'b3-novo-' + uniqueSuffix, Bloco: 'b3', Ordem: 999, Fabricante: 'GE', NomeParque: nomeProjeto,
-        Tipo:'', Card:'', Supervisor: supervisor, Cliente: cliente, Data:'', EHS:'', Condicao:'', Status:'standby',
+        Tipo:'', Card:'', Supervisor: supervisor, Cliente: cliente, Data:'', EHS:'', Condicao:'', Cintos: cintosNP, Status:'standby',
         ColunasEquipe:'Nome — Estado,Certificação,Observação', Placeholder:false, _row: null
       };
       const resp = await apiPost({ action:'addRow', sheet:'RD_Parques', template:{
         ParkID:p.ParkID, Bloco:p.Bloco, Ordem:p.Ordem, Fabricante:p.Fabricante, NomeParque:p.NomeParque,
-        Supervisor:p.Supervisor, Cliente:p.Cliente, Status:p.Status, ColunasEquipe:p.ColunasEquipe, Placeholder:false
+        Supervisor:p.Supervisor, Cliente:p.Cliente, Cintos:p.Cintos, Status:p.Status, ColunasEquipe:p.ColunasEquipe, Placeholder:false
       }});
       if (!resp || resp.ok === false){
         throw new Error(resp && resp.error ? resp.error : 'erro desconhecido ao gravar o projeto');
