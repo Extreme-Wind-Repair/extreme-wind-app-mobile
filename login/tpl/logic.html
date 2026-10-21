@@ -90,7 +90,7 @@
           f.addEventListener('load', function(){
             try {
               var d = f.contentDocument, st = d.createElement('style');
-              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast{display:none !important}';
+              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast{display:none !important}.ehsr-dia.nok{color:var(--warn) !important;border-color:var(--warn) !important}';
               d.head.appendChild(st);
               var nn = function(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); };
               var fixG = function(){
@@ -103,7 +103,10 @@
                   if (!ok) { ls[j].style.display = 'none'; var nx = ls[j].nextElementSibling; if (nx && nx.classList.contains('gantt-prox')) nx.style.display = 'none'; }
                 }
               };
-              fixG(); if (window.MutationObserver) new MutationObserver(fixG).observe(d.body, {childList: true, subtree: true});
+              var re = /Resolver m[a\u00E1]quina e plataforma[^\n]*?\(John\)\s*/;
+              var fixT = function(){ var w = d.createTreeWalker(d.body, 4), n; while ((n = w.nextNode())) { if (re.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(re, ''); } };
+              var fixAll = function(){ fixG(); fixT(); };
+              fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
         }
