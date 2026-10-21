@@ -143,7 +143,7 @@
                     var h = '';
                     (j.equipes || []).forEach(function(e){
                       h += '<div style="border:1px solid var(--line,#1E4363);border-radius:8px;padding:8px 12px;margin-bottom:8px"><b>Equipe ' + eqEsc(e.pos) + '</b>' + (e.base ? '' : ' <small style="opacity:.7">(alternativa)</small>')
-                        + (e.membros || []).map(function(m){ return '<div style="margin-top:3px">' + eqEsc(m.nome) + ' <small style="opacity:.75">(' + eqEsc(m.nivel) + ')' + (m.uf ? ' — ' + eqEsc(m.uf) : '') + '</small></div>'; }).join('') + '</div>';
+                        + (e.membros || []).map(function(m){ return '<div style="margin-top:3px">' + eqEsc(m.nome) + ' <small style="opacity:.75">(' + eqEsc(m.nivel) + ')' + (m.nota != null && isFinite(m.nota) ? ' · Nota ' + eqEsc(String(m.nota.toFixed(1)).replace('.', ',')) : '') + (m.uf ? ' — ' + eqEsc(m.uf) : '') + '</small></div>'; }).join('') + '</div>';
                     });
                     if (j.faltam) h += '<div style="opacity:.8">Equipe incompleta: faltam ' + eqEsc(j.faltam) + ' técnico(s).</div>';
                     res.innerHTML = h || 'Sem equipes disponíveis.';
