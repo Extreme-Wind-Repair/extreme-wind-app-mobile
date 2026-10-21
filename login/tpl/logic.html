@@ -112,7 +112,52 @@
               var fixM = function(){ var ms = d.querySelectorAll('.bonus-motivo, .bonus-mot-td'); for (var q = 0; q < ms.length; q++) { var pn = ms[q].closest('.panel'), nm = pn && pn.querySelector('[data-parkname]'); if (!nm || !/SAO VITOR|BAIXA DO FEIJAO|GAMELEIRA/.test(nn(nm.getAttribute('data-parkname')))) continue; var w2 = d.createTreeWalker(ms[q], 4), n2; while ((n2 = w2.nextNode())) { if (reM.test(n2.nodeValue)) n2.nodeValue = n2.nodeValue.replace(reM, 'Fotos n\u00E3o conformes'); } } };
               // Santo Agostinho: 'Equipe em tramitação…' passa de Observações gerais para RH / Tramitação (1ª linha vazia)
               var fixR = function(){ var os = d.querySelectorAll('[data-rh-box] [data-rh-topico]'); for (var q = 0; q < os.length; q++) { var tx = (os[q].textContent || '').trim(); if (!/^Equipe em tramita[c\u00E7][a\u00E3]o/i.test(tx)) continue; var pn = os[q].closest('.panel'), dest = pn && pn.querySelectorAll('[data-rh2-box] [data-rh2-linha]'), alvo = null; if (!dest) continue; for (var z = 0; z < dest.length; z++) { if (!(dest[z].textContent || '').trim()) { alvo = dest[z]; break; } } if (alvo) { alvo.textContent = tx; os[q].textContent = ''; } } };
-              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); fixR(); };
+              // Lupa "Equipes" (visitante): busca reduzida, cliente fixo Siemens. O servidor só responde ao perfil VISITANTE com nome/nível/UF.
+              var EQ_ATV = [['inspecao_cordas','Inspeção (cordas)','c'],['mcu','MCU (cordas)','c'],['reparo_cordas','Reparo (cordas)','c'],['troca_tip','Troca de TIP (cordas)','c'],['tower_light','Tower light (cordas)','c'],['reparo_solo','Reparo solo','s'],['inspecao_solo','Inspeção solo','s'],['inspecao_interna','Inspeção interna','s']];
+              var eqEsc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]; }); };
+              var eqAbrir = function(){
+                var ov = d.getElementById('ewEqOv'); if (ov) { ov.style.display = 'flex'; return; }
+                ov = d.createElement('div'); ov.id = 'ewEqOv';
+                ov.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(2,8,14,.7);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto';
+                var opts = EQ_ATV.map(function(x){ return '<option value="' + x[0] + '" data-t="' + x[2] + '">' + eqEsc(x[1]) + '</option>'; }).join('');
+                ov.innerHTML = '<div style="background:var(--panel,#0F2A40);color:var(--text,#EAF1F7);border:1px solid var(--line,#1E4363);border-radius:12px;max-width:760px;width:100%;padding:18px 20px">'
+                  + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:16px">Busca de equipes — Siemens</b><button type="button" id="ewEqX" style="cursor:pointer;background:none;border:0;color:inherit;font-size:20px">✕</button></div>'
+                  + '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">'
+                  + '<label style="font-size:12px">Atividade<br><select id="ewEqAtv" style="min-width:210px;padding:6px">' + opts + '</select></label>'
+                  + '<label id="ewEqQL" style="font-size:12px">Formação<br><select id="ewEqQtd" style="padding:6px"><option value="2">Dupla</option><option value="3">Trio</option></select></label>'
+                  + '<button type="button" id="ewEqGo" style="cursor:pointer;padding:8px 16px;border-radius:8px;border:1px solid var(--steel,#1C8CE8);background:var(--steel,#1C8CE8);color:#fff;font-weight:700">Buscar</button></div>'
+                  + '<div id="ewEqRes" style="font-size:13px"></div></div>';
+                d.body.appendChild(ov);
+                var sel = d.getElementById('ewEqAtv'), ql = d.getElementById('ewEqQL'), res = d.getElementById('ewEqRes');
+                var sync = function(){ ql.style.display = sel.options[sel.selectedIndex].getAttribute('data-t') === 'c' ? 'none' : ''; };
+                sel.addEventListener('change', sync); sync();
+                d.getElementById('ewEqX').addEventListener('click', function(){ ov.style.display = 'none'; });
+                ov.addEventListener('click', function(ev){ if (ev.target === ov) ov.style.display = 'none'; });
+                d.getElementById('ewEqGo').addEventListener('click', function(){
+                  var W = f.contentWindow;
+                  if (!W.EWAuth || !W.EWAuth.post) { res.textContent = 'Indisponível no momento.'; return; }
+                  res.textContent = 'Buscando…';
+                  var tp = sel.options[sel.selectedIndex].getAttribute('data-t');
+                  W.EWAuth.post({ action: 'indicarEquipes', atv: sel.value, qtd: tp === 'c' ? '3' : d.getElementById('ewEqQtd').value, n: 0 }).then(function(j){
+                    if (!j || !j.ok) { res.textContent = 'Indisponível no momento.'; return; }
+                    var h = '';
+                    (j.equipes || []).forEach(function(e){
+                      h += '<div style="border:1px solid var(--line,#1E4363);border-radius:8px;padding:8px 12px;margin-bottom:8px"><b>Equipe ' + eqEsc(e.pos) + '</b>' + (e.base ? '' : ' <small style="opacity:.7">(alternativa)</small>')
+                        + (e.membros || []).map(function(m){ return '<div style="margin-top:3px">' + eqEsc(m.nome) + ' <small style="opacity:.75">(' + eqEsc(m.nivel) + ')' + (m.uf ? ' — ' + eqEsc(m.uf) : '') + '</small></div>'; }).join('') + '</div>';
+                    });
+                    if (j.faltam) h += '<div style="opacity:.8">Equipe incompleta: faltam ' + eqEsc(j.faltam) + ' técnico(s).</div>';
+                    res.innerHTML = h || 'Sem equipes disponíveis.';
+                  }).catch(function(){ res.textContent = 'Indisponível no momento.'; });
+                });
+              };
+              var fixE = function(){
+                if (d.getElementById('ewEqBtn')) return;
+                var ref = d.querySelector('.block-btn[data-block="b5"]'); if (!ref || !ref.parentNode) return;
+                var bt = d.createElement('button'); bt.type = 'button'; bt.id = 'ewEqBtn'; bt.className = 'block-btn';
+                bt.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Equipes';
+                bt.addEventListener('click', eqAbrir); ref.parentNode.appendChild(bt);
+              };
+              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); fixR(); fixE(); };
               fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
