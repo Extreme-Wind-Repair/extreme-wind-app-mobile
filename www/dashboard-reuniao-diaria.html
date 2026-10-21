@@ -2311,6 +2311,9 @@
   function ultimoRdoDoParque(parkName){
     const todos = (DATA.relatorios || [])
       .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
+      // 21/10/2026 (Robson): Ultimo RDO NUNCA mostra RDO de hoje (nem futuro): so ate ontem,
+      // coerente com os quadros Anteontem/Ontem.
+      .filter(function(r){ const d = normalizeDateExp(r.Data_exp); return !d || d < dateOffsetISO(0); })
       .sort(function(a, b){
         // 21/10/2026 (Tucano: RDO 16/10 enviado depois do 19/10 aparecia como "Ultimo RDO"):
         // primeiro a data do dia trabalhado (Data_exp), depois o ID/hora de envio como desempate.
