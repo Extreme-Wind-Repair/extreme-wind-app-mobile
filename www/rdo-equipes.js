@@ -42,6 +42,12 @@
     '.rdoeq-box .rdoeq-rot{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-bottom:5px}',
     '.rdoeq-sel{display:block;width:100%;margin-top:5px;padding:8px 10px;font-size:14px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);font-family:inherit}',
     '.rdoeq-sel:focus{outline:none;border-color:var(--brand)}',
+    '.rdoeq-pos{margin-top:3px;display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;line-height:1.4}',
+    '.rdoeq-pos span{color:var(--ok)}',
+    'body.light-mode .rdoeq-pos span{color:#0b6b4a}',
+    '.rdoeq-cinto{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-size:13px;line-height:1.5}',
+    '.rdoeq-cinto small{color:var(--muted)}',
+    '.rdoeq-cinto .rdoeq-cg{margin-top:6px}',
     '.rdoeq-field{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-bottom:12px}',
     '.rdoeq-field[hidden]{display:none}',
     '.rdoeq-memb{padding:2px 0}',
@@ -82,9 +88,10 @@
       var fortes = [];
       if (m.hist) fortes.push('Experiência comprovada na atividade');
       if (m.dias > 0) fortes.push(esc(m.dias) + ' dias em ' + esc(CLI_NOME[cli] || 'cliente'));
+      var pos = (m.pontos && m.pontos.length) ? m.pontos : fortes;   // pontos positivos calculados no servidor; sem eles, usa os antigos
       return '<div class="rdoeq-memb">' + esc(m.nome) + ' <small>(' + esc(m.nivel) + ')' + (nota1(m.nota) ? ' · Nota ' + nota1(m.nota) : '') + (m.hist ? '' : ' · sem histórico comprovado na atividade') + '</small>' +
         (m.indisp ? '<div class="rdoeq-rh"><small>INDISPONÍVEL hoje — RH entrar em contato (mat. ' + esc(m.mat) + (m.rh ? ' · ' + esc(m.rh) : '') + ')</small></div>' : '') +
-        (fortes.length ? '<div class="rdoeq-forte"><small>Pontos fortes: ' + fortes.join(' · ') + '</small></div>' : '') + '</div>';
+        (pos.length ? '<div class="rdoeq-pos">' + pos.map(function (x) { return '<span>\u2713 ' + esc(x) + '</span>'; }).join('') + '</div>' : '') + '</div>';
     }).join('');
   }
 
@@ -118,6 +125,61 @@
      Só o necessário: Projeto, Supervisor (originais) + Cliente (lista), Atividade, Abrangência (e Formação p/ solo) + equipe indicada.
      Os campos originais Cliente (texto) e Técnico 1-3 (manuais) ficam ocultos e são PREENCHIDOS por este arquivo, então o
      "Acrescentar" original grava o cliente e os técnicos indicados sem nenhuma mudança na função da página. */
+
+  /* ---------- cintos / EPI por projeto (lista vinda do servidor, atrás do login) ---------- */
+  var CINTOS = null, cintosPedido = false;
+  var UF_RE = /\s(al|ba|ce|ma|pe|pi|rn|rs|mx|pb|se|sp|rj|es|mg|pr|sc|go|mt|ms|df|to|pa|am|ap|ac|ro|rr)$/;
+  function partes(txt) {
+    var s = String(txt || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim().replace(/^parques?\s+/, '');
+    var m = s.match(UF_RE);
+    return { full: s, base: m ? s.replace(UF_RE, '') : s, uf: m ? m[1] : '' };
+  }
+  function carregarCintos() {
+    if (CINTOS || cintosPedido || typeof EWAuth !== 'object' || !EWAuth || !EWAuth.post) return;
+    cintosPedido = true;
+    EWAuth.post({ action: 'indicarEquipes', modo: 'cintos' }).then(function (j) {
+      if (!j || j.ok !== true || !j.cintos) { cintosPedido = false; return; }
+      CINTOS = j.cintos.map(function (r) { var p = partes(r[1]); return { cli: r[0], nome: r[1].trim(), tec: r[2], linha: r[3], cinto: r[4], ca: r[5], trava: r[6], tal: r[7], full: p.full, base: p.base, uf: p.uf }; });
+      var dl = document.getElementById('rdoeqProjList');
+      if (dl) { var vistos = {}; dl.innerHTML = CINTOS.filter(function (e) { if (vistos[e.nome]) return false; vistos[e.nome] = 1; return true; }).map(function (e) { return '<option value="' + esc(e.nome) + '" label="' + esc(e.cli) + '"></option>'; }).join(''); }
+      mostrarCinto();
+    }).catch(function () { cintosPedido = false; });
+  }
+  function achaCintos(txt) {
+    if (!CINTOS) return [];
+    var t = partes(txt); if (t.full.length < 3) return [];
+    var ex = CINTOS.filter(function (e) { return e.full === t.full; });
+    if (ex.length) return ex;
+    return CINTOS.filter(function (e) { return e.base === t.base && (!t.uf || !e.uf || t.uf === e.uf); });
+  }
+  var cintoSujo = false;   // true quando a pessoa digitou no campo: a lista nunca sobrescreve edição humana
+  function linhaCinto(e) {
+    var l = [];
+    if (e.linha) l.push('Linha de vida: ' + e.linha);
+    if (e.cinto) l.push('Cinto: ' + e.cinto + (e.ca ? ' (CA ' + e.ca + ')' : ''));
+    if (e.trava) l.push('Trava-quedas: ' + e.trava);
+    if (e.tal) l.push('Talabarte: ' + e.tal);
+    return l.join(' · ');
+  }
+  function mostrarCinto() {
+    var box = document.getElementById('rdoeqMCinto'), inp = document.getElementById('npProjeto'), ta = document.getElementById('npCintos'); if (!box) return;
+    var ach = inp ? achaCintos(inp.value) : [];
+    if (!ach.length) { box.hidden = true; box.innerHTML = ''; if (ta && !cintoSujo) ta.value = ''; return; }
+    var grupos = [], idx = {};
+    ach.forEach(function (e) { var k = linhaCinto(e); if (idx[k] === undefined) { idx[k] = grupos.length; grupos.push({ e: e, nomes: [] }); } grupos[idx[k]].nomes.push(e.nome); });
+    if (ta && !cintoSujo) ta.value = grupos.map(function (g) { return linhaCinto(g.e); }).join('\n');
+    var nomes = []; grupos.forEach(function (g) { g.nomes.forEach(function (n) { if (nomes.indexOf(n) < 0) nomes.push(n); }); });
+    var h = '<small>Da lista de cintos: ' + esc(nomes.join(', ')) + ' · ' + esc(ach[0].cli) + '</small>';
+    if (grupos.length > 1) h += '<div class="rdoeq-tag">Este nome tem ' + grupos.length + ' configurações na lista. Apague abaixo as linhas que não valem para o projeto.</div>';
+    var CLI_ID = { siemens: 'siemens', ge: 'ge', nordex: 'nordex' }, clis = {}; ach.forEach(function (e) { clis[CLI_ID[String(e.cli).toLowerCase()] || ''] = 1; });
+    var ids = Object.keys(clis).filter(Boolean), selC = document.getElementById('rdoeqMCli');
+    if (selC && ids.length === 1) {
+      if (!selC.value) { selC.value = ids[0]; if (selC.value === ids[0]) selC.dispatchEvent(new Event('change', { bubbles: true })); }   // projeto da lista => Cliente preenchido
+      else if (selC.value !== ids[0]) h += '<div class="rdoeq-tag">Atenção: na lista de cintos este projeto é do cliente ' + esc(ach[0].cli) + '.</div>';
+    }
+    box.innerHTML = h; box.hidden = false;
+  }
+
   var ALTS = [], POS = 0;
   function oculta(ov, id) { var e = ov.querySelector('#' + id); if (e) { var l = e.closest('label') || e; l.style.display = 'none'; } return e; }
   function setv(ov, id, v) { var e = ov.querySelector('#' + id); if (e) e.value = v; }
@@ -136,8 +198,14 @@
     var wrap = document.createElement('div'); wrap.id = 'rdoeqCard';
     wrap.innerHTML = '<div class="rdoeq-box">' + camposHtml('rdoeqM') +
       '<div class="rdoeq-rot">Equipe indicada</div><div id="rdoeqMEq" class="rdoeq-memb" aria-live="polite">Escolha cliente, atividade e abrangência.</div>' +
-      '<div class="rdoeq-foot"><a id="rdoeqMProx" hidden>Trocar por outra alternativa</a> <span id="rdoeqMPos"></span></div></div>';
+      '<div class="rdoeq-foot"><a id="rdoeqMProx" hidden>Trocar por outra alternativa</a> <span id="rdoeqMPos"></span></div>' +
+      '<div id="rdoeqMCinto" class="rdoeq-cinto" hidden></div>' +
+      '<div class="rdoeq-rot" style="margin-top:10px">Cintos de alpinismo (editável)</div><textarea id="npCintos" class="rdoeq-sel" rows="3" placeholder="Preenchido pela lista quando o projeto consta nela. Você pode ajustar, apagar ou escrever."></textarea></div><datalist id="rdoeqProjList"></datalist>';
     ref.parentNode.insertBefore(wrap, ref);
+    var inpP = ov.querySelector('#npProjeto');
+    if (inpP) { inpP.setAttribute('list', 'rdoeqProjList'); inpP.setAttribute('autocomplete', 'off'); inpP.addEventListener('input', mostrarCinto); inpP.addEventListener('change', mostrarCinto); }
+    var taC = wrap.querySelector('#npCintos'); if (taC) taC.addEventListener('input', function () { cintoSujo = true; });
+    carregarCintos();
     wrap.addEventListener('change', function () { aplicarRegras('rdoeqM', wrap); atualizarCard(wrap); });
     wrap.querySelector('#rdoeqMProx').addEventListener('click', function () {
       if (!ALTS.length) return; POS = (POS + 1) % ALTS.length; mostrarEquipe(wrap);
@@ -151,7 +219,8 @@
     aplicarRegras('rdoeqM', wrap);
     wrap.querySelector('#rdoeqMEq').textContent = 'Escolha cliente, atividade e abrangência.';
     wrap.querySelector('#rdoeqMProx').hidden = true; wrap.querySelector('#rdoeqMPos').textContent = '';
-    preencherOriginais(ov, null);
+    cintoSujo = false; var taR = wrap.querySelector('#npCintos'); if (taR) taR.value = '';
+    preencherOriginais(ov, null); mostrarCinto();
   }
   var seqCard = 0, seqBusca = 0;
   function mostrarEquipe(wrap) {
