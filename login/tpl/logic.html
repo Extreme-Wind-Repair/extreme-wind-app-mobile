@@ -90,7 +90,7 @@
           f.addEventListener('load', function(){
             try {
               var d = f.contentDocument, st = d.createElement('style');
-              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast,#countB3{display:none !important}#b2 [data-ehs-box],#b3 [data-ehs-box]{display:none !important}.ehsr-dia.nok{color:var(--warn) !important;border-color:var(--warn) !important}';
+              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast,#countB3{display:none !important}#b2 [data-ehs-box],#b3 [data-ehs-box]{display:none !important}.ehsr-dia.nok{color:var(--warn) !important;border-color:var(--warn) !important}@keyframes rdoeqFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}';
               d.head.appendChild(st);
               var nn = function(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); };
               var fixG = function(){
@@ -135,7 +135,7 @@
                 d.getElementById('ewEqGo').addEventListener('click', function(){
                   var W = f.contentWindow;
                   if (!W.EWAuth || !W.EWAuth.post) { res.textContent = 'Indisponível no momento.'; return; }
-                  res.textContent = 'Buscando…';
+                  res.innerHTML = '<div style="display:flex;align-items:center;gap:12px;color:var(--muted,#9fb3c8);font-size:13px;padding:4px 0"><img src="assets/mascote-ew-web.png" alt="" aria-hidden="true" style="height:72px;width:auto;flex:none;animation:rdoeqFlutua 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))"><span>Montando equipes…</span></div>';
                   var tp = sel.options[sel.selectedIndex].getAttribute('data-t');
                   W.EWAuth.post({ action: 'indicarEquipes', atv: sel.value, qtd: tp === 'c' ? '3' : d.getElementById('ewEqQtd').value, n: 0 }).then(function(j){
                     if (!j || !j.ok) { res.textContent = 'Indisponível no momento.'; return; }
