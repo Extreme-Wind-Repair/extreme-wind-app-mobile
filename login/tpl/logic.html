@@ -110,7 +110,9 @@
               // Bônus de São Vitor: motivo 'Repetição de foto (Cordas): x de y foto(s) repetida(s)' exibido como 'Fotos não conformes'
               var reM = /Repeti[c\u00E7][a\u00E3]o de foto[^\n]*?repetida\(s\)/;
               var fixM = function(){ var ms = d.querySelectorAll('.bonus-motivo, .bonus-mot-td'); for (var q = 0; q < ms.length; q++) { var pn = ms[q].closest('.panel'), nm = pn && pn.querySelector('[data-parkname]'); if (!nm || !/SAO VITOR|BAIXA DO FEIJAO|GAMELEIRA/.test(nn(nm.getAttribute('data-parkname')))) continue; var w2 = d.createTreeWalker(ms[q], 4), n2; while ((n2 = w2.nextNode())) { if (reM.test(n2.nodeValue)) n2.nodeValue = n2.nodeValue.replace(reM, 'Fotos n\u00E3o conformes'); } } };
-              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); };
+              // Santo Agostinho: 'Equipe em tramitação…' passa de Observações gerais para RH / Tramitação (1ª linha vazia)
+              var fixR = function(){ var os = d.querySelectorAll('[data-rh-box] [data-rh-topico]'); for (var q = 0; q < os.length; q++) { var tx = (os[q].textContent || '').trim(); if (!/^Equipe em tramita[c\u00E7][a\u00E3]o/i.test(tx)) continue; var pn = os[q].closest('.panel'), dest = pn && pn.querySelectorAll('[data-rh2-box] [data-rh2-linha]'), alvo = null; if (!dest) continue; for (var z = 0; z < dest.length; z++) { if (!(dest[z].textContent || '').trim()) { alvo = dest[z]; break; } } if (alvo) { alvo.textContent = tx; os[q].textContent = ''; } } };
+              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); fixR(); };
               fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
