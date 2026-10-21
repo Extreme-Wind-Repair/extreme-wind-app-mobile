@@ -107,7 +107,10 @@
               var fixT = function(){ var w = d.createTreeWalker(d.body, 4), n; while ((n = w.nextNode())) { if (re.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(re, ''); } };
               // Novas Demandas / Temas Diversos: abrem com linhas em branco, sem informações (somente leitura)
               var fixB = function(){ ['b4', 'b5'].forEach(function(id){ var ul = d.querySelector('#' + id + ' .note-list'); if (!ul || ul.children.length) return; for (var q = 1; q <= 8; q++) { var li = d.createElement('li'); li.className = 'note-item blank-item'; li.innerHTML = '<span class="num">' + q + '</span><span class="txt" contenteditable="false"></span>'; ul.appendChild(li); } }); };
-              var fixAll = function(){ fixG(); fixT(); fixB(); };
+              // Bônus de São Vitor: motivo 'Repetição de foto (Cordas): x de y foto(s) repetida(s)' exibido como 'Fotos não conformes'
+              var reM = /Repeti[c\u00E7][a\u00E3]o de foto[^\n]*?repetida\(s\)/;
+              var fixM = function(){ var ms = d.querySelectorAll('.bonus-motivo, .bonus-mot-td'); for (var q = 0; q < ms.length; q++) { var pn = ms[q].closest('.panel'), nm = pn && pn.querySelector('[data-parkname]'); if (!nm || nn(nm.getAttribute('data-parkname')).indexOf('SAO VITOR') < 0) continue; var w2 = d.createTreeWalker(ms[q], 4), n2; while ((n2 = w2.nextNode())) { if (reM.test(n2.nodeValue)) n2.nodeValue = n2.nodeValue.replace(reM, 'Fotos n\u00E3o conformes'); } } };
+              var fixAll = function(){ fixG(); fixT(); fixB(); fixM(); };
               fixAll(); if (window.MutationObserver) new MutationObserver(fixAll).observe(d.body, {childList: true, subtree: true});
             } catch (e) {}
           });
