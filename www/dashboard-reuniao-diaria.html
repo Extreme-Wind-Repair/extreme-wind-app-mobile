@@ -2311,7 +2311,14 @@
   function ultimoRdoDoParque(parkName){
     const todos = (DATA.relatorios || [])
       .filter(function(r){ return parkMatchesReport(parkName, r.Parque); })
-      .sort(function(a, b){ return chaveOrdenacaoRdo(b).localeCompare(chaveOrdenacaoRdo(a)); });
+      .sort(function(a, b){
+        // 21/10/2026 (Tucano: RDO 16/10 enviado depois do 19/10 aparecia como "Ultimo RDO"):
+        // primeiro a data do dia trabalhado (Data_exp), depois o ID/hora de envio como desempate.
+        const da = dataExpParaChave(normalizeDateExp(a.Data_exp));
+        const db = dataExpParaChave(normalizeDateExp(b.Data_exp));
+        if (da !== db) return db.localeCompare(da);
+        return chaveOrdenacaoRdo(b).localeCompare(chaveOrdenacaoRdo(a));
+      });
     return todos.length ? todos[0] : null;
   }
   function rdoResumoHtml(row){
