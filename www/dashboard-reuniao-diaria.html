@@ -438,6 +438,8 @@
   .activity-boxes{flex:1 1 auto !important;}
   .ab-daycol.ab-rdo-inicio{margin-left:auto; padding-left:22px;}
   .status-col .rdo-resumo-box{width:100% !important; box-sizing:border-box;}
+  .status-col .ehs-box{width:100% !important; box-sizing:border-box; flex:none;}
+  .rh2-box .rh-topico{min-height:34px; padding:6px 0;}
   /* Nome do projeto maior e centralizado acima do logo (26/09/2026, Robson). */
   .park-info h2{font-size:19px !important; justify-content:center; text-align:center; width:100%; margin:0 0 2px 0 !important; letter-spacing:.02em;}
   .status-select{width:160px !important;}
@@ -688,8 +690,6 @@
   function rhTopicosDe(p){
     const itens = [];
     String(p.OcorrenciaRH || '').split(/\r?\n/).forEach(function(l){ l = l.trim(); if (l) itens.push(l); });
-    const tram = String(p.Tramitacao || '').trim();
-    if (tram && itens.indexOf(tram) === -1) itens.unshift(tram);
     while (itens.length < RH_TOPICOS) itens.push('');
     return itens.slice(0, Math.max(RH_TOPICOS, itens.length));
   }
@@ -711,13 +711,45 @@
         const row = Number(node.dataset.row);
         const valor = Array.prototype.map.call(campos, function(c){ return c.textContent.trim(); })
           .filter(function(t){ return t; }).join('\n');
-        if (valor === String(p.OcorrenciaRH || '').trim() && !String(p.Tramitacao || '').trim()) return;
+        if (valor === String(p.OcorrenciaRH || '').trim()) return;
         apiPost({ action:'updateCell', sheet:'RD_Parques', row: row, field:'OcorrenciaRH', value: valor, autoUnblank:false });
         p.OcorrenciaRH = valor;
-        if (String(p.Tramitacao || '').trim()){
-          apiPost({ action:'updateCell', sheet:'RD_Parques', row: row, field:'Tramitacao', value:'', autoUnblank:false });
-          p.Tramitacao = '';
-        }
+      });
+    });
+  }
+  /* 20/10/2026 (Robson): o quadro de 5 topicos (coluna OcorrenciaRH) virou "Observações gerais".
+     O RH ganhou um quadro proprio, "RH / Tramitação de Documentação", com 3 linhas editaveis,
+     no lugar onde ficava o Segurança/EHS (acima de Veículos/Frota). As 3 linhas sao gravadas
+     juntas (uma por linha) na coluna Tramitacao da RD_Parques. O Segurança/EHS desceu para
+     a coluna da direita, abaixo do resumo do Último RDO. */
+  const RH2_LINHAS = 3;
+  function rh2LinhasDe(p){
+    const itens = [];
+    String(p.Tramitacao || '').split(/\r?\n/).forEach(function(l){ l = l.trim(); if (l) itens.push(l); });
+    while (itens.length < RH2_LINHAS) itens.push('');
+    return itens.slice(0, Math.max(RH2_LINHAS, itens.length));
+  }
+  function rh2BoxHtml(p){
+    return rh2LinhasDe(p).map(function(t, i){
+      return '<div class="rh-topico"><span class="rh-num">' + (i + 1) + '</span>' +
+        '<div class="rh-txt" contenteditable="true" data-rh2-linha="' + i + '" data-vazio="—">' + escapeHtml(t) + '</div></div>';
+    }).join('');
+  }
+  function wireRh2Box(node, p){
+    const box = node.querySelector('[data-rh2-box]');
+    if (!box) return;
+    const campos = box.querySelectorAll('[data-rh2-linha]');
+    campos.forEach(function(el, i){
+      el.addEventListener('keydown', function(ev){
+        if (ev.key === 'Enter'){ ev.preventDefault(); const prox = campos[i + 1]; if (prox) prox.focus(); else el.blur(); }
+      });
+      el.addEventListener('blur', function(){
+        const row = Number(node.dataset.row);
+        const valor = Array.prototype.map.call(campos, function(c){ return c.textContent.trim(); })
+          .filter(function(t){ return t; }).join('\n');
+        if (valor === String(p.Tramitacao || '').trim()) return;
+        apiPost({ action:'updateCell', sheet:'RD_Parques', row: row, field:'Tramitacao', value: valor, autoUnblank:false });
+        p.Tramitacao = valor;
       });
     });
   }
@@ -1199,7 +1231,10 @@
     'b1-02':'PI', 'b1-03':'PI', 'b2-03':'PI', 'b2-04':'PI',
     'b1-06':'BA', 'b1-07':'RN', 'b1-08':'BA', 'b1-09':'RN',
     'b3-01':'RN', 'b3-02':'BA', 'b2-05':'RS', 'b3-03':'RS',
-    'b3-08':'Nuevo León (MX)', 'b3-09':'Nuevo León (MX)'
+    'b3-08':'Nuevo León (MX)', 'b3-09':'Nuevo León (MX)',
+    /* 21/10/2026: cards criados pela VAGAS MESTRE no Bloco 3 estavam sem Estado */
+    'b3-vm-santana-e2':'RS', 'b3-vm-serra-do-mel':'RN', 'b3-vm-uniao-ventos-e1':'RN', 'b3-vm-uniao-ventos-e2':'RN',
+    'b3-vm-ventos-piaui-e1':'PI', 'b3-vm-ventos-piaui-e2':'PI', 'b3-vm-gameleira-b3':'RN', 'b3-vm-dolores-e3':'Nuevo León (MX)'
   };
   function estadoDe(p){
     const v = (p.Estado != null) ? String(p.Estado).trim() : '';
@@ -1342,14 +1377,13 @@
         '<div class="activity-boxes">' +
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
             '<div class="ehs-box rh-box" data-rh-box>' +
-              '<div class="ab-title">RH / Tramitação de Documentação</div>' +
+              '<div class="ab-title">Observações gerais</div>' +
               rhBoxHtml(p) +
             '</div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
-            '<div class="ehs-box" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
-              '<div class="ab-title">Segurança / EHS</div>' +
-              '<div class="frota-auto" data-ehs-report-auto data-parkid="' + escapeHtml(p.ParkID) + '" data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando Report EHS…</span></div>' +
-              '<div class="box-texto" contenteditable="true" data-field="OcorrenciaEHS" data-vazio="—">' + escapeHtml(p.OcorrenciaEHS || '') + '</div>' +
+            '<div class="ehs-box rh-box rh2-box" data-rh2-box>' +
+              '<div class="ab-title">RH / Tramitação de Documentação</div>' +
+              rh2BoxHtml(p) +
             '</div>' +
             '<div class="ehs-box frota-box" data-frota-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Veículos / Frota</div>' +
@@ -1373,6 +1407,11 @@
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
           '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
+          '<div class="ehs-box ehs-col-dir" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
+              '<div class="ab-title">Segurança / EHS</div>' +
+              '<div class="frota-auto" data-ehs-report-auto data-parkid="' + escapeHtml(p.ParkID) + '" data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando Report EHS…</span></div>' +
+              '<div class="box-texto" contenteditable="true" data-field="OcorrenciaEHS" data-vazio="—">' + escapeHtml(p.OcorrenciaEHS || '') + '</div>' +
+            '</div>' +
         '</div>' +
       '</div>' +
       (p.Bloco === 'b1' && !p.Placeholder ? '<div class="gantt" data-gantt>' + ganttInnerHtml(p) + '</div>' : '') +
@@ -1481,8 +1520,12 @@
   }
   function bonusSemanas(){
     const B = (typeof BONUS_SEMANAL !== 'undefined') ? BONUS_SEMANAL : null;
-    // mais recente primeiro (a da esquerda é a atual)
-    return (B && B.semanas) ? B.semanas.slice().reverse() : [];
+    /* 20/10/2026 (Robson): a semana ATUAL continua na 1a coluna (com "Motivo da perda" ao lado);
+       as semanas passadas vem depois em ordem cronologica (mais antiga -> mais recente), ex.: S41 | S37 S38 S39 S40. */
+    if (!B || !B.semanas || !B.semanas.length) return [];
+    const arr = B.semanas.slice();
+    const atual = arr.pop();
+    return [atual].concat(arr);
   }
   function bonusTheadHtml(cols){
     const base = cols.map(function(h){ return '<th rowspan="2">' + escapeHtml(h) + '</th>'; }).join('');
@@ -1725,7 +1768,21 @@
     }
     return null;
   }
+  /* 21/10/2026 (Robson): card dos Blocos 2/3 (projeto que ainda vai comecar) NAO pode pegar
+     RDO / Report EHS / Frota / Envios de um projeto que ja e card do Bloco 1. Caso real:
+     "Gameleira/RN (apos Baixa do Feijao)" (Bloco 3) mostrava o RDO GAM-01, o Report EHS e o
+     carro da GAMELEIRA 1 (Bloco 1) -- informacao trocada. Se um card do Bloco 1 casa com o
+     mesmo parque, o dado e so dele. */
+  function cardDoBloco1Casa(nomeCard, outro, casa){
+    const c = (DATA.parques || []).find(function(x){ return x.NomeParque === nomeCard; });
+    if (!c || c.Bloco === 'b1') return false;
+    return (DATA.parques || []).some(function(x){ return x.Bloco === 'b1' && !x.Placeholder && x.NomeParque !== nomeCard && casa(x.NomeParque, outro); });
+  }
   function parkMatchesReport(nomeParque, reportParque){
+    if (!parkMatchesReportBase(nomeParque, reportParque)) return false;
+    return !cardDoBloco1Casa(nomeParque, reportParque, parkMatchesReportBase);
+  }
+  function parkMatchesReportBase(nomeParque, reportParque){
     const a = normalizeParkName(nomeParque), b = normalizeParkName(reportParque);
     if (!a || !b) return false;
     if (a === b || a.indexOf(b) === 0 || b.indexOf(a) === 0) return true;
@@ -2378,6 +2435,7 @@
 
   function wirePanel(node, p){
     wireRhBox(node, p);
+    wireRh2Box(node, p);
     wireCertCells(node);
     node.querySelectorAll('.park-info [contenteditable], .info-chips [data-field], .ehs-box [data-field]').forEach(function(f){ wireFieldSave(f, 'RD_Parques', false); });
     wireFieldSave(node.querySelector('.logo-select'), 'RD_Parques', true);
@@ -2903,11 +2961,11 @@
      VAGAS MESTRE que nao tem card no site (ex.: LDV Externo 2, em
      desmobilizacao) NAO entra na lista e NAO ganha card.
      ATUALIZADO A CADA EXECUCAO pelas 3 tarefas de dashboard a partir da
-     VAGAS MESTRE (ver REGRAS_AUTOMACAO.md). Quadro de: 19/10/2026. */
+     VAGAS MESTRE (ver REGRAS_AUTOMACAO.md). Quadro de: 20/10/2026 (b3 com o card renomeado para Baixa do Feijao). */
   const ORDEM_VAGAS_MESTRE = {
     b1: ['OITIS 1', 'OITIS 2', 'LDV 1', 'LDV 2', 'SAO VITOR', 'SANTO AGOSTINHO', 'TUCANO', 'GAMELEIRA', 'DOLORES'],
     b2: ['TERRA SANTA'],
-    b3: ['GAMELEIRA', 'SANTANA DO LIVRAMENTO', 'UNIAO DOS VENTOS', 'DOLORES']
+    b3: ['BAIXA DO FEIJAO', 'SANTANA DO LIVRAMENTO', 'VENTOS SERRA DO MEL', 'UNIAO DOS VENTOS', 'VENTOS DO PIAUI', 'DOLORES', 'LOS CANONES']
   };
   function palavrasOrdem(n){
     return String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
@@ -3187,6 +3245,10 @@
     return { base: base, num: num };
   }
   function mesmoProjeto(nomeCard, nomeFrota){
+    if (!mesmoProjetoBase(nomeCard, nomeFrota)) return false;
+    return !cardDoBloco1Casa(nomeCard, nomeFrota, mesmoProjetoBase);
+  }
+  function mesmoProjetoBase(nomeCard, nomeFrota){
     const a = chaveProjeto(nomeCard), b = chaveProjeto(nomeFrota);
     if (!a.base || !b.base || b.base === 'ADM') return false;
     if (a.base !== b.base) return false;
