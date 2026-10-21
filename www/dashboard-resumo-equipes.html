@@ -155,7 +155,11 @@
   }
   function dd(d){ return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); }
   function dif(a, b){ return Math.round((b - a) / DIA); }
-  function linha(nome, dataStr, hoje){
+  /* Regra 20/10/2026 (Robson): "finaliza um, comeca o outro" -- mesmo encadeamento da Reuniao Diaria (PROXIMO_PROJETO). */
+  var PROXIMO = { 'GAMELEIRA 1': 'Baixa do Feijão' };
+  function normN(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
+  function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
+  function linha(nome, dataStr, hoje, parques){
     var fim = parseData(dataStr), estim = false;
     if (!fim){ fim = new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
     var nm = '<span class="gnt-nome">' + esc(nome) + '</span>' + (estim ? ' <span class="gnt-vazio">(estimado: 2 meses, sem previsão informada)</span>' : '');
@@ -168,7 +172,15 @@
     }
     else if (rest <= 20){ cor = '#fbc02d'; status = 'Atenção · faltam ' + rest + ' dias'; }
     else { cor = '#43a047'; status = 'Faltam ' + rest + ' dias'; }
-    var janelaFim = new Date(Math.max(hoje.getTime() + 182*DIA, fim.getTime() + DIA));
+    var proxNome = PROXIMO[normN(nome)] || '', proxIni = null, proxFim = null, proxEst = false;
+    if (proxNome){
+      proxIni = new Date(fim.getTime() + DIA);
+      var alvo = normN(proxNome);
+      var card = (parques || []).filter(function(x){ return x && !x.Placeholder && normN(x.NomeParque).indexOf(alvo) === 0; })[0];
+      var cf = card ? parseData(card.Data) : null;
+      if (cf && cf >= proxIni) proxFim = cf; else { proxFim = maisMeses(proxIni, 2); proxEst = true; }
+    }
+    var janelaFim = new Date(Math.max(hoje.getTime() + 182*DIA, fim.getTime() + DIA, proxFim ? proxFim.getTime() + DIA : 0));
     var cells = [], t = new Date(hoje), guard = 0;
     while (t < janelaFim && guard++ < 80){
       var r = dif(t, fim), len, tipo;
@@ -186,9 +198,18 @@
       var rot = c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini);
       return '<span class="gnt-cell' + (c.on ? ' on' : '') + (c.fim ? ' fim' : '') + (c.hoje ? ' hoje' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + tip + '">' + rot + '</span>';
     }).join('');
+    var proxHtml = '';
+    if (proxNome){
+      var ptrack = cells.map(function(c){
+        var on = c.ate >= proxIni && c.ini <= proxFim;
+        return '<span class="gnt-cell' + (on ? ' on' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + esc(proxNome) + ': ' + dd(c.ini) + (c.tipo === 'd' ? '' : ' a ' + dd(c.ate)) + '"></span>';
+      }).join('');
+      proxHtml = '<div class="gnt-head" style="margin-top:8px"><span class="gnt-nome" style="color:#42a5f5">Próximo: ' + esc(proxNome) + '</span><span>início <b>' + dd(proxIni) + '/' + String(proxIni.getFullYear()).slice(2) + '</b> · término <b>' + dd(proxFim) + '/' + String(proxFim.getFullYear()).slice(2) + '</b>' + (proxEst ? ' <i>(estimado: 2 meses, até a Reunião Diária informar a data)</i>' : '') + '</span></div>' +
+        '<div class="gnt-track" style="--gcor:#42a5f5">' + (rest < 0 ? '<span class="gnt-cell" style="flex:6 1 0"></span>' : '') + ptrack + '</div>';
+    }
     var venc = rest < 0 ? '<span class="gnt-cell on fim" style="flex:6 1 0; color:#fff" title="Previsão de término já passou: atualizar a data">VENCIDO EM ' + dd(fim) + '</span>' : '';
     return '<div class="gnt-row" style="--gcor:' + cor + '"><div class="gnt-head">' + nm + '<span>término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span><span class="gnt-status">' + status + '</span></div>' +
-      '<div class="gnt-track">' + venc + track + '</div></div>';
+      '<div class="gnt-track">' + venc + track + '</div>' + proxHtml + '</div>';
   }
   window.__gntLinha = linha;
   function render(parques){
@@ -197,7 +218,7 @@
     var lista = (parques || []).filter(function(p){ return p && p.Bloco === 'b1' && !p.Placeholder && String(p.NomeParque || '').trim(); })
       .map(function(p){ return { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) }; })
       .sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
-    el.innerHTML = lista.length ? lista.map(function(x){ return linha(x.nome, x.data, hoje); }).join('') : '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
+    el.innerHTML = lista.length ? lista.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('') : '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
   }
   function carregar(tent){
     fetch(API_URL + '?_=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.json(); })
