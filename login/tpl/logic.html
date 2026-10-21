@@ -86,6 +86,27 @@
           } catch (e) {}
         });
       }
+        if (visita && f.id === 'view-reuniao-diaria') {   // RD: visitante sem botões de escrita e sem 'Próximo projeto' de outro fabricante
+          f.addEventListener('load', function(){
+            try {
+              var d = f.contentDocument, st = d.createElement('style');
+              st.textContent = '.btn-delete-park,.btn-advance-block,#btnNovoProjeto,.undo-toast{display:none !important}';
+              d.head.appendChild(st);
+              var nn = function(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); };
+              var fixG = function(){
+                var nomes = [], ps = d.querySelectorAll('[data-parkname]');
+                for (var k = 0; k < ps.length; k++) nomes.push(nn(ps[k].getAttribute('data-parkname')));
+                var ls = d.querySelectorAll('.gantt-prox-leg');
+                for (var j = 0; j < ls.length; j++) {
+                  var b = ls[j].querySelector('b'), alvo = nn(((b && b.textContent) || '').replace(/^Pr\u00F3ximo:\s*/, '')), ok = false;
+                  for (var m = 0; m < nomes.length; m++) if (nomes[m].indexOf(alvo) === 0) { ok = true; break; }
+                  if (!ok) { ls[j].style.display = 'none'; var nx = ls[j].nextElementSibling; if (nx && nx.classList.contains('gantt-prox')) nx.style.display = 'none'; }
+                }
+              };
+              fixG(); if (window.MutationObserver) new MutationObserver(fixG).observe(d.body, {childList: true, subtree: true});
+            } catch (e) {}
+          });
+        }
         if (visita && f.id === 'view-calibracao') {
           f.addEventListener('load', function(){
             try {
