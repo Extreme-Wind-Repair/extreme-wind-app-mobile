@@ -1363,6 +1363,10 @@
     }).join('');
     const cols = colunasEquipe(p);
     const theadHtml = bonusTheadHtml(cols);
+    /* 21/10/2026 (Robson): no Bloco 3 (Aprovação de Documentações) o projeto ainda nao esta ativo --
+       sem quadros operacionais (Veículos/Frota, Envios, RDO Último registro/Ontem, Último RDO e
+       Segurança/EHS). Ficam so Observações gerais, RH / Tramitação e Compras. */
+    const operacional = p.Bloco !== 'b3';
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
@@ -1385,33 +1389,43 @@
               '<div class="ab-title">RH / Tramitação de Documentação</div>' +
               rh2BoxHtml(p) +
             '</div>' +
+            (operacional ? (
             '<div class="ehs-box frota-box" data-frota-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Veículos / Frota</div>' +
               '<div class="frota-auto" data-frota-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando frota…</span></div>' +
               '<div class="box-texto frota-obs" contenteditable="true" data-field="Veiculo" data-vazio="+ observação">' + escapeHtml(p.Veiculo || '') + '</div>' +
-            '</div></div>' +
+            '</div>' +
+            '') : '') +
+            '</div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
             '<div class="ehs-box compras-box">' +
               '<div class="ab-title">Solicitação de Compras / Aluguel</div>' +
               '<div class="box-texto" contenteditable="true" data-field="MaterialCompras" data-vazio="—">' + escapeHtml(p.MaterialCompras || '') + '</div>' +
             '</div>' +
+            (operacional ? (
             '<div class="ehs-box envios-box">' +
               '<div class="ab-title">Envios Logísticos / Requisições</div>' +
               '<div class="frota-auto" data-envios-auto data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando envios…</span></div>' +
-            '</div></div>' +
+            '</div>' +
+            '') : '') +
+            '</div>' +
+          (operacional ? (
           '<div class="ab-daycol ab-rdo-inicio"><div class="ab-daycol-label" data-ab-daylabel>Último registro</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">Ontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="1" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
+          '') : '') +
         '</div>' +
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
+          (operacional ? (
           '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
           '<div class="ehs-box ehs-col-dir" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Segurança / EHS</div>' +
               '<div class="frota-auto" data-ehs-report-auto data-parkid="' + escapeHtml(p.ParkID) + '" data-parkname="' + escapeHtml(p.NomeParque) + '"><span class="frota-muted">Carregando Report EHS…</span></div>' +
               '<div class="box-texto" contenteditable="true" data-field="OcorrenciaEHS" data-vazio="—">' + escapeHtml(p.OcorrenciaEHS || '') + '</div>' +
             '</div>' +
+          '') : '') +
         '</div>' +
       '</div>' +
       (p.Bloco === 'b1' && !p.Placeholder ? '<div class="gantt" data-gantt>' + ganttInnerHtml(p) + '</div>' : '') +
@@ -1685,14 +1699,18 @@
     /* 20/10/2026 (Robson): tecnico marcado "(backup)" que ja esta na equipe de OUTRO projeto
        (ativo no Bloco 1 ou alocado nos Blocos 2/3, inclusive como substituto "A = B") nao aparece
        como backup -- nao esta disponivel. Fica so um aviso discreto com os nomes ocultos. */
+    /* 21/10/2026 (Robson): vale para TODOS os aprovados, nao so os marcados "(backup)":
+       quem ja esta ATIVO na equipe de um projeto do Bloco 1 (inclusive a deste proprio card,
+       ex.: Jonato na equipe de Sao Vitor) nao aparece como aprovado/backup. Quem esta so em
+       equipe de projeto dos Blocos 2/3 (ainda nao ativo) continua aparecendo. */
     const ocultos = [];
     apRows.forEach(function(r){
-      const onde = /backup/i.test(r.Nome || '') ? backupAlocadoEm(r.Nome, p.ParkID) : null;
-      if (onde){ ocultos.push(String(r.Nome).replace(/\s*\(backup\)\s*/i, '') + ' → ' + onde); return; }
+      const onde = (r.Nome && !r.Placeholder) ? backupAlocadoEm(r.Nome, p.ParkID) : null;
+      if (onde){ ocultos.push(String(r.Nome).replace(/\s*\(backup\)\s*/i, '') + ' → ' + (onde === p.NomeParque ? 'já está nesta equipe' : onde)); return; }
       apBody.appendChild(el(aprovadoChipHtml(r)));
     });
     if (ocultos.length){
-      apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' backup' + (ocultos.length > 1 ? 's' : '') + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já alocado' + (ocultos.length > 1 ? 's' : '') + ' em outro projeto)</span>'));
+      apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já ativo' + (ocultos.length > 1 ? 's' : '') + ' em projeto)</span>'));
     }
 
     wirePanel(node, p);
@@ -1706,13 +1724,13 @@
     const norm = function(x){ return String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
       .replace(/\(.*?\)/g, ' ').replace(/\bFCO\b\.?/g, 'FRANCISCO').replace(/\bANT\b\.?/g, 'ANTONIO')
       .replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim(); };
-    const STOP = { DE:1, DA:1, DO:1, DOS:1, DAS:1, E:1, N:1, BACKUP:1, NORDEX:1 };
-    const w = norm(nome).split(' ').filter(function(x){ return x && !STOP[x] && !/^N\d$/.test(x); });
-    if (!w.length || (w.length === 1 && w[0].length < 6)) return null;
+    const STOP = { DE:1, DA:1, DO:1, DOS:1, DAS:1, E:1, N:1, BACKUP:1, NORDEX:1, SUOP:1 };
+    const w = norm(String(nome).replace(/\s+[—-]\s+.*$/, '')).split(' ').filter(function(x){ return x && !STOP[x] && !/^N\d$/.test(x); });
+    if (!w.length || (w.length === 1 && w[0].length < 5)) return null; /* nome de 1 palavra (ex.: MEZAC, JONATO) casa com o 1o nome */
     const cards = {}; (DATA.parques || []).forEach(function(c){ cards[c.ParkID] = c; });
     for (let i = 0; i < (DATA.equipe || []).length; i++){
       const e = DATA.equipe[i]; const c = cards[e.ParkID];
-      if (!e.Val1 || e.ParkID === parkId || !c || c.Placeholder) continue;
+      if (!e.Val1 || !c || c.Placeholder || c.Bloco !== 'b1') continue; /* so projetos ATIVOS (Bloco 1) -- Robson 21/10 */
       const segs = String(e.Val1).split('=');
       for (let k = 0; k < segs.length; k++){
         const palavras = norm(String(segs[k]).replace(/\s+[—-]\s+.*$/, '')).split(' ');
