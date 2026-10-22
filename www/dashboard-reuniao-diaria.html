@@ -3307,7 +3307,10 @@
     const excCard = els.map(function(){ return {}; });
     (REPORT_EHS_EXC || []).forEach(function(x){
       for (let i = 0; i < els.length; i++){
-        if (x.parque && mesmoProjeto(els[i].dataset.parkname || '', x.parque)){ (excCard[i][x.data] = excCard[i][x.data] || []).push(x); break; }
+        const nomeCard = els[i].dataset.parkname || '';
+        const nCard = (nomeCard.match(/(\d+)\s*$/) || [])[1], nExc = (String(x.parque).match(/(\d+)\s*$/) || [])[1];
+        if (nCard && nExc && Number(nCard) !== Number(nExc)) continue; /* ex.: "Santana ... Equipe 2" nao pode cair na Equipe 1 */
+        if (x.parque && mesmoProjeto(nomeCard, x.parque)){ (excCard[i][x.data] = excCard[i][x.data] || []).push(x); break; }
       }
     });
     /* SEMANA ATUAL: de segunda-feira ate hoje (semana fecha no domingo e reinicia na segunda -- Robson, 20/10/2026).
