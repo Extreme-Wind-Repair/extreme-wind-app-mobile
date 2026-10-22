@@ -381,6 +381,8 @@
   .ehsr-dia.ok{color:var(--ok); border-color:var(--ok);}
   .ehsr-dia.nok{color:var(--nok); border-color:var(--nok);}
   .ehsr-dia.warn{color:var(--warn); border-color:var(--warn);}
+  /* 22/10/2026 (Robson): Stand-by do cliente = laranja; Autorizado (modelo do cliente) = verde (.ok). Fonte: aba RD_EHS_Excecoes (copia da EHS_STANDBY_AUTORIZADOS do portal). */
+  .ehsr-dia.sb{color:#F28C28; border-color:#F28C28;}
   .ehsr-ult a{color:inherit; text-decoration:underline;}
   .ehsr-dia.hoje{color:var(--muted);}
   .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
@@ -3227,6 +3229,29 @@
      tecnicos na equipe do card (NOMES_OFICIAIS). Nunca escrever nessa planilha. */
   let REPORT_EHS = null; // {linhas:[{data,proto,parque,mats:[],tecs:[],dds,nc:[],pdf,hora}]}
   const REPORT_EHS_DIAS = 5;
+  /* 22/10/2026 (Robson): REGRA -- se o card nao tem report na aba "Reports EHS" naquele dia, olha a aba
+     RD_EHS_Excecoes (copia, na planilha do RDO, da aba EHS_STANDBY_AUTORIZADOS da planilha do portal:
+     Chave 'aaaa-mm-dd|parque' | Data | Parque | Observacao | Tipo STANDBY/AUTORIZADO).
+     STANDBY = caixa do dia laranja; AUTORIZADO = verde; ambos mostram a Observacao no lugar do texto
+     'Nenhum Report EHS registrado'. Sem report e sem excecao: vermelho 'Nao enviado'. So leitura. */
+  let REPORT_EHS_EXC = [];
+  const REPORT_EHS_EXC_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('RD_EHS_Excecoes');
+  async function loadExcecoesEhs(){
+    try{
+      const j = await fetchGvizComRetry(REPORT_EHS_EXC_URL, 3);
+      const labels = j.table.cols.map(function(c){ return String(c.label || '').trim().toUpperCase(); });
+      const iC = labels.indexOf('CHAVE'), iP = labels.indexOf('PARQUE'), iO = labels.indexOf('OBSERVACAO'), iT = labels.indexOf('TIPO');
+      if (iC === -1 || iT === -1) throw new Error('aba RD_EHS_Excecoes nao encontrada');
+      const v = function(r, i){ const c = i >= 0 ? r.c[i] : null; return c ? String(c.v != null ? c.v : (c.f || '')).trim() : ''; };
+      REPORT_EHS_EXC = (j.table.rows || []).map(function(r){
+        const ch = v(r, iC); const m = ch.match(/^(\d{4})-(\d{2})-(\d{2})\|/);
+        return m ? { data: m[1] + m[2] + m[3], parque: v(r, iP), obs: v(r, iO), tipo: v(r, iT).toUpperCase() } : null;
+      }).filter(Boolean);
+    } catch(err){
+      console.error('Falha ao carregar RD_EHS_Excecoes:', err);
+      REPORT_EHS_EXC = [];
+    }
+  }
   const REPORT_EHS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('Reports EHS');
   async function loadReportEhs(){
     try{
@@ -3253,6 +3278,7 @@
       console.error('Falha ao carregar Reports EHS:', err);
       REPORT_EHS = { erro: true, linhas: [] };
     }
+    await loadExcecoesEhs();
     preencherQuadrosReportEhs();
   }
   function preencherQuadrosReportEhs(){
@@ -3278,6 +3304,12 @@
       if (k < 0) return;
       (porCard[k][x.data] = porCard[k][x.data] || []).push(x);
     });
+    const excCard = els.map(function(){ return {}; });
+    (REPORT_EHS_EXC || []).forEach(function(x){
+      for (let i = 0; i < els.length; i++){
+        if (x.parque && mesmoProjeto(els[i].dataset.parkname || '', x.parque)){ (excCard[i][x.data] = excCard[i][x.data] || []).push(x); break; }
+      }
+    });
     /* SEMANA ATUAL: de segunda-feira ate hoje (semana fecha no domingo e reinicia na segunda -- Robson, 20/10/2026).
        Sabado/domingo so aparecem se o card tiver report naquele dia (nao marca X no fim de semana). */
     const chave = function(d){ return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
@@ -3299,13 +3331,26 @@
           const tip = l.map(function(x){ return x.proto + (x.hora ? ' · ' + x.hora : '') + '\n' + resumo(x) + (x.nc.length ? '\n- ' + x.nc.join('\n- ') : ''); }).join('\n\n');
           return '<span class="ehsr-dia ' + (alerta ? 'warn' : 'ok') + '" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>' + (alerta ? '⚠' : '✔') + '</span>';
         }
+        const ex = (excCard[k][dd.k] || []).slice(-1)[0];
+        if (ex){
+          const aut = ex.tipo === 'AUTORIZADO';
+          const obsEx = (ex.obs && !/^n\/?a$/i.test(ex.obs)) ? ex.obs : '';
+          return '<span class="ehsr-dia ' + (aut ? 'ok' : 'sb') + '" title="' + escapeHtml((aut ? 'Autorizado (modelo do cliente)' : 'Stand-by do cliente') + (obsEx ? ' — ' + obsEx : '')) + '"><b>' + dd.br + '</b>' + (aut ? '✔' : '⏸') + '</span>';
+        }
         if (dd.fds) return '';
         if (dd.k === hojeK) return '<span class="ehsr-dia hoje" title="Hoje: ainda sem report"><b>' + dd.br + '</b>…</span>';
-        return '<span class="ehsr-dia nok" title="Não enviou o Report EHS"><b>' + dd.br + '</b>✖</span>';
+        return '<span class="ehsr-dia nok" title="Não enviado"><b>' + dd.br + '</b>✖</span>';
       }).join('');
       const datas = Object.keys(meus).sort();
       let ult = '<div class="ehsr-ult">Nenhum Report EHS registrado</div>';
-      if (datas.length){
+      const exDatas = Object.keys(excCard[k]).sort();
+      const exUd = exDatas.length ? exDatas[exDatas.length - 1] : '';
+      const exU = exUd ? excCard[k][exUd].slice(-1)[0] : null;
+      if (exU && (!datas.length || exUd >= datas[datas.length - 1])){
+        const aut = exU.tipo === 'AUTORIZADO';
+        const obsU = (exU.obs && !/^n\/?a$/i.test(exU.obs)) ? ' — ' + exU.obs : (aut ? '' : ' (sem observação)');
+        ult = '<div class="ehsr-ult" style="color:' + (aut ? 'var(--ok)' : '#F28C28') + '">' + (aut ? 'Autorizado' : 'Stand-by') + ' ' + exUd.slice(6,8) + '/' + exUd.slice(4,6) + escapeHtml(obsU) + '</div>';
+      } else if (datas.length){
         const ud = datas[datas.length - 1], x = meus[ud][meus[ud].length - 1];
         ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
               (x.pdf && /^https:\/\//.test(x.pdf) ? ' · <a href="' + escapeHtml(x.pdf) + '" target="_blank" rel="noopener">PDF</a>' : '') + '</div>';
