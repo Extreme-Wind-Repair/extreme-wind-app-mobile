@@ -3350,9 +3350,8 @@
       const exUd = exDatas.length ? exDatas[exDatas.length - 1] : '';
       const exU = exUd ? excCard[k][exUd].slice(-1)[0] : null;
       if (exU && (!datas.length || exUd > datas[datas.length - 1])){
-        const aut = exU.tipo === 'AUTORIZADO';
-        const obsU = (exU.obs && !/^n\/?a$/i.test(exU.obs)) ? ' — ' + exU.obs : (aut ? '' : ' (sem observação)');
-        ult = '<div class="ehsr-ult" style="color:' + (aut ? 'var(--ok)' : '#F28C28') + '">' + (aut ? 'Autorizado' : 'Stand-by') + ' ' + exUd.slice(6,8) + '/' + exUd.slice(4,6) + escapeHtml(obsU) + '</div>';
+        /* 22/10/2026: a observacao do stand-by/autorizado vai no campo "Ocorrencia EHS" (negrito, logo abaixo) -- aqui nao repete. */
+        ult = '';
       } else if (datas.length){
         const ud = datas[datas.length - 1], x = meus[ud][meus[ud].length - 1];
         ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
