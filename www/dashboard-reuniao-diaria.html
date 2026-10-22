@@ -530,6 +530,10 @@
   .ap-text[contenteditable="true"]:focus{background:rgba(28,140,232,.14); border-radius:3px;}
   .ap-name:nth-of-type(-n+3) .ap-text{color:#22B24C;}
   .ap-name:nth-of-type(n+4) .ap-text{color:var(--text);}
+  /* 22/10/2026 (Robson): Bloco 3 -- campo de backup visivel (vaga em branco com texto-guia) + seletor de tecnicos. Grava em RD_Aprovados, igual ao Bloco 1. */
+  .ap-names.ap-b3 .blank-ap .ap-text:empty::before{content:'+ digitar backup'; color:var(--muted); font-style:italic; font-size:11px;}
+  .ap-names.ap-b3 .blank-ap{min-width:96px; border-style:dashed;}
+  .ap-escolher{margin-top:8px; background:var(--panel,#0f1720); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:11.5px; max-width:340px;}
   tbody td[contenteditable="true"]{cursor:text;}
   tbody td[contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   tbody td[contenteditable="true"]:focus{
@@ -1739,6 +1743,35 @@
       apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já ativo' + (ocultos.length > 1 ? 's' : '') + ' em projeto)</span>'));
     }
 
+    /* 22/10/2026 (Robson): Bloco 3 -- escolha dos backups do projeto (mesma gravacao do Bloco 1: RD_Aprovados). */
+    if (p.Bloco === 'b3' && !p.Placeholder){
+      apBody.classList.add('ap-b3');
+      const apTitle = node.querySelector('.aprovados-box .ap-title');
+      if (apTitle) apTitle.textContent = 'Backups do projeto (escolha na lista ou digite)';
+      const sel = document.createElement('select');
+      sel.className = 'ap-escolher';
+      const jaNaLista = {}; apRows.forEach(function(r){ if (r.Nome) jaNaLista[String(r.Nome).replace(/\s*\(backup\)\s*/i, '').trim().toUpperCase()] = 1; });
+      const nomesOpc = Object.keys(NOMES_OFICIAIS).sort().filter(function(n){ return !jaNaLista[n] && !backupAlocadoEm(n, p.ParkID); });
+      sel.innerHTML = '<option value="">+ Escolher backup na lista…</option>' + nomesOpc.map(function(n){ return '<option value="' + escapeHtml(n) + '">' + escapeHtml(n) + '</option>'; }).join('');
+      sel.addEventListener('change', async function(){
+        const nome = sel.value; if (!nome) return;
+        sel.disabled = true;
+        try {
+          let chip = apBody.querySelector('.ap-name.blank-ap');
+          if (!chip){
+            await spawnNextAprovado(p.ParkID, apBody);
+            const brancos = apBody.querySelectorAll('.ap-name.blank-ap'); chip = brancos[brancos.length - 1];
+          }
+          const txt = chip.querySelector('.ap-text');
+          txt.textContent = nome;
+          txt.dispatchEvent(new Event('blur'));   /* grava (autoUnblank enquanto ainda e vaga em branco) */
+          txt.dispatchEvent(new Event('input'));  /* tira a marca de vaga em branco e abre a proxima vaga */
+          const op = sel.querySelector('option[value="' + nome.replace(/"/g, '\\"') + '"]'); if (op) op.remove();
+        } finally { sel.value = ''; sel.disabled = false; }
+      });
+      node.querySelector('.aprovados-box').appendChild(sel);
+    }
+
     const cintosEl = node.querySelector('.info-chips [data-field="Cintos"]');
     if (cintosEl){
       cintosEl.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); document.execCommand('insertText', false, '\n'); } });
@@ -2714,8 +2747,11 @@
       }
       p._row = resp.result ? resp.result.newRow : null;
       for (let i = 1; i <= 3; i++){
-        await apiPost({ action:'addRow', sheet:'RD_Equipe', template:{ ParkID:p.ParkID, Ordem:i, Val1: tecnicos[i-1] || '', Val2:'', Val3:'' } });
-        await apiPost({ action:'addRow', sheet:'RD_Aprovados', template:{ ParkID:p.ParkID, Ordem:i, Nome:'', Placeholder:true } });
+        const respEq = await apiPost({ action:'addRow', sheet:'RD_Equipe', template:{ ParkID:p.ParkID, Ordem:i, Val1: tecnicos[i-1] || '', Val2:'', Val3:'' } });
+        const respAp = await apiPost({ action:'addRow', sheet:'RD_Aprovados', template:{ ParkID:p.ParkID, Ordem:i, Nome:'', Placeholder:true } });
+        /* 22/10/2026: guarda as linhas novas em DATA, senao o card recem-criado aparece sem equipe e sem campos de backup ate recarregar a pagina. */
+        DATA.equipe.push({ ParkID:p.ParkID, Ordem:i, Val1: tecnicos[i-1] || '', Val2:'', Val3:'', _row: respEq && respEq.result ? respEq.result.newRow : null });
+        DATA.aprovados.push({ ParkID:p.ParkID, Ordem:i, Nome:'', Placeholder:true, _row: respAp && respAp.result ? respAp.result.newRow : null });
       }
       DATA.parques.push(p);
       renderBlock('b3');
