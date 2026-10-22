@@ -3346,18 +3346,33 @@
       }).join('');
       const datas = Object.keys(meus).sort();
       let ult = '<div class="ehsr-ult">Nenhum Report EHS registrado</div>';
+      let exDrive = null;
       const exDatas = Object.keys(excCard[k]).sort();
       const exUd = exDatas.length ? exDatas[exDatas.length - 1] : '';
       const exU = exUd ? excCard[k][exUd].slice(-1)[0] : null;
       if (exU && (!datas.length || exUd > datas[datas.length - 1])){
         /* 22/10/2026: a observacao do stand-by/autorizado vai no campo "Ocorrencia EHS" (negrito, logo abaixo) -- aqui nao repete. */
         ult = '';
+        exDrive = exU;
       } else if (datas.length){
         const ud = datas[datas.length - 1], x = meus[ud][meus[ud].length - 1];
         ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
               (x.pdf && /^https:\/\//.test(x.pdf) ? ' · <a href="' + escapeHtml(x.pdf) + '" target="_blank" rel="noopener">PDF</a>' : '') + '</div>';
       }
       el.innerHTML = '<div class="frota-muted" style="font-size:10px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
+      /* 22/10/2026 (Robson): o texto de "Ocorrencia EHS" acompanha a cor do motivo (Stand-by laranja, Autorizado verde).
+         Campo vazio mostra a observacao da aba (so na tela; nao grava sozinho). */
+      const boxOc = el.parentElement ? el.parentElement.querySelector('[data-field="OcorrenciaEHS"]') : null;
+      if (boxOc){
+        if (exDrive){
+          const autD = exDrive.tipo === 'AUTORIZADO';
+          boxOc.style.color = autD ? 'var(--ok)' : '#F28C28';
+          if (!boxOc.textContent.trim() && document.activeElement !== boxOc){
+            const o = (exDrive.obs && !/^n\/?a$/i.test(exDrive.obs)) ? exDrive.obs : '';
+            boxOc.textContent = (autD ? 'Autorizado' : 'Stand-by') + (o ? ': ' + o : '');
+          }
+        } else { boxOc.style.color = ''; }
+      }
     });
   }
 
