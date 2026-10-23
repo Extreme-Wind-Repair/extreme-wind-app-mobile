@@ -166,7 +166,7 @@
   function iniFuturo(nome){ var n = normN(nome), r = null; Object.keys(INICIO_FUTURO).forEach(function(k){ if (n.indexOf(k) === 0) r = parseData(INICIO_FUTURO[k]); }); return r; }
   function normN(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
   function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
-  function linha(nome, dataStr, hoje, parques, fut){
+  function linha(nome, dataStr, hoje, parques, fut, soInicio){
     var fim = parseData(dataStr), estim = false;
     if (!fim){ fim = (fut && fut.ini) ? maisMeses(fut.ini, 2) : new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
     var nm = '<span class="gnt-nome">' + esc(nome) + '</span>' + (estim ? ' <span class="gnt-vazio">(estimado: 2 meses, sem previsão informada)</span>' : '');
@@ -179,6 +179,7 @@
     }
     else if (rest <= 20){ cor = '#fbc02d'; status = 'Atenção · faltam ' + rest + ' dias'; }
     else { cor = '#43a047'; status = 'Faltam ' + rest + ' dias'; }
+    if (soInicio){ status = rest < 0 ? 'Início previsto vencido há ' + (-rest) + ' dia' + (rest === -1 ? '' : 's') : (rest === 0 ? 'Início previsto hoje' : 'Início previsto em ' + rest + ' dia' + (rest === 1 ? '' : 's')); nm += ' <span class="gnt-vazio">(início previsto, ainda não virou projeto ativo)</span>'; }
     var proxNome = PROXIMO[normN(nome)] || '', proxIni = null, proxFim = null, proxEst = false;
     if (proxNome){
       proxIni = new Date(fim.getTime() + DIA);
@@ -227,7 +228,7 @@
         '<div class="gnt-track" style="--gcor:#42a5f5">' + (rest < 0 ? '<span class="gnt-cell" style="flex:6 1 0"></span>' : '') + ptrack + '</div>';
     }
     var venc = rest < 0 ? '<span class="gnt-cell on fim" style="flex:6 1 0; color:#fff" title="Previsão de término já passou: atualizar a data">VENCIDO EM ' + dd(fim) + '</span>' : '';
-    return '<div class="gnt-row" style="--gcor:' + cor + '"><div class="gnt-head">' + nm + '<span>término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span><span class="gnt-status">' + status + '</span></div>' +
+    return '<div class="gnt-row" style="--gcor:' + cor + '"><div class="gnt-head">' + nm + '<span>' + (soInicio ? 'início previsto' : 'término') + ' <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b></span><span class="gnt-status">' + status + '</span></div>' +
       '<div class="gnt-track">' + venc + track + '</div>' + proxHtml + '</div>';
   }
   window.__gntLinha = linha;
@@ -241,7 +242,7 @@
     base.forEach(function(p){
       if (p.Bloco !== 'b1' && p.Bloco !== 'b2' && p.Bloco !== 'b3') return;
       if (encad(p)) return;
-      var n = normN(p.NomeParque), item = { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) };
+      var n = normN(p.NomeParque), item = { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data), soInicio:p.Bloco !== 'b1' };
       if (p.Bloco === 'b1' || Object.keys(TOPO_BLOCOS).some(function(k){ return n.indexOf(k) === 0; })) topo.push(item);
       else if (!ativos[n]) {
         /* 23/10/2026: em projeto futuro o campo Data do card e a DATA DE INICIO (VAGAS MESTRE). Termino = inicio + 2 meses ate a Reuniao Diaria informar a previsao de termino. Sem Data no card: usa o mapa INICIO_FUTURO. */
@@ -255,7 +256,7 @@
     fut.sort(function(a, b){ var x = a.ini ? a.ini.getTime() : 9e15, y = b.ini ? b.ini.getTime() : 9e15; return x - y; });
     var hzt = new Date(hoje.getTime() + 182*DIA);
     fut.forEach(function(x){ var f = x.fim || (x.ini ? maisMeses(x.ini, 2) : null); if (f && f.getTime() + DIA > hzt.getTime()) hzt = new Date(f.getTime() + DIA); });
-    var html = topo.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('');
+    var html = topo.map(function(x){ return linha(x.nome, x.data, hoje, parques, null, x.soInicio); }).join('');
     if (fut.length) html += '<div class="gnt-leg" style="margin-top:12px"><b>Próximos projetos</b> (começam no futuro)</div>' + fut.map(function(x){ return linha(x.nome, x.data, hoje, parques, { ini:x.ini, estim:!x.fim, horizon:hzt }); }).join('');
     el.innerHTML = html || '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
   }
