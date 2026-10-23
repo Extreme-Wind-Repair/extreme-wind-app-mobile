@@ -157,9 +157,13 @@
   function dif(a, b){ return Math.round((b - a) / DIA); }
   /* Regra 20/10/2026 (Robson): "finaliza um, comeca o outro" -- mesmo encadeamento da Reuniao Diaria (PROXIMO_PROJETO). */
   var PROXIMO = { 'GAMELEIRA 1': 'Baixa do Feijão' };
+  /* 23/10/2026 (Robson): projetos que comecam no futuro (blocos 2/3) aparecem no FIM, no mesmo estilo azul do "Proximo" (Baixa do Feijao). Inicio previsto vem do Portal (PROJ_CARDS, 23/10/2026) -- sem entrada = "inicio a definir". Atualizar este mapa quando o Portal mudar. */
+  var INICIO_FUTURO = { 'UNIAO DOS VENTOS':'2026-11-03', 'VENTOS SERRA DO MEL':'2026-11-03', 'VENTOS DO PIAUI':'2026-12-01', 'SANTANA DO LIVRAMENTO':'2027-01-01', 'LOS CANONES':'2026-11-03' };
+  var TOPO_BLOCOS = { 'TERRA SANTA':1 }; /* projetos de b2/b3 que ficam em cima com os ativos (Terra Santa: Robson, 23/10/2026) */
+  function iniFuturo(nome){ var n = normN(nome), r = null; Object.keys(INICIO_FUTURO).forEach(function(k){ if (n.indexOf(k) === 0) r = parseData(INICIO_FUTURO[k]); }); return r; }
   function normN(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
   function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
-  function linha(nome, dataStr, hoje, parques){
+  function linha(nome, dataStr, hoje, parques, fut){
     var fim = parseData(dataStr), estim = false;
     if (!fim){ fim = new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
     var nm = '<span class="gnt-nome">' + esc(nome) + '</span>' + (estim ? ' <span class="gnt-vazio">(estimado: 2 meses, sem previsão informada)</span>' : '');
@@ -193,6 +197,15 @@
       t = new Date(t.getTime() + len*DIA);
     }
     var peso = { q:3, s:2, d:1 };
+    if (fut){
+      var ini = fut.ini, fimOk = !fut.estim;
+      var ftrack = cells.map(function(c){
+        var on = ini ? (c.ate >= ini && c.ini <= fim) : c.fim;
+        return '<span class="gnt-cell' + (on ? ' on' : '') + (c.fim && fimOk ? ' fim' : '') + (c.hoje ? ' hoje' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + esc(nome) + ': ' + dd(c.ini) + (c.tipo === 'd' ? '' : ' a ' + dd(c.ate)) + '">' + (c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini)) + '</span>';
+      }).join('');
+      var comeca = ini ? (dif(hoje, ini) > 0 ? 'Começa em ' + dif(hoje, ini) + ' dia' + (dif(hoje, ini) === 1 ? '' : 's') : 'Início previsto já passou') : 'Início a definir';
+      return '<div class="gnt-row" style="--gcor:#42a5f5"><div class="gnt-head"><span class="gnt-nome" style="color:#42a5f5">' + esc(nome) + ' <span class="gnt-vazio">(próximo projeto)</span></span><span>' + (ini ? 'início <b>' + dd(ini) + '/' + String(ini.getFullYear()).slice(2) + '</b> · ' : '') + 'término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b>' + (fut.estim ? ' <i>(estimado: 2 meses)</i>' : '') + '</span><span class="gnt-status">' + comeca + '</span></div><div class="gnt-track">' + ftrack + '</div></div>';
+    }
     var track = cells.map(function(c){
       var tip = (c.tipo === 'd' ? dd(c.ini) : dd(c.ini) + ' a ' + dd(c.ate)) + (c.fim ? ' · TÉRMINO' : '') + (c.on ? '' : ' · após o término');
       var rot = c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini);
@@ -215,11 +228,22 @@
   function render(parques){
     var el = document.getElementById('gntPrazos'); if (!el) return;
     var hoje = new Date(); hoje.setHours(0,0,0,0);
-    var lista = (parques || []).filter(function(p){ return p && (p.Bloco === 'b1' || p.Bloco === 'b2' || p.Bloco === 'b3') && !p.Placeholder && String(p.NomeParque || '').trim(); })
-      .filter(function(p){ var n = normN(p.NomeParque); return !Object.keys(PROXIMO).some(function(k){ return n.indexOf(normN(PROXIMO[k])) === 0; }); }) /* projeto encadeado (ex.: Baixa do Feijao) aparece so como 'Proximo' do anterior, nao como linha propria */
-      .map(function(p){ return { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) }; })
-      .sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
-    el.innerHTML = lista.length ? lista.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('') : '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
+    var ativos = {}, base = (parques || []).filter(function(p){ return p && !p.Placeholder && String(p.NomeParque || '').trim(); });
+    base.forEach(function(p){ if (p.Bloco === 'b1') ativos[normN(p.NomeParque)] = 1; });
+    var encad = function(p){ var n = normN(p.NomeParque); return Object.keys(PROXIMO).some(function(k){ return n.indexOf(normN(PROXIMO[k])) === 0; }); }; /* encadeado (Baixa do Feijao): so como 'Proximo' do anterior */
+    var topo = [], fut = [];
+    base.forEach(function(p){
+      if (p.Bloco !== 'b1' && p.Bloco !== 'b2' && p.Bloco !== 'b3') return;
+      if (encad(p)) return;
+      var n = normN(p.NomeParque), item = { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) };
+      if (p.Bloco === 'b1' || Object.keys(TOPO_BLOCOS).some(function(k){ return n.indexOf(k) === 0; })) topo.push(item);
+      else if (!ativos[n]) { item.ini = iniFuturo(p.NomeParque); fut.push(item); }
+    });
+    topo.sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
+    fut.sort(function(a, b){ var x = a.ini ? a.ini.getTime() : 9e15, y = b.ini ? b.ini.getTime() : 9e15; return x - y; });
+    var html = topo.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('');
+    if (fut.length) html += '<div class="gnt-leg" style="margin-top:12px"><b>Próximos projetos</b> (começam no futuro)</div>' + fut.map(function(x){ return linha(x.nome, x.data, hoje, parques, { ini:x.ini, estim:!x.fim }); }).join('');
+    el.innerHTML = html || '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
   }
   function carregar(tent){
     fetch(API_URL + '?_=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.json(); })
