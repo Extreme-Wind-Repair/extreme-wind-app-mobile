@@ -206,12 +206,15 @@
       /* eixo temporal LINEAR compartilhado entre os projetos futuros (celulas de 15 dias a partir de hoje): quanto mais longe o inicio, mais a direita a barra comeca (mesma logica do 'Proximo' da Baixa do Feijao) */
       var hz = fut.horizon || new Date(hoje.getTime() + 182*DIA), fcells = [], ft = new Date(hoje), g2 = 0;
       while (ft < hz && g2++ < 40){ var fa = new Date(ft.getTime() + 14*DIA); fcells.push({ ini:new Date(ft), ate:fa }); ft = new Date(ft.getTime() + 15*DIA); }
+      var totalMs = fcells.length * 15 * DIA;
       var ftrack = fcells.map(function(c, ix){
-        var on = ini ? (c.ate >= ini && c.ini <= fim) : (c.ate >= fim && c.ini <= fim);
-        return '<span class="gnt-cell' + (on ? ' on' : '') + (ix === 0 ? ' hoje' : '') + '" style="flex:1 1 0" title="' + esc(nome) + ': ' + dd(c.ini) + ' a ' + dd(c.ate) + '">' + dd(c.ini) + '</span>';
+        return '<span class="gnt-cell' + (ix === 0 ? ' hoje' : '') + '" style="flex:1 1 0" title="' + dd(c.ini) + ' a ' + dd(c.ate) + '">' + dd(c.ini) + '</span>';
       }).join('');
+      /* barra CONTINUA posicionada pela data (esq = inicio, largura = ate o termino), sobre as marcacoes de 15 dias: pinta so a partir do dia de inicio */
+      var iniBar = ini || fim, esq = Math.max(0, Math.min(100, (iniBar - hoje) / totalMs * 100)), lar = Math.max(0.6, Math.min(100 - esq, (fim - iniBar) / totalMs * 100));
+      ftrack += '<span style="position:absolute; top:0; bottom:0; left:' + esq.toFixed(2) + '%; width:' + lar.toFixed(2) + '%; background:rgba(66,165,245,.88); border-radius:4px; color:#0b1b2b; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; overflow:hidden; white-space:nowrap; pointer-events:none" title="' + esc(nome) + ': ' + dd(iniBar) + ' a ' + dd(fim) + '">' + dd(iniBar) + ' → ' + dd(fim) + '</span>';
       var comeca = ini ? (dif(hoje, ini) > 0 ? 'Começa em ' + dif(hoje, ini) + ' dia' + (dif(hoje, ini) === 1 ? '' : 's') : 'Início previsto já passou') : 'Início a definir';
-      return '<div class="gnt-row" style="--gcor:#42a5f5"><div class="gnt-head"><span class="gnt-nome" style="color:#42a5f5">' + esc(nome) + ' <span class="gnt-vazio">(próximo projeto)</span></span><span>' + (ini ? 'início <b>' + dd(ini) + '/' + String(ini.getFullYear()).slice(2) + '</b> · ' : '') + 'término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b>' + (fut.estim ? ' <i>(estimado: 2 meses)</i>' : '') + '</span><span class="gnt-status">' + comeca + '</span></div><div class="gnt-track">' + ftrack + '</div></div>';
+      return '<div class="gnt-row" style="--gcor:#42a5f5"><div class="gnt-head"><span class="gnt-nome" style="color:#42a5f5">' + esc(nome) + ' <span class="gnt-vazio">(próximo projeto)</span></span><span>' + (ini ? 'início <b>' + dd(ini) + '/' + String(ini.getFullYear()).slice(2) + '</b> · ' : '') + 'término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b>' + (fut.estim ? ' <i>(estimado: 2 meses)</i>' : '') + '</span><span class="gnt-status">' + comeca + '</span></div><div class="gnt-track" style="position:relative">' + ftrack + '</div></div>';
     }
     var track = cells.map(function(c){
       var tip = (c.tipo === 'd' ? dd(c.ini) : dd(c.ini) + ' a ' + dd(c.ate)) + (c.fim ? ' · TÉRMINO' : '') + (c.on ? '' : ' · após o término');
