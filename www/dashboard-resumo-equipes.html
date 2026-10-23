@@ -289,6 +289,7 @@
       if (Object.keys(PROXIMO).some(function(k){ return n.indexOf(normN(PROXIMO[k])) === 0; })){ /* encadeado: comeca depois do anterior */
         var ant = null; Object.keys(PROXIMO).forEach(function(k){ if (n.indexOf(normN(PROXIMO[k])) === 0) ant = cards.filter(function(c){ return normN(c.NomeParque).indexOf(k) === 0; })[0]; });
         var af = ant ? parseData(ant.Data) : null; ini = af ? new Date(af.getTime() + DIA) : null;
+        return; /* mesmos tecnicos do projeto anterior (ex.: Gameleira -> Baixa do Feijao): nao soma no plano */
       }
       if (!t) t = equipesFuturo(p.NomeParque);
       if (parques.some(function(x){ return primeiro(x.nome) === primeiro(p.NomeParque); })) return; /* ja esta na tabela (ex.: Dolores) */
