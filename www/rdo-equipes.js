@@ -201,7 +201,7 @@
     var ref = t1.closest('label') || t1;
     oculta(ov, 'npCliente'); oculta(ov, 'npTecnico1'); oculta(ov, 'npTecnico2'); oculta(ov, 'npTecnico3');
     var wrap = document.createElement('div'); wrap.id = 'rdoeqCard';
-    wrap.innerHTML = '<div class="rdoeq-box">' + camposHtml('rdoeqM') +
+    wrap.innerHTML = '<label class="modal-field" id="rdoeqDataLbl">Data Prevista Início<input type="date" id="npDataInicio"></label>' + '<div class="rdoeq-box">' + camposHtml('rdoeqM') +
       '<div class="rdoeq-rot">Equipe indicada</div><div id="rdoeqMEq" class="rdoeq-memb" aria-live="polite">Escolha cliente, atividade e abrangência.</div>' +
       '<div class="rdoeq-foot"><a id="rdoeqMProx" hidden>Trocar por outra alternativa</a> <span id="rdoeqMPos"></span></div>' +
       '<div id="rdoeqMCinto" class="rdoeq-cinto" hidden></div>' +
@@ -211,11 +211,39 @@
     if (inpP) { inpP.setAttribute('list', 'rdoeqProjList'); inpP.setAttribute('autocomplete', 'off'); inpP.addEventListener('input', mostrarCinto); inpP.addEventListener('change', mostrarCinto); }
     var taC = wrap.querySelector('#npCintos'); if (taC) taC.addEventListener('input', function () { cintoSujo = true; });
     carregarCintos();
+    if (!ganchoData()) { var lblD = wrap.querySelector('#rdoeqDataLbl'); if (lblD) lblD.remove(); }
     wrap.addEventListener('change', function () { aplicarRegras('rdoeqM', wrap); atualizarCard(wrap); });
     wrap.querySelector('#rdoeqMProx').addEventListener('click', function () {
       if (!ALTS.length) return; POS = (POS + 1) % ALTS.length; mostrarEquipe(wrap);
     });
     resetModal();
+  }
+  /* Data Prevista Início: calendário no modal; grava no campo Data da RD_Parques do novo card (texto dd/mm/aaaa, como o card faz) */
+  var gData = false;
+  function brData(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
+  function ganchoData() {
+    if (gData) return true;
+    if (typeof window.apiPost !== 'function') return false;
+    gData = true;
+    var orig = window.apiPost;
+    window.apiPost = function (payload) {
+      var inp = document.getElementById('npDataInicio'), br = inp ? brData(inp.value) : '';
+      var novo = br && payload && payload.action === 'addRow' && payload.sheet === 'RD_Parques' && payload.template && /^b3-novo-/.test(String(payload.template.ParkID));
+      var pr = orig.apply(this, arguments);
+      if (!novo) return pr;
+      var id = payload.template.ParkID;
+      return Promise.resolve(pr).then(function (resp) {
+        if (!(resp && resp.ok !== false && resp.result && resp.result.newRow)) return resp;
+        return Promise.resolve(orig({ action: 'updateCell', sheet: 'RD_Parques', row: resp.result.newRow, field: 'Data', value: "'" + br })).catch(function () {}).then(function () {
+          var n = 0, t = setInterval(function () {
+            var L = (typeof DATA !== 'undefined' && DATA && DATA.parques) || [], p = L.filter(function (x) { return x.ParkID === id; })[0];
+            if (p) { p.Data = br; clearInterval(t); if (typeof renderBlock === 'function') renderBlock('b3'); } else if (++n > 75) clearInterval(t);
+          }, 200);
+          return resp;
+        });
+      });
+    };
+    return true;
   }
   function resetModal() {
     var ov = document.getElementById('novoProjetoOverlay'), wrap = ov && ov.querySelector('#rdoeqCard'); if (!wrap) return;
@@ -225,6 +253,7 @@
     wrap.querySelector('#rdoeqMEq').textContent = 'Escolha cliente, atividade e abrangência.';
     wrap.querySelector('#rdoeqMProx').hidden = true; wrap.querySelector('#rdoeqMPos').textContent = '';
     cintoSujo = false; var taR = wrap.querySelector('#npCintos'); if (taR) taR.value = '';
+    var dI = wrap.querySelector('#npDataInicio'); if (dI) dI.value = '';
     preencherOriginais(ov, null); mostrarCinto();
   }
   var seqCard = 0, seqBusca = 0;
