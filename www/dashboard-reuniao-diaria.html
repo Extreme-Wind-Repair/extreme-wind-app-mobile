@@ -486,6 +486,9 @@
   /* 19/10/2026 (Robson): a celula da linha do tecnico onde esta a certificacao
      vencida (ex.: Observacao "GWO ART 01/10") fica em vermelho; vencendo em ate 15 dias, amarelo. */
   .chip-value.chip-data-passada{color:#ff5252 !important; font-weight:800;}
+  /* 23/10/2026: campo padrao vazio continua visivel e clicavel */
+  .chip-value:empty{display:inline-block; min-width:56px; min-height:1.3em;}
+  .chip-value:empty::before{content:'—'; color:var(--muted); font-weight:400;}
   body.light-mode .chip-value.chip-data-passada{color:#c62828 !important;}
   td.cert-cell-venc{color:#ff5252 !important; font-weight:800; background:rgba(229,57,53,.12);}
   td.cert-cell-prox{color:#ffb300 !important; font-weight:800; background:rgba(255,179,0,.10);}
@@ -1378,6 +1381,8 @@
       if (k === 'Cintos') return true;   // caixa em todos os cards (blocos 1, 2 e 3), editavel
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
       if (k === 'Estado') return true;
+      /* 23/10/2026 (Robson): campos padrao em TODOS os projetos, mesmo sem informacao */
+      if (['Tipo','Supervisor','Cliente','Data'].indexOf(k) !== -1) return true;
       return p[k] !== undefined && String(p[k]).trim() !== '';
     });
     if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
