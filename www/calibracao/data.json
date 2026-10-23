@@ -1,5 +1,5 @@
 {
-  "generated_at": "21/10/2026 às 11:04",
+  "generated_at": "22/10/2026 às 15:33",
   "total": 160,
   "counts": {
     "OK": 86,
@@ -14,1120 +14,1120 @@
       "status": "VENCIDO",
       "dataCalibracao": "12/02/2025",
       "proximaCalibracao": "12/02/2026",
-      "diasRaw": "-251"
+      "diasRaw": "-252"
     },
     {
       "codigo": "DEG-002",
       "status": "OK",
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
-      "diasRaw": "319"
+      "diasRaw": "318"
     },
     {
       "codigo": "DEG-006",
       "status": "VENCIDO",
       "dataCalibracao": "11/02/2025",
       "proximaCalibracao": "11/02/2026",
-      "diasRaw": "-252"
+      "diasRaw": "-253"
     },
     {
       "codigo": "DEG-007",
       "status": "VENCIDO",
       "dataCalibracao": "11/02/2025",
       "proximaCalibracao": "11/02/2026",
-      "diasRaw": "-252"
+      "diasRaw": "-253"
     },
     {
       "codigo": "DEG-008",
       "status": "VENCIDO",
       "dataCalibracao": "27/05/2025",
       "proximaCalibracao": "27/05/2026",
-      "diasRaw": "-147"
+      "diasRaw": "-148"
     },
     {
       "codigo": "DEG-011",
       "status": "VENCIDO",
       "dataCalibracao": "27/05/2025",
       "proximaCalibracao": "27/05/2026",
-      "diasRaw": "-147"
+      "diasRaw": "-148"
     },
     {
       "codigo": "DEG-014",
       "status": "OK",
       "dataCalibracao": "07/09/2026",
       "proximaCalibracao": "07/09/2027",
-      "diasRaw": "321"
+      "diasRaw": "320"
     },
     {
       "codigo": "DEG-015",
       "status": "OK",
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
-      "diasRaw": "319"
+      "diasRaw": "318"
     },
     {
       "codigo": "DEG-017",
       "status": "OK",
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
-      "diasRaw": "319"
+      "diasRaw": "318"
     },
     {
       "codigo": "MCP-011",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "MMD-009",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TORQ-001",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "AN-01",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "ANE-002",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "ANE-003",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "ANE-004",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "ANE-015",
       "status": "OK",
       "dataCalibracao": "19/05/2026",
       "proximaCalibracao": "19/05/2027",
-      "diasRaw": "210"
+      "diasRaw": "209"
     },
     {
       "codigo": "ANE-016",
       "status": "OK",
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
-      "diasRaw": "310"
+      "diasRaw": "309"
     },
     {
       "codigo": "ANE-019",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "ANE-020",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "BAL-004",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "BAL-016",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "17/01/2026",
       "proximaCalibracao": "17/01/2027",
-      "diasRaw": "88"
+      "diasRaw": "87"
     },
     {
       "codigo": "BAL-018",
       "status": "OK",
       "dataCalibracao": "17/06/2026",
       "proximaCalibracao": "17/06/2027",
-      "diasRaw": "239"
+      "diasRaw": "238"
     },
     {
       "codigo": "BAL-019",
       "status": "OK",
       "dataCalibracao": "02/04/2026",
       "proximaCalibracao": "02/04/2027",
-      "diasRaw": "163"
+      "diasRaw": "162"
     },
     {
       "codigo": "BAL-020",
       "status": "OK",
       "dataCalibracao": "27/04/2026",
       "proximaCalibracao": "27/04/2027",
-      "diasRaw": "188"
+      "diasRaw": "187"
     },
     {
       "codigo": "BAL-026",
       "status": "OK",
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
-      "diasRaw": "94"
+      "diasRaw": "93"
     },
     {
       "codigo": "BAL-027",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "BAL-028",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "BAL-029",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "BAL-030",
       "status": "OK",
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
-      "diasRaw": "135"
+      "diasRaw": "134"
     },
     {
       "codigo": "DTLG-006",
       "status": "OK",
       "dataCalibracao": "09/07/2026",
       "proximaCalibracao": "09/07/2027",
-      "diasRaw": "261"
+      "diasRaw": "260"
     },
     {
       "codigo": "DTLG-011",
       "status": "OK",
       "dataCalibracao": "16/04/2026",
       "proximaCalibracao": "16/04/2027",
-      "diasRaw": "177"
+      "diasRaw": "176"
     },
     {
       "codigo": "DTLG-012",
       "status": "OK",
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
-      "diasRaw": "167"
+      "diasRaw": "166"
     },
     {
       "codigo": "DTLG-015",
       "status": "OK",
       "dataCalibracao": "27/04/2026",
       "proximaCalibracao": "27/04/2027",
-      "diasRaw": "188"
+      "diasRaw": "187"
     },
     {
       "codigo": "DTLG-016",
       "status": "OK",
       "dataCalibracao": "06/06/2026",
       "proximaCalibracao": "06/06/2027",
-      "diasRaw": "228"
+      "diasRaw": "227"
     },
     {
       "codigo": "DTLG-018",
       "status": "OK",
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
-      "diasRaw": "135"
+      "diasRaw": "134"
     },
     {
       "codigo": "DTLG-019",
       "status": "OK",
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
-      "diasRaw": "135"
+      "diasRaw": "134"
     },
     {
       "codigo": "DUR-008",
       "status": "OK",
       "dataCalibracao": "11/04/2026",
       "proximaCalibracao": "11/04/2027",
-      "diasRaw": "172"
+      "diasRaw": "171"
     },
     {
       "codigo": "DUR-012",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "DUR-018",
       "status": "OK",
       "dataCalibracao": "31/03/2026",
       "proximaCalibracao": "31/03/2027",
-      "diasRaw": "161"
+      "diasRaw": "160"
     },
     {
       "codigo": "DUR-019",
       "status": "OK",
       "dataCalibracao": "24/03/2026",
       "proximaCalibracao": "24/03/2027",
-      "diasRaw": "154"
+      "diasRaw": "153"
     },
     {
       "codigo": "DUR-011",
       "status": "OK",
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
-      "diasRaw": "310"
+      "diasRaw": "309"
     },
     {
       "codigo": "DUR-020",
       "status": "OK",
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
-      "diasRaw": "204"
+      "diasRaw": "203"
     },
     {
       "codigo": "ESC-008",
       "status": "OK",
       "dataCalibracao": "03/06/2026",
       "proximaCalibracao": "03/06/2027",
-      "diasRaw": "225"
+      "diasRaw": "224"
     },
     {
       "codigo": "ESC-021",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "ESC-023",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "17/12/2025",
       "proximaCalibracao": "17/12/2026",
-      "diasRaw": "57"
+      "diasRaw": "56"
     },
     {
       "codigo": "ESC-024",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "ESC-029",
       "status": "OK",
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
-      "diasRaw": "94"
+      "diasRaw": "93"
     },
     {
       "codigo": "ESC-030",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "ESC-031",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "ESC-032",
       "status": "OK",
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
-      "diasRaw": "121"
+      "diasRaw": "120"
     },
     {
       "codigo": "ESC-033",
       "status": "OK",
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
-      "diasRaw": "121"
+      "diasRaw": "120"
     },
     {
       "codigo": "MCP-002",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "22/10/2025",
       "proximaCalibracao": "22/10/2026",
-      "diasRaw": "1"
+      "diasRaw": "0"
     },
     {
       "codigo": "MCP-003",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "22/10/2025",
       "proximaCalibracao": "22/10/2026",
-      "diasRaw": "1"
+      "diasRaw": "0"
     },
     {
       "codigo": "MCP-004",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "MCP-005",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "MCP-006",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "MCP-007",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "MCP-008",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "MCP-009",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "MIL-001",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "10/11/2025",
       "proximaCalibracao": "10/11/2026",
-      "diasRaw": "20"
+      "diasRaw": "19"
     },
     {
       "codigo": "MIL-005",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
-      "diasRaw": "21"
+      "diasRaw": "20"
     },
     {
       "codigo": "MMD-005",
       "status": "OK",
       "dataCalibracao": "20/07/2026",
       "proximaCalibracao": "20/07/2027",
-      "diasRaw": "272"
+      "diasRaw": "271"
     },
     {
       "codigo": "MMD-006",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "MMD-007",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "MMD-008",
       "status": "OK",
       "dataCalibracao": "05/10/2026",
       "proximaCalibracao": "05/10/2027",
-      "diasRaw": "349"
+      "diasRaw": "348"
     },
     {
       "codigo": "MMD-010",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "MOM-001",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "05/11/2025",
       "proximaCalibracao": "05/11/2026",
-      "diasRaw": "15"
+      "diasRaw": "14"
     },
     {
       "codigo": "MOM-002",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "MOM-003",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "MOM-005",
       "status": "OK",
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
-      "diasRaw": "195"
+      "diasRaw": "194"
     },
     {
       "codigo": "MOM-007",
       "status": "OK",
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
-      "diasRaw": "94"
+      "diasRaw": "93"
     },
     {
       "codigo": "MOM-011",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "14/11/2025",
       "proximaCalibracao": "14/11/2026",
-      "diasRaw": "24"
+      "diasRaw": "23"
     },
     {
       "codigo": "MOM-012",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "14/11/2025",
       "proximaCalibracao": "14/11/2026",
-      "diasRaw": "24"
+      "diasRaw": "23"
     },
     {
       "codigo": "MOM-023",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "17/12/2025",
       "proximaCalibracao": "17/12/2026",
-      "diasRaw": "57"
+      "diasRaw": "56"
     },
     {
       "codigo": "MUL-0023",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
-      "diasRaw": "21"
+      "diasRaw": "20"
     },
     {
       "codigo": "MULT-001",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
-      "diasRaw": "21"
+      "diasRaw": "20"
     },
     {
       "codigo": "PAD-001",
       "status": "OK",
       "dataCalibracao": "01/04/2026",
       "proximaCalibracao": "01/04/2027",
-      "diasRaw": "162"
+      "diasRaw": "161"
     },
     {
       "codigo": "PAD-005",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "PAD-006",
       "status": "OK",
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
-      "diasRaw": "195"
+      "diasRaw": "194"
     },
     {
       "codigo": "PAD-006 (calibracao anterior)",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "PAD-008",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "PAD-009",
       "status": "OK",
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
-      "diasRaw": "167"
+      "diasRaw": "166"
     },
     {
       "codigo": "PAD-010",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "17/12/2025",
       "proximaCalibracao": "17/12/2026",
-      "diasRaw": "57"
+      "diasRaw": "56"
     },
     {
       "codigo": "PAD-011",
       "status": "OK",
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
-      "diasRaw": "204"
+      "diasRaw": "203"
     },
     {
       "codigo": "PAD-012",
       "status": "OK",
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
-      "diasRaw": "232"
+      "diasRaw": "231"
     },
     {
       "codigo": "TERM-012",
       "status": "OK",
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
-      "diasRaw": "167"
+      "diasRaw": "166"
     },
     {
       "codigo": "TERM-019",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "TERM-021",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "TERM-027",
       "status": "OK",
       "dataCalibracao": "15/04/2026",
       "proximaCalibracao": "15/04/2027",
-      "diasRaw": "176"
+      "diasRaw": "175"
     },
     {
       "codigo": "TERM-025",
       "status": "OK",
       "dataCalibracao": "31/03/2026",
       "proximaCalibracao": "31/03/2027",
-      "diasRaw": "161"
+      "diasRaw": "160"
     },
     {
       "codigo": "TERM-026",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "TERM-027",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "TERM-028",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "TERM-029",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "TERM-030",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
-      "diasRaw": "73"
+      "diasRaw": "72"
     },
     {
       "codigo": "TERM-031",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TERM-032",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TERM-033",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TIV-004",
       "status": "OK",
       "dataCalibracao": "01/10/2026",
       "proximaCalibracao": "01/10/2027",
-      "diasRaw": "345"
+      "diasRaw": "344"
     },
     {
       "codigo": "TIV-006",
       "status": "OK",
       "dataCalibracao": "01/10/2026",
       "proximaCalibracao": "01/10/2027",
-      "diasRaw": "345"
+      "diasRaw": "344"
     },
     {
       "codigo": "TORQ-008",
       "status": "OK",
       "dataCalibracao": "06/06/2026",
       "proximaCalibracao": "06/06/2027",
-      "diasRaw": "228"
+      "diasRaw": "227"
     },
     {
       "codigo": "TORQ-009",
       "status": "OK",
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
-      "diasRaw": "232"
+      "diasRaw": "231"
     },
     {
       "codigo": "TORQ-010",
       "status": "OK",
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
-      "diasRaw": "195"
+      "diasRaw": "194"
     },
     {
       "codigo": "TORQ-012",
       "status": "OK",
       "dataCalibracao": "27/05/2026",
       "proximaCalibracao": "27/05/2027",
-      "diasRaw": "218"
+      "diasRaw": "217"
     },
     {
       "codigo": "TRE-004",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-006",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-007",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-008",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-009",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-012",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "TRE-016",
       "status": "OK",
       "dataCalibracao": "24/03/2026",
       "proximaCalibracao": "24/03/2027",
-      "diasRaw": "154"
+      "diasRaw": "153"
     },
     {
       "codigo": "TRE-020",
       "status": "OK",
       "dataCalibracao": "19/05/2026",
       "proximaCalibracao": "19/05/2027",
-      "diasRaw": "210"
+      "diasRaw": "209"
     },
     {
       "codigo": "TRE-022",
       "status": "OK",
       "dataCalibracao": "25/06/2026",
       "proximaCalibracao": "25/06/2027",
-      "diasRaw": "247"
+      "diasRaw": "246"
     },
     {
       "codigo": "TRE-029",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "TRE-031",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "TRE-036",
       "status": "OK",
       "dataCalibracao": "17/06/2026",
       "proximaCalibracao": "17/06/2027",
-      "diasRaw": "239"
+      "diasRaw": "238"
     },
     {
       "codigo": "TRE-038",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "10/12/2025",
       "proximaCalibracao": "10/12/2026",
-      "diasRaw": "50"
+      "diasRaw": "49"
     },
     {
       "codigo": "TRE-039",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-040",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-041",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TRE-043",
       "status": "OK",
       "dataCalibracao": "14/02/2026",
       "proximaCalibracao": "14/02/2027",
-      "diasRaw": "116"
+      "diasRaw": "115"
     },
     {
       "codigo": "TRE-044",
       "status": "OK",
       "dataCalibracao": "14/02/2026",
       "proximaCalibracao": "14/02/2027",
-      "diasRaw": "116"
+      "diasRaw": "115"
     },
     {
       "codigo": "TRE-045",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TRE-046",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TRE-047",
       "status": "OK",
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
-      "diasRaw": "123"
+      "diasRaw": "122"
     },
     {
       "codigo": "TRE-048",
       "status": "OK",
       "dataCalibracao": "23/05/2026",
       "proximaCalibracao": "23/05/2027",
-      "diasRaw": "214"
+      "diasRaw": "213"
     },
     {
       "codigo": "VAC-010",
       "status": "OK",
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
-      "diasRaw": "204"
+      "diasRaw": "203"
     },
     {
       "codigo": "VAC-012",
       "status": "OK",
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
-      "diasRaw": "232"
+      "diasRaw": "231"
     },
     {
       "codigo": "VAC-015",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "VAC-022",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
-      "diasRaw": "78"
+      "diasRaw": "77"
     },
     {
       "codigo": "VAC-024",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "VAC-025",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "VAC-026",
       "status": "OK",
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
-      "diasRaw": "100"
+      "diasRaw": "99"
     },
     {
       "codigo": "ANE-005",
       "status": "OK",
       "dataCalibracao": "14/09/2026",
       "proximaCalibracao": "14/09/2027",
-      "diasRaw": "328"
+      "diasRaw": "327"
     },
     {
       "codigo": "ANE-014",
       "status": "OK",
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
-      "diasRaw": "310"
+      "diasRaw": "309"
     },
     {
       "codigo": "TORQ-005",
       "status": "OK",
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
-      "diasRaw": "310"
+      "diasRaw": "309"
     },
     {
       "codigo": "DTLG-017",
       "status": "OK",
       "dataCalibracao": "16/04/2026",
       "proximaCalibracao": "16/04/2027",
-      "diasRaw": "177"
+      "diasRaw": "176"
     },
     {
       "codigo": "ESC-034",
       "status": "OK",
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
-      "diasRaw": "121"
+      "diasRaw": "120"
     },
     {
       "codigo": "TRE-010",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "4001863",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "28/10/2025",
       "proximaCalibracao": "28/10/2026",
-      "diasRaw": "7"
+      "diasRaw": "6"
     },
     {
       "codigo": "DEG-003",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "29/10/2025",
       "proximaCalibracao": "29/10/2026",
-      "diasRaw": "8"
+      "diasRaw": "7"
     },
     {
       "codigo": "DEG-004",
       "status": "OK",
       "dataCalibracao": "08/05/2026",
       "proximaCalibracao": "08/05/2027",
-      "diasRaw": "199"
+      "diasRaw": "198"
     },
     {
       "codigo": "DEG-005",
       "status": "OK",
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
-      "diasRaw": "112"
+      "diasRaw": "111"
     },
     {
       "codigo": "DEG-009",
       "status": "OK",
       "dataCalibracao": "23/04/2026",
       "proximaCalibracao": "23/04/2027",
-      "diasRaw": "184"
+      "diasRaw": "183"
     },
     {
       "codigo": "DEG-012",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "29/10/2025",
       "proximaCalibracao": "29/10/2026",
-      "diasRaw": "8"
+      "diasRaw": "7"
     },
     {
       "codigo": "KA418-6000671",
       "status": "OK",
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
-      "diasRaw": "112"
+      "diasRaw": "111"
     },
     {
       "codigo": "KA418-6000736",
       "status": "OK",
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
-      "diasRaw": "112"
+      "diasRaw": "111"
     },
     {
       "codigo": "KA424-6049682",
       "status": "OK",
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
-      "diasRaw": "94"
+      "diasRaw": "93"
     },
     {
       "codigo": "MA218-600611",
       "status": "OK",
       "dataCalibracao": "28/01/2026",
       "proximaCalibracao": "28/01/2027",
-      "diasRaw": "99"
+      "diasRaw": "98"
     },
     {
       "codigo": "TRE-033",
       "status": "OK",
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
-      "diasRaw": "310"
+      "diasRaw": "309"
     },
     {
       "codigo": "170336",
       "status": "OK",
       "dataCalibracao": "04/09/2026",
       "proximaCalibracao": "04/09/2027",
-      "diasRaw": "318"
+      "diasRaw": "317"
     },
     {
       "codigo": "4000790",
       "status": "OK",
       "dataCalibracao": "04/09/2026",
       "proximaCalibracao": "04/09/2027",
-      "diasRaw": "318"
+      "diasRaw": "317"
     },
     {
       "codigo": "DTLG-014",
       "status": "OK",
       "dataCalibracao": "17/09/2026",
       "proximaCalibracao": "17/09/2027",
-      "diasRaw": "331"
+      "diasRaw": "330"
     },
     {
       "codigo": "TIV-005",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TIV-007",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TIV-002",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TIV-001",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "TIV-003",
       "status": "VENCE EM 90 DIAS",
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "MMD-002",
       "status": "OK",
       "dataCalibracao": "05/10/2026",
       "proximaCalibracao": "05/10/2027",
-      "diasRaw": "349"
+      "diasRaw": "348"
     }
   ]
 }
