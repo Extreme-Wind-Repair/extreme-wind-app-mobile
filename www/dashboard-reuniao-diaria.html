@@ -386,6 +386,8 @@
   .ehsr-ult a{color:inherit; text-decoration:underline;}
   .ehsr-dia.hoje{color:var(--muted);}
   .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
+  .ehsr-ult.ok{color:var(--ok);}
+  .ehsr-ult.warn{color:var(--warn);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -3271,7 +3273,7 @@
       }).filter(Boolean);
     } catch(err){
       console.error('Falha ao carregar RD_EHS_Excecoes:', err);
-      REPORT_EHS_EXC = [];
+      /* 23/10/2026: em falha de recarga mantem a lista anterior (nao zera as excecoes) */
     }
   }
   const REPORT_EHS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('Reports EHS');
@@ -3298,11 +3300,14 @@
       REPORT_EHS = { linhas: linhas };
     } catch(err){
       console.error('Falha ao carregar Reports EHS:', err);
-      REPORT_EHS = { erro: true, linhas: [] };
+      if (!REPORT_EHS || REPORT_EHS.erro) REPORT_EHS = { erro: true, linhas: [] }; /* recarga que falha mantem os dados anteriores */
     }
     await loadExcecoesEhs();
     preencherQuadrosReportEhs();
   }
+  /* 23/10/2026 (Robson): o quadro Seguranca/EHS le o Sheets direto e se atualiza sozinho: a cada 2,5 min e ao voltar para a aba. */
+  setInterval(function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); }, 150000);
+  document.addEventListener('visibilitychange', function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); });
   function preencherQuadrosReportEhs(){
     const els = Array.prototype.slice.call(document.querySelectorAll('[data-ehs-report-auto]'));
     if (!REPORT_EHS){ return; }
@@ -3378,7 +3383,7 @@
         exDrive = exU;
       } else if (datas.length){
         const ud = datas[datas.length - 1], x = meus[ud][meus[ud].length - 1];
-        ult = '<div class="ehsr-ult">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
+        ult = '<div class="ehsr-ult ' + (temAlerta(x) ? 'warn' : 'ok') + '">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
               (x.pdf && /^https:\/\//.test(x.pdf) ? ' · <a href="' + escapeHtml(x.pdf) + '" target="_blank" rel="noopener">PDF</a>' : '') + '</div>';
       }
       el.innerHTML = '<div class="frota-muted" style="font-size:10px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
@@ -3386,14 +3391,24 @@
          Campo vazio mostra a observacao da aba (so na tela; nao grava sozinho). */
       const boxOc = el.parentElement ? el.parentElement.querySelector('[data-field="OcorrenciaEHS"]') : null;
       if (boxOc){
+        /* 23/10/2026 (Robson): texto automatico acompanha a planilha e SEMPRE traz a data do lancamento (nunca parece de hoje).
+           So sobrescreve o que ele mesmo escreveu (dataset.ehsAutoTxt); texto digitado por pessoa nunca e tocado. */
+        const atual = boxOc.textContent.trim();
+        const meuAuto = boxOc.dataset.ehsAutoTxt || '';
+        const podeMexer = document.activeElement !== boxOc && (!atual || atual === meuAuto);
         if (exDrive){
           const autD = exDrive.tipo === 'AUTORIZADO';
           boxOc.style.color = autD ? 'var(--ok)' : '#F28C28';
-          if (!boxOc.textContent.trim() && document.activeElement !== boxOc){
+          if (podeMexer){
             const o = (exDrive.obs && !/^n\/?a$/i.test(exDrive.obs)) ? exDrive.obs : '';
-            boxOc.textContent = (autD ? 'Autorizado' : 'Stand-by') + (o ? ': ' + o : '');
+            const dt = exUd.slice(6,8) + '/' + exUd.slice(4,6);
+            const txt = dt + ' · ' + (autD ? 'Autorizado' : 'Stand-by') + (o ? ': ' + o : '');
+            boxOc.textContent = txt; boxOc.dataset.ehsAutoTxt = txt;
           }
-        } else { boxOc.style.color = ''; }
+        } else {
+          boxOc.style.color = '';
+          if (podeMexer && meuAuto){ boxOc.textContent = ''; boxOc.dataset.ehsAutoTxt = ''; }
+        }
       }
     });
   }
