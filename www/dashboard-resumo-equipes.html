@@ -292,7 +292,7 @@
         return; /* mesmos tecnicos do projeto anterior (ex.: Gameleira -> Baixa do Feijao): nao soma no plano */
       }
       if (!t) t = equipesFuturo(p.NomeParque);
-      if (parques.some(function(x){ return primeiro(x.nome) === primeiro(p.NomeParque); })) return; /* ja esta na tabela (ex.: Dolores) */
+      if (!/DOLORES\s*[34]\b/.test(n) && parques.some(function(x){ return primeiro(x.nome) === primeiro(p.NomeParque); })) return; /* ja esta na tabela (ex.: Dolores) */
       plan += t; if (ini && ini > hoje){ eventos.push({ data:ini, delta:t, nome:p.NomeParque }); fut += t; }
     });
     var prox = eventos.filter(function(e){ return e.data > hoje; }).sort(function(a, b){ return a.data - b.data; })[0];
