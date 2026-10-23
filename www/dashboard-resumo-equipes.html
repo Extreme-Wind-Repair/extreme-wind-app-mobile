@@ -279,7 +279,7 @@
     var eventos = [], fut = 0;
     var cards = d.parques.filter(function(p){ return p && !p.Placeholder && String(p.NomeParque || '').trim(); });
     cards.forEach(function(p){
-      if (p.Bloco !== 'b2' && p.Bloco !== 'b3') return;
+      if (p.Bloco !== 'b2' && p.Bloco !== 'b3' && !/DOLORES\s*[34]\b/.test(normN(p.NomeParque))) return;
       var n = normN(p.NomeParque), ini = parseData(p.Data), t = tam(p);
       if (n.indexOf('TERRA SANTA') === 0){
         var linhaTS = parques.filter(function(x){ return normN(x.nome).indexOf('TERRA SANTA') === 0; })[0];
