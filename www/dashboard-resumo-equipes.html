@@ -274,7 +274,7 @@
     if (!kReal || !kPlan || !kDef || typeof parques === 'undefined') return;
     var eq = d.equipe || [], real = parseInt(kReal.querySelector('.value').textContent, 10), plan = 0;
     parques.forEach(function(x){ plan += x.plano; });
-    var tam = function(p){ return eq.filter(function(r){ return r.ParkID === p.ParkID && !r.Placeholder && String(r.Val1 || '').trim(); }).length; };
+    var tam = function(p){ return eq.filter(function(r){ return r.ParkID === p.ParkID && !r.Placeholder; }).length; }; /* conta vagas da equipe, inclusive a de nome ainda em branco */
     var primeiro = function(s){ return normN(s).split(' ')[0]; };
     var eventos = [], fut = 0;
     var cards = d.parques.filter(function(p){ return p && !p.Placeholder && String(p.NomeParque || '').trim(); });
