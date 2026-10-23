@@ -244,7 +244,8 @@
       var n = normN(p.NomeParque), item = { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) };
       if (p.Bloco === 'b1' || Object.keys(TOPO_BLOCOS).some(function(k){ return n.indexOf(k) === 0; })) topo.push(item);
       else if (!ativos[n]) {
-        item.ini = iniFuturo(p.NomeParque);
+        /* 23/10/2026: em projeto futuro o campo Data do card e a DATA DE INICIO (VAGAS MESTRE). Termino = inicio + 2 meses ate a Reuniao Diaria informar a previsao de termino. Sem Data no card: usa o mapa INICIO_FUTURO. */
+        item.ini = item.fim || iniFuturo(p.NomeParque); item.fim = null; item.data = '';
         var neq = /\d+$/.test(n) ? 1 : equipesFuturo(p.NomeParque);
         if (neq > 1) { for (var q = 1; q <= neq; q++) fut.push({ nome:p.NomeParque + ' ' + q, data:item.data, fim:item.fim, ini:item.ini }); }
         else fut.push(item);
