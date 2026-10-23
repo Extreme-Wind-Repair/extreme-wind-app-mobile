@@ -168,7 +168,7 @@
   function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
   function linha(nome, dataStr, hoje, parques, fut){
     var fim = parseData(dataStr), estim = false;
-    if (!fim){ fim = new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
+    if (!fim){ fim = (fut && fut.ini) ? maisMeses(fut.ini, 2) : new Date(hoje.getFullYear(), hoje.getMonth() + 2, hoje.getDate()); estim = true; } /* regra 20/10/2026: sem data = 2 meses a frente */
     var nm = '<span class="gnt-nome">' + esc(nome) + '</span>' + (estim ? ' <span class="gnt-vazio">(estimado: 2 meses, sem previsão informada)</span>' : '');
     var rest = dif(hoje, fim), cor, status;
     if (rest < 0){ cor = '#b71c1c'; status = 'Vencido há ' + (-rest) + ' dia' + (rest === -1 ? '' : 's'); }
@@ -202,9 +202,12 @@
     var peso = { q:3, s:2, d:1 };
     if (fut){
       var ini = fut.ini, fimOk = !fut.estim;
-      var ftrack = cells.map(function(c){
-        var on = ini ? (c.ate >= ini && c.ini <= fim) : c.fim;
-        return '<span class="gnt-cell' + (on ? ' on' : '') + (c.fim && fimOk ? ' fim' : '') + (c.hoje ? ' hoje' : '') + '" style="flex:' + peso[c.tipo] + ' 1 0" title="' + esc(nome) + ': ' + dd(c.ini) + (c.tipo === 'd' ? '' : ' a ' + dd(c.ate)) + '">' + (c.tipo === 'd' ? String(c.ini.getDate()) : dd(c.ini)) + '</span>';
+      /* eixo temporal LINEAR compartilhado entre os projetos futuros (celulas de 15 dias a partir de hoje): quanto mais longe o inicio, mais a direita a barra comeca (mesma logica do 'Proximo' da Baixa do Feijao) */
+      var hz = fut.horizon || new Date(hoje.getTime() + 182*DIA), fcells = [], ft = new Date(hoje), g2 = 0;
+      while (ft < hz && g2++ < 40){ var fa = new Date(ft.getTime() + 14*DIA); fcells.push({ ini:new Date(ft), ate:fa }); ft = new Date(ft.getTime() + 15*DIA); }
+      var ftrack = fcells.map(function(c, ix){
+        var on = ini ? (c.ate >= ini && c.ini <= fim) : (c.ate >= fim && c.ini <= fim);
+        return '<span class="gnt-cell' + (on ? ' on' : '') + (ix === 0 ? ' hoje' : '') + '" style="flex:1 1 0" title="' + esc(nome) + ': ' + dd(c.ini) + ' a ' + dd(c.ate) + '">' + dd(c.ini) + '</span>';
       }).join('');
       var comeca = ini ? (dif(hoje, ini) > 0 ? 'Começa em ' + dif(hoje, ini) + ' dia' + (dif(hoje, ini) === 1 ? '' : 's') : 'Início previsto já passou') : 'Início a definir';
       return '<div class="gnt-row" style="--gcor:#42a5f5"><div class="gnt-head"><span class="gnt-nome" style="color:#42a5f5">' + esc(nome) + ' <span class="gnt-vazio">(próximo projeto)</span></span><span>' + (ini ? 'início <b>' + dd(ini) + '/' + String(ini.getFullYear()).slice(2) + '</b> · ' : '') + 'término <b>' + dd(fim) + '/' + String(fim.getFullYear()).slice(2) + '</b>' + (fut.estim ? ' <i>(estimado: 2 meses)</i>' : '') + '</span><span class="gnt-status">' + comeca + '</span></div><div class="gnt-track">' + ftrack + '</div></div>';
@@ -249,8 +252,10 @@
     });
     topo.sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
     fut.sort(function(a, b){ var x = a.ini ? a.ini.getTime() : 9e15, y = b.ini ? b.ini.getTime() : 9e15; return x - y; });
+    var hzt = new Date(hoje.getTime() + 182*DIA);
+    fut.forEach(function(x){ var f = x.fim || (x.ini ? maisMeses(x.ini, 2) : null); if (f && f.getTime() + DIA > hzt.getTime()) hzt = new Date(f.getTime() + DIA); });
     var html = topo.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('');
-    if (fut.length) html += '<div class="gnt-leg" style="margin-top:12px"><b>Próximos projetos</b> (começam no futuro)</div>' + fut.map(function(x){ return linha(x.nome, x.data, hoje, parques, { ini:x.ini, estim:!x.fim }); }).join('');
+    if (fut.length) html += '<div class="gnt-leg" style="margin-top:12px"><b>Próximos projetos</b> (começam no futuro)</div>' + fut.map(function(x){ return linha(x.nome, x.data, hoje, parques, { ini:x.ini, estim:!x.fim, horizon:hzt }); }).join('');
     el.innerHTML = html || '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
   }
   function carregar(tent){
