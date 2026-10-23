@@ -265,9 +265,44 @@
     if (fut.length) html += '<div class="gnt-leg" style="margin-top:12px"><b>Próximos projetos</b> (começam no futuro)</div>' + fut.map(function(x){ return linha(x.nome, '', hoje, parques, { ini:x.ini }); }).join('');
     el.innerHTML = html || '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
   }
+  /* PLANEJADO ACOMPANHA O GANTT (23/10/2026, Robson): o planejamento de futuro vem da Reuniao Diaria. Base = plano da planilha (tabela de parques desta pagina); ajuste ao vivo: (1) projeto do bloco 2/3 que JA comecou (inicio <= hoje) e nao esta na tabela soma o tamanho da sua equipe (RD_Equipe); (2) Terra Santa (ja no plano da planilha) so conta a partir da data de inicio do card; (3) mostra o proximo aumento/queda de headcount por data de inicio. */
+  function ajustaPlanejado(d, hoje){
+    if (!d || !d.parques) return;
+    var kpis = document.querySelectorAll('.kpis .kpi'), kReal, kPlan, kDef;
+    Array.prototype.forEach.call(kpis, function(k){ var l = k.querySelector('.label'); if (!l) return; var t = l.textContent.trim();
+      if (/^Tecnicos ativos/i.test(t)) kReal = k; else if (/^Planejado/i.test(t)) kPlan = k; else if (/^Deficit/i.test(t)) kDef = k; });
+    if (!kReal || !kPlan || !kDef || typeof parques === 'undefined') return;
+    var eq = d.equipe || [], real = parseInt(kReal.querySelector('.value').textContent, 10), plan = 0;
+    parques.forEach(function(x){ plan += x.plano; });
+    var tam = function(p){ return eq.filter(function(r){ return r.ParkID === p.ParkID && !r.Placeholder && String(r.Val1 || '').trim(); }).length; };
+    var primeiro = function(s){ return normN(s).split(' ')[0]; };
+    var eventos = [];
+    var cards = d.parques.filter(function(p){ return p && !p.Placeholder && String(p.NomeParque || '').trim(); });
+    cards.forEach(function(p){
+      if (p.Bloco !== 'b2' && p.Bloco !== 'b3') return;
+      var n = normN(p.NomeParque), ini = parseData(p.Data), t = tam(p);
+      if (n.indexOf('TERRA SANTA') === 0){
+        var linhaTS = parques.filter(function(x){ return normN(x.nome).indexOf('TERRA SANTA') === 0; })[0];
+        if (linhaTS && ini && ini > hoje){ plan -= linhaTS.plano; eventos.push({ data:ini, delta:linhaTS.plano, nome:p.NomeParque }); }
+        return;
+      }
+      if (Object.keys(PROXIMO).some(function(k){ return n.indexOf(normN(PROXIMO[k])) === 0; })){ /* encadeado: comeca depois do anterior */
+        var ant = null; Object.keys(PROXIMO).forEach(function(k){ if (n.indexOf(normN(PROXIMO[k])) === 0) ant = cards.filter(function(c){ return normN(c.NomeParque).indexOf(k) === 0; })[0]; });
+        var af = ant ? parseData(ant.Data) : null; ini = af ? new Date(af.getTime() + DIA) : null;
+      }
+      if (!ini || !t) return;
+      if (parques.some(function(x){ return primeiro(x.nome) === primeiro(p.NomeParque); })) return; /* ja esta na tabela (ex.: Dolores) */
+      if (ini <= hoje) plan += t; else eventos.push({ data:ini, delta:t, nome:p.NomeParque });
+    });
+    var prox = eventos.filter(function(e){ return e.data > hoje; }).sort(function(a, b){ return a.data - b.data; })[0];
+    kPlan.querySelector('.value').textContent = String(plan);
+    var sp = kPlan.querySelector('.sub'); if (sp) sp.textContent = 'meta de equipes' + (prox ? ' · ' + (prox.delta >= 0 ? '+' : '') + prox.delta + ' em ' + dd(prox.data) + ' (' + prox.nome + ')' : '');
+    var def = real - plan, dv = kDef.querySelector('.value'); dv.textContent = String(def);
+    dv.classList.toggle('red', def < 0);
+  }
   function carregar(tent){
     fetch(API_URL + '?_=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.json(); })
-      .then(function(d){ render(d && d.parques); })
+      .then(function(d){ render(d && d.parques); try { var h0 = new Date(); h0.setHours(0,0,0,0); ajustaPlanejado(d, h0); } catch(e){} })
       .catch(function(){
         if (tent < 2) return setTimeout(function(){ carregar(tent + 1); }, 1500);
         var el = document.getElementById('gntPrazos'); if (el) el.innerHTML = '<div class="gnt-vazio">Prazos indisponíveis agora (sem conexão com a Reunião Diária). Recarregue a página.</div>';
