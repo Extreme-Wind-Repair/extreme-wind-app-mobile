@@ -533,6 +533,10 @@
   .ap-name:nth-of-type(-n+3) .ap-text{color:#22B24C;}
   .ap-name:nth-of-type(n+4) .ap-text{color:var(--text);}
   /* 22/10/2026 (Robson): Bloco 3 -- campo de backup visivel (vaga em branco com texto-guia) + seletor de tecnicos. Grava em RD_Aprovados, igual ao Bloco 1. */
+  /* 23/10/2026 (Robson): botao x para remover o backup de um projeto (limpa o nome em RD_Aprovados; nao apaga linha da planilha). */
+  .ap-del{cursor:pointer; margin-left:6px; padding:0 4px; color:var(--muted); font-weight:700; border-radius:4px; user-select:none;}
+  .ap-del:hover{color:#fff; background:#b71c1c;}
+  .blank-ap .ap-del{display:none;}
   .ap-names.ap-b3 .blank-ap .ap-text:empty::before{content:'+ digitar backup'; color:var(--muted); font-style:italic; font-size:11px;}
   .ap-names.ap-b3 .blank-ap{min-width:96px; border-style:dashed;}
   .ap-escolher{margin-top:8px; background:var(--panel,#0f1720); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:11.5px; max-width:340px;}
@@ -1706,7 +1710,8 @@
   function aprovadoChipHtml(row){
     return '<span class="ap-name' + (row.Placeholder ? ' blank-ap' : '') + '" draggable="true" data-row="' + row._row + '">' +
       '<span class="ap-handle">⠿</span>' +
-      '<span class="ap-text" contenteditable="true" data-field="Nome">' + escapeHtml(row.Nome) + '</span></span>';
+      '<span class="ap-text" contenteditable="true" data-field="Nome">' + escapeHtml(row.Nome) + '</span>' +
+      '<span class="ap-del" title="Remover este backup do projeto" role="button" aria-label="Remover backup">×</span></span>';
   }
 
   function renderPark(container, p, extraDeletableBlank){
@@ -1740,6 +1745,17 @@
       const onde = (r.Nome && !r.Placeholder) ? backupAlocadoEm(r.Nome, p.ParkID) : null;
       if (onde){ ocultos.push(String(r.Nome).replace(/\s*\(backup\)\s*/i, '') + ' → ' + (onde === p.NomeParque ? 'já está nesta equipe' : onde)); return; }
       apBody.appendChild(el(aprovadoChipHtml(r)));
+    });
+    /* 23/10/2026 (Robson): remover backup do projeto (botao x). Limpa o nome (mesma gravacao do campo, via blur); se ja houver vaga em branco, o chip some; senao vira a vaga em branco. */
+    apBody.addEventListener('click', function(ev){
+      const x = ev.target.closest && ev.target.closest('.ap-del'); if (!x || !apBody.contains(x)) return;
+      const chip = x.closest('.ap-name'); const txt = chip && chip.querySelector('.ap-text'); if (!txt) return;
+      const nome = txt.textContent.trim();
+      if (!window.confirm('Remover o backup "' + nome + '" deste projeto?')) return;
+      txt.textContent = '';
+      txt.dispatchEvent(new Event('blur'));
+      const outroBranco = Array.prototype.some.call(apBody.querySelectorAll('.ap-name.blank-ap'), function(c){ return c !== chip; });
+      if (outroBranco) chip.remove(); else chip.classList.add('blank-ap');
     });
     if (ocultos.length){
       apBody.appendChild(el('<span class="ap-ocultos" title="' + escapeHtml(ocultos.join('\n')) + '">' + ocultos.length + ' oculto' + (ocultos.length > 1 ? 's' : '') + ' (já ativo' + (ocultos.length > 1 ? 's' : '') + ' em projeto)</span>'));
