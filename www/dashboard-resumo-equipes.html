@@ -216,6 +216,7 @@
     var el = document.getElementById('gntPrazos'); if (!el) return;
     var hoje = new Date(); hoje.setHours(0,0,0,0);
     var lista = (parques || []).filter(function(p){ return p && (p.Bloco === 'b1' || p.Bloco === 'b2' || p.Bloco === 'b3') && !p.Placeholder && String(p.NomeParque || '').trim(); })
+      .filter(function(p){ var n = normN(p.NomeParque); return !Object.keys(PROXIMO).some(function(k){ return n.indexOf(normN(PROXIMO[k])) === 0; }); }) /* projeto encadeado (ex.: Baixa do Feijao) aparece so como 'Proximo' do anterior, nao como linha propria */
       .map(function(p){ return { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) }; })
       .sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
     el.innerHTML = lista.length ? lista.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('') : '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
