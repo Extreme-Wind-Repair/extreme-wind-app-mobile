@@ -118,7 +118,7 @@
     <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">1</div></div>
   </div>
 </div>
-<!-- GANTT_PRAZOS:INICIO (20/10/2026, Robson): barras de prazo por projeto (mesma logica da Reuniao Diaria), 6 meses a frente. Dado ao vivo: campo "Previsao de termino" (RD_Parques) via API da Reuniao Diaria. Nao e gerado pelo gerar_dashboards.py -- nao remover. -->
+<!-- GANTT_PRAZOS:INICIO (22/10/2026: blocos b1+b2+b3; 20/10/2026, Robson): barras de prazo por projeto (mesma logica da Reuniao Diaria), 6 meses a frente. Dado ao vivo: campo "Previsao de termino" (RD_Parques) via API da Reuniao Diaria. Nao e gerado pelo gerar_dashboards.py -- nao remover. -->
 <style>
 .gnt-card{margin-bottom:14px}
 .gnt-row{padding:8px 0; border-top:1px solid var(--line,#1e3a52)}
@@ -215,7 +215,7 @@
   function render(parques){
     var el = document.getElementById('gntPrazos'); if (!el) return;
     var hoje = new Date(); hoje.setHours(0,0,0,0);
-    var lista = (parques || []).filter(function(p){ return p && p.Bloco === 'b1' && !p.Placeholder && String(p.NomeParque || '').trim(); })
+    var lista = (parques || []).filter(function(p){ return p && (p.Bloco === 'b1' || p.Bloco === 'b2' || p.Bloco === 'b3') && !p.Placeholder && String(p.NomeParque || '').trim(); })
       .map(function(p){ return { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) }; })
       .sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
     el.innerHTML = lista.length ? lista.map(function(x){ return linha(x.nome, x.data, hoje, parques); }).join('') : '<div class="gnt-vazio">Nenhum projeto ativo encontrado.</div>';
