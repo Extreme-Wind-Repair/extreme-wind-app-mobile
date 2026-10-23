@@ -1154,6 +1154,92 @@ render();
   </div>
 </div>
 
+<!-- KM_ESTOURO_HIST:INICIO (23/10/2026, Robson): historico de KM estourado por semana, filtro por placa/projeto. Dado da aba GRAFICOS (tabela Placa/Parque x WK). Gerado por gerar_dashboards.py -->
+<div class="panel" id="panelKmEstouro">
+  <div class="panel-header">
+    <h2 style="margin-bottom:0">KM Estourado por Semana — por Placa e Projeto</h2>
+  </div>
+  <div style="color:var(--muted); font-size:12.5px; margin:4px 0 12px">Estouro = km acima da franquia (saldo negativo na planilha). Quanto mais alto, maior o estouro. Última semana é parcial quando marcada com *.</div>
+  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:10px">
+    <label style="font-size:12.5px; color:var(--muted)">Projeto
+      <select id="kmhProj" style="margin-left:6px; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 10px; font-size:13px"></select>
+    </label>
+    <button type="button" id="kmhTodas" class="toggle-btn" style="padding:6px 12px">Marcar todas</button>
+    <button type="button" id="kmhNenhuma" class="toggle-btn" style="padding:6px 12px">Limpar</button>
+  </div>
+  <div id="kmhChips" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px"></div>
+  <svg id="kmhSvg" viewBox="0 0 1000 340" class="trend-chart" style="width:100%; height:auto"></svg>
+  <div id="kmhVazio" style="display:none; color:var(--muted); font-size:13px; padding:8px 0">Nenhuma placa selecionada.</div>
+  <div class="note">Fonte: planilha "Controle de Frota", aba GRÁFICOS — tabela do gráfico "Saldo de km por placa" (estouro = −saldo). Use o filtro de projeto ou marque/desmarque as placas.</div>
+  <script type="application/json" id="kmhData">{"semanas":["WK30 · 26/07","WK31 · 02/08","WK32 · 09/08","WK33 · 16/08","WK34 · 23/08","WK35 · 30/08","WK36 · 06/09","WK37 · 13/09","WK38 · 20/09","WK39 · 27/09","WK40 · 04/10","WK41 · 11/10","WK42 · 18/10","WK43* · 22/10"],"series":[{"placa":"TXY8H30","parque":"Gameleira/RN","v":[5212,4800,4317,3786,3140,2462,2524,3044,2852,2964,2867,2744,2273,1873]},{"placa":"UVN9J75","parque":"LDV 1/PI","v":[null,null,null,null,null,null,null,null,515,402,440,327,1730,1330]},{"placa":"UVN2B79","parque":"Oitis 2/PI","v":[4927,4368,4928,4351,3584,3000,2301,1632,938,183,-467,32,1357,1090]},{"placa":"UHS5E92","parque":"Oitis 1/PI","v":[1964,2518,2940,3489,3615,3167,2807,2424,2182,2051,1942,1621,1250,987]},{"placa":"NC7492D","parque":"Dolores 2/MEX","v":[null,null,null,null,null,null,null,null,null,null,null,160,251,97]},{"placa":"UVN9J44","parque":"LDV 2/PI","v":[null,null,null,null,null,null,null,null,363,340,280,4,470,70]}]}</script>
+  <script type="text/javascript">
+  (function(){
+    var D; try{ D = JSON.parse(document.getElementById('kmhData').textContent); }catch(e){ return; }
+    var COR = ['#1C8CE8','#E0483C','#12BFA8','#D89A2B','#B07CE8','#F06FA8','#7FD14B','#E8E04B','#5C7A93','#FF8A3D'];
+    var S = D.series.map(function(s,i){ s.cor = COR[i % COR.length]; s.on = true; return s; });
+    var svg = document.getElementById('kmhSvg'), chips = document.getElementById('kmhChips'), sel = document.getElementById('kmhProj');
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(n, a, t){ var e = document.createElementNS(NS, n); for(var k in a) e.setAttribute(k, a[k]); if(t != null) e.textContent = t; return e; }
+    function fmt(v){ return (v<0?'-':'') + Math.abs(v).toLocaleString('pt-BR'); }
+    var projs = []; S.forEach(function(s){ if(projs.indexOf(s.parque) < 0) projs.push(s.parque); });
+    sel.innerHTML = '<option value="">Todos os projetos</option>' + projs.map(function(p){ return '<option>'+p.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>'; }).join('');
+    function vis(s){ return !sel.value || s.parque === sel.value; }
+    function drawChips(){
+      chips.innerHTML = '';
+      S.forEach(function(s){
+        if(!vis(s)) return;
+        var last = null; for(var i=s.v.length-1;i>=0;i--){ if(s.v[i]!=null){ last = s.v[i]; break; } }
+        var lb = document.createElement('label');
+        lb.style.cssText = 'display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid '+s.cor+';border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer';
+        var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = s.on;
+        cb.onchange = function(){ s.on = cb.checked; draw(); };
+        lb.appendChild(cb);
+        lb.appendChild(document.createTextNode(s.placa + ' · ' + s.parque + (last!=null ? ' (' + fmt(last) + ' km)' : '')));
+        chips.appendChild(lb);
+      });
+    }
+    function draw(){
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      var L = S.filter(function(s){ return vis(s) && s.on; });
+      document.getElementById('kmhVazio').style.display = L.length ? 'none' : 'block';
+      if(!L.length) return;
+      var n = D.semanas.length, x0 = 70, x1 = 960, y0 = 20, y1 = 270;
+      var mx = 0, mn = 0; L.forEach(function(s){ s.v.forEach(function(v){ if(v!=null){ if(v>mx) mx=v; if(v<mn) mn=v; } }); });
+      var step = 500; var span = mx - mn; if(span > 6000) step = 1000; if(span < 1500) step = 250;
+      var top = Math.ceil(mx/step)*step || step, bot = Math.floor(mn/step)*step;
+      function X(i){ return n>1 ? x0 + i*(x1-x0)/(n-1) : (x0+x1)/2; }
+      function Y(v){ return y0 + (top - v)*(y1-y0)/(top-bot); }
+      for(var t=bot; t<=top; t+=step){
+        svg.appendChild(el('line',{x1:x0,x2:x1,y1:Y(t),y2:Y(t),stroke: t===0 ? '#5C7A93' : '#1E4363','stroke-width': t===0 ? 1.5 : 1}));
+        svg.appendChild(el('text',{x:x0-8,y:Y(t)+4,fill:'#8FA9C0','font-size':12,'text-anchor':'end'}, fmt(t)));
+      }
+      D.semanas.forEach(function(w,i){
+        var p = w.split('·'); var t1 = p[0].trim(), t2 = (p[1]||'').trim();
+        svg.appendChild(el('text',{x:X(i),y:y1+20,fill:'#8FA9C0','font-size':11.5,'text-anchor':'middle'}, t1));
+        if(t2) svg.appendChild(el('text',{x:X(i),y:y1+35,fill:'#5C7A93','font-size':10.5,'text-anchor':'middle'}, t2));
+      });
+      svg.appendChild(el('text',{x:x0-8,y:y0-6,fill:'#8FA9C0','font-size':11,'text-anchor':'end'}, 'km'));
+      L.forEach(function(s){
+        var d = '', gap = true;
+        s.v.forEach(function(v,i){ if(v==null){ gap = true; return; } d += (gap?'M':'L') + X(i).toFixed(1) + ',' + Y(v).toFixed(1) + ' '; gap = false; });
+        svg.appendChild(el('path',{d:d,fill:'none',stroke:s.cor,'stroke-width':2.5,'stroke-linejoin':'round','stroke-linecap':'round'}));
+        s.v.forEach(function(v,i){
+          if(v==null) return;
+          var c = el('circle',{cx:X(i),cy:Y(v),r:4,fill:'#0F2A40',stroke:s.cor,'stroke-width':2});
+          c.appendChild(el('title',{}, s.placa + ' · ' + s.parque + ' — ' + D.semanas[i] + ': ' + fmt(v) + ' km estourado'));
+          svg.appendChild(c);
+        });
+      });
+    }
+    sel.onchange = function(){ drawChips(); draw(); };
+    document.getElementById('kmhTodas').onclick = function(){ S.forEach(function(s){ if(vis(s)) s.on = true; }); drawChips(); draw(); };
+    document.getElementById('kmhNenhuma').onclick = function(){ S.forEach(function(s){ if(vis(s)) s.on = false; }); drawChips(); draw(); };
+    drawChips(); draw();
+  })();
+  </script>
+</div>
+<!-- KM_ESTOURO_HIST:FIM -->
+
 <div class="note">
   Fonte: planilha "Controle de Frota" — aba BASE DASHBOARD, bloco da Semana 34. "Meses" calculado a partir da Data Início até a data de atualização (célula "ATUALIZAÇÃO" do bloco atual: 17/08/2026).
   Dados extraídos automaticamente; confira os valores antes de compartilhar. Uso interno do setor — link privado, não indexado publicamente; não repasse fora da equipe sem necessidade.
