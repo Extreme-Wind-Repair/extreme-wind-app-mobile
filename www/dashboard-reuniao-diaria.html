@@ -1383,8 +1383,8 @@
     if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
     return fields.map(function(k){
       const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade','Cintos'].indexOf(k) !== -1;
-      return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + CHIP_LABELS[k] + '</span>' +
-        '<span class="chip-value' + (k === 'Data' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '"' + (k === 'Cintos' ? ' data-vazio="—" style="white-space:pre-line;min-height:1.4em"' : '') + '>' + escapeHtml(k === 'Estado' ? estadoDe(p) : (k === 'Cintos' ? cintosDe(p) : p[k])) + '</span></span>';
+      return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + (k === 'Data' && p.Bloco === 'b3' ? 'Data prevista de início' : CHIP_LABELS[k]) + '</span>' +
+        '<span class="chip-value' + (k === 'Data' && p.Bloco !== 'b3' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '"' + (k === 'Cintos' ? ' data-vazio="—" style="white-space:pre-line;min-height:1.4em"' : '') + '>' + escapeHtml(k === 'Estado' ? estadoDe(p) : (k === 'Cintos' ? cintosDe(p) : p[k])) + '</span></span>';
     }).join('');
   }
 
@@ -2515,7 +2515,8 @@
         const panel = fieldEl.closest('.panel');
         const pp = panel ? (DATA.parques || []).find(function(x){ return x.ParkID === panel.dataset.parkid; }) : null;
         if (pp){ pp.Data = value; atualizarGantt(panel); }
-        fieldEl.classList.toggle('chip-data-passada', dataChipPassada(value));
+        /* 23/10/2026 (Robson): no Bloco 3 o campo Data e a DATA PREVISTA DE INICIO (nao termino) -- sem vermelho de data passada. */
+        fieldEl.classList.toggle('chip-data-passada', !!(pp ? pp.Bloco !== 'b3' : true) && dataChipPassada(value));
       }
     });
   }
