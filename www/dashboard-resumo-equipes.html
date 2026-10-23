@@ -160,6 +160,9 @@
   /* 23/10/2026 (Robson): projetos que comecam no futuro (blocos 2/3) aparecem no FIM, no mesmo estilo azul do "Proximo" (Baixa do Feijao). Inicio previsto vem do Portal (PROJ_CARDS, 23/10/2026) -- sem entrada = "inicio a definir". Atualizar este mapa quando o Portal mudar. */
   var INICIO_FUTURO = { 'UNIAO DOS VENTOS':'2026-11-03', 'VENTOS SERRA DO MEL':'2026-11-03', 'VENTOS DO PIAUI':'2026-12-01', 'SANTANA DO LIVRAMENTO':'2027-01-01', 'LOS CANONES':'2026-11-03' };
   var TOPO_BLOCOS = { 'TERRA SANTA':1 }; /* projetos de b2/b3 que ficam em cima com os ativos (Terra Santa: Robson, 23/10/2026) */
+  /* 23/10/2026 (Robson): projeto com 2 equipes = 2 linhas. Fonte: QUADRO DE REUNIAO (VAGAS MESTRE) e Portal (PROJ_CARDS): Uniao dos Ventos 1/2, Ventos do Piaui 1/2, Santana do Livramento 1/2. */
+  var EQUIPES_FUTURO = { 'UNIAO DOS VENTOS':2, 'VENTOS DO PIAUI':2, 'SANTANA DO LIVRAMENTO':2 };
+  function equipesFuturo(nome){ var n = normN(nome), r = 1; Object.keys(EQUIPES_FUTURO).forEach(function(k){ if (n.indexOf(k) === 0) r = EQUIPES_FUTURO[k]; }); return r; }
   function iniFuturo(nome){ var n = normN(nome), r = null; Object.keys(INICIO_FUTURO).forEach(function(k){ if (n.indexOf(k) === 0) r = parseData(INICIO_FUTURO[k]); }); return r; }
   function normN(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
   function maisMeses(d, n){ return new Date(d.getFullYear(), d.getMonth() + n, d.getDate()); }
@@ -237,7 +240,12 @@
       if (encad(p)) return;
       var n = normN(p.NomeParque), item = { nome:p.NomeParque, data:p.Data, fim:parseData(p.Data) };
       if (p.Bloco === 'b1' || Object.keys(TOPO_BLOCOS).some(function(k){ return n.indexOf(k) === 0; })) topo.push(item);
-      else if (!ativos[n]) { item.ini = iniFuturo(p.NomeParque); fut.push(item); }
+      else if (!ativos[n]) {
+        item.ini = iniFuturo(p.NomeParque);
+        var neq = /\d+$/.test(n) ? 1 : equipesFuturo(p.NomeParque);
+        if (neq > 1) { for (var q = 1; q <= neq; q++) fut.push({ nome:p.NomeParque + ' ' + q, data:item.data, fim:item.fim, ini:item.ini }); }
+        else fut.push(item);
+      }
     });
     topo.sort(function(a, b){ if (!a.fim && !b.fim) return 0; if (!a.fim) return 1; if (!b.fim) return -1; return a.fim - b.fim; });
     fut.sort(function(a, b){ var x = a.ini ? a.ini.getTime() : 9e15, y = b.ini ? b.ini.getTime() : 9e15; return x - y; });
