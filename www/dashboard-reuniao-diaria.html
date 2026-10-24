@@ -281,6 +281,8 @@
   .status-select.st-standby{background:rgba(216,154,42,.18); color:var(--warn); border:1px solid var(--warn);}
   .status-select.st-desmob{background:rgba(232,115,12,.18); color:var(--orange); border:1px solid var(--orange);}
   .status-select.st-stop{background:rgba(224,72,60,.18); color:var(--nok); border:1px solid var(--nok);}
+  .status-select.st-stop_extreme{background:rgba(224,72,60,.18); color:var(--nok); border:1px solid var(--nok);}
+  .status-select.st-stop_cliente{background:rgba(232,115,12,.18); color:var(--orange); border:1px solid var(--orange);}
   .status-select option{background:var(--panel); color:var(--text);}
 
   /* Coluna à direita do painel: status "Em atividade" em cima, RDO Enviado embaixo */
@@ -388,6 +390,21 @@
   .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
   .ehsr-ult.ok{color:var(--ok);}
   .ehsr-ult.warn{color:var(--warn);}
+  /* 24/10/2026 (Robson): barras Setup / Stand-by / Produtivo por projeto (janela movel de 60 dias, nunca antes do 1o RDO) + Stop Work Extreme em dias. Fonte: aba RD_Horas (so leitura). */
+  .horas-box{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; padding:8px 18px; background:var(--panel2); border-top:1px solid var(--line);}
+  .horas-box .hb-tit{min-width:130px; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); line-height:1.35;}
+  .horas-box .hb-tit span{display:block; text-transform:none; letter-spacing:0; opacity:.75;}
+  .horas-box .hb-item{flex:1 1 150px; min-width:150px;}
+  .horas-box .hb-topo{display:flex; justify-content:space-between; font-size:11px; color:var(--muted);}
+  .horas-box .hb-pct{font-weight:800;}
+  .horas-box .hb-trilho{height:6px; border-radius:3px; background:rgba(255,255,255,.08); overflow:hidden; margin-top:3px;}
+  .horas-box .hb-fill{display:block; height:100%; border-radius:3px;}
+  .horas-box .hb-fill.ok{background:var(--ok);} .horas-box .hb-fill.warn{background:var(--warn);} .horas-box .hb-fill.nok{background:var(--nok);}
+  .horas-box .hb-pct.ok{color:var(--ok);} .horas-box .hb-pct.warn{color:var(--warn);} .horas-box .hb-pct.nok{color:var(--nok);}
+  .horas-box .hb-sw{min-width:140px; font-size:11px; color:var(--muted);}
+  .horas-box .hb-sw b{display:block; font-size:13px;}
+  .horas-box .hb-sw.ok b{color:var(--ok);} .horas-box .hb-sw.nok b{color:var(--nok);}
+  .horas-box .hb-rod{font-size:10px; color:var(--muted);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -673,7 +690,8 @@
     {value:'ativa', label:'Em atividade'},
     {value:'standby', label:'Em Stand-by'},
     {value:'desmob', label:'Em Desmobilização'},
-    {value:'stop', label:'Stop Work'}
+    {value:'stop_cliente', label:'Stop Work Cliente'},
+    {value:'stop_extreme', label:'Stop Work Extreme'}
   ];
   // Os 6 campos finais (Tramitacao...OcorrenciaQualidade) são específicos do
   // Bloco 2 (Mobilização) — só aparecem como chip quando o parque de fato
@@ -1471,6 +1489,7 @@
           '') : '') +
         '</div>' +
       '</div>' +
+      (p.Bloco === 'b1' && !p.Placeholder ? '<div class="horas-box" data-horas-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' : '') +
       (p.Bloco === 'b1' && !p.Placeholder ? '<div class="gantt" data-gantt>' + ganttInnerHtml(p) + '</div>' : '') +
       '<table' + (bonusSemanas().length ? ' class="has-bonus"' : '') + '>' + theadHtml + '<tbody data-equipe-body></tbody></table>' +
       '<div class="aprovados-box"><div class="ap-title">Aprovados (backup)</div><div class="ap-names" data-aprovados-body></div></div>' +
@@ -3172,6 +3191,7 @@
     preencherQuadrosFrota();
     preencherQuadrosEnvios();
     preencherQuadrosReportEhs();
+    preencherQuadrosHoras();
   }
 
   /* ============ Quadro Envios Logísticos / Requisições (26/09/2026, Robson) ============
@@ -3308,6 +3328,65 @@
   /* 23/10/2026 (Robson): o quadro Seguranca/EHS le o Sheets direto e se atualiza sozinho: a cada 2,5 min e ao voltar para a aba. */
   setInterval(function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); }, 20000);
   document.addEventListener('visibilitychange', function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); });
+  /* ===== Barras Setup / Stand-by / Produtivo + Stop Work (24/10/2026, Robson) =====
+     Fonte: aba RD_Horas da planilha do RDO (formulas sobre Aux_Analise; so leitura).
+     Janela movel de 60 dias, nunca antes do 1o RDO do parque (coluna Inicio da janela).
+     Cores: Setup = SEMPRE amarelo; Stand-by < 20% verde, 20 a 50% amarelo, > 50% vermelho;
+     Produtivo = SEMPRE verde. Stop Work Extreme em DIAS (0 = verde, > 0 = vermelho);
+     Stop Work Cliente nao conta. Dias vem de linhas de stand by do RDO com "Extreme wind". */
+  let RD_HORAS = null;
+  const RD_HORAS_URL = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=' + encodeURIComponent('RD_Horas');
+  async function loadRdHoras(){
+    try{
+      const j = await fetchGvizComRetry(RD_HORAS_URL, 3);
+      const labels = j.table.cols.map(function(c){ return String(c.label || '').trim(); });
+      if (labels[0] !== 'Parque' || labels[7] !== '% Setup') throw new Error('aba RD_Horas nao encontrada (gviz devolveu outra aba)');
+      const num = function(c){ return c && c.v != null && c.v !== '' ? Number(c.v) : null; };
+      const mapa = {};
+      (j.table.rows || []).forEach(function(r){
+        const nome = r.c[0] && r.c[0].v != null ? normalizeParqueAnalise(r.c[0].v) : '';
+        if (!nome) return;
+        mapa[nome] = { ini: num(r.c[2]), horas: num(r.c[3]), setup: num(r.c[7]), standby: num(r.c[8]), prod: num(r.c[9]), sw: num(r.c[10]),
+                       hSetup: num(r.c[4]), hStand: num(r.c[5]), hProd: num(r.c[6]) };
+      });
+      RD_HORAS = { mapa: mapa };
+    } catch(err){
+      console.error('Falha ao carregar RD_Horas:', err);
+      if (!RD_HORAS) RD_HORAS = { erro: true, mapa: {} };
+    }
+    preencherQuadrosHoras();
+  }
+  function preencherQuadrosHoras(){
+    const els = Array.prototype.slice.call(document.querySelectorAll('[data-horas-box]'));
+    if (!RD_HORAS){ return; }
+    const pct = function(x){ return (x * 100).toFixed(0) + '%'; };
+    const linha = function(nome, frac, cls, tip){
+      return '<div class="hb-item" title="' + escapeHtml(tip) + '"><div class="hb-topo"><span>' + nome + '</span><span class="hb-pct ' + cls + '">' + pct(frac) + '</span></div>' +
+        '<div class="hb-trilho"><span class="hb-fill ' + cls + '" style="width:' + Math.max(0, Math.min(100, frac * 100)).toFixed(1) + '%"></span></div></div>';
+    };
+    els.forEach(function(el){
+      const nome = el.dataset.parkname || '';
+      const d = RD_HORAS.mapa[normalizeParqueAnalise(nome)];
+      const park = (DATA.parques || []).filter(function(p){ return p.NomeParque === nome; })[0];
+      const status = park ? park.Status : '';
+      if (RD_HORAS.erro){ el.innerHTML = '<div class="hb-rod">Horas (Setup/Stand-by/Produtivo) indisponíveis</div>'; return; }
+      if (!d || !d.horas){ el.innerHTML = '<div class="hb-rod">Horas (Setup/Stand-by/Produtivo): sem RDO na janela</div>'; return; }
+      const sbCls = d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok');
+      const ini = d.ini != null ? new Date(Date.UTC(1899, 11, 30) + d.ini * 86400000) : null;
+      const iniTxt = ini ? String(ini.getUTCDate()).padStart(2, '0') + '/' + String(ini.getUTCMonth() + 1).padStart(2, '0') + '/' + ini.getUTCFullYear() : '';
+      const h = function(x){ return x != null ? x.toFixed(1).replace('.', ',') + ' h' : ''; };
+      const dias = d.sw || 0;
+      const swAtivo = dias > 0 || status === 'stop_extreme';
+      el.innerHTML =
+        '<div class="hb-tit">Horas acumuladas<span>desde ' + iniTxt + ' · sem almoço</span></div>' +
+        linha('Setup', d.setup, 'warn', 'Setup: ' + h(d.hSetup) + ' de ' + h(d.horas) + ' (sem almoço)') +
+        linha('Stand-by', d.standby, sbCls, 'Stand-by: ' + h(d.hStand) + ' de ' + h(d.horas) + ' (sem almoço)') +
+        linha('Produtivo', d.prod, 'ok', 'Produtivo: ' + h(d.hProd) + ' de ' + h(d.horas) + ' (sem almoço)') +
+        '<div class="hb-sw ' + (swAtivo ? 'nok' : 'ok') + '">Stop Work Extreme<b>' + dias + (dias === 1 ? ' dia' : ' dias') + (status === 'stop_extreme' ? ' (ativo hoje)' : '') + '</b></div>' +
+        (status === 'stop_cliente' ? '<div class="hb-rod">Stop Work Cliente (não conta)</div>' : '');
+    });
+  }
+  setInterval(function(){ if (RD_HORAS && !document.hidden) loadRdHoras(); }, 60000);
   function preencherQuadrosReportEhs(){
     const els = Array.prototype.slice.call(document.querySelectorAll('[data-ehs-report-auto]'));
     if (!REPORT_EHS){ return; }
@@ -3601,6 +3680,7 @@
       if (!FROTA) loadFrota();
       if (!ENVIOS) loadEnvios();
       if (!REPORT_EHS) loadReportEhs();
+      if (!RD_HORAS) loadRdHoras();
       const [dataResult, analiseOk] = await Promise.all([ apiGet(), loadPlanejadoPorTurbina() ]);
       DATA = dataResult;
       ['parques','equipe','aprovados','notas','tecnicos','relatorios','atividades','classificacao'].forEach(function(k){ if (!DATA[k]) DATA[k] = []; });
