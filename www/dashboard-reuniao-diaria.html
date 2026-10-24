@@ -3306,7 +3306,7 @@
     preencherQuadrosReportEhs();
   }
   /* 23/10/2026 (Robson): o quadro Seguranca/EHS le o Sheets direto e se atualiza sozinho: a cada 2,5 min e ao voltar para a aba. */
-  setInterval(function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); }, 150000);
+  setInterval(function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); }, 20000);
   document.addEventListener('visibilitychange', function(){ if (REPORT_EHS && !document.hidden) loadReportEhs(); });
   function preencherQuadrosReportEhs(){
     const els = Array.prototype.slice.call(document.querySelectorAll('[data-ehs-report-auto]'));
