@@ -19,13 +19,13 @@
   .theme-toggle{
     position:fixed; top:16px; right:16px; z-index:200;
     background:var(--panel); border:1px solid var(--line); color:var(--text);
-    border-radius:20px; padding:9px 18px; font-size:12.5px; font-weight:700;
+    border-radius:20px; padding:9px 18px; font-size:14px; font-weight:700;
     cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.25);
   }
   .fullscreen-toggle{
     position:fixed; top:60px; right:16px; z-index:200;
     background:var(--panel); border:1px solid var(--line); color:var(--text);
-    border-radius:20px; padding:9px 18px; font-size:12.5px; font-weight:700;
+    border-radius:20px; padding:9px 18px; font-size:14px; font-weight:700;
     cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.25);
   }
   /* Modo apresentação: some só com o cabeçalho (logo/título/breadcrumb) pra
@@ -51,7 +51,7 @@
     position:fixed; right:16px; bottom:16px; z-index:250;
     display:flex; align-items:center; gap:10px; max-width:360px;
     background:var(--panel); border:1px solid var(--line); color:var(--text);
-    border-radius:10px; padding:10px 10px 10px 16px; font-size:12.5px;
+    border-radius:10px; padding:10px 10px 10px 16px; font-size:14px;
     box-shadow:0 4px 14px rgba(0,0,0,.3);
   }
   /* No celular o botão de tela cheia desce pro canto inferior direito
@@ -64,7 +64,7 @@
   .undo-toast .undo-msg{flex:1;}
   .undo-toast .undo-btn{
     background:rgba(18,191,168,.15); border:1px solid var(--teal); color:var(--teal);
-    font-weight:700; font-size:12px; padding:6px 12px; border-radius:6px; cursor:pointer; white-space:nowrap;
+    font-weight:700; font-size:14px; padding:6px 12px; border-radius:6px; cursor:pointer; white-space:nowrap;
   }
   .undo-toast .undo-btn:hover{background:rgba(18,191,168,.28);}
   .undo-toast .undo-close{
@@ -85,7 +85,7 @@
   }
   .modal-title{font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text);}
   .modal-field{
-    display:block; font-size:12px; color:var(--muted); text-transform:uppercase;
+    display:block; font-size:14px; color:var(--muted); text-transform:uppercase;
     letter-spacing:.02em; margin-bottom:12px;
   }
   .modal-field input{
@@ -95,12 +95,12 @@
   }
   .modal-field input:focus{outline:none; border-color:var(--brand);}
   .modal-error{
-    color:#e0483c; font-size:12.5px; margin:-4px 0 12px;
+    color:#e0483c; font-size:14px; margin:-4px 0 12px;
   }
   .modal-error[hidden]{display:none;}
   .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:6px;}
   .modal-btn-cancel, .modal-btn-add{
-    font-size:13px; font-weight:600; padding:8px 16px; border-radius:7px; cursor:pointer;
+    font-size:15px; font-weight:600; padding:8px 16px; border-radius:7px; cursor:pointer;
   }
   .modal-btn-cancel{background:transparent; border:1px solid var(--line); color:var(--muted);}
   .modal-btn-cancel:hover{color:var(--text); border-color:var(--muted);}
@@ -116,7 +116,7 @@
   /* margin-top pra não ficar embaixo dos botões fixos (Modo Diurno em cima,
      Tela Cheia embaixo, empilhados) no canto superior direito. */
   .header-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:84px;}
-  .sync-inline{font-size:10.5px; color:var(--muted); text-align:right;}
+  .sync-inline{font-size:12.5px; color:var(--muted); text-align:right;}
   .sync-inline.err{ color:var(--nok); font-weight:700; }
   header{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
@@ -125,22 +125,22 @@
   .brand{display:flex; align-items:center; gap:12px;}
   .brand img{height:36px; width:auto; display:block;}
   .brand h1{font-size:19px; margin:0;}
-  .brand .sub{font-size:11.5px; color:var(--muted); margin-top:2px;}
-  .badge-week{background:var(--panel2); border:1px solid var(--line); color:var(--muted); font-size:11.5px; padding:6px 14px; border-radius:20px;}
+  .brand .sub{font-size:13.5px; color:var(--muted); margin-top:2px;}
+  .badge-week{background:var(--panel2); border:1px solid var(--line); color:var(--muted); font-size:13.5px; padding:6px 14px; border-radius:20px;}
 
   .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; align-items:start;}
   .kpi.tech-box{min-width:220px;}
   .kpi.tech-box-full{grid-column:1 / -1;}
   .tech-box .sub-label{
-    font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
+    font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
     margin-top:10px; margin-bottom:4px;
   }
-  .tech-list{list-style:none; margin:0; padding:0; font-size:12.5px;}
+  .tech-list{list-style:none; margin:0; padding:0; font-size:14px;}
   .tech-header, .tech-row{
     display:grid; grid-template-columns:32px minmax(110px,200px) 70px 42px 1fr 1.2fr; gap:8px; align-items:start;
   }
   .tech-header{
-    font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
+    font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;
     padding-bottom:4px; border-bottom:1px solid var(--line);
   }
   .tech-list li{padding:5px 0; border-top:1px solid var(--line);}
@@ -149,18 +149,18 @@
   .tech-list [contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   .tech-list [contenteditable="true"]:focus{outline:none; background:rgba(28,140,232,.16);}
   .tech-mat, .tech-dias{text-align:center; white-space:nowrap;}
-  .tech-nome{font-size:12px; line-height:1.25; word-break:break-word;}
-  .tech-data{font-size:11px; color:var(--muted); white-space:nowrap;}
-  .tech-data.tech-inicio-aguardando{color:var(--warn); font-style:italic; white-space:normal; font-size:10px; line-height:1.25;}
-  .tech-dias{font-size:11px; color:var(--muted);}
+  .tech-nome{font-size:14px; line-height:1.25; word-break:break-word;}
+  .tech-data{font-size:13.5px; color:var(--muted); white-space:nowrap;}
+  .tech-data.tech-inicio-aguardando{color:var(--warn); font-style:italic; white-space:normal; font-size:12.5px; line-height:1.25;}
+  .tech-dias{font-size:13.5px; color:var(--muted);}
   .tech-cert-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
-  .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:12.5px; font-weight:700; color:var(--ok); white-space:nowrap; line-height:1.5;}
-  .tech-cert-empty{color:var(--muted); font-style:italic; font-size:11px;}
+  .badge-cert{display:inline-block; padding:2px 7px; border:1px solid var(--ok); border-radius:6px; font-size:14px; font-weight:700; color:var(--ok); white-space:nowrap; line-height:1.5;}
+  .tech-cert-empty{color:var(--muted); font-style:italic; font-size:13.5px;}
   .tech-parques-badges{display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;}
-  .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:12.5px; font-weight:700; color:var(--brand); white-space:nowrap; line-height:1.5;}
-  .tech-parques-empty{color:var(--muted); font-style:italic; font-size:11px;}
+  .badge-parque{display:inline-block; padding:2px 7px; border:1px solid var(--brand); border-radius:6px; font-size:14px; font-weight:700; color:var(--brand); white-space:nowrap; line-height:1.5;}
+  .tech-parques-empty{color:var(--muted); font-style:italic; font-size:13.5px;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:10px; padding:16px 18px;}
-  .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+  .kpi .label{font-size:13.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
   /* 08/10/2026 (Robson): titulo do quadro Banco de Horas em destaque */
   .tech-box > .label{font-size:17px; font-weight:800; color:var(--text); letter-spacing:.04em; margin-bottom:6px;}
   .kpi .n{font-size:26px; font-weight:700; margin-top:4px;}
@@ -187,7 +187,7 @@
     display:inline-block; border:1px solid rgba(255,255,255,.25);
   }
   .btn-icons{display:inline-flex; margin-right:4px;}
-  .block-btn .count{font-weight:700; font-size:13px; opacity:.85; margin-left:4px;}
+  .block-btn .count{font-weight:700; font-size:15px; opacity:.85; margin-left:4px;}
 
   /* No celular, blocos fixos (sticky) tomam espaço da tela e atrapalham ver
      as informações do parque ao rolar — vira barra normal (rola junto). */
@@ -203,7 +203,7 @@
        preencher a largura toda da pagina, sem sobrar espaco e sem precisar de
        barra de rolagem. O texto quebra em ate 2 linhas quando necessario
        (already coberto por white-space:normal / flex-wrap:wrap da regra base). */
-    .block-btn{flex:1 1 0; min-width:0; padding:10px 4px; font-size:11px; font-weight:800;}
+    .block-btn{flex:1 1 0; min-width:0; padding:10px 4px; font-size:13.5px; font-weight:800;}
     .block-btn img.gif-icon{height:20px;}
   }
 
@@ -216,7 +216,7 @@
      etapas de 15 dias que viram semanais (ultimos 35 dias) e diarias (ultima semana).
      Verde > 20 dias; amarelo <= 20 dias; ultima semana vai avermelhando; vencido = vermelho. */
   .gantt{padding:8px 18px 10px; background:var(--panel2); border-top:1px solid var(--line);}
-  .gantt-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-bottom:5px;}
+  .gantt-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; font-size:13.5px; color:var(--muted); margin-bottom:5px;}
   .gantt-head b{color:var(--text);}
   .gantt-head .gantt-status{font-weight:800; color:var(--gcor);}
   .gantt-track{display:flex; height:20px; border-radius:10px; overflow:hidden; background:rgba(143,169,192,.14); border:1px solid var(--line);}
@@ -225,13 +225,13 @@
   .gantt-cell.on{background:var(--gcor);}
   .gantt-cell.fim{box-shadow:inset -3px 0 0 0 var(--text);}
   .gantt-rotulos{display:flex; margin-top:3px;}
-  .gantt-rotulos span{min-width:0; font-size:9px; color:var(--muted); overflow:hidden; white-space:nowrap; padding-left:2px;}
+  .gantt-rotulos span{min-width:0; font-size:12px; color:var(--muted); overflow:hidden; white-space:nowrap; padding-left:2px;}
   .gantt-rotulos span.fim{color:var(--text); font-weight:800; overflow:visible; position:relative; z-index:1;}
-  .gantt-escala{display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-top:2px;}
+  .gantt-escala{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:2px;}
   .gantt-prox{margin-top:2px;}
-  .gantt-prox-leg{font-size:11px; color:var(--muted); margin:8px 0 3px;}
+  .gantt-prox-leg{font-size:13.5px; color:var(--muted); margin:8px 0 3px;}
   .gantt-prox-leg b{color:#42a5f5;}
-  .gantt-vazio{font-size:11px; color:var(--muted); font-style:italic;}
+  .gantt-vazio{font-size:13.5px; color:var(--muted); font-style:italic;}
   .panel.blank-panel:focus-within{opacity:1;}
   .placeholder-title{color:var(--muted); font-style:italic;}
   .placeholder-title:focus{color:var(--text); font-style:normal;}
@@ -254,7 +254,7 @@
   }
   .logo-select{
     background:var(--panel2); color:var(--muted); border:1px solid var(--line);
-    border-radius:5px; font-size:11px; padding:3px 6px; cursor:pointer; width:160px; max-width:100%;
+    border-radius:5px; font-size:13.5px; padding:3px 6px; cursor:pointer; width:160px; max-width:100%;
     text-align:center;
   }
   .info-chips{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
@@ -266,15 +266,15 @@
     padding:6px 14px; display:flex; flex-direction:column; gap:2px; min-width:84px;
   }
   .chip-label{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
   }
   .chip-value{
-    font-size:13px; color:var(--text); font-weight:700; white-space:nowrap;
+    font-size:15px; color:var(--text); font-weight:700; white-space:nowrap;
     border-radius:4px; padding:1px 4px; margin:-1px -4px;
   }
   .chip-value:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
   .status-select{
-    font-size:11.5px; padding:5px 10px; border-radius:20px; font-weight:700; white-space:nowrap;
+    font-size:13.5px; padding:5px 10px; border-radius:20px; font-weight:700; white-space:nowrap;
     cursor:pointer; font-family:inherit; flex:none; width:190px; text-align:center; text-align-last:center;
   }
   .status-select.st-ativa{background:rgba(18,168,116,.18); color:var(--ok); border:1px solid var(--ok);}
@@ -296,21 +296,21 @@
   .activity-boxes{display:flex; gap:8px; flex:none;}
   .ab-daycol{display:flex; flex-direction:column; gap:4px;}
   .ab-daycol-label{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
     text-align:center;
   }
   .activity-box{
     flex:none; width:210px; background:var(--brand-deep); border:1px solid var(--line);
-    border-radius:8px; padding:8px 10px; font-size:11px;
+    border-radius:8px; padding:8px 10px; font-size:13.5px;
   }
   .activity-box .ab-title{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
     margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:6px;
   }
   .activity-box .ab-rdo-tag{color:var(--teal); font-weight:700; margin-right:3px;}
   .activity-box .ab-nav{cursor:pointer; color:var(--muted); font-weight:700; user-select:none; padding:0 3px;}
   .activity-box .ab-nav:hover{color:var(--text);}
-  .activity-box .ab-empty{color:var(--muted); font-style:italic; font-size:11px;}
+  .activity-box .ab-empty{color:var(--muted); font-style:italic; font-size:13.5px;}
   .activity-box .ab-row{display:flex; justify-content:space-between; gap:6px; padding:2px 0;}
   .activity-box .ab-label{color:var(--muted);}
   .activity-box .ab-value{color:var(--text); font-weight:600; text-align:right;}
@@ -342,30 +342,30 @@
      em todo parque/turbina que tiver o quadro de RDO (Anteontem e Ontem). */
   .ehs-box{
     flex:none; width:210px; background:var(--brand-deep); border:1px solid var(--line);
-    border-radius:8px; padding:8px 10px; font-size:11px;
+    border-radius:8px; padding:8px 10px; font-size:13.5px;
   }
   .ehs-box .ab-title{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
     margin-bottom:6px;
   }
-  .ehs-box .ab-empty{color:var(--muted); font-style:italic; font-size:11px;}
+  .ehs-box .ab-empty{color:var(--muted); font-style:italic; font-size:13.5px;}
   .ab-daycol .ehs-box + .ehs-box{margin-top:4px;}
   .ehs-box{flex:1 1 auto;}
-  .ehs-box .box-texto{font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; min-height:18px; white-space:pre-wrap; overflow-wrap:anywhere; border-radius:4px; padding:1px 4px; margin:-1px -4px;}
+  .ehs-box .box-texto{font-size:14px; font-weight:700; color:var(--text); line-height:1.35; min-height:18px; white-space:pre-wrap; overflow-wrap:anywhere; border-radius:4px; padding:1px 4px; margin:-1px -4px;}
   .ehs-box .box-texto:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
-  .frota-box .frota-auto{font-size:11px; line-height:1.35; max-height:230px; overflow-y:auto; margin-bottom:6px;}
+  .frota-box .frota-auto{font-size:13.5px; line-height:1.35; max-height:230px; overflow-y:auto; margin-bottom:6px;}
   .frota-muted{color:var(--muted); font-weight:400;}
   .frota-veic{margin-bottom:5px;}
-  .frota-veic b{color:var(--text); font-size:12px;}
-  .frota-pend{color:var(--warn); font-size:10.5px;}
-  .frota-ok{color:var(--ok); font-size:10.5px;}
-  .frota-sub{font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:6px 0 3px;}
-  .frota-acao{font-size:10.5px; color:var(--text); padding:2px 0 2px 7px; border-left:3px solid var(--line); margin-bottom:3px;}
+  .frota-veic b{color:var(--text); font-size:14px;}
+  .frota-pend{color:var(--warn); font-size:12.5px;}
+  .frota-ok{color:var(--ok); font-size:12.5px;}
+  .frota-sub{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:6px 0 3px;}
+  .frota-acao{font-size:12.5px; color:var(--text); padding:2px 0 2px 7px; border-left:3px solid var(--line); margin-bottom:3px;}
   .frota-acao.emerg{border-left-color:var(--nok);}
   .frota-acao.prog{border-left-color:var(--warn);}
   .frota-acao.adm{border-left-color:var(--steel);}
-  .frota-box .frota-obs{font-size:11px; font-weight:600;}
-  .frota-item{font-size:11px; padding:2px 0 2px 7px; border-left:3px solid var(--line); margin:3px 0; line-height:1.3;}
+  .frota-box .frota-obs{font-size:13.5px; font-weight:600;}
+  .frota-item{font-size:13.5px; padding:2px 0 2px 7px; border-left:3px solid var(--line); margin:3px 0; line-height:1.3;}
   .frota-item .frota-rot{font-weight:700; color:var(--text);}
   .frota-item .frota-det{color:var(--text); opacity:.85;}
   .frota-item.frota-rev{border-left-color:var(--nok);}
@@ -378,8 +378,8 @@
   .frota-item.frota-envio-ok .frota-rot, .frota-item.frota-envio-ok .frota-det{color:var(--ok); opacity:1;}
   /* Report EHS diario (19/10/2026, Robson) */
   .ehsr-dias{display:flex; gap:3px; flex-wrap:wrap; margin:2px 0 3px;}
-  .ehsr-dia{font-size:10px; line-height:1.2; padding:2px 4px; border-radius:4px; border:1px solid var(--line); text-align:center; min-width:30px; cursor:default;}
-  .ehsr-dia b{display:block; font-size:9.5px; font-weight:600; opacity:.8;}
+  .ehsr-dia{font-size:12.5px; line-height:1.2; padding:2px 4px; border-radius:4px; border:1px solid var(--line); text-align:center; min-width:30px; cursor:default;}
+  .ehsr-dia b{display:block; font-size:12px; font-weight:600; opacity:.8;}
   .ehsr-dia.ok{color:var(--ok); border-color:var(--ok);}
   .ehsr-dia.nok{color:var(--nok); border-color:var(--nok);}
   .ehsr-dia.warn{color:var(--warn); border-color:var(--warn);}
@@ -387,31 +387,31 @@
   .ehsr-dia.sb{color:#F28C28; border-color:#F28C28;}
   .ehsr-ult a{color:inherit; text-decoration:underline;}
   .ehsr-dia.hoje{color:var(--muted);}
-  .ehsr-ult{font-size:10.5px; color:var(--muted); margin-bottom:3px;}
+  .ehsr-ult{font-size:12.5px; color:var(--muted); margin-bottom:3px;}
   .ehsr-ult.ok{color:var(--ok);}
   .ehsr-ult.warn{color:var(--warn);}
   /* 24/10/2026 (Robson): barras Setup / Stand-by / Produtivo por projeto (janela movel de 60 dias, nunca antes do 1o RDO) + Stop Work Extreme em dias. Fonte: aba RD_Horas (so leitura). */
   .horas-box{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; padding:8px 18px; background:var(--panel2); border-top:1px solid var(--line);}
-  .horas-box .hb-tit{min-width:130px; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); line-height:1.35;}
+  .horas-box .hb-tit{min-width:130px; font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); line-height:1.35;}
   .horas-box .hb-tit span{display:block; text-transform:none; letter-spacing:0; opacity:.75;}
   .horas-box .hb-item{flex:1 1 150px; min-width:150px;}
-  .horas-box .hb-topo{display:flex; justify-content:space-between; font-size:11px; color:var(--muted);}
+  .horas-box .hb-topo{display:flex; justify-content:space-between; font-size:13.5px; color:var(--muted);}
   .horas-box .hb-pct{font-weight:800;}
   .horas-box .hb-trilho{height:6px; border-radius:3px; background:rgba(255,255,255,.08); overflow:hidden; margin-top:3px;}
   .horas-box .hb-fill{display:block; height:100%; border-radius:3px;}
   .horas-box .hb-fill.ok{background:var(--ok);} .horas-box .hb-fill.warn{background:var(--warn);} .horas-box .hb-fill.nok{background:var(--nok);}
   .horas-box .hb-pct.ok{color:var(--ok);} .horas-box .hb-pct.warn{color:var(--warn);} .horas-box .hb-pct.nok{color:var(--nok);}
-  .horas-box .hb-sw{min-width:140px; font-size:11px; color:var(--muted);}
-  .horas-box .hb-sw b{display:block; font-size:13px;}
+  .horas-box .hb-sw{min-width:140px; font-size:13.5px; color:var(--muted);}
+  .horas-box .hb-sw b{display:block; font-size:15px;}
   .horas-box .hb-sw.ok b{color:var(--ok);} .horas-box .hb-sw.nok b{color:var(--nok);}
-  .horas-box .hb-rod{font-size:10px; color:var(--muted);}
+  .horas-box .hb-rod{font-size:12.5px; color:var(--muted);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
   .rh-box .rh-topico{display:flex; gap:8px; align-items:center; flex:1 0 auto; min-height:44px; padding:8px 0; border-bottom:1px dashed var(--line);}
   .rh-box .rh-topico:last-child{border-bottom:none;}
-  .rh-box .rh-num{flex:none; width:20px; height:20px; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;}
-  .rh-box .rh-txt{flex:1; font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; min-height:17px; overflow-wrap:anywhere; border-radius:4px; padding:0 4px; margin:0 -4px;}
+  .rh-box .rh-num{flex:none; width:20px; height:20px; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;}
+  .rh-box .rh-txt{flex:1; font-size:14px; font-weight:700; color:var(--text); line-height:1.35; min-height:17px; overflow-wrap:anywhere; border-radius:4px; padding:0 4px; margin:0 -4px;}
   .rh-box .rh-txt:empty::before{content:attr(data-vazio); color:var(--muted); font-weight:400;}
   .rh-box .rh-txt:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
   .ehs-box .box-texto:focus{outline:none; background:rgba(28,140,232,.18); box-shadow:0 0 0 1px var(--steel);}
@@ -419,13 +419,13 @@
   /* ============ Quadro RDO Enviado (data + % Stand by/Produtivo/Setup/Garantia) ============ */
   .rdo-box{
     flex:none; width:170px; background:var(--brand-deep); border:1px solid var(--line);
-    border-radius:8px; padding:8px 10px; font-size:11px;
+    border-radius:8px; padding:8px 10px; font-size:13.5px;
   }
   .rdo-box .ab-title{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
     margin-bottom:6px;
   }
-  .rdo-box .rdo-date{font-size:12px; font-weight:700; color:var(--text); margin-bottom:6px;}
+  .rdo-box .rdo-date{font-size:14px; font-weight:700; color:var(--text); margin-bottom:6px;}
   .rdo-box .ab-row{display:flex; justify-content:space-between; gap:6px; padding:1px 0;}
   .rdo-box .ab-label{color:var(--muted);}
   .rdo-box .ab-value{color:var(--text); font-weight:600; text-align:right;}
@@ -450,8 +450,8 @@
   .logo-select{width:130px !important;}
   .info-chips{gap:5px !important;}
   .info-chips .chip{padding:4px 8px !important;}
-  .info-chips .chip-label{font-size:8.5px !important;}
-  .info-chips .chip-value{font-size:11.5px !important;}
+  .info-chips .chip-label{font-size:12px !important;}
+  .info-chips .chip-value{font-size:13.5px !important;}
   .activity-box, .ehs-box{width:182px !important;}
   .status-col{width:160px !important;}
   /* RDOs (Anteontem/Ontem) encostados a direita, junto do status, e afastados
@@ -466,16 +466,16 @@
   .status-select{width:160px !important;}
   .rdo-resumo-box{
     flex:none; width:190px; background:var(--brand-deep); border:1px solid var(--line);
-    border-radius:8px; padding:8px 10px; font-size:11px;
+    border-radius:8px; padding:8px 10px; font-size:13.5px;
   }
   .rdo-resumo-box .ab-title{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;
     margin-bottom:6px;
   }
   .rdo-resumo-box .rr-section{margin-bottom:6px;}
   .rdo-resumo-box .rr-section:last-child{margin-bottom:0;}
   .rdo-resumo-box .rr-label{
-    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px;
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px;
   }
   .rdo-resumo-box .rr-list{list-style:none; margin:0; padding:0;}
   .rdo-resumo-box .rr-list li{color:var(--text); padding:1px 0; line-height:1.3;}
@@ -484,10 +484,10 @@
   .rdo-resumo-box .rr-next{color:var(--teal); font-weight:600;}
   .rdo-resumo-box .ab-not-sent{color:var(--nok); font-weight:700; font-style:normal; text-align:center; padding:6px 0;}
 
-  table{width:100%; border-collapse:collapse; font-size:12px;}
+  table{width:100%; border-collapse:collapse; font-size:14px;}
   thead th{
     text-align:left; padding:8px 12px; background:var(--brand-deep); color:var(--muted);
-    font-size:10px; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;
   }
   tbody td{padding:8px 12px; border-top:1px solid var(--line); vertical-align:top;}
   /* Tabela de equipe: coluna do nome so do tamanho do nome, pra certificacao
@@ -496,10 +496,10 @@
   td.cert-td{cursor:pointer;}
   td.cert-td:hover{background:rgba(28,140,232,.06);}
   td.cert-td[contenteditable="true"]{cursor:text; outline:none; background:rgba(28,140,232,.18); box-shadow:inset 0 0 0 1px var(--steel);}
-  td.cert-td .badge-cert{font-size:11.5px; padding:1px 7px;}
+  td.cert-td .badge-cert{font-size:13.5px; padding:1px 7px;}
   /* ALERTA DE CERTIFICACAO VENCENDO (01/10/2026, Robson) */
   .cert-alertas{display:flex; flex-direction:column; gap:4px; margin:6px 0 4px;}
-  .cert-alerta{font-size:12.5px; font-weight:700; padding:5px 10px; border-radius:6px; border-left:4px solid;}
+  .cert-alerta{font-size:14px; font-weight:700; padding:5px 10px; border-radius:6px; border-left:4px solid;}
   .cert-alerta.venc{background:rgba(229,57,53,.16); border-color:#e53935; color:#ff8a80;}
   .cert-alerta.prox{background:rgba(255,179,0,.14); border-color:#ffb300; color:#ffd180;}
   /* 19/10/2026 (Robson): a celula da linha do tecnico onde esta a certificacao
@@ -522,33 +522,33 @@
   .panel > table.has-bonus .bonus-mot-td, .panel > table.has-bonus th.bonus-mot-th{text-align:left; width:190px; min-width:190px; white-space:normal; padding-left:8px; padding-right:8px;}
   .panel > table.has-bonus .bonus-fill{width:auto;}
   .bonus-chips{display:flex; flex-wrap:wrap; gap:4px;}
-  .bonus-chip{font-size:11px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
+  .bonus-chip{font-size:13.5px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
   .bonus-chip.ok{color:#2ec4a1; border-color:rgba(46,196,161,.55);}
   .bonus-chip.perda{color:#ff8a80; border-color:#e53935; background:rgba(229,57,53,.12);}
   .bonus-chip.parcial{border-style:dashed; opacity:.85;}
-  .bonus-motivo{font-size:11px; color:#ff8a80; line-height:1.25; white-space:normal;}
-  .obs{color:var(--muted); font-size:11.5px;}
+  .bonus-motivo{font-size:13.5px; color:#ff8a80; line-height:1.25; white-space:normal;}
+  .obs{color:var(--muted); font-size:13.5px;}
   .aprovados-box{padding:12px 18px; border-top:1px solid var(--line); background:rgba(255,255,255,.015);}
-  .aprovados-box .ap-title{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
+  .aprovados-box .ap-title{font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
 
   /* ============ Rodapé do painel — excluir (bloco 1) / avançar (blocos 2 e 3) ============ */
   .panel-footer{padding:8px 18px 12px; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--line);}
   .btn-delete-park, .btn-advance-block{
-    font-size:11px; font-weight:600; padding:5px 11px; border-radius:6px; cursor:pointer;
+    font-size:13.5px; font-weight:600; padding:5px 11px; border-radius:6px; cursor:pointer;
   }
   .btn-delete-park{background:rgba(224,72,60,.12); border:1px solid rgba(224,72,60,.45); color:#e0483c;}
   .btn-delete-park:hover{background:rgba(224,72,60,.22);}
   .btn-advance-block{background:rgba(46,196,161,.12); border:1px solid rgba(46,196,161,.5); color:var(--teal);}
   .btn-advance-block:hover{background:rgba(46,196,161,.22);}
   .ap-names{display:flex; flex-wrap:wrap; gap:6px;}
-  .ap-ocultos{font-size:10px; color:var(--muted); font-style:italic; align-self:center; cursor:help;}
+  .ap-ocultos{font-size:12.5px; color:var(--muted); font-style:italic; align-self:center; cursor:help;}
   .ap-name{
     display:inline-flex; align-items:center; gap:4px;
     background:var(--panel2); border:1px solid var(--line); border-radius:12px;
-    padding:3px 6px 3px 4px; font-size:11.5px; font-weight:600;
+    padding:3px 6px 3px 4px; font-size:13.5px; font-weight:600;
   }
   .ap-name.drag-over{outline:2px dashed var(--steel); outline-offset:1px;}
-  .ap-handle{cursor:grab; opacity:.5; font-size:12px; user-select:none;}
+  .ap-handle{cursor:grab; opacity:.5; font-size:14px; user-select:none;}
   .ap-handle:active{cursor:grabbing;}
   .ap-text[contenteditable="true"]{cursor:text; outline:none; min-width:8px;}
   .ap-text[contenteditable="true"]:focus{background:rgba(28,140,232,.14); border-radius:3px;}
@@ -559,9 +559,9 @@
   .ap-del{cursor:pointer; margin-left:6px; padding:0 4px; color:var(--muted); font-weight:700; border-radius:4px; user-select:none;}
   .ap-del:hover{color:#fff; background:#b71c1c;}
   .blank-ap .ap-del{display:none;}
-  .ap-names.ap-b3 .blank-ap .ap-text:empty::before{content:'+ digitar backup'; color:var(--muted); font-style:italic; font-size:11px;}
+  .ap-names.ap-b3 .blank-ap .ap-text:empty::before{content:'+ digitar backup'; color:var(--muted); font-style:italic; font-size:13.5px;}
   .ap-names.ap-b3 .blank-ap{min-width:96px; border-style:dashed;}
-  .ap-escolher{margin-top:8px; background:var(--panel,#0f1720); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:11.5px; max-width:340px;}
+  .ap-escolher{margin-top:8px; background:var(--panel,#0f1720); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:13.5px; max-width:340px;}
   tbody td[contenteditable="true"]{cursor:text;}
   tbody td[contenteditable="true"]:hover{background:rgba(28,140,232,.06);}
   tbody td[contenteditable="true"]:focus{
@@ -572,14 +572,14 @@
   .note-list{list-style:none; margin:0; padding:0;}
   .note-item{
     background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--teal);
-    border-radius:8px; padding:14px 16px; margin-bottom:10px; font-size:13px; display:flex; gap:12px;
+    border-radius:8px; padding:16px 18px; margin-bottom:12px; font-size:19px; line-height:1.4; display:flex; gap:14px;
   }
   .note-item .num{color:var(--teal); font-weight:700; flex:none;}
   .note-item .txt{flex:1;}
   .note-item .txt[contenteditable="true"]{outline:none;}
   .note-item .txt[contenteditable="true"]:focus{background:rgba(18,191,168,.08); border-radius:4px;}
 
-  .foot-note{font-size:11px; color:var(--muted); margin-top:26px; padding-top:14px; border-top:1px solid var(--line);}
+  .foot-note{font-size:13.5px; color:var(--muted); margin-top:26px; padding-top:14px; border-top:1px solid var(--line);}
   .loading{padding:60px; text-align:center; color:var(--muted);}
 </style>
 </head>
@@ -3465,7 +3465,7 @@
         ult = '<div class="ehsr-ult ' + (temAlerta(x) ? 'warn' : 'ok') + '">Último: ' + ud.slice(6,8) + '/' + ud.slice(4,6) + ' · ' + escapeHtml(resumo(x)) +
               (x.pdf && /^https:\/\//.test(x.pdf) ? ' · <a href="' + escapeHtml(x.pdf) + '" target="_blank" rel="noopener">PDF</a>' : '') + '</div>';
       }
-      el.innerHTML = '<div class="frota-muted" style="font-size:10px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
+      el.innerHTML = '<div class="frota-muted" style="font-size:12.5px">Report EHS (diário)</div><div class="ehsr-dias">' + chips + '</div>' + ult;
       /* 22/10/2026 (Robson): o texto de "Ocorrencia EHS" acompanha a cor do motivo (Stand-by laranja, Autorizado verde).
          Campo vazio mostra a observacao da aba (so na tela; nao grava sozinho). */
       const boxOc = el.parentElement ? el.parentElement.querySelector('[data-field="OcorrenciaEHS"]') : null;
