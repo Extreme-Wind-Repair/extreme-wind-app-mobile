@@ -453,6 +453,13 @@
   .info-chips .chip-label{font-size:12px !important;}
   .info-chips .chip-value{font-size:13.5px !important;}
   .activity-box, .ehs-box{width:182px !important;}
+  /* 26/10/2026 (Robson): o quadro "Observacoes gerais" cresce em LARGURA ao digitar
+     (ocupa o espaco livre ate o bloco do RDO) em vez de crescer so para baixo.
+     Minimo 182px (como antes); maximo 460px; acima disso quebra linha. */
+  @media (min-width: 1100px){
+    .ab-daycol:has(> [data-rh-box]){flex:0 1 auto; min-width:182px; max-width:460px;}
+    [data-rh-box].rh-box{width:max-content !important; min-width:182px; max-width:460px; box-sizing:border-box;}
+  }
   .status-col{width:160px !important;}
   /* RDOs (Anteontem/Ontem) encostados a direita, junto do status, e afastados
      dos quadros de RH/EHS/Frota/Compras (26/09/2026, Robson). */
@@ -3070,7 +3077,7 @@
      (SUPERVISOR_ORDER) e depois o campo Ordem. Fabricante fora da lista (ou
      vazio) vai depois de Siemens; vaga em branco sempre por ultimo.
      Substitui a ordem GE -> Siemens -> Nordex anotada em 25/09/2026. */
-  const FABRICANTE_ORDER = ['GE', 'NORDEX', 'SIEMENS'];
+  const FABRICANTE_ORDER = ['GE', 'SIEMENS', 'NORDEX'];
   function fabricanteRank(f){
     const idx = FABRICANTE_ORDER.indexOf(String(f || '').trim().toUpperCase());
     return idx === -1 ? FABRICANTE_ORDER.length : idx;
@@ -3111,7 +3118,22 @@
       const o = Number(p.Ordem) || 0;
       if (!(k in minOrdemProjeto) || o < minOrdemProjeto[k]) minOrdemProjeto[k] = o;
     });
-    naoPlaceholder.sort(function(a,b){ return (Number(a.Ordem) || 0) - (Number(b.Ordem) || 0); });
+    /* 26/10/2026 (Robson): sequencia = GE -> SIEMENS -> NORDEX; dentro do fabricante, projetos
+       na ordem do campo Ordem (menor Ordem do projeto) e, no mesmo projeto, por numero
+       (OITIS 1, OITIS 2, LDV 1, LDV 2...). Ordem desempata. */
+    naoPlaceholder.sort(function(a,b){
+      const fa = fabricanteRank(a.Fabricante), fb = fabricanteRank(b.Fabricante);
+      if (fa !== fb) return fa - fb;
+      const ka = fa + '|' + nomeBaseProjeto(a.NomeParque), kb = fb + '|' + nomeBaseProjeto(b.NomeParque);
+      if (ka !== kb){
+        const oa = minOrdemProjeto[ka], ob = minOrdemProjeto[kb];
+        if (oa !== ob) return oa - ob;
+        return ka.localeCompare(kb);
+      }
+      const na = numeroProjeto(a.NomeParque), nb = numeroProjeto(b.NomeParque);
+      if (na !== nb) return na - nb;
+      return (Number(a.Ordem) || 0) - (Number(b.Ordem) || 0);
+    });
     /* 26/09/2026 (Robson): no Bloco 1 (Parques Ativos) NAO existe mais a vaga
        em branco para criar projeto manualmente -- projeto novo entra pelo RDO
        (regra "nome do card = nome do RDO").
