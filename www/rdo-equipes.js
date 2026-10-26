@@ -67,6 +67,12 @@
     '.rdoeq-mascote img{height:72px;width:auto;flex:none;animation:rdoeqFlutua 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}',
     '.rdoeq-foot img.rdoeq-mini{height:26px;width:auto;vertical-align:middle;margin-right:6px}',
     '@keyframes rdoeqFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
+    /* Bloco 3: sem colunas de Bonificação (projetos ainda não iniciados) e certificações na mesma linha do técnico */
+    '#b3 .bonus-th,#b3 .bonus-group,#b3 .bonus-td,#b3 .bonus-fill,#b3 .bonus-mot-th,#b3 .bonus-mot-td{display:none !important}',
+    '#b3 table thead tr + tr{display:none}',
+    '#b3 td.cert-td{white-space:nowrap;min-width:max-content}',
+    '#b3 td.cert-td .tech-cert-badges{flex-wrap:nowrap;display:inline-flex;gap:4px;align-items:center}',
+    '#b3 td.cert-td .badge-cert{white-space:nowrap}',
     '#b3 .ab-daycol:has(>[data-rh-box]){flex:1 1 630px;min-width:210px;max-width:630px}',
     '#b3 .rh-box[data-rh-box]{width:100%;min-width:0;box-sizing:border-box}',
     '#b3 .rh-box[data-rh-box] .rh-txt{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap}',   /* 26/10/2026 (Robson): Observações gerais do Bloco 3 com 3x o comprimento (210 -> 630 px), para o texto não crescer para baixo */
@@ -425,7 +431,7 @@
      Células "Certificação" VAZIAS mostram selos (BST/ART/IRATA/LOTO GEP/ASO) vindos ao vivo da base de equipes pela matrícula/nome.
      Só exibição: nada é gravado na planilha; texto digitado à mão continua mandando. */
   function certsAuto() {
-    var tb = document.querySelectorAll('td.cert-td'); if (!tb.length) return;
+    var tb = document.querySelectorAll('#b3 td.cert-td'); if (!tb.length) return;   /* só Bloco 3 (Robson, 26/10/2026) */
     if (!TEC) { carregarTecnicos(); if (tecPedido) tecPedido.then(certsAuto); return; }
     Array.prototype.forEach.call(tb, function (td) {
       var tr = td.closest('tr[data-row]'); if (!tr || td.isContentEditable || String(td.dataset.raw || '').trim()) return;
