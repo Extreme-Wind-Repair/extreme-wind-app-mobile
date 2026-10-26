@@ -405,6 +405,24 @@
   .horas-box .hb-sw b{display:block; font-size:15px;}
   .horas-box .hb-sw.ok b{color:var(--ok);} .horas-box .hb-sw.nok b{color:var(--nok);}
   .horas-box .hb-rod{font-size:12.5px; color:var(--muted);}
+  /* 26/10/2026 (Robson): barra DIARIA de horas (substitui as 3 barras acumuladas). Cada dia = 1 coluna empilhada
+     (Produtivo verde embaixo, Setup amarelo, Stand-by verde/amarelo/vermelho pela faixa); Stop Work Extreme = coluna toda vermelha;
+     dia sem RDO = cinza; dias ate o termino do projeto (mesma data da barra Prazo do projeto) = trilho vazio. */
+  .horas-box .hd-wrap{flex:1 1 100%; min-width:0;}
+  .horas-box .hd-top{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 16px; font-size:13.5px; color:var(--muted); margin-bottom:4px;}
+  .horas-box .hd-top b{color:var(--text);}
+  .horas-box .hd-leg i{display:inline-block; width:9px; height:9px; border-radius:2px; margin:0 3px 0 10px; vertical-align:-1px;}
+  .horas-box .hd-track{display:flex; height:26px; gap:1px; border-radius:6px; overflow:hidden; background:rgba(143,169,192,.10); border:1px solid var(--line);}
+  .horas-box .hd-cel{flex:1 1 0; min-width:0; display:flex; flex-direction:column-reverse; background:rgba(143,169,192,.16);}
+  .horas-box .hd-cel.fut{background:transparent;}
+  .horas-box .hd-cel.sem{background:rgba(143,169,192,.20);}
+  .horas-box .hd-cel.hoje{box-shadow:inset 0 0 0 1px var(--text);}
+  .horas-box .hd-cel.sw{background:var(--nok);}
+  .horas-box .hd-cel i{display:block; width:100%;}
+  .horas-box .hd-cel i.ok{background:var(--ok);} .horas-box .hd-cel i.warn{background:var(--warn);} .horas-box .hd-cel i.nok{background:var(--nok);}
+  .horas-box .hd-esc{position:relative; height:15px; font-size:12px; color:var(--muted); margin-top:2px;}
+  .horas-box .hd-esc span{position:absolute; top:0; white-space:nowrap;}
+  .horas-box .hd-sw.nok b{color:var(--nok);} .horas-box .hd-sw.ok b{color:var(--ok);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -3329,6 +3347,59 @@
     }
     preencherQuadrosHoras();
   }
+  /* Barra diaria (26/10/2026, Robson). Inicio = 1o RDO do parque ou 60 dias atras (o que for mais recente); fim = Previsao de termino
+     do card (mesma regra de 2 meses da barra Prazo do projeto quando nao houver). Dia = % do dia (computeRdoStats, sem almoco/janta).
+     Stop Work Extreme = Status do card "stop_extreme" (hoje). Stand-by, mesmo com "Extreme wind" na observacao (vento extremo), NAO e Stop Work. */
+  function horasDiariasHtml(nome, status, d){
+    const DIA = 86400000;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const iso = function(x){ return x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0'); };
+    const dd = function(x){ return String(x.getDate()).padStart(2,'0') + '/' + String(x.getMonth()+1).padStart(2,'0'); };
+    const park = (DATA.parques || []).filter(function(p){ return p.NomeParque === nome; })[0];
+    const porDia = {}, idDia = {};
+    (DATA.relatorios || []).forEach(function(r){
+      if (!parkMatchesReport(nome, r.Parque)) return;
+      const k = normalizeDateExp(r.Data_exp); if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
+      (porDia[k] = porDia[k] || []).push(String(r.ID)); idDia[String(r.ID)] = k;
+    });
+    const dias = Object.keys(porDia).sort();
+    if (!dias.length) return null;
+    const p1 = dias[0].split('-');
+    let ini = new Date(+p1[0], +p1[1]-1, +p1[2]);
+    const limite = new Date(hoje.getTime() - 60 * DIA);
+    if (ini < limite) ini = limite;
+    let fim = parseDataTermino(park && park.Data); if (!fim) fim = maisMeses(hoje, 2);
+    if (fim < hoje) fim = hoje;
+    const n = Math.min(400, Math.round((fim - ini) / DIA) + 1);
+    const pctF = function(x){ return Math.max(0, Math.min(100, x)); };
+    let cels = '', swN = 0, tem = 0;
+    for (let i = 0; i < n; i++){
+      const dia = new Date(ini.getTime() + i * DIA); const k = iso(dia);
+      const ehHoje = k === iso(hoje);
+      const st = porDia[k] ? computeRdoStats(nome, porDia[k]) : null;
+      const sw = ehHoje && status === 'stop_extreme'; /* Stand-by NAO e Stop Work (Robson, 26/10/2026): so o Status do card marca vermelho */
+      let cls = 'hd-cel' + (ehHoje ? ' hoje' : ''), inner = '', tip = dd(dia);
+      if (sw){ cls += ' sw'; swN++; tip += ' · Stop Work Extreme'; }
+      else if (st){
+        tem++;
+        const sb = st.standby < 20 ? 'ok' : (st.standby <= 50 ? 'warn' : 'nok');
+        inner = '<i class="ok" style="height:' + pctF(st.produtivo) + '%"></i><i class="warn" style="height:' + pctF(st.setup) + '%"></i><i class="' + sb + '" style="height:' + pctF(st.standby) + '%"></i>';
+        tip += ' · Setup ' + st.setup + '% · Stand-by ' + st.standby + '% · Produtivo ' + st.produtivo + '%';
+      }
+      else if (dia > hoje || (dia.getTime() === hoje.getTime() && !porDia[k])){ cls += ' fut'; tip += dia > hoje ? ' · futuro' : ' · sem RDO ainda'; }
+      else { cls += ' sem'; tip += ' · sem RDO'; }
+      cels += '<span class="' + cls + '" title="' + escapeHtml(tip) + '">' + inner + '</span>';
+    }
+    const pos = function(x){ return (Math.max(0, Math.min(n - 1, Math.round((x - ini) / DIA))) / Math.max(1, n - 1) * 100).toFixed(1); };
+    const acum = d ? ' · acumulado: <b style="color:var(--warn)">Setup ' + (d.setup * 100).toFixed(0) + '%</b> · <b class="' + (d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok') ) + '" style="color:var(--' + (d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok')) + ')">Stand-by ' + (d.standby * 100).toFixed(0) + '%</b> · <b style="color:var(--ok)">Produtivo ' + (d.prod * 100).toFixed(0) + '%</b>' : '';
+    return '<div class="hd-wrap">' +
+      '<div class="hd-top"><span>Horas por dia · desde <b>' + dd(ini) + '</b> · sem almoço' + acum + '</span>' +
+      '<span class="hd-leg"><i style="background:var(--ok)"></i>Produtivo<i style="background:var(--warn)"></i>Setup<i style="background:var(--ok)"></i><i style="background:var(--warn);margin-left:0"></i><i style="background:var(--nok);margin-left:0"></i>Stand-by (&lt;20 / 20-50 / &gt;50%)<i style="background:var(--nok)"></i>Stop Work Extreme</span>' +
+      (swN > 0 ? '<span class="hd-sw nok"><b>STOP WORK EXTREME ATIVO HOJE</b> (Status do card)</span>' : '') + '</div>' +
+      '<div class="hd-track">' + cels + '</div>' +
+      '<div class="hd-esc"><span style="left:0">' + dd(ini) + '</span><span style="left:' + pos(hoje) + '%;transform:translateX(-50%)">hoje ' + dd(hoje) + '</span><span style="right:0">término ' + dd(fim) + '</span></div>' +
+      '</div>';
+  }
   function preencherQuadrosHoras(){
     const els = Array.prototype.slice.call(document.querySelectorAll('[data-horas-box]'));
     if (!RD_HORAS){ return; }
@@ -3342,20 +3413,22 @@
       const d = RD_HORAS.mapa[normalizeParqueAnalise(nome)];
       const park = (DATA.parques || []).filter(function(p){ return p.NomeParque === nome; })[0];
       const status = park ? park.Status : '';
+      const diario = horasDiariasHtml(nome, status, RD_HORAS.erro ? null : d);
+      if (diario){ el.innerHTML = diario; return; }
       if (RD_HORAS.erro){ el.innerHTML = '<div class="hb-rod">Horas (Setup/Stand-by/Produtivo) indisponíveis</div>'; return; }
       if (!d || !d.horas){ el.innerHTML = '<div class="hb-rod">Horas (Setup/Stand-by/Produtivo): sem RDO na janela</div>'; return; }
       const sbCls = d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok');
       const ini = d.ini != null ? new Date(Date.UTC(1899, 11, 30) + d.ini * 86400000) : null;
       const iniTxt = ini ? String(ini.getUTCDate()).padStart(2, '0') + '/' + String(ini.getUTCMonth() + 1).padStart(2, '0') + '/' + ini.getUTCFullYear() : '';
       const h = function(x){ return x != null ? x.toFixed(1).replace('.', ',') + ' h' : ''; };
-      const dias = d.sw || 0;
+      const dias = 0; /* 26/10/2026: dias do RD_Horas contavam stand-by como Stop Work -- nao usar */
       const swAtivo = dias > 0 || status === 'stop_extreme';
       el.innerHTML =
         '<div class="hb-tit">Horas acumuladas<span>desde ' + iniTxt + ' · sem almoço</span></div>' +
         linha('Setup', d.setup, 'warn', 'Setup: ' + h(d.hSetup) + ' de ' + h(d.horas) + ' (sem almoço)') +
         linha('Stand-by', d.standby, sbCls, 'Stand-by: ' + h(d.hStand) + ' de ' + h(d.horas) + ' (sem almoço)') +
         linha('Produtivo', d.prod, 'ok', 'Produtivo: ' + h(d.hProd) + ' de ' + h(d.horas) + ' (sem almoço)') +
-        '<div class="hb-sw ' + (swAtivo ? 'nok' : 'ok') + '">Stop Work Extreme<b>' + dias + (dias === 1 ? ' dia' : ' dias') + (status === 'stop_extreme' ? ' (ativo hoje)' : '') + '</b></div>' +
+        (status === 'stop_extreme' ? '<div class="hb-sw nok">Stop Work Extreme<b>ATIVO HOJE</b></div>' : '') +
         (status === 'stop_cliente' ? '<div class="hb-rod">Stop Work Cliente (não conta)</div>' : '');
     });
   }
