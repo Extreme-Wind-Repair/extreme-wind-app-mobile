@@ -455,10 +455,10 @@
   .activity-box, .ehs-box{width:182px !important;}
   /* 26/10/2026 (Robson): o quadro "Observacoes gerais" cresce em LARGURA ao digitar
      (ocupa o espaco livre ate o bloco do RDO) em vez de crescer so para baixo.
-     Minimo 182px (como antes); maximo 460px; acima disso quebra linha. */
+     Ocupa SO o espaco livre da faixa (26d): minimo 182px, maximo 460px, nunca empurra o RDO nem gera rolagem. */
   @media (min-width: 1100px){
-    .ab-daycol:has(> [data-rh-box]){flex:0 1 auto; min-width:182px; max-width:460px;}
-    [data-rh-box].rh-box{width:max-content !important; min-width:182px; max-width:460px; box-sizing:border-box;}
+    .ab-daycol:has(> [data-rh-box]){flex:1 1 182px !important; min-width:182px; max-width:460px;}
+    [data-rh-box].rh-box{width:100% !important; min-width:0; max-width:none; box-sizing:border-box;}
   }
   .status-col{width:160px !important;}
   /* RDOs (Anteontem/Ontem) encostados a direita, junto do status, e afastados
