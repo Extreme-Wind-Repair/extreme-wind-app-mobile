@@ -67,7 +67,9 @@
     '.rdoeq-mascote img{height:72px;width:auto;flex:none;animation:rdoeqFlutua 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}',
     '.rdoeq-foot img.rdoeq-mini{height:26px;width:auto;vertical-align:middle;margin-right:6px}',
     '@keyframes rdoeqFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
-    '#b3 .rh-box[data-rh-box]{width:630px;max-width:calc(100vw - 48px)}',   /* 26/10/2026 (Robson): Observações gerais do Bloco 3 com 3x o comprimento (210 -> 630 px), para o texto não crescer para baixo */
+    '#b3 .ab-daycol:has(>[data-rh-box]){flex:1 1 630px;min-width:210px;max-width:630px}',
+    '#b3 .rh-box[data-rh-box]{width:100%;min-width:0;box-sizing:border-box}',
+    '#b3 .rh-box[data-rh-box] .rh-txt{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap}',   /* 26/10/2026 (Robson): Observações gerais do Bloco 3 com 3x o comprimento (210 -> 630 px), para o texto não crescer para baixo */
     '@media (prefers-reduced-motion:reduce){.rdoeq-mascote img{animation:none}}'
   ].join('\n');
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
