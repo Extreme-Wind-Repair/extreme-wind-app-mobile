@@ -67,6 +67,7 @@
     '.rdoeq-mascote img{height:72px;width:auto;flex:none;animation:rdoeqFlutua 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}',
     '.rdoeq-foot img.rdoeq-mini{height:26px;width:auto;vertical-align:middle;margin-right:6px}',
     '@keyframes rdoeqFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
+    '#b3 .rh-box[data-rh-box]{width:630px;max-width:calc(100vw - 48px)}',   /* 26/10/2026 (Robson): Observações gerais do Bloco 3 com 3x o comprimento (210 -> 630 px), para o texto não crescer para baixo */
     '@media (prefers-reduced-motion:reduce){.rdoeq-mascote img{animation:none}}'
   ].join('\n');
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -229,16 +230,29 @@
     var orig = window.apiPost;
     window.apiPost = function (payload) {
       var inp = document.getElementById('npDataInicio'), br = inp ? brData(inp.value) : '';
-      var novo = br && payload && payload.action === 'addRow' && payload.sheet === 'RD_Parques' && payload.template && /^b3-novo-/.test(String(payload.template.ParkID));
+      var novo = payload && payload.action === 'addRow' && payload.sheet === 'RD_Parques' && payload.template && /^b3-novo-/.test(String(payload.template.ParkID));
+      var campos = {};
+      if (novo) {   /* 26/10/2026: o card novo nascia sem Estado/Tipo/Data/Fabricante; Exterior: Local/Estado/País ficam para digitação manual */
+        var ov0 = document.getElementById('novoProjetoOverlay'), f0 = ov0 ? ler('rdoeqM', ov0) : null;
+        if (br) campos.Data = "'" + br;
+        if (f0) {
+          var at0 = ATIVIDADES.filter(function (x) { return x[0] === f0.atv; })[0], cl0 = CLIENTES.filter(function (x) { return x[0] === f0.cli; })[0];
+          if (f0.abr === 'brasil' && f0.uf) campos.Estado = f0.uf;
+          if (at0) campos.Tipo = at0[1];
+          if (cl0) campos.Fabricante = cl0[1];
+        }
+      }
       var pr = orig.apply(this, arguments);
-      if (!novo) return pr;
+      if (!novo || !Object.keys(campos).length) return pr;
       var id = payload.template.ParkID;
       return Promise.resolve(pr).then(function (resp) {
         if (!(resp && resp.ok !== false && resp.result && resp.result.newRow)) return resp;
-        return Promise.resolve(orig({ action: 'updateCell', sheet: 'RD_Parques', row: resp.result.newRow, field: 'Data', value: "'" + br })).catch(function () {}).then(function () {
+        var seq = Promise.resolve();
+        Object.keys(campos).forEach(function (k) { seq = seq.then(function () { return orig({ action: 'updateCell', sheet: 'RD_Parques', row: resp.result.newRow, field: k, value: campos[k] }); }).catch(function () {}); });
+        return seq.then(function () {
           var n = 0, t = setInterval(function () {
             var L = (typeof DATA !== 'undefined' && DATA && DATA.parques) || [], p = L.filter(function (x) { return x.ParkID === id; })[0];
-            if (p) { p.Data = br; clearInterval(t); if (typeof renderBlock === 'function') renderBlock('b3'); } else if (++n > 75) clearInterval(t);
+            if (p) { Object.keys(campos).forEach(function (k) { p[k] = String(campos[k]).replace(/^'/, ''); }); clearInterval(t); if (typeof renderBlock === 'function') renderBlock('b3'); } else if (++n > 75) clearInterval(t);
           }, 200);
           return resp;
         });
@@ -341,7 +355,7 @@
     if (typeof EWAuth !== 'object' || !EWAuth || !EWAuth.post) return;
     if (tecPedido || (TEC && Date.now() - tecAt < 300000)) return;
     tecPedido = EWAuth.post({ action: 'indicarEquipes', modo: 'tecnicos' }).then(function (j) {
-      if (j && j.ok && j.tecnicos) { TEC = j.tecnicos.map(function (r) { return { mat: String(r[0]), nome: String(r[1] || ''), nivel: r[2] || '', uf: r[3] || '', sit: r[4] || '', n: norm(r[1]) }; }); tecAt = Date.now(); }
+      if (j && j.ok && j.tecnicos) { TEC = j.tecnicos.map(function (r) { return { mat: String(r[0]), nome: String(r[1] || ''), nivel: r[2] || '', uf: r[3] || '', sit: r[4] || '', certs: r[5] || [], n: norm(r[1]) }; }); tecAt = Date.now(); }
     }).catch(function () {}).then(function () { tecPedido = null; });
   }
   function buscaTecnicos(q) {
@@ -405,6 +419,31 @@
     window.addEventListener('scroll', posiciona, true); window.addEventListener('resize', posiciona);
   }
 
+  /* ---------- certificações automáticas na tabela de equipe (26/10/2026, Robson) ----------
+     Células "Certificação" VAZIAS mostram selos (BST/ART/IRATA/LOTO GEP/ASO) vindos ao vivo da base de equipes pela matrícula/nome.
+     Só exibição: nada é gravado na planilha; texto digitado à mão continua mandando. */
+  function certsAuto() {
+    var tb = document.querySelectorAll('td.cert-td'); if (!tb.length) return;
+    if (!TEC) { carregarTecnicos(); if (tecPedido) tecPedido.then(certsAuto); return; }
+    Array.prototype.forEach.call(tb, function (td) {
+      var tr = td.closest('tr[data-row]'); if (!tr || td.isContentEditable || String(td.dataset.raw || '').trim()) return;
+      var n = tr.querySelector('td[data-field="Val1"]'); if (!n) return;
+      var txt = String(n.dataset.raw != null && n.dataset.raw !== '' ? n.dataset.raw : n.textContent).split('=')[0];
+      var mm = /^\s*(\d+)\s*·/.exec(txt), mat = mm ? mm[1] : null, k = norm(txt.replace(/^\s*\d+\s*·\s*/, '')), x = null;
+      if (mat) x = TEC.filter(function (t) { return t.mat === mat; })[0];
+      if (!x && k) { var c = TEC.filter(function (t) { return t.n === k; }); if (c.length === 1) x = c[0]; }
+      var h = (x && x.certs && x.certs.length) ? '<span class="tech-cert-badges" title="Automático (base de equipes)">' + x.certs.map(function (c) { return '<span class="badge-cert">' + esc(c) + '</span>'; }).join('') + '</span>' : '<span class="tech-cert-empty">—</span>';
+      if (td.dataset.autoHtml !== h) { td.dataset.autoHtml = h; td.innerHTML = h; }
+    });
+  }
+  function observarCerts() {
+    var agenda = 0;
+    function roda() { if (agenda) return; agenda = requestAnimationFrame(function () { agenda = 0; try { certsAuto(); } catch (e) {} }); }
+    new MutationObserver(roda).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('focusout', function (e) { if (e.target && e.target.matches && e.target.matches('td[data-field="Val1"],td.cert-td')) setTimeout(roda, 250); });
+    roda();
+  }
+
   var iniciado = false;
   function init() {
     if (!permitido()) return false;
@@ -412,6 +451,7 @@
       iniciado = true;
       montarBarra(); montarModal();
       autocompleteTecnicos();
+      observarCerts();
       var ov = document.getElementById('novoProjetoOverlay');
       if (ov) new MutationObserver(function () { if (!ov.hidden) { montarModal(); resetModal(); } }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
       window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
