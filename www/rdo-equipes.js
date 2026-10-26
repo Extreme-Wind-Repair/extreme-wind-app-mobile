@@ -334,12 +334,84 @@
     tab.click();
   }
 
+  /* ---------- autocomplete do nome do técnico na tabela de equipe (26/10/2026, Robson) ----------
+     Lista vem ao vivo (POST autenticado, modo 'tecnicos'), fica só em memória; nada embutido no arquivo. */
+  var TEC = null, tecAt = 0, tecPedido = null;
+  function carregarTecnicos() {
+    if (typeof EWAuth !== 'object' || !EWAuth || !EWAuth.post) return;
+    if (tecPedido || (TEC && Date.now() - tecAt < 300000)) return;
+    tecPedido = EWAuth.post({ action: 'indicarEquipes', modo: 'tecnicos' }).then(function (j) {
+      if (j && j.ok && j.tecnicos) { TEC = j.tecnicos.map(function (r) { return { mat: String(r[0]), nome: String(r[1] || ''), nivel: r[2] || '', uf: r[3] || '', sit: r[4] || '', n: norm(r[1]) }; }); tecAt = Date.now(); }
+    }).catch(function () {}).then(function () { tecPedido = null; });
+  }
+  function buscaTecnicos(q) {
+    if (!TEC) return [];
+    var t = norm(q).split(' ').filter(Boolean), dig = String(q).trim().replace(/\D/g, '');
+    if (!t.length && !dig) return [];
+    var somenteNum = /^\s*\d+\s*$/.test(q);
+    var r = TEC.filter(function (x) {
+      if (somenteNum) return x.mat.indexOf(dig) === 0;
+      var w = x.n.split(' ');
+      return t.every(function (tk) { return w.some(function (p) { return p.indexOf(tk) === 0; }); });
+    });
+    r.sort(function (a, b) { var pa = /^Dispon|Reserva/.test(a.sit) ? 0 : 1, pb = /^Dispon|Reserva/.test(b.sit) ? 0 : 1; return pa - pb || a.nome.localeCompare(b.nome); });
+    return r.slice(0, 8);
+  }
+  function autocompleteTecnicos() {
+    var box = document.createElement('div'), alvo = null, lista = [], idx = -1;
+    box.className = 'rdoeq-ac'; box.hidden = true; document.body.appendChild(box);
+    var st2 = document.createElement('style');
+    st2.textContent = '.rdoeq-ac{position:fixed;z-index:9999;background:var(--panel,#fff);color:var(--text,#111);border:1px solid var(--line,#ccc);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.35);max-height:290px;overflow:auto;min-width:300px;max-width:min(560px,94vw);font-size:13px}.rdoeq-ac[hidden]{display:none}.rdoeq-ac div{padding:7px 10px;cursor:pointer;border-bottom:1px solid var(--line,#ddd);line-height:1.35}.rdoeq-ac div:last-child{border-bottom:0}.rdoeq-ac div.on,.rdoeq-ac div:hover{background:var(--panel2,#eee)}.rdoeq-ac b{font-variant-numeric:tabular-nums}.rdoeq-ac small{display:block;color:var(--muted,#666);font-size:11.5px}.rdoeq-ac .ok{color:var(--ok,#0b6b4a)}.rdoeq-ac .no{color:#b42318}';
+    document.head.appendChild(st2);
+    function ehVal1(el) { return el && el.nodeType === 1 && el.matches && el.matches('td[contenteditable][data-field="Val1"]') && el.closest('[data-row]'); }
+    function fecha() { box.hidden = true; idx = -1; lista = []; }
+    function posiciona() { if (!alvo) return; var r = alvo.getBoundingClientRect(), h = box.offsetHeight || 200, abaixo = window.innerHeight - r.bottom; box.style.left = Math.max(4, Math.min(r.left, window.innerWidth - box.offsetWidth - 4)) + 'px'; box.style.top = (abaixo >= Math.min(h, 220) ? r.bottom + 2 : Math.max(4, r.top - h - 2)) + 'px'; }
+    function consulta(td) {
+      var txt = td.textContent, seg = txt.split('=')[0], nome = seg.split(/\s[—–-]\s/)[0];
+      if (txt.indexOf('=') >= 0 && td.ownerDocument.getSelection && td.ownerDocument.getSelection().anchorOffset > seg.length) return '';   // digitando o substituto: sem sugestão
+      return nome.replace(/^\s*\d+\s*·\s*/, '');
+    }
+    function desenha(td) {
+      alvo = td; var q = consulta(td);
+      lista = q.trim().length >= 2 ? buscaTecnicos(q) : [];
+      if (!lista.length) { fecha(); return; }
+      idx = 0;
+      box.innerHTML = lista.map(function (x, i) {
+        var bad = /Indispon|Em projeto|Alocado/.test(x.sit) && !/encerrando/.test(x.sit);
+        return '<div data-i="' + i + '"' + (i === 0 ? ' class="on"' : '') + '><b>' + esc(x.mat) + '</b> · ' + esc(x.nome) + '<small>' + esc((x.uf || '—') + (x.nivel ? '/' + x.nivel : '')) + ' · <span class="' + (bad ? 'no' : 'ok') + '">' + esc(x.sit || '—') + '</span></small></div>';
+      }).join('');
+      box.hidden = false; posiciona();
+    }
+    function marca(i) { idx = (i + lista.length) % lista.length; Array.prototype.forEach.call(box.children, function (c, k) { c.className = k === idx ? 'on' : ''; if (k === idx) c.scrollIntoView({ block: 'nearest' }); }); }
+    function escolhe(i) {
+      var x = lista[i], td = alvo; if (!x || !td) return;
+      var partes2 = td.textContent.split('='), resto = partes2.slice(1).join('=').trim();
+      var v = x.nome + (x.uf ? ' — ' + x.uf + (x.nivel ? '/' + x.nivel : '') : '');
+      td.textContent = v + (resto ? ' = ' + resto : '');
+      td.dataset.raw = td.textContent;
+      fecha(); td.blur();          // o blur da própria página grava (updateCell RD_Equipe/Val1) e reabrevia o nome
+    }
+    document.addEventListener('focusin', function (e) { if (ehVal1(e.target)) carregarTecnicos(); });
+    document.addEventListener('input', function (e) { if (ehVal1(e.target)) { carregarTecnicos(); desenha(e.target); } });
+    document.addEventListener('keydown', function (e) {
+      if (box.hidden || !ehVal1(e.target)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); marca(idx + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); marca(idx - 1); }
+      else if (e.key === 'Enter') { e.preventDefault(); escolhe(idx); }
+      else if (e.key === 'Escape') { fecha(); }
+    }, true);
+    document.addEventListener('focusout', function (e) { if (ehVal1(e.target)) setTimeout(fecha, 120); });
+    box.addEventListener('pointerdown', function (e) { var d = e.target.closest('[data-i]'); if (!d) return; e.preventDefault(); escolhe(+d.dataset.i); });
+    window.addEventListener('scroll', posiciona, true); window.addEventListener('resize', posiciona);
+  }
+
   var iniciado = false;
   function init() {
     if (!permitido()) return false;
     if (!iniciado) {
       iniciado = true;
       montarBarra(); montarModal();
+      autocompleteTecnicos();
       var ov = document.getElementById('novoProjetoOverlay');
       if (ov) new MutationObserver(function () { if (!ov.hidden) { montarModal(); resetModal(); } }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
       window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
