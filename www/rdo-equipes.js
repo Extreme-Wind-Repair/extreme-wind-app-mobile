@@ -440,7 +440,7 @@
       var mm = /^\s*(\d+)\s*·/.exec(txt), mat = mm ? mm[1] : null, k = norm(txt.replace(/^\s*\d+\s*·\s*/, '')), x = null;
       if (mat) x = TEC.filter(function (t) { return t.mat === mat; })[0];
       if (!x && k) { var c = TEC.filter(function (t) { return t.n === k; }); if (c.length === 1) x = c[0]; }
-      var h = (x && x.certs && x.certs.length) ? '<span class="tech-cert-badges" title="Automático (base de equipes)">' + x.certs.map(function (c) { return '<span class="badge-cert">' + esc(c) + '</span>'; }).join('') + '</span>' : '<span class="tech-cert-empty">—</span>';
+      var h = (x && x.certs && x.certs.length) ? '<span class="tech-cert-badges" title="Automático (base de equipes)">' + x.certs.map(function (c) { var st = /vencido/.test(c) ? ' style="border-color:#e0483c;color:#e0483c"' : (/a vencer/.test(c) ? ' style="border-color:#d9b234;color:#d9b234"' : ''); return '<span class="badge-cert"' + st + '>' + esc(c) + '</span>'; }).join('') + '</span>' : '<span class="tech-cert-empty">—</span>';
       if (td.dataset.autoHtml !== h) { td.dataset.autoHtml = h; td.innerHTML = h; }
     });
   }

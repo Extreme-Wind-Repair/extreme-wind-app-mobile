@@ -263,11 +263,11 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--ok)">98%</div>
-    <div class="foot">WK 44 · 12 ações pendentes no total</div>
+    <div class="foot">WK 44 · 15 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">8</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">2</span><span class="l">Administrativas</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativas</span></div>
     </div>
   </div>
   <div class="kpi">
@@ -729,9 +729,9 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">4</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">8</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">2</span><span class="l">Administrativa</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
       <table class="conftable" id="acaoTable">
@@ -989,10 +989,10 @@ render();
     <text x="600.0" y="49.0" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 95%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,89.5 467.5,90.0 C511.7,90.5 577.9,55.0 600.0,48.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,91.9 467.5,90.0 C511.7,88.1 577.9,43.3 600.0,34.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,89.5 467.5,90.0 C511.7,90.5 577.9,55.0 600.0,48.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,91.9 467.5,90.0 C511.7,88.1 577.9,43.3 600.0,34.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
@@ -1008,8 +1008,8 @@ render();
       <circle cx="467.5" cy="90.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="467.5" y="78.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">90%</text>
 
-      <circle cx="600.0" cy="48.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="36.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
+      <circle cx="600.0" cy="34.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="22.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">98%</text>
     </g>
 
     <!-- x labels -->
@@ -1094,7 +1094,7 @@ render();
     <tbody>
       <tr><td>KM Ponto de Troca</td><td class="cell-warn">78%</td><td class="cell-warn">83%</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Saldo Extra</td><td class="cell-nok">44%</td><td class="cell-nok">50%</td><td class="cell-nok">46%</td><td class="cell-nok">40%</td><td class="cell-nok cur">40%</td></tr>
-      <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">80%</td><td class="cell-warn cur">90%</td></tr>
+      <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">80%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Revisão</td><td class="cell-warn">90%</td><td class="cell-warn">92%</td><td class="cell-warn">91%</td><td class="cell-warn">80%</td><td class="cell-warn cur">90%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Medição Pneus</td><td class="cell-warn">90%</td><td class="cell-ok">100%</td><td class="cell-warn">91%</td><td class="cell-warn">90%</td><td class="cell-ok cur">100%</td></tr>
@@ -1104,7 +1104,7 @@ render();
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-ok">96%</td><td class="cell-ok">98%</td><td class="cell-ok">96%</td><td class="cell-warn">90%</td><td class="cell-ok cur">96%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-ok">96%</td><td class="cell-ok">98%</td><td class="cell-ok">96%</td><td class="cell-warn">90%</td><td class="cell-ok cur">98%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1256,7 +1256,7 @@ const rows = [
 ["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","1,27","OK","N/OK","-","OK","OK","OK","OK","None","N/A","N/A"],
 ["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","1,17","OK","OK","-","OK","OK","OK","OK","None","N/A","N/A"],
 ["NL9058D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","0,70","OK","OK","OK","OK","OK","OK","N/A","None","N/A","N/A"],
-["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,70","OK","ATENÇÃO","N/A","OK","OK","OK","N/A","None","N/A","N/A"],
+["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,70","OK","ATENÇÃO","OK","OK","OK","OK","N/A","None","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1427,7 +1427,7 @@ const histData = [
   { wk:"WK41", geral:98.3, cats:[83.3,50.0,100,91.7,100,100,100,null,null,null] },
   { wk:"WK42", geral:96.4, cats:[90.9,45.5,100,90.9,100,90.9,100,null,null,null] },
   { wk:"WK43", geral:90.0, cats:[100.0,40.0,80.0,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK44", geral:96.0, cats:[100.0,40.0,90.0,90.0,100,100,100,null,null,null] },
+  { wk:"WK44", geral:98.0, cats:[100.0,40.0,100,90.0,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
@@ -1522,18 +1522,21 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"UVN2B79 -1.1  PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"27/10/2026", obs:"REAGENDAR A TROCA DO PARA-BRISAS", categoria:"Emergencial" },
-  { acao:"NC7492D - VEÍCULO DESALINHADO (CHECKLIST 20/10, ENVIADO EM 23/10)", tipo:"CORRETIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"26/10/2026", obs:"AGENDAR O ALINHAMENTO E BALANCEAMENTO", categoria:"Emergencial" },
-  { acao:"TYQ5C48 - REVISÃO PRÓXIMA", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"26/10/2026", obs:"AGENDAR A REVISÃO COM A LOCADORA", categoria:"Emergencial" },
-  { acao:"UVN9J75 - AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"26/10/2026", obs:"AGENDAR COM A LOCADORA", categoria:"Emergencial" },
+  { acao:"UVN2B79 -1.1  PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"26/10/2026", obs:"RESERVA/SUBSTITUIR E TROCAR  O VEICULO", categoria:"Emergencial" },
+  { acao:"NC7492D - VEÍCULO DESALINHADO", tipo:"CORRETIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"27/10/2026", obs:"AGENDAR O ALINHAMENTO E BALANCEAMENTO", categoria:"Emergencial" },
+  { acao:"TYQ5C48 -1.2 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"30/10/2026", obs:"AJUSTAR COM A OFICINA PARA REVISAR NO SABADO", categoria:"Emergencial" },
+  { acao:"UVN2B79 -1.2 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"27/10/2026", obs:"FAZER SERVIÇO/DEVOLVER O VEICULO", categoria:"Emergencial" },
+  { acao:"TYQ5C48 -1.3 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"31/10/2026", obs:"REALIZAR A REVISÃO", categoria:"Emergencial" },
+  { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"29/10/2026", obs:"SUBIR O ORÇAMENTO/AALINHAR TROCA PARA SABADO", categoria:"Emergencial" },
+  { acao:"UVN9J75 -1.1 COMPRA DE 2 PNEUS PARA SUBSTITUIÇÃO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"26/10/2026", obs:"COMPRA/RETIRADA/ENTREGA AO CONDUTOR", categoria:"Emergencial" },
+  { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"27/10/2026", obs:"SUBSTITUIÇÃO DOS PNEUS DANIFICADOS", categoria:"Emergencial" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN2B79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"13/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UHS5E92 - SALDO DE CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"25/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TXY8H30 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"26/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"TZL6G42 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"TUCANO/BA", quem:"Sandoval", status:"28/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
-  { acao:"NC7492D - CANTONEIRA DO PERFIL LATERAL DA CAPOTA MARÍTIMA QUEBRADA (PROBLEMA CRÔNICO) - CHECKLIST 20/10", tipo:"ADMINISTRATIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"26/10/2026", obs:"AVALIAR O REPARO OU SUBSTITUIÇÃO COM A LOCADORA", categoria:"Administrativa" }
+  { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" }
 ];
 
 function categoriaTag(categoria){
