@@ -9,7 +9,7 @@
     --steel:#1C8CE8; --teal:#12BFA8;
     --bg:#081C2C; --panel:#0F2A40; --panel2:#123350; --line:#1E4363;
     --text:#EAF1F7; --muted:#8FA9C0;
-    --ok:#12A874; --nok:#E0483C; --warn:#D89A2B; --na:#5C7A93; --orange:#E8730C;
+    --ok:#12A874; --nok:#E0483C; --warn:#D89A2B; --na:#5C7A93; --orange:#E8730C; --sw:#D50000;
   }
   body.light-mode{
     --brand-deep:#E4E8EC;
@@ -403,7 +403,7 @@
   .horas-box .hb-pct.ok{color:var(--ok);} .horas-box .hb-pct.warn{color:var(--warn);} .horas-box .hb-pct.nok{color:var(--nok);}
   .horas-box .hb-sw{min-width:140px; font-size:13.5px; color:var(--muted);}
   .horas-box .hb-sw b{display:block; font-size:15px;}
-  .horas-box .hb-sw.ok b{color:var(--ok);} .horas-box .hb-sw.nok b{color:var(--nok);}
+  .horas-box .hb-sw.ok b{color:var(--ok);} .horas-box .hb-sw.nok b{color:var(--sw);}
   .horas-box .hb-rod{font-size:12.5px; color:var(--muted);}
   /* 26/10/2026 (Robson): barra DIARIA de horas (substitui as 3 barras acumuladas). Cada dia = 1 coluna empilhada
      (Produtivo verde embaixo, Setup amarelo, Stand-by verde/amarelo/vermelho pela faixa); Stop Work Extreme = coluna toda vermelha;
@@ -417,12 +417,12 @@
   .horas-box .hd-cel.fut{background:transparent;}
   .horas-box .hd-cel.sem{background:rgba(143,169,192,.20);}
   .horas-box .hd-cel.hoje{box-shadow:inset 0 0 0 1px var(--text);}
-  .horas-box .hd-cel.sw{background:var(--nok);}
+  .horas-box .hd-cel.sw{background:var(--sw);}
   .horas-box .hd-cel i{display:block; width:100%;}
-  .horas-box .hd-cel i.ok{background:var(--ok);} .horas-box .hd-cel i.warn{background:var(--warn);} .horas-box .hd-cel i.nok{background:var(--nok);}
+  .horas-box .hd-cel i.sb{background:var(--orange);} .horas-box .hd-cel i.ok{background:var(--ok);} .horas-box .hd-cel i.warn{background:var(--warn);} .horas-box .hd-cel i.nok{background:var(--nok);}
   .horas-box .hd-esc{position:relative; height:15px; font-size:12px; color:var(--muted); margin-top:2px;}
   .horas-box .hd-esc span{position:absolute; top:0; white-space:nowrap;}
-  .horas-box .hd-sw.nok b{color:var(--nok);} .horas-box .hd-sw.ok b{color:var(--ok);}
+  .horas-box .hd-sw.nok b{color:var(--sw);} .horas-box .hd-sw.ok b{color:var(--ok);}
   /* Topicos espacados (26/09/2026, Robson): os 5 topicos se distribuem pela
      altura toda do quadro, em vez de ficarem espremidos no topo. */
   .rh-box{display:flex; flex-direction:column;}
@@ -3382,8 +3382,7 @@
       if (sw){ cls += ' sw'; swN++; tip += ' · Stop Work Extreme'; }
       else if (st){
         tem++;
-        const sb = st.standby < 20 ? 'ok' : (st.standby <= 50 ? 'warn' : 'nok');
-        inner = '<i class="ok" style="height:' + pctF(st.produtivo) + '%"></i><i class="warn" style="height:' + pctF(st.setup) + '%"></i><i class="' + sb + '" style="height:' + pctF(st.standby) + '%"></i>';
+        inner = '<i class="ok" style="height:' + pctF(st.produtivo) + '%"></i><i class="warn" style="height:' + pctF(st.setup) + '%"></i><i class="sb" style="height:' + pctF(st.standby) + '%"></i>';
         tip += ' · Setup ' + st.setup + '% · Stand-by ' + st.standby + '% · Produtivo ' + st.produtivo + '%';
       }
       else if (dia > hoje || (dia.getTime() === hoje.getTime() && !porDia[k])){ cls += ' fut'; tip += dia > hoje ? ' · futuro' : ' · sem RDO ainda'; }
@@ -3391,10 +3390,10 @@
       cels += '<span class="' + cls + '" title="' + escapeHtml(tip) + '">' + inner + '</span>';
     }
     const pos = function(x){ return (Math.max(0, Math.min(n - 1, Math.round((x - ini) / DIA))) / Math.max(1, n - 1) * 100).toFixed(1); };
-    const acum = d ? ' · acumulado: <b style="color:var(--warn)">Setup ' + (d.setup * 100).toFixed(0) + '%</b> · <b class="' + (d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok') ) + '" style="color:var(--' + (d.standby < 0.20 ? 'ok' : (d.standby <= 0.50 ? 'warn' : 'nok')) + ')">Stand-by ' + (d.standby * 100).toFixed(0) + '%</b> · <b style="color:var(--ok)">Produtivo ' + (d.prod * 100).toFixed(0) + '%</b>' : '';
+    const acum = d ? ' · acumulado: <b style="color:var(--warn)">Setup ' + (d.setup * 100).toFixed(0) + '%</b> · <b style="color:var(--orange)">Stand-by ' + (d.standby * 100).toFixed(0) + '%</b> · <b style="color:var(--ok)">Produtivo ' + (d.prod * 100).toFixed(0) + '%</b>' : '';
     return '<div class="hd-wrap">' +
       '<div class="hd-top"><span>Horas por dia · desde <b>' + dd(ini) + '</b> · sem almoço' + acum + '</span>' +
-      '<span class="hd-leg"><i style="background:var(--ok)"></i>Produtivo<i style="background:var(--warn)"></i>Setup<i style="background:var(--ok)"></i><i style="background:var(--warn);margin-left:0"></i><i style="background:var(--nok);margin-left:0"></i>Stand-by (&lt;20 / 20-50 / &gt;50%)<i style="background:var(--nok)"></i>Stop Work Extreme</span>' +
+      '<span class="hd-leg"><i style="background:var(--ok)"></i>Produtivo<i style="background:var(--warn)"></i>Setup<i style="background:var(--orange)"></i>Stand-by<i style="background:var(--sw)"></i>Stop Work Extreme</span>' +
       (swN > 0 ? '<span class="hd-sw nok"><b>STOP WORK EXTREME ATIVO HOJE</b> (Status do card)</span>' : '') + '</div>' +
       '<div class="hd-track">' + cels + '</div>' +
       '<div class="hd-esc"><span style="left:0">' + dd(ini) + '</span><span style="left:' + pos(hoje) + '%;transform:translateX(-50%)">hoje ' + dd(hoje) + '</span><span style="right:0">término ' + dd(fim) + '</span></div>' +
