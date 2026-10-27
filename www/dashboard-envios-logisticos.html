@@ -163,7 +163,7 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">699</div>
+    <div class="n" id="kpiTotal">700</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
@@ -171,7 +171,7 @@
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
-    <div class="n" id="kpiEntregues">619</div>
+    <div class="n" id="kpiEntregues">621</div>
   </div>
   <div class="kpi kpi-fill-red">
     <div class="label">Canceladas 2026 (Almox.)</div>
@@ -243,7 +243,7 @@
     <tr><td>SÃO VITOR</td><td>CORDAS 150M - ELIELSON</td><td>EVAIR</td><td>24/10/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>LDV MCU 2</td><td>CINTO ALPINISMO N3 - ELSON</td><td>EVAIR</td><td>24/10/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>OITIS</td><td>EPI - ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA</td><td>JAMILE</td><td>24/10/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
-    <tr><td>LDV</td><td>EPI - CARLOS EDUARDO RODRIGUES MARQUES</td><td>JAMILE</td><td>24/10/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>LDV</td><td>EPI - CARLOS EDUARDO RODRIGUES MARQUES</td><td>JAMILE</td><td>24/10/2026</td><td>CARLOS EDUARDO</td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>SERRA DO MEL 1</td><td>QUÍMICOS E CONSUMÍVEIS - SERRA DO MEL</td><td>EVAIR</td><td>23/10/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     </tbody>
   </table>
@@ -257,7 +257,7 @@
     <tr class="row-warn"><td>TUCANO</td><td>EPI - FRANCISCO LUCAS RODRIGUES (TUCANO)</td><td>JAMILE</td><td>16/10/2026</td><td>FRANCISCO LUCAS RODRIGUES</td><td></td><td>EM TRAJETO</td></tr>
     <tr class="row-warn"><td>ESCRITORIO</td><td>FARDAMENTO - JANAINA (ADM)</td><td>JAMILE</td><td>20/10/2026</td><td>JANAINA</td><td></td><td>EM TRAJETO</td></tr>
     <tr class="row-warn"><td>MANUTENÇÃO</td><td>TALABARTE DBI (MANUTENÇÃO) - MANOEL</td><td>EVAIR</td><td>14/10/2026</td><td>MANOEL</td><td></td><td>EM TRAJETO</td></tr>
-    <tr class="row-warn"><td>OITIS MCU 1</td><td>DESCENSOR - JOHN LENON</td><td>EVAIR</td><td>23/10/2026</td><td>JOHN LENON</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td></td><td>MANTA TÉRMICA (TUCANO)</td><td></td><td></td><td>JOÃO PAULO</td><td></td><td>EM TRAJETO</td></tr>
     </tbody>
   </table>
   </div>
@@ -268,8 +268,8 @@
   <table>
     <thead><tr><th>Projeto</th><th>Item</th><th>Responsável</th><th>Prazo para Entrega</th><th>Destinatário</th><th>Data de Entrega</th></tr></thead>
     <tbody id="acoesAssinatura">
-    <tr class="row-warn"><td>OITIS MCU 1</td><td>DESCENSOR - SANDRELINO</td><td>EVAIR</td><td>13/10/2026</td><td>SANDRELINO</td><td></td></tr>
     <tr class="row-warn"><td>LDV MCU 2</td><td>EPIS E TALABARTE - ELSON (LDV)</td><td>EVAIR</td><td>16/10/2026</td><td>ELSON</td><td>20/10/2026</td></tr>
+    <tr class="row-warn"><td>OITIS MCU 1</td><td>DESCENSOR - JOHN LENON</td><td>EVAIR</td><td>23/10/2026</td><td>JOHN LENON</td><td></td></tr>
     <tr class="row-warn"><td>LDV MCU 2</td><td>TALABARTE Y HAILO - ELSON</td><td>EVAIR</td><td>23/10/2026</td><td>ELSON</td><td></td></tr>
     </tbody>
   </table>
@@ -281,8 +281,8 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 58];
-  var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 32];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 59];
+  var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 34];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
     data:{ labels: evolucaoMeses,
@@ -323,6 +323,6 @@
     acaoBody.closest(".panel").scrollIntoView({ behavior:"smooth", block:"start" });
   });
 </script>
-<script type="application/json" id="itensEnvioData">[{"projeto": "TUCANO", "item": "MEDIDOR DE UMIDADE - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MEDIDOR DE UMIDADE - MEZAC", "status": "Entregue", "entrega": "2026-10-11", "resp": "EVAIR"}, {"projeto": "BAIXA DO FEIJÃO", "item": "MEDIDOR DE UMIDADE  - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "DESCENSOR - ANTONIO ERIVAGUINO MOTA", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "DESCENSOR - DIEGO BARBOSA SILVA", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "CORDAS 150M - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "MEDIDOR DE UMIDADE - JEFERSON APARECIDO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "ESTRIBOS - DIEGO BARBOSA", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "ESTRIBOS - JOSÉ WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - DIEGO BARBOSA DA SILVA", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - JOÃO PAULO SILVA SANTOS", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - JOSÉ WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "ARALDITE", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "FERRAMENTAS - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "CINTO ALPINISMO - JOSE WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "FERRAMENTAS - JEFERSON APARECIDO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "ARALDITE", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "GAMELEIRA", "item": "SIKA - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - SANDRELINO", "status": "Aguardando assinatura", "entrega": "", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MILI-OHM - MEZAC", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "EPIS E TALABARTE - ELSON (LDV)", "status": "Aguardando assinatura", "entrega": "2026-10-20", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "EPI - FRANCISCO LUCAS RODRIGUES (TUCANO)", "status": "Em trajeto", "entrega": "", "resp": "JAMILE"}, {"projeto": "LDV", "item": "EPI - MAURÍCIO CESAR (LDV)", "status": "Entregue", "entrega": "2026-10-12", "resp": "JAMILE"}, {"projeto": "SANTO AGOSTINHO", "item": "EPI - JAIR DUTRA JUNIOR", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "SÃO VITOR", "item": "EPI - JONATO DIAS FEITOZA", "status": "Entregue", "entrega": "2026-10-11", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JULIO (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - EVAIR (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - CASSIUS (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JANAINA (ADM)", "status": "Em trajeto", "entrega": "", "resp": "JAMILE"}, {"projeto": "MANUTENÇÃO", "item": "TALABARTE DBI (MANUTENÇÃO) - MANOEL", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "TRENA 50M - JOHN LENON", "status": "Entregue", "entrega": "2026-10-17", "resp": "EVAIR"}, {"projeto": "LDV", "item": "EPI - MAURÍCIO CESAR (LDV)", "status": "Entregue", "entrega": "2026-10-16", "resp": "JAMILE"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - JOHN LENON", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "TALABARTE Y HAILO - ELSON", "status": "Aguardando assinatura", "entrega": "", "resp": "EVAIR"}]</script>
+<script type="application/json" id="itensEnvioData">[{"projeto": "TUCANO", "item": "MEDIDOR DE UMIDADE - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MEDIDOR DE UMIDADE - MEZAC", "status": "Entregue", "entrega": "2026-10-11", "resp": "EVAIR"}, {"projeto": "BAIXA DO FEIJÃO", "item": "MEDIDOR DE UMIDADE  - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "DESCENSOR - ANTONIO ERIVAGUINO MOTA", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "DESCENSOR - DIEGO BARBOSA SILVA", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "CORDAS 150M - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-07", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "MEDIDOR DE UMIDADE - JEFERSON APARECIDO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "ESTRIBOS - DIEGO BARBOSA", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "ESTRIBOS - JOSÉ WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - DIEGO BARBOSA DA SILVA", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - JOÃO PAULO SILVA SANTOS", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "FARDAMENTO RF - JOSÉ WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "ARALDITE", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "FERRAMENTAS - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "CINTO ALPINISMO - JOSE WEDESON", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "FERRAMENTAS - JEFERSON APARECIDO", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "SANTO AGOSTINHO", "item": "ARALDITE", "status": "Entregue", "entrega": "2026-10-10", "resp": "EVAIR"}, {"projeto": "GAMELEIRA", "item": "SIKA - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MILI-OHM - MEZAC", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "EPIS E TALABARTE - ELSON (LDV)", "status": "Aguardando assinatura", "entrega": "2026-10-20", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "EPI - FRANCISCO LUCAS RODRIGUES (TUCANO)", "status": "Em trajeto", "entrega": "", "resp": "JAMILE"}, {"projeto": "LDV", "item": "EPI - MAURÍCIO CESAR (LDV)", "status": "Entregue", "entrega": "2026-10-12", "resp": "JAMILE"}, {"projeto": "SANTO AGOSTINHO", "item": "EPI - JAIR DUTRA JUNIOR", "status": "Entregue", "entrega": "2026-10-10", "resp": "JAMILE"}, {"projeto": "SÃO VITOR", "item": "EPI - JONATO DIAS FEITOZA", "status": "Entregue", "entrega": "2026-10-11", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JULIO (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - EVAIR (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - CASSIUS (ADM)", "status": "Entregue", "entrega": "2026-10-19", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JANAINA (ADM)", "status": "Em trajeto", "entrega": "", "resp": "JAMILE"}, {"projeto": "MANUTENÇÃO", "item": "TALABARTE DBI (MANUTENÇÃO) - MANOEL", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "TRENA 50M - JOHN LENON", "status": "Entregue", "entrega": "2026-10-17", "resp": "EVAIR"}, {"projeto": "LDV", "item": "EPI - MAURÍCIO CESAR (LDV)", "status": "Entregue", "entrega": "2026-10-16", "resp": "JAMILE"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - JOHN LENON", "status": "Aguardando assinatura", "entrega": "", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "TALABARTE Y HAILO - ELSON", "status": "Aguardando assinatura", "entrega": "", "resp": "EVAIR"}, {"projeto": "", "item": "MANTA TÉRMICA (TUCANO)", "status": "Em trajeto", "entrega": "", "resp": ""}]</script>
 </body>
 </html>
