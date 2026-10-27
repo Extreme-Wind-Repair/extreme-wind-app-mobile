@@ -96,7 +96,7 @@
       <div class="sub">Dashboard de Reembolso — Uso interno</div>
     </div>
   </div>
-  <div class="badge-week" id="badgeAtualizado">Atualizado 27/10/2026</div>
+  <div class="badge-week" id="badgeAtualizado">Atualizado 28/10/2026</div>
 </header>
 
 <div class="panel">
@@ -134,7 +134,7 @@
   <table class="tabela-compacta">
     <thead><tr><th>Mês</th><th style="text-align:right;">Semanas</th><th style="text-align:right;">Média Semanal (R$)</th><th style="text-align:right;">Média Técnicos</th><th style="text-align:right;">Valor Médio por Técnico</th></tr></thead>
     <tbody id="monthlyRows">
-    <tr><td>Outubro</td><td class="num">3</td><td class="num">R$ 3.233,56</td><td class="num">34</td><td class="num">R$ 95,10</td></tr>
+    <tr><td>Outubro</td><td class="num">4</td><td class="num">R$ 3.108,05</td><td class="num">33</td><td class="num">R$ 94,18</td></tr>
     <tr><td>Setembro</td><td class="num">4</td><td class="num">R$ 2.343,65</td><td class="num">22</td><td class="num">R$ 106,53</td></tr>
     <tr><td>Agosto</td><td class="num">5</td><td class="num">R$ 2.230,88</td><td class="num">26</td><td class="num">R$ 85,80</td></tr>
     <tr><td>Julho</td><td class="num">4</td><td class="num">R$ 2.411,52</td><td class="num">45</td><td class="num">R$ 53,59</td></tr>
@@ -150,10 +150,10 @@
 </div>
 
 <script>
-  var reembolsoEvoLabels = ["Média 2025","1º Tri 2026","2º Tri 2026","3º Tri 2026","W40","W41","W42"];
-  var reembolsoEvoValores = [2865.45,5369.94,5554.06,2321.16,3591.75,2734.44,3374.49];
-  var reembolsoEvoTecnicos = [43,75,65,31,32,36,34];
-  var reembolsoEvoTipos = ["ano","trimestre","trimestre","trimestre","semana","semana","semana"];
+  var reembolsoEvoLabels = ["Média 2025","1º Tri 2026","2º Tri 2026","3º Tri 2026","W40","W41","W42","W43"];
+  var reembolsoEvoValores = [2865.45,5369.94,5554.06,2321.16,3591.75,2734.44,3374.49,2731.5];
+  var reembolsoEvoTecnicos = [43,75,65,31,32,36,34,28];
+  var reembolsoEvoTipos = ["ano","trimestre","trimestre","trimestre","semana","semana","semana","semana"];
 
   var coresPorTipo = { ano: '#5C7A93', trimestre: '#1C8CE8', semana: '#12BFA8' };
   var barColors = reembolsoEvoTipos.map(function(t){ return coresPorTipo[t] || '#1C8CE8'; });
@@ -237,9 +237,9 @@
 
 <script>
   var reembolsoSubLabels = ["01 - SERVIÇOS - MOB/DESMOB","02 - MATERIAL - DIVERSOS","01 - SERVIÇOS - LOGÍSTICA ENVIO/RETORNO MATÉRIA-PRIMA","01 - SERVIÇOS - BORRACHARIA DIVERSOS","01 - SERVIÇOS - MANUTENÇÃO","02 - MATERIAL - MAQUINÁRIO + ATIVO MOBILIZADO","02 - MATERIAL - EPI","01 - SERVIÇOS - TRANSPORTE","01 - SERVIÇOS - DIVERSOS","02 - MATERIAL - ESCRITÓRIO"];
-  var reembolsoSubValores = [47852.75,38613.61,27955.61,21605.74,14951.74,9394.14,8864.72,5223.79,2341.8,2265.73];
-  var reembolsoSubQtd = [486,749,249,289,180,95,183,63,125,57];
-  var reembolsoSubCumPct = [26.3,47.5,62.9,74.8,83.0,88.2,93.0,95.9,97.2,98.5];
+  var reembolsoSubValores = [48360.87,39309.9,28938.67,21645.74,15121.74,9512.14,8910.71,5382.03,2353.6,2265.73];
+  var reembolsoSubQtd = [490,758,261,290,181,97,184,65,127,57];
+  var reembolsoSubCumPct = [26.2,47.5,63.2,74.9,83.1,88.2,93.1,96.0,97.2,98.5];
 
   // Vermelho suave nas barras cujo PROPRIO valor ja passa de 80% do eixo de
   // valor (R$) do grafico -- e o corte que fica visualmente "acima da linha
@@ -373,9 +373,9 @@
   // -- por isso este grafico nao tem linha de referencia de 80%, so a curva
   // de % acumulado.
   var reembolsoDescTop2Labels = ["Translados Mobs ou Desmobs","Fita Crepe","Abastecimento de Combustível","Potes de Químicos","Rolos de Laminação","Material de Limpeza","Impressões de Documentações EHS","Utensílhos","Pilotos","Disco Lixa"];
-  var reembolsoDescTop2Valores = [38164.15,6801.77,5238.98,3741.19,2350.55,2326.87,1408.45,1340.7,1251.5,1144.18];
-  var reembolsoDescTop2Qtd = [360,112,29,79,35,33,53,50,42,20];
-  var reembolsoDescTop2CumPct = [44.1,52.0,58.1,62.4,65.1,67.8,69.4,71.0,72.4,73.7];
+  var reembolsoDescTop2Valores = [38446.15,6801.77,5465.1,3741.19,2350.55,2326.87,1408.45,1340.7,1251.5,1144.18];
+  var reembolsoDescTop2Qtd = [363,112,30,79,35,33,53,50,42,20];
+  var reembolsoDescTop2CumPct = [43.9,51.6,57.8,62.1,64.8,67.4,69.1,70.6,72.0,73.3];
 
   var reembolsoDescTop2ValorMax = Math.max.apply(null, reembolsoDescTop2Valores);
   var reembolsoDescTop2AxisMax = Math.ceil(reembolsoDescTop2ValorMax / 500) * 500;
@@ -466,8 +466,8 @@
 
 <script>
   var reembolsoCliLabels = ["GE","SIEMENS","NORDEX / LWS","Não identificado"];
-  var reembolsoCliValores = [110036.15,38833.3,32361.38,656.88];
-  var reembolsoCliPct = [60.5,21.4,17.8,0.4];
+  var reembolsoCliValores = [111738.17,39862.78,32361.38,656.88];
+  var reembolsoCliPct = [60.5,21.6,17.5,0.4];
   var reembolsoCliNProjetos = [12,17,6,1];
 
   var coresPorCliente = {
