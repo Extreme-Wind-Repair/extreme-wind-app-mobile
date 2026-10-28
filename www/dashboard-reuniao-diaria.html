@@ -393,7 +393,11 @@
   /* 24/10/2026 (Robson): barras Setup / Stand-by / Produtivo por projeto (janela movel de 60 dias, nunca antes do 1o RDO) + Stop Work Extreme em dias. Fonte: aba RD_Horas (so leitura). */
   /* Quadros Report de Evidencias / Evidencias Reparo (27/10/2026, Robson): 2 caixas abaixo dos RDO, mesmo visual do Report EHS */
   .evid-row{display:flex; gap:10px; flex-wrap:wrap; padding:8px 18px; border-top:1px solid var(--line);}
-  .evid-box{flex:1 1 260px; min-width:220px; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:6px 10px;}
+  .ab-rdo-wrap{display:flex; flex-direction:column; gap:6px; margin-left:auto; padding-left:22px;}
+  .ab-rdo-pair{display:flex; gap:8px;}
+  .ab-rdo-wrap .ab-rdo-inicio{margin-left:0; padding-left:0;}
+  .ab-rdo-wrap .evid-box{margin-top:2px;}
+  .evid-box{min-width:220px; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:6px 10px;}
   .evid-box .ab-title{margin-bottom:3px;}
   .evid-box .ehsr-ult{margin:2px 0 0;}
   .ehsr-dia.neutro{color:var(--muted); border-color:var(--line);}
@@ -1502,10 +1506,15 @@
             '') : '') +
             '</div>' +
           (operacional ? (
+          '<div class="ab-rdo-wrap"><div class="ab-rdo-pair">' +
           '<div class="ab-daycol ab-rdo-inicio"><div class="ab-daycol-label" data-ab-daylabel>Último registro</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
           '<div class="ab-daycol"><div class="ab-daycol-label">Ontem</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="1" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
+          '</div>' +
+          /* 28/10/2026 (Robson): 1 quadro so, "Evidencias Reparo" (planilha "Envio de evidencias Siemens", aba Banco de dados), logo abaixo dos 2 RDO. */
+          (p.Bloco === 'b1' && !p.Placeholder ? '<div class="evid-box" data-evid-box="report" data-parkname="' + escapeHtml(p.NomeParque) + '"><div class="ab-title">Evidências Reparo</div><div class="frota-auto" data-evid-auto><span class="frota-muted">Carregando…</span></div></div>' : '') +
+          '</div>' +
           '') : '') +
         '</div>' +
         '<div class="status-col">' +
@@ -1520,10 +1529,6 @@
           '') : '') +
         '</div>' +
       '</div>' +
-      (p.Bloco === 'b1' && !p.Placeholder ? '<div class="evid-row">' +
-        '<div class="evid-box" data-evid-box="report" data-parkname="' + escapeHtml(p.NomeParque) + '"><div class="ab-title">Report de Evidências</div><div class="frota-auto" data-evid-auto><span class="frota-muted">Carregando…</span></div></div>' +
-        '<div class="evid-box" data-evid-box="reparo" data-parkname="' + escapeHtml(p.NomeParque) + '"><div class="ab-title">Evidências Reparo</div><div class="frota-auto" data-evid-auto><span class="frota-muted">Carregando…</span></div></div>' +
-      '</div>' : '') +
       (p.Bloco === 'b1' && !p.Placeholder ? '<div class="horas-box" data-horas-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' : '') +
       (p.Bloco === 'b1' && !p.Placeholder ? '<div class="gantt" data-gantt>' + ganttInnerHtml(p) + '</div>' : '') +
       '<table' + (bonusSemanas().length ? ' class="has-bonus"' : '') + '>' + theadHtml + '<tbody data-equipe-body></tbody></table>' +
