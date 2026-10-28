@@ -397,7 +397,7 @@
   .ab-rdo-pair{display:flex; gap:8px;}
   .ab-rdo-wrap .ab-rdo-inicio{margin-left:0; padding-left:0;}
   .ab-rdo-wrap .evid-box{margin-top:2px;}
-  .evid-box{min-width:220px; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:6px 10px;}
+  .evid-box{min-width:220px; background:var(--brand-deep); border:1px solid var(--line); border-radius:8px; padding:6px 10px;}
   .evid-box .ab-title{margin-bottom:3px;}
   .evid-box .ehsr-ult{margin:2px 0 0;}
   .ehsr-dia.neutro{color:var(--muted); border-color:var(--line);}
@@ -3357,7 +3357,8 @@
       if (/^Hor[aá]rio$/i.test(txt[0])){ cols = txt.map(function(t, i){ return i > 0 && t ? t : null; }); return; }
       if (dia && cols && /^\d{1,2}:\d{2}$/.test(txt[0])){
         const hh = txt[0].padStart(5, '0');
-        cols.forEach(function(nome, i){ if (nome){ (out[dia][nome] = out[dia][nome] || {})[hh] = txt[i] !== ''; } });
+        cols.forEach(function(nome, i){ if (nome){ /* 28/10/2026 (Robson): so "SIM" conta como enviado (true); vazio = false; outro texto (ex. NAO) = 'x' (vermelho na hora). */
+          (out[dia][nome] = out[dia][nome] || {})[hh] = /^sim$/i.test(txt[i]) ? true : (txt[i] === '' ? false : 'x'); } });
       }
     });
     return out;
@@ -3385,8 +3386,11 @@
     const hojeK = chave(agora), minAgora = agora.getHours() * 60 + agora.getMinutes();
     const dias = []; const d0 = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
     const voltaSeg = (d0.getDay() + 6) % 7;
-    for (let i = voltaSeg; i >= 0; i--){
-      const x = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - i);
+    /* 28/10/2026 (Robson): mostra a semana inteira (seg a dom, pode haver servico no fim de semana). Na segunda a semana recomeca;
+       so no comeco fica o ULTIMO bloco da semana anterior (marcado ant:true, nao entra no "Ultimo completo"). */
+    const segK = chave(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - voltaSeg));
+    for (let i = 0; i < 7; i++){
+      const x = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - voltaSeg + i);
       dias.push({ k: chave(x), br: String(x.getDate()).padStart(2,'0') + '/' + String(x.getMonth()+1).padStart(2,'0') });
     }
     boxes.forEach(function(box){
@@ -3406,15 +3410,20 @@
       let monitorado = false; Object.keys(fonte.dias).forEach(function(k){ if (doDia(k)) monitorado = true; });
       if (!monitorado){ alvo.innerHTML = '<span class="frota-muted">Sem monitoramento</span>'; return; }
       let ultOk = '';
-      const chips = dias.map(function(dd){
+      const diasBox = dias.slice();
+      const antK = Object.keys(fonte.dias).filter(function(k){ return k < segK && doDia(k); }).sort().pop();
+      if (antK) diasBox.unshift({ k: antK, br: antK.slice(6,8) + '/' + antK.slice(4,6), ant: true });
+      const chips = diasBox.map(function(dd){
         const sl = doDia(dd.k);
         if (!sl) return '<span class="ehsr-dia neutro" title="Sem bloco deste projeto na planilha"><b>' + dd.br + '</b>–</span>';
         const horas = Object.keys(sl).sort();
-        const tip = horas.map(function(h){ return h + ' ' + (sl[h] ? '✔ enviado' : '✖ não enviado'); }).join('\n');
-        const todos = horas.length && horas.every(function(h){ return sl[h]; });
-        if (todos){ ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✔</span>'; }
+        const tip = horas.map(function(h){ return h + ' ' + (sl[h] === true ? '✔ enviado' : '✖ não enviado'); }).join('\n');
+        const todos = horas.length && horas.every(function(h){ return sl[h] === true; });
+        if (dd.k > hojeK) return '<span class="ehsr-dia neutro" title="Dia ainda não chegou"><b>' + dd.br + '</b>–</span>';
+        if (todos){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✔</span>'; }
         const venceu = horas.some(function(h){
-          if (sl[h]) return false;
+          if (sl[h] === true) return false;
+          if (sl[h] === 'x') return true;
           if (dd.k !== hojeK) return dd.k < hojeK;
           const hm = h.split(':'); return minAgora >= Number(hm[0]) * 60 + Number(hm[1]);
         });
