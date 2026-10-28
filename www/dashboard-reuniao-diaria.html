@@ -3404,7 +3404,9 @@
       const doDia = function(k){
         const bloco = fonte.dias[k]; if (!bloco) return null;
         const nomes = Object.keys(bloco);
-        for (let i = 0; i < nomes.length; i++){ if (mesmoProjeto(nomeCard, nomes[i])) return bloco[nomes[i]]; }
+        /* 28/10/2026: a planilha traz "Gameleira - RN", "Sao Vitor - Ba", "Dolores MX-Nx": tira o sufixo de UF/pais antes de casar com o card. */
+        const limpa = function(n){ return String(n).replace(/\s*[-–]\s*[A-Za-z]{2}\s*$/, '').replace(/\s+MX-?Nx\s*$/i, ''); };
+        for (let i = 0; i < nomes.length; i++){ if (mesmoProjeto(nomeCard, limpa(nomes[i]))) return bloco[nomes[i]]; }
         return null;
       };
       let monitorado = false; Object.keys(fonte.dias).forEach(function(k){ if (doDia(k)) monitorado = true; });
