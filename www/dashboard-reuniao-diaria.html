@@ -3619,7 +3619,10 @@
            So sobrescreve o que ele mesmo escreveu (dataset.ehsAutoTxt); texto digitado por pessoa nunca e tocado. */
         const atual = boxOc.textContent.trim();
         const meuAuto = boxOc.dataset.ehsAutoTxt || '';
-        const podeMexer = document.activeElement !== boxOc && (!atual || atual === meuAuto);
+        /* 28/10/2026 (Robson): texto no formato automatico "dd/mm · Stand-by|Autorizado" que ficou GRAVADO no Sheets (ex. SAO VITOR 1 preso em 26/10)
+           tambem e tratado como automatico e acompanha a aba de excecoes. Texto de outro formato (digitado por pessoa) nunca e tocado. */
+        const eAuto = /^\d{2}\/\d{2} · (Stand-by|Autorizado)(\s*:|\s*$)/.test(atual);
+        const podeMexer = document.activeElement !== boxOc && (!atual || atual === meuAuto || eAuto);
         if (exDrive){
           const autD = exDrive.tipo === 'AUTORIZADO';
           boxOc.style.color = autD ? 'var(--ok)' : '#F28C28';
@@ -3631,7 +3634,7 @@
           }
         } else {
           boxOc.style.color = '';
-          if (podeMexer && meuAuto){ boxOc.textContent = ''; boxOc.dataset.ehsAutoTxt = ''; }
+          if (podeMexer && (meuAuto || eAuto)){ boxOc.textContent = ''; boxOc.dataset.ehsAutoTxt = ''; }
         }
       }
     });
