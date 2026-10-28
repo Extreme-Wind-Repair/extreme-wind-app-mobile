@@ -254,25 +254,25 @@
 <div class="kpis">
   <div class="kpi">
     <div class="label">Total de Veículos</div>
-    <div class="value">12</div>
+    <div class="value">11</div>
     <div class="locadoras">
-      <div class="loc-badge loc-localiza"><span class="n">10</span><span class="l">Localiza</span></div>
+      <div class="loc-badge loc-localiza"><span class="n">9</span><span class="l">Localiza</span></div>
       <div class="loc-badge loc-unidas"><span class="n">2</span><span class="l">Unidas</span></div>
     </div>
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--ok)">98%</div>
-    <div class="foot">WK 44 · 23 ações pendentes no total</div>
+    <div class="foot">WK 44 · 20 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">7</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">10</span><span class="l">Administrativas</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">9</span><span class="l">Administrativas</span></div>
     </div>
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="15048" style="color: var(--ok);">15.048</div>
+    <div class="value" id="kmValue" data-km="14898" style="color: var(--ok);">14.898</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
@@ -729,9 +729,9 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">7</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
-      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">10</span><span class="l">Administrativa</span></div>
+      <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">9</span><span class="l">Administrativa</span></div>
     </div>
     <div class="tablewrap">
       <table class="conftable" id="acaoTable">
@@ -1036,38 +1036,38 @@ render();
   <div style="overflow-x:auto;">
   <svg viewBox="0 0 602 320" class="trend-chart saldo-km-chart" style="height:auto; max-height:340px;">
     <!-- linha zero -->
-    <line x1="50" y1="177.9" x2="592" y2="177.9" stroke="#3A567A" stroke-width="1.2"></line>
-    <text x="44" y="181.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
+    <line x1="50" y1="181.0" x2="592" y2="181.0" stroke="#3A567A" stroke-width="1.2"></line>
+    <text x="44" y="185.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
 
     <!-- linha de referencia +4.000 km (limite da faixa verde) -->
-    <line x1="50" y1="85.6" x2="592" y2="85.6" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
-    <text x="592" y="79.6" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
+    <line x1="50" y1="88.6" x2="592" y2="88.6" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
+    <text x="592" y="82.6" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
 
     <g font-family="Segoe UI,Arial,sans-serif">
-      <rect x="60.0" y="177.9" width="46" height="46.8" rx="4" fill="#E0483C"></rect>
-      <rect x="128.0" y="177.9" width="46" height="23.9" rx="4" fill="#E0483C"></rect>
-      <rect x="196.0" y="132.7" width="46" height="45.3" rx="4" fill="#12A874"></rect>
-      <rect x="264.0" y="177.9" width="46" height="44.8" rx="4" fill="#E0483C"></rect>
-      <rect x="332.0" y="26.0" width="46" height="151.9" rx="4" fill="#E0483C"></rect>
-      <rect x="400.0" y="175.7" width="46" height="2.2" rx="4" fill="#12A874"></rect>
-      <rect x="468.0" y="177.9" width="46" height="64.1" rx="4" fill="#E0483C"></rect>
-      <rect x="536.0" y="156.4" width="46" height="21.5" rx="4" fill="#12A874"></rect>
-      <text x="83.0" y="191.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.025</text>
-      <text x="151.0" y="191.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.035</text>
-      <text x="219.0" y="124.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.960</text>
-      <text x="287.0" y="191.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.939</text>
-      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">6.580</text>
-      <text x="423.0" y="167.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">97</text>
-      <text x="491.0" y="191.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.776</text>
-      <text x="559.0" y="148.4" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">930</text>
-      <text x="83.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 211.9)">OITIS 2/PI</text>
-      <text x="151.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 211.9)">OITIS 1/PI</text>
-      <text x="219.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 211.9)">ST.AGOSTINHO/RN</text>
-      <text x="287.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 211.9)">GAMELEIRA/RN</text>
-      <text x="355.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 211.9)">SÃO VITOR/BA</text>
-      <text x="423.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 211.9)">LDV 2/PI</text>
-      <text x="491.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 211.9)">LDV 1/PI</text>
-      <text x="559.0" y="211.9" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 211.9)">TUCANO/BA</text>
+      <rect x="60.0" y="181.0" width="46" height="43.7" rx="4" fill="#E0483C"></rect>
+      <rect x="128.0" y="181.0" width="46" height="20.8" rx="4" fill="#E0483C"></rect>
+      <rect x="196.0" y="132.7" width="46" height="48.3" rx="4" fill="#12A874"></rect>
+      <rect x="264.0" y="181.0" width="46" height="41.7" rx="4" fill="#E0483C"></rect>
+      <rect x="332.0" y="26.0" width="46" height="155.0" rx="4" fill="#E0483C"></rect>
+      <rect x="400.0" y="175.7" width="46" height="5.3" rx="4" fill="#12A874"></rect>
+      <rect x="468.0" y="181.0" width="46" height="61.0" rx="4" fill="#E0483C"></rect>
+      <rect x="536.0" y="156.4" width="46" height="24.5" rx="4" fill="#12A874"></rect>
+      <text x="83.0" y="195.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.892</text>
+      <text x="151.0" y="195.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-902</text>
+      <text x="219.0" y="124.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.094</text>
+      <text x="287.0" y="195.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.806</text>
+      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">6.714</text>
+      <text x="423.0" y="167.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">230</text>
+      <text x="491.0" y="195.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.643</text>
+      <text x="559.0" y="148.4" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.063</text>
+      <text x="83.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 215.0)">OITIS 2/PI</text>
+      <text x="151.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 215.0)">OITIS 1/PI</text>
+      <text x="219.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 215.0)">ST.AGOSTINHO/RN</text>
+      <text x="287.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 215.0)">GAMELEIRA/RN</text>
+      <text x="355.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 215.0)">SÃO VITOR/BA</text>
+      <text x="423.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 215.0)">LDV 2/PI</text>
+      <text x="491.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 215.0)">LDV 1/PI</text>
+      <text x="559.0" y="215.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 215.0)">TUCANO/BA</text>
     </g>
   </svg>
   </div>
@@ -1093,7 +1093,7 @@ render();
     </thead>
     <tbody>
       <tr><td>KM Ponto de Troca</td><td class="cell-warn">78%</td><td class="cell-warn">83%</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Saldo Extra</td><td class="cell-nok">33%</td><td class="cell-nok">42%</td><td class="cell-nok">36%</td><td class="cell-nok">30%</td><td class="cell-nok cur">30%</td></tr>
+      <tr><td>Saldo Extra</td><td class="cell-nok">44%</td><td class="cell-nok">50%</td><td class="cell-nok">46%</td><td class="cell-nok">40%</td><td class="cell-nok cur">40%</td></tr>
       <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">80%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Revisão</td><td class="cell-warn">90%</td><td class="cell-warn">92%</td><td class="cell-warn">91%</td><td class="cell-warn">80%</td><td class="cell-warn cur">90%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
@@ -1247,16 +1247,16 @@ render();
 
 <script>
 const rows = [
-["TYQ5C48","LOCALIZA","","ST.AGOSTINHO/RN","SIEMENS","19/02/2026","8,33","OK","OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
-["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","5,57","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UVN2B79","LOCALIZA","","OITIS 2/PI","SIEMENS","21/02/2026","8,27","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["TXY8H30","LOCALIZA","","GAMELEIRA/RN","SIEMENS","20/02/2026","8,30","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","8,53","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","1,30","OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","1,30","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","1,20","OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["NL9058D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","0,73","OK","OK","OK","OK","OK","OK","N/A","None","N/A","N/A"],
-["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,73","OK","ATENÇÃO","OK","OK","OK","OK","N/A","None","N/A","N/A"],
+["TYQ5C48","LOCALIZA","","ST.AGOSTINHO/RN","SIEMENS","19/02/2026","8,37","OK","OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
+["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","5,60","OK","N/OK","OK","OK","OK","OK","OK","8,72","N/A","N/A"],
+["UVN2B79","LOCALIZA","","OITIS 2/PI","SIEMENS","21/02/2026","8,30","OK","N/OK","OK","OK","OK","OK","OK","11,81","N/A","N/A"],
+["TXY8H30","LOCALIZA","","GAMELEIRA/RN","SIEMENS","20/02/2026","8,33","OK","N/OK","OK","OK","OK","OK","OK","10,01","N/A","N/A"],
+["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","8,57","OK","OK","OK","OK","OK","OK","OK","9,29","N/A","N/A"],
+["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","1,33","OK","ATENÇÃO","OK","OK","OK","OK","OK","10,90","N/A","N/A"],
+["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","1,33","OK","N/OK","OK","OK","OK","OK","OK","11,03","N/A","N/A"],
+["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","1,23","OK","OK","OK","OK","OK","OK","OK","9,85","N/A","N/A"],
+["NL9058D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","0,77","OK","OK","OK","OK","OK","OK","N/A","12,34","N/A","N/A"],
+["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,77","OK","ATENÇÃO","OK","OK","OK","OK","N/A","11,22","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1422,12 +1422,12 @@ const histData = [
   { wk:"WK36", geral:85.7, cats:[60.0,60.0,100,71.4,100,57.1,100,null,100.0,null] },
   { wk:"WK37", geral:91.4, cats:[66.7,50.0,100,85.7,100,71.4,100,null,100.0,null] },
   { wk:"WK38", geral:85.7, cats:[66.7,50.0,100,85.7,100,42.9,100,null,null,null] },
-  { wk:"WK39", geral:96.0, cats:[77.8,33.3,100,90.0,100,90.0,100,null,null,null] },
-  { wk:"WK40", geral:96.0, cats:[77.8,33.3,100,90.0,100,90.0,100,null,null,null] },
-  { wk:"WK41", geral:98.3, cats:[83.3,41.7,100,91.7,100,100,100,null,null,null] },
-  { wk:"WK42", geral:96.4, cats:[90.9,36.4,100,90.9,100,90.9,100,null,null,null] },
-  { wk:"WK43", geral:90.0, cats:[100.0,30.0,80.0,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK44", geral:98.0, cats:[100.0,30.0,100,90.0,100,100,100,null,null,null] },
+  { wk:"WK39", geral:96.0, cats:[77.8,44.4,100,90.0,100,90.0,100,null,null,null] },
+  { wk:"WK40", geral:96.0, cats:[77.8,44.4,100,90.0,100,90.0,100,null,null,null] },
+  { wk:"WK41", geral:98.3, cats:[83.3,50.0,100,91.7,100,100,100,null,null,null] },
+  { wk:"WK42", geral:96.4, cats:[90.9,45.5,100,90.9,100,90.9,100,null,null,null] },
+  { wk:"WK43", geral:90.0, cats:[100.0,40.0,80.0,80.0,100,90.0,100,null,null,null] },
+  { wk:"WK44", geral:98.0, cats:[100.0,40.0,100,90.0,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
@@ -1522,13 +1522,11 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"NC7492D - VEÍCULO DESALINHADO", tipo:"CORRETIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"27/10/2026", obs:"AGENDAR O ALINHAMENTO E BALANCEAMENTO", categoria:"Emergencial" },
   { acao:"TYQ5C48 -1.2 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"30/10/2026", obs:"AJUSTAR COM A OFICINA PARA REVISAR NO SABADO", categoria:"Emergencial" },
-  { acao:"UVN2B79 -1.2 PARA-BRISA QUEBRADO (CHECKLIST 26/10)", tipo:"CORRETIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"27/10/2026", obs:"FAZER SERVIÇO/DEVOLVER O VEICULO", categoria:"Emergencial" },
   { acao:"TYQ5C48 -1.3 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"31/10/2026", obs:"REALIZAR A REVISÃO", categoria:"Emergencial" },
   { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"29/10/2026", obs:"SUBIR O ORÇAMENTO/AALINHAR TROCA PARA SABADO", categoria:"Emergencial" },
   { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"31/10/2026", obs:"SUBSTITUIÇÃO DO PNEU DANIFICADO", categoria:"Emergencial" },
-  { acao:"UVN9J75 -1.1 COMPRA DE 2 PNEUS PARA SUBSTITUIÇÃO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"27/10/2026", obs:"INSTALAÇÃO DOS PNEUS NAS JANTES", categoria:"Emergencial" },
+  { acao:"UVN9J75 -1.1 COMPRA DE 2 PNEUS PARA SUBSTITUIÇÃO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"29/10/2026", obs:"INSTALAÇÃO DOS PNEUS NAS JANTES", categoria:"Emergencial" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN2B79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"13/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
@@ -1538,9 +1536,8 @@ const acaoData = [
   { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"GAMELEIRA/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
   { acao:"ALUGUEL DE VEICULOS", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"TIAGO", status:"29/10/2026", obs:"RETIRADA DE DOIS VEICULOS (UNIDAS)", categoria:"Administrativa" },
   { acao:"INSTALAÇÃO DOS RASTREADORES", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"TIAGO", status:"30/10/2026", obs:"INSTALAÇÃO ALINHADA PARA O DIA 30/10", categoria:"Administrativa" },
-  { acao:"CARTÕES CEGONHA TRANSPORTADORA", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"TIAGO", status:"27/10/2026", obs:"DATA DE ENTREGA 27/10", categoria:"Administrativa" },
+  { acao:"CARTÕES CEGONHA TRANSPORTADORA", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"TIAGO", status:"29/10/2026", obs:"DATA DE ENTREGA 29/10", categoria:"Administrativa" },
   { acao:"ALUGUEL DE VEICULOS PROJETO MÉXICO", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"TIAGO", status:"29/10/2026", obs:"AGUARDANDO INDICAÇÃO DE CONDUTORES E DOCS", categoria:"Administrativa" },
-  { acao:"MULTAS EM ABERTO (MARCOS/WILL)", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"JOÃO", status:"27/10/2026", obs:"ENVIO DO COMUNICADO", categoria:"Administrativa" },
   { acao:"PLANO DE MOBILIZAÇÃO", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"JOÃO", status:"29/10/2026", obs:"PARQUES UDV1, UDV2, VSM", categoria:"Administrativa" },
   { acao:"RELATÓRIO DE RASTREADOR UNIDAS", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"JOÃO", status:"28/10/2026", obs:"RETORNO E MARCAÇÃO", categoria:"Administrativa" },
   { acao:"COMPRA DE MALAS PROJETO MÉXICO", tipo:"ADMINISTRATIVA", parque:"ADM", quem:"JOÃO", status:"29/10/2026", obs:"EM ANALISE", categoria:"Administrativa" },
