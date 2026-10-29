@@ -1,0 +1,34 @@
+name: Sync BDH (descoberta, VAGAS MESTRE no Dropbox)
+
+# FASE 1 -- DESCOBERTA. Nao altera nada no repositorio (permissao so de leitura).
+# Le a planilha VAGAS MESTRE do mes no Dropbox e imprime no log SOMENTE titulos de colunas e contagens
+# (nenhum nome, nenhuma matricula). Serve para mapear as colunas antes de gerar a lista BDH_VAGAS_MESTRE.
+#
+# Como rodar: Actions > "Sync BDH (descoberta...)" > Run workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  descobrir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Dependencias
+        run: pip install openpyxl
+
+      - name: Descobrir colunas da VAGAS MESTRE
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+        run: python tools/sync_bdh.py
