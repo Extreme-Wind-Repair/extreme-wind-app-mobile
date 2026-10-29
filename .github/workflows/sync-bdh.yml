@@ -1,21 +1,37 @@
-name: Sync BDH (descoberta, VAGAS MESTRE no Dropbox)
+name: Sync BDH (VAGAS MESTRE no Dropbox para a Reuniao Diaria)
 
-# FASE 1 -- DESCOBERTA. Nao altera nada no repositorio (permissao so de leitura).
-# Le a planilha VAGAS MESTRE do mes no Dropbox e imprime no log SOMENTE titulos de colunas e contagens
-# (nenhum nome, nenhuma matricula). Serve para mapear as colunas antes de gerar a lista BDH_VAGAS_MESTRE.
+# Mantem a lista BDH_VAGAS_MESTRE da Reuniao Diaria igual a planilha VAGAS MESTRE (aba BANCO DE DADOS,
+# coluna "RESUMO GESTAO A VISTA" = "BDH"). Roda no GitHub (sem PC e sem tarefa agendada) e troca SOMENTE
+# o bloco BDH_VAGAS_MESTRE (e a data do comentario) em www/dashboard-reuniao-diaria.html.
 #
-# Como rodar: Actions > "Sync BDH (descoberta...)" > Run workflow.
+# 1) Primeiro rode manual com dry_run = true (so testa, nao grava).
+# 2) Depois rode com dry_run = false para publicar uma vez.
+# 3) Quando estiver estavel, tire o "#" das duas linhas de schedule (a cada 30 min, 08h-20h, seg-sab).
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = so testa, nao publica; false = publica se houve mudanca"
+        required: true
+        default: "true"
+  # schedule:
+  #   - cron: "13,43 11-23 * * 1-6"
+
+concurrency:
+  group: sync-bdh
+  cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write   # commit/push do HTML
+  actions: write    # disparar o deploy (um push feito pelo GITHUB_TOKEN nao dispara o deploy sozinho)
 
 jobs:
-  descobrir:
+  sync:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      TZ: America/Sao_Paulo
     steps:
       - uses: actions/checkout@v4
 
@@ -26,9 +42,32 @@ jobs:
       - name: Dependencias
         run: pip install openpyxl
 
-      - name: Descobrir colunas da VAGAS MESTRE
+      - name: Gerar lista BDH
+        id: rodar
         env:
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: python tools/sync_bdh.py
+
+      - name: Commit, push e deploy
+        if: steps.rodar.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "Extreme Wind Automacao"
+          git config user.email "automacao@extremewind.local"
+          git add www/dashboard-reuniao-diaria.html
+          if git diff --cached --quiet; then
+            echo "Sem mudanca apos normalizacao."
+            exit 0
+          fi
+          git commit -m "Reuniao Diaria: lista BDH atualizada pela VAGAS MESTRE (workflow) - $(date '+%d/%m/%Y %H:%M')"
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              break
+            fi
+            sleep 5
+          done
+          gh workflow run deploy-pages.yml --ref main
