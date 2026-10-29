@@ -14,8 +14,8 @@ on:
         description: "true = so testa, nao publica; false = publica se houve mudanca"
         required: true
         default: "true"
-  # schedule:
-  #   - cron: "*/20 11-23 * * 1-6"
+  schedule:
+    - cron: "*/20 11-23 * * 1-6"
 
 concurrency:
   group: sync-envios
