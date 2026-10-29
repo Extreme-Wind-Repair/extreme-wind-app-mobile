@@ -28,11 +28,17 @@ import urllib.parse
 import urllib.request
 
 NS = "2024164339"
-PASTA = "2 - RH & DP/8 - VAGAS/2026"
+PASTA_BASE = "2 - RH & DP/8 - VAGAS"
+ARQ_VIVO = "VAGAS MESTRE.xlsx"
+PASTA = PASTA_BASE + "/2026"   # arquivos mensais (fallback)
 ABA = "BANCO DE DADOS"
 COL_STATUS = "RESUMO GESTAO A VISTA"
-CERTS = ["BST", "BTT", "BRT", "ART", "BTT-E", "LIFT USER", "LOTO GE TEORICO", "LOTO AUTORIZADO GE"]
-CLIENTES = ("GE", "SIE", "NX")
+CERT_ALIAS = {
+    "BST": "BST", "BTT": "BTT", "BRT": "BRT", "ART": "ART", "ARTE": "ART", "BTT-E": "BTT-E",
+    "LIFT USER": "LIFT USER", "USUARIO DE ELEVADOR": "LIFT USER",
+    "LOTO GE TEORICO": "LOTO GE Teorico", "LOTO AUTORIZADO GE": "LOTO Autorizado GE",
+}
+RX_PARQUE = re.compile(r"^(GE|SIE|NX)\s*-\s*(.+)$")
 
 
 def log(msg):
@@ -101,6 +107,11 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip().upper()
 
 
+def norm_titulo(s):
+    """Como norm(), mas tira parenteses/pontuacao solta (ex.: 'LOTO GE (TEORICO)' -> 'LOTO GE TEORICO')."""
+    return re.sub(r"\s+", " ", re.sub(r"[()]", " ", norm(s))).strip()
+
+
 def escolher_arquivo(nomes):
     """Arquivos '<NN> - VAGAS MESTRE <MES>.xlsx': escolhe o de maior NN."""
     cand = []
@@ -142,13 +153,23 @@ def descobrir(caminho_xlsx):
     ncab = [norm(t) for t in cab]
     i_status = ncab.index(COL_STATUS)
     log("Coluna '%s' = coluna %d." % (COL_STATUS, i_status + 1))
-    cand_mat = [i + 1 for i, t in enumerate(ncab) if "MATRIC" in t or t in ("CHAPA", "ID")]
+    cand_mat = [i + 1 for i, t in enumerate(ncab) if t in ("MAT.", "MAT") or "MATRIC" in t or t in ("CHAPA", "ID")]
     cand_nome = [i + 1 for i, t in enumerate(ncab) if t.startswith("NOME") or "COLABORADOR" in t or t == "FUNCIONARIO"]
     log("Colunas candidatas a MATRICULA: %s | a NOME: %s" % (cand_mat or "nenhuma", cand_nome or "nenhuma"))
-    cols_cert = {t: i for i, t in enumerate(ncab) if t in CERTS}
-    cols_parque = {cab[i].strip(): i for i, t in enumerate(ncab) if t.split(" - ")[0] in CLIENTES and " - " in t}
-    log("Certificacoes encontradas (%d de %d esperadas): %s" % (len(cols_cert), len(CERTS), ", ".join(sorted(cols_cert)) or "nenhuma"))
-    log("Colunas de parque (%d): %s" % (len(cols_parque), " | ".join(sorted(cols_parque))))
+    cols_cert = {}   # nome canonico -> lista de (indice, titulo)
+    for i, t in enumerate(cab):
+        canon = CERT_ALIAS.get(norm_titulo(t))
+        if canon:
+            cols_cert.setdefault(canon, []).append(i)
+    log("Certificacoes encontradas (%d de %d): %s" % (
+        len(cols_cert), len(set(CERT_ALIAS.values())),
+        " | ".join("%s <- coluna(s) %s" % (k, ",".join(str(i + 1) for i in v)) for k, v in sorted(cols_cert.items()))))
+    cols_parque = {}
+    for i, t in enumerate(cab):
+        m = RX_PARQUE.match(re.sub(r"\s+", " ", t.strip().upper()))
+        if m:
+            cols_parque[re.sub(r"\s+", " ", t.strip())] = i
+    log("Colunas de parque (%d): %s" % (len(cols_parque), " | ".join("%d: %s" % (i + 1, k) for k, i in sorted(cols_parque.items(), key=lambda kv: kv[1]))))
 
     contagem_status, bdh_linhas = {}, []
     total = 0
@@ -164,7 +185,10 @@ def descobrir(caminho_xlsx):
     log("Linhas de dados: %d. Valores de '%s': %s" % (total, COL_STATUS, ", ".join("%s=%d" % kv for kv in top)))
     log("BDH: %d pessoa(s)." % len(bdh_linhas))
     if bdh_linhas:
-        c = {n: sum(1 for l in bdh_linhas if i < len(l) and valor_um(l[i])) for n, i in cols_cert.items()}
+        c = {}
+        for nome, idxs in cols_cert.items():
+            for i in idxs:
+                c["%s(col %d)" % (nome, i + 1)] = sum(1 for l in bdh_linhas if i < len(l) and valor_um(l[i]))
         log("Certificacoes entre os BDH (contagem): " + ", ".join("%s=%d" % kv for kv in sorted(c.items())))
         p = {n: sum(1 for l in bdh_linhas if i < len(l) and l[i] not in (None, "", 0, "0")) for n, i in cols_parque.items()}
         p = {k: v for k, v in p.items() if v}
@@ -176,15 +200,21 @@ def main():
     try:
         token = obter_access_token()
         log("Dropbox: acesso obtido.")
-        nomes = dbx_listar(token, NS, PASTA)
-        escolhido, todos = escolher_arquivo(nomes)
-        log("Arquivos VAGAS MESTRE em %s: %s" % (PASTA, "; ".join(todos) or "nenhum"))
-        if not escolhido:
-            log("[ERRO] nenhum arquivo VAGAS MESTRE encontrado.")
-            return 1
-        log("Arquivo escolhido (maior numero no prefixo): %s" % escolhido)
+        raiz = dbx_listar(token, NS, PASTA_BASE)
+        if ARQ_VIVO in raiz:
+            origem, escolhido = PASTA_BASE, ARQ_VIVO
+            log("Usando a planilha VIVA: %s/%s" % (PASTA_BASE, ARQ_VIVO))
+        else:
+            nomes = dbx_listar(token, NS, PASTA)
+            escolhido, todos = escolher_arquivo(nomes)
+            origem = PASTA
+            log("Planilha viva nao encontrada. Arquivos do mes em %s: %s" % (PASTA, "; ".join(todos) or "nenhum"))
+            if not escolhido:
+                log("[ERRO] nenhum arquivo VAGAS MESTRE encontrado.")
+                return 1
+            log("Usando o arquivo do mes (maior numero no prefixo): %s" % escolhido)
         destino = os.path.join(tempfile.mkdtemp(prefix="bdh_"), "vagas.xlsx")
-        tam = dbx_baixar(token, NS, PASTA + "/" + escolhido, destino)
+        tam = dbx_baixar(token, NS, origem + "/" + escolhido, destino)
         with open(destino, "rb") as f:
             cab = f.read(2)
         if tam < 10000 or cab != b"PK":
