@@ -1,0 +1,72 @@
+name: Sync Envios Logisticos (Dropbox para o site)
+
+# PILOTO. Roda no GitHub (sem PC e sem tarefas agendadas): baixa a planilha de Envios do Dropbox,
+# regenera SO www/dashboard-envios-logisticos.html e publica se (e somente se) mudou so o dado.
+#
+# 1) Comece manual: Actions > "Sync Envios Logisticos" > Run workflow, com dry_run = true (so testa).
+# 2) Depois rode com dry_run = false para publicar uma vez.
+# 3) Quando estiver estavel, tire o "#" das duas linhas de schedule abaixo (a cada 20 min, 08h-20h, seg-sab, hora de Brasilia).
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = so testa, nao publica; false = publica se houve mudanca"
+        required: true
+        default: "true"
+  # schedule:
+  #   - cron: "*/20 11-23 * * 1-6"
+
+concurrency:
+  group: sync-envios
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # commit/push do HTML
+  actions: write    # disparar o deploy (um push feito pelo GITHUB_TOKEN nao dispara o deploy sozinho)
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TZ: America/Sao_Paulo   # o selo "Atualizado" do dashboard usa a hora local
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Dependencias
+        run: pip install openpyxl
+
+      - name: Gerar dashboard de Envios
+        id: rodar
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: python tools/sync_envios.py
+
+      - name: Commit, push e deploy
+        if: steps.rodar.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "Extreme Wind Automacao"
+          git config user.email "automacao@extremewind.local"
+          git add www/dashboard-envios-logisticos.html
+          if git diff --cached --quiet; then
+            echo "Sem mudanca apos normalizacao."
+            exit 0
+          fi
+          git commit -m "Envios Logisticos: atualizacao automatica (workflow) - $(date '+%d/%m/%Y %H:%M')"
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              break
+            fi
+            sleep 5
+          done
+          gh workflow run deploy-pages.yml --ref main
