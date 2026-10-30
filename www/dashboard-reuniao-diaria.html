@@ -3402,6 +3402,11 @@
     const ms = []; hs.forEach(function(x){ if (evidEhMotivo(sl[x])){ const m = sl[x].slice(2); if (ms.indexOf(m) < 0) ms.push(m); } });
     return ms.length ? { obs: ms.join(' / ') } : null;
   }
+  /* 30/10/2026 (Robson): a planilha pode trazer varias equipes numa coluna so ("Dolores 1&2 MX-Nx"); o card casa se QUALQUER numero do grupo bater. */
+  function evidCasaMulti(nomeCard, nm){
+    const m = String(nm).match(/^(.*?)(\d+(?:\s*&\s*\d+)+)\s*$/); if (!m) return false;
+    return m[2].split(/\s*&\s*/).some(function(n){ return mesmoProjeto(nomeCard, m[1].trim() + ' ' + n); });
+  }
   function preencherQuadrosEvidencias(){
     const boxes = Array.prototype.slice.call(document.querySelectorAll('[data-evid-box]'));
     if (!boxes.length) return;
@@ -3430,7 +3435,7 @@
         const nomes = Object.keys(bloco);
         /* 28/10/2026: a planilha traz "Gameleira - RN", "Sao Vitor - Ba", "Dolores MX-Nx": tira o sufixo de UF/pais antes de casar com o card. */
         const limpa = function(n){ return String(n).replace(/\s*[-–]\s*[A-Za-z]{2}\s*$/, '').replace(/\s+MX-?Nx\s*$/i, ''); };
-        for (let i = 0; i < nomes.length; i++){ if (mesmoProjeto(nomeCard, limpa(nomes[i]))) return bloco[nomes[i]]; }
+        for (let i = 0; i < nomes.length; i++){ if (mesmoProjeto(nomeCard, limpa(nomes[i])) || evidCasaMulti(nomeCard, limpa(nomes[i]))) return bloco[nomes[i]]; }
         return null;
       };
       let monitorado = false; Object.keys(fonte.dias).forEach(function(k){ if (doDia(k)) monitorado = true; });
