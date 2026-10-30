@@ -262,10 +262,10 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--ok)">98%</div>
-    <div class="foot">WK 44 · 20 ações pendentes no total</div>
+    <div class="value" style="color:var(--ok)">100%</div>
+    <div class="foot">WK 44 · 17 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">9</span><span class="l">Administrativas</span></div>
     </div>
@@ -729,7 +729,7 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">5</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">2</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">6</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">9</span><span class="l">Administrativa</span></div>
     </div>
@@ -989,27 +989,27 @@ render();
     <text x="600.0" y="49.0" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 95%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,90.0 467.5,90.0 C511.7,90.0 577.9,52.7 600.0,45.2 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,48.0 C92.1,43.3 158.3,22.6 202.5,20.0 C246.7,17.4 290.8,23.3 335.0,32.6 C379.2,41.9 423.3,76.0 467.5,76.0 C511.7,76.0 577.9,39.8 600.0,32.6 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,48.0 C92.1,45.3 158.3,32.4 202.5,31.9 C246.7,31.4 290.8,35.5 335.0,45.2 C379.2,54.9 423.3,90.0 467.5,90.0 C511.7,90.0 577.9,52.7 600.0,45.2" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,48.0 C92.1,43.3 158.3,22.6 202.5,20.0 C246.7,17.4 290.8,23.3 335.0,32.6 C379.2,41.9 423.3,76.0 467.5,76.0 C511.7,76.0 577.9,39.8 600.0,32.6" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
       <circle cx="70.0" cy="48.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="70.0" y="36.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
 
-      <circle cx="202.5" cy="31.9" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="202.5" y="19.9" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">98%</text>
+      <circle cx="202.5" cy="20.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="202.5" y="8.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">100%</text>
 
-      <circle cx="335.0" cy="45.2" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="335.0" y="33.2" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
+      <circle cx="335.0" cy="32.6" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="335.0" y="20.6" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">98%</text>
 
-      <circle cx="467.5" cy="90.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="467.5" y="78.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">90%</text>
+      <circle cx="467.5" cy="76.0" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="467.5" y="64.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">92%</text>
 
-      <circle cx="600.0" cy="45.2" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="33.2" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
+      <circle cx="600.0" cy="32.6" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="20.6" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">98%</text>
     </g>
 
     <!-- x labels -->
@@ -1036,47 +1036,47 @@ render();
   <div style="overflow-x:auto;">
   <svg viewBox="0 0 806 320" class="trend-chart saldo-km-chart" style="height:auto; max-height:340px;">
     <!-- linha zero -->
-    <line x1="50" y1="180.0" x2="796" y2="180.0" stroke="#3A567A" stroke-width="1.2"></line>
-    <text x="44" y="184.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
+    <line x1="50" y1="183.0" x2="796" y2="183.0" stroke="#3A567A" stroke-width="1.2"></line>
+    <text x="44" y="187.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
 
     <!-- linha de referencia +4.000 km (limite da faixa verde) -->
-    <line x1="50" y1="90.0" x2="796" y2="90.0" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
-    <text x="796" y="84.0" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
+    <line x1="50" y1="93.0" x2="796" y2="93.0" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
+    <text x="796" y="87.0" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
 
     <g font-family="Segoe UI,Arial,sans-serif">
-      <rect x="60.0" y="180.0" width="46" height="39.6" rx="4" fill="#E0483C"></rect>
-      <rect x="128.0" y="180.0" width="46" height="20.5" rx="4" fill="#E0483C"></rect>
-      <rect x="196.0" y="129.9" width="46" height="50.1" rx="4" fill="#12A874"></rect>
-      <rect x="264.0" y="180.0" width="46" height="37.6" rx="4" fill="#E0483C"></rect>
-      <rect x="332.0" y="26.0" width="46" height="154.0" rx="4" fill="#E0483C"></rect>
-      <rect x="400.0" y="180.0" width="46" height="2.0" rx="4" fill="#E0483C"></rect>
-      <rect x="468.0" y="180.0" width="46" height="62.0" rx="4" fill="#E0483C"></rect>
-      <rect x="536.0" y="153.1" width="46" height="26.9" rx="4" fill="#12A874"></rect>
-      <rect x="604.0" y="149.8" width="46" height="30.2" rx="4" fill="#12A874"></rect>
-      <rect x="672.0" y="180.0" width="46" height="3.6" rx="4" fill="#E0483C"></rect>
-      <rect x="740.0" y="164.7" width="46" height="15.3" rx="4" fill="#12A874"></rect>
-      <text x="83.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.759</text>
-      <text x="151.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-912</text>
-      <text x="219.0" y="121.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.227</text>
-      <text x="287.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.672</text>
-      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">6.847</text>
-      <text x="423.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-76</text>
-      <text x="491.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.755</text>
-      <text x="559.0" y="145.1" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.197</text>
-      <text x="627.0" y="141.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.343</text>
-      <text x="695.0" y="194.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-162</text>
-      <text x="763.0" y="156.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">680</text>
-      <text x="83.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 214.0)">OITIS 2/PI</text>
-      <text x="151.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 214.0)">OITIS 1/PI</text>
-      <text x="219.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 214.0)">ST.AGOSTINHO/RN</text>
-      <text x="287.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 214.0)">GAMELEIRA/RN</text>
-      <text x="355.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 214.0)">SÃO VITOR/BA</text>
-      <text x="423.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 214.0)">LDV 2/PI</text>
-      <text x="491.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 214.0)">LDV 1/PI</text>
-      <text x="559.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 214.0)">TUCANO/BA</text>
-      <text x="627.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 627.0 214.0)">DOLORES 1/MEX</text>
-      <text x="695.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 695.0 214.0)">DOLORES 2/MEX</text>
-      <text x="763.0" y="214.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 763.0 214.0)">ADM 1</text>
+      <rect x="60.0" y="183.0" width="46" height="36.6" rx="4" fill="#E0483C"></rect>
+      <rect x="128.0" y="183.0" width="46" height="17.5" rx="4" fill="#E0483C"></rect>
+      <rect x="196.0" y="129.9" width="46" height="53.1" rx="4" fill="#12A874"></rect>
+      <rect x="264.0" y="183.0" width="46" height="34.6" rx="4" fill="#E0483C"></rect>
+      <rect x="332.0" y="26.0" width="46" height="157.0" rx="4" fill="#E0483C"></rect>
+      <rect x="400.0" y="181.7" width="46" height="2.0" rx="4" fill="#12A874"></rect>
+      <rect x="468.0" y="183.0" width="46" height="59.0" rx="4" fill="#E0483C"></rect>
+      <rect x="536.0" y="153.1" width="46" height="29.9" rx="4" fill="#12A874"></rect>
+      <rect x="604.0" y="150.6" width="46" height="32.5" rx="4" fill="#12A874"></rect>
+      <rect x="672.0" y="183.0" width="46" height="2.0" rx="4" fill="#E0483C"></rect>
+      <rect x="740.0" y="164.7" width="46" height="18.3" rx="4" fill="#12A874"></rect>
+      <text x="83.0" y="197.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.625</text>
+      <text x="151.0" y="197.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-778</text>
+      <text x="219.0" y="121.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.360</text>
+      <text x="287.0" y="197.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-1.539</text>
+      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">6.980</text>
+      <text x="423.0" y="173.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">57</text>
+      <text x="491.0" y="197.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.622</text>
+      <text x="559.0" y="145.1" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.330</text>
+      <text x="627.0" y="142.6" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.443</text>
+      <text x="695.0" y="197.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-62</text>
+      <text x="763.0" y="156.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">813</text>
+      <text x="83.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 217.0)">OITIS 2/PI</text>
+      <text x="151.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 217.0)">OITIS 1/PI</text>
+      <text x="219.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 217.0)">ST.AGOSTINHO/RN</text>
+      <text x="287.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 217.0)">GAMELEIRA/RN</text>
+      <text x="355.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 217.0)">SÃO VITOR/BA</text>
+      <text x="423.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 217.0)">LDV 2/PI</text>
+      <text x="491.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 217.0)">LDV 1/PI</text>
+      <text x="559.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 217.0)">TUCANO/BA</text>
+      <text x="627.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 627.0 217.0)">DOLORES 1/MEX</text>
+      <text x="695.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 695.0 217.0)">DOLORES 2/MEX</text>
+      <text x="763.0" y="217.0" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 763.0 217.0)">ADM 1</text>
     </g>
   </svg>
   </div>
@@ -1104,7 +1104,7 @@ render();
       <tr><td>KM Ponto de Troca</td><td class="cell-warn">78%</td><td class="cell-warn">83%</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Saldo Extra</td><td class="cell-nok">44%</td><td class="cell-nok">50%</td><td class="cell-nok">46%</td><td class="cell-nok">40%</td><td class="cell-nok cur">36%</td></tr>
       <tr><td>Checklist</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">80%</td><td class="cell-warn cur">91%</td></tr>
-      <tr><td>Revisão</td><td class="cell-warn">90%</td><td class="cell-warn">92%</td><td class="cell-warn">91%</td><td class="cell-warn">80%</td><td class="cell-warn cur">91%</td></tr>
+      <tr><td>Revisão</td><td class="cell-warn">90%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">90%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Medição Pneus</td><td class="cell-warn">90%</td><td class="cell-ok">100%</td><td class="cell-warn">91%</td><td class="cell-warn">90%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
@@ -1113,7 +1113,7 @@ render();
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-ok">96%</td><td class="cell-ok">98%</td><td class="cell-ok">96%</td><td class="cell-warn">90%</td><td class="cell-ok cur">96%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-ok">96%</td><td class="cell-ok">100%</td><td class="cell-ok">98%</td><td class="cell-warn">92%</td><td class="cell-ok cur">98%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1256,17 +1256,17 @@ render();
 
 <script>
 const rows = [
-["TYQ5C48","LOCALIZA","","ST.AGOSTINHO/RN","SIEMENS","19/02/2026","8,40","OK","OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
-["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","5,63","OK","N/OK","OK","OK","OK","OK","OK","8,72","N/A","N/A"],
-["UVN2B79","LOCALIZA","","OITIS 2/PI","SIEMENS","21/02/2026","8,33","OK","N/OK","OK","OK","OK","OK","OK","11,81","N/A","N/A"],
-["TXY8H30","LOCALIZA","","GAMELEIRA/RN","SIEMENS","20/02/2026","8,37","OK","N/OK","OK","OK","OK","OK","OK","10,01","N/A","N/A"],
-["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","8,60","OK","OK","OK","OK","OK","OK","OK","9,29","N/A","N/A"],
-["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","1,37","OK","N/OK","OK","OK","OK","OK","OK","10,90","N/A","N/A"],
-["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","1,37","OK","N/OK","OK","OK","OK","OK","OK","11,03","N/A","N/A"],
-["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","1,27","OK","OK","OK","OK","OK","OK","OK","9,85","N/A","N/A"],
-["NL9058D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","0,80","OK","OK","OK","OK","OK","OK","N/A","12,34","N/A","N/A"],
-["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,80","OK","N/OK","OK","OK","OK","OK","N/A","11,22","N/A","N/A"],
-["TZL6G33","LOCALIZA","","ADM 1","EXTREME","20/10/2026","0,30","OK","ATENÇÃO","N/A","-","OK","OK","OK","None","N/A","N/A"],
+["TYQ5C48","LOCALIZA","","ST.AGOSTINHO/RN","SIEMENS","19/02/2026","8,43","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","5,67","OK","N/OK","OK","OK","OK","OK","OK","8,72","N/A","N/A"],
+["UVN2B79","LOCALIZA","","OITIS 2/PI","SIEMENS","21/02/2026","8,37","OK","N/OK","OK","OK","OK","OK","OK","11,81","N/A","N/A"],
+["TXY8H30","LOCALIZA","","GAMELEIRA/RN","SIEMENS","20/02/2026","8,40","OK","N/OK","OK","OK","OK","OK","OK","10,01","N/A","N/A"],
+["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","8,63","OK","OK","OK","OK","OK","OK","OK","9,29","N/A","N/A"],
+["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","1,40","OK","ATENÇÃO","OK","OK","OK","OK","OK","10,90","N/A","N/A"],
+["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","1,40","OK","N/OK","OK","OK","OK","OK","OK","11,03","N/A","N/A"],
+["TZL6G42","LOCALIZA","","TUCANO/BA","SIEMENS","21/09/2026","1,30","OK","OK","OK","OK","OK","OK","OK","9,85","N/A","N/A"],
+["NL9058D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","0,83","OK","OK","OK","OK","OK","OK","N/A","12,34","N/A","N/A"],
+["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","0,83","OK","N/OK","OK","OK","OK","OK","N/A","11,22","N/A","N/A"],
+["TZL6G33","LOCALIZA","","ADM 1","EXTREME","20/10/2026","0,33","OK","ATENÇÃO","N/A","-","OK","OK","OK","None","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1434,10 +1434,10 @@ const histData = [
   { wk:"WK38", geral:85.7, cats:[66.7,50.0,100,85.7,100,42.9,100,null,null,null] },
   { wk:"WK39", geral:96.0, cats:[77.8,44.4,100,90.0,100,90.0,100,null,null,null] },
   { wk:"WK40", geral:96.0, cats:[77.8,44.4,100,90.0,100,90.0,100,null,null,null] },
-  { wk:"WK41", geral:98.3, cats:[83.3,50.0,100,91.7,100,100,100,null,null,null] },
-  { wk:"WK42", geral:96.4, cats:[90.9,45.5,100,90.9,100,90.9,100,null,null,null] },
-  { wk:"WK43", geral:90.0, cats:[100.0,40.0,80.0,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK44", geral:96.4, cats:[100.0,36.4,90.9,90.9,100,100,100,null,null,null] },
+  { wk:"WK41", geral:100, cats:[83.3,50.0,100,100,100,100,100,null,null,null] },
+  { wk:"WK42", geral:98.2, cats:[90.9,45.5,100,100,100,90.9,100,null,null,null] },
+  { wk:"WK43", geral:92.0, cats:[100.0,40.0,80.0,90.0,100,90.0,100,null,null,null] },
+  { wk:"WK44", geral:98.2, cats:[100.0,36.4,90.9,100,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
@@ -1532,11 +1532,8 @@ toggleHist.addEventListener("click", () => {
 
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
-  { acao:"TYQ5C48 -1.2 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"30/10/2026", obs:"AJUSTAR COM A OFICINA PARA REVISAR NO SABADO", categoria:"Emergencial" },
-  { acao:"TYQ5C48 -1.3 REVISÃO 30.000", tipo:"CORRETIVA", parque:"ST.AGOSTINHO/RN", quem:"Sandoval", status:"31/10/2026", obs:"REALIZAR A REVISÃO", categoria:"Emergencial" },
-  { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"29/10/2026", obs:"SUBIR O ORÇAMENTO/AALINHAR TROCA PARA SABADO", categoria:"Emergencial" },
-  { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"31/10/2026", obs:"RECOLHER O PNEU NOVO", categoria:"Emergencial" },
-  { acao:"NL9058D - SUBSTITUIÇÃO", tipo:"CORRETIVA", parque:"DOLORES 1", quem:"Sandoval", status:"31/10/2026", obs:"SUBSTITUIÇÃO DO VEICULO NA AGENCIA EM MONTERREY", categoria:"Emergencial" },
+  { acao:"UVN9J75 -1.2 AGENDAR TROCA DO PNEU RASGADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"30/10/2026", obs:"RECOLHER O PNEU NOVO", categoria:"Emergencial" },
+  { acao:"NL9058D - SUBSTITUIÇÃO", tipo:"CORRETIVA", parque:"DOLORES 1", quem:"Sandoval", status:"01/11/2026", obs:"SUBSTITUIÇÃO DO VEICULO NA AGENCIA EM MONTERREY", categoria:"Emergencial" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"05/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN2B79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"13/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
