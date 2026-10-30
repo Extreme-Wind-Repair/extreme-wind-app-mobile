@@ -325,6 +325,12 @@ def js_valido(html):
     return True, "%d script(s) conferido(s)" % len(blocos)
 
 
+def contar_bloco(html):
+    """Quantas pessoas ha hoje no bloco BDH_VAGAS_MESTRE da pagina publicada."""
+    m = RX_BLOCO.search(html)
+    return len(re.findall(r"^    '[^']+': \{ nome:", m.group(2), re.M)) if m else 0
+
+
 def so_o_bloco_mudou(antigo, novo):
     def sem(t):
         t = t.replace(BOOT_NEW, "@@BOOT@@").replace(BOOT_OLD, "@@BOOT@@")
@@ -433,6 +439,15 @@ def main():
     except Exception as e:  # noqa: BLE001
         log("[ERRO] %s" % str(e)[:200])
         return 1
+    # TRAVA DE ESVAZIAMENTO (30/10/2026): lista que cai de uma vez (para 0, ou perdendo mais da metade) quase sempre e erro de
+    # leitura da planilha, nao saida real de todo mundo. Nao publica; para liberar de proposito: rodar manual com forcar=true.
+    antes, agora = contar_bloco(html), len({p["mat"] for p in pessoas})
+    forcar = os.environ.get("FORCAR", "false").strip().lower() == "true"
+    if mudou_bloco and antes >= 1 and (agora == 0 or agora * 2 < antes):
+        if not forcar:
+            log("[TRAVA-BDH] a lista cairia de %d para %d pessoa(s) -- NAO publicado. Se for real, rode manualmente com forcar=true." % (antes, agora))
+            return 1
+        log("[AVISO] queda de %d para %d pessoa(s) liberada por forcar=true." % (antes, agora))
     if dry:
         try:
             descobrir_datas(destino)
