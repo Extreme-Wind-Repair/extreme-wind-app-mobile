@@ -11,6 +11,8 @@ Fluxo:
   4. troca SOMENTE esse bloco (e a data "Ultima atualizacao" do comentario) em
      www/dashboard-reuniao-diaria.html;
   5. trava: se qualquer outra parte da pagina mudar, NAO grava;
+  5b. a data de INICIO do banco de horas vem da propria coluna de status: "BDH (dd/mm/aaaa)"; a pagina
+      passa a mostrar essa data e a contar os dias a partir dela (ver BOOT_*);
   6. se mudou e nao e teste: grava o arquivo e avisa o workflow (changed=true) para commit, push e deploy.
 
 Variaveis: DROPBOX_APP_KEY, DROPBOX_APP_SECRET, DROPBOX_REFRESH_TOKEN (segredos) e DRY_RUN ("true" = so testa).
@@ -23,6 +25,7 @@ import datetime
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import unicodedata
@@ -47,6 +50,28 @@ RX_PARQUE = re.compile(r"^(GE|SIE|NX)\s*-\s*(.+)$")
 RX_BLOCO = re.compile(r"(  const BDH_VAGAS_MESTRE = \{)(.*?)(\n  \};)", re.S)
 RX_DATA = re.compile(r"(\u00daltima atualiza\u00e7\u00e3o: )\d{2}/\d{2}/\d{4}(\.\s*\*/\s*\n\s*const BDH_VAGAS_MESTRE)")
 PEQUENAS = {"DO", "DA", "DE", "DOS", "DAS", "E"}
+RX_BDH = re.compile(r"\bBDH\b")
+RX_DATA_PAR = re.compile(r"\(\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*\)")
+RX_DATA_SOLTA = re.compile(r"(?<!\d)(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4}|\d{2})(?!\d)")
+
+# Mudanca unica no codigo da pagina (idempotente): a data de Inicio da VAGAS MESTRE ("oficial.inicio") manda
+# sobre a digitada na tela, e o contador de dias passa a contar a partir dela. Sem "inicio", nada muda.
+BOOT_OLD = """      const dataHtml = t.DataInicio
+        ? '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>'
+        : '<span class="tech-data tech-inicio-aguardando" contenteditable="true" data-field="DataInicio">Aguardando data de In\u00edcio</span>';
+      const diasHtml = '<span class="tech-dias">' + diasContador(t.DataInicio) + '</span>';
+"""
+BOOT_NEW = """      // 29/10/2026 (Robson): a data de In\u00edcio vem da VAGAS MESTRE ("BDH (dd/mm/aaaa)") e manda sobre a digitada aqui;
+      // os Dias contam a partir dela. Sem data na planilha, vale o comportamento antigo (campo edit\u00e1vel).
+      const inicioPlanilha = oficial.inicio || '';
+      const inicioFinal = inicioPlanilha || t.DataInicio;
+      const dataHtml = inicioPlanilha
+        ? '<span class="tech-data">' + formatDataInicio(inicioPlanilha) + '</span>'
+        : (t.DataInicio
+            ? '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>'
+            : '<span class="tech-data tech-inicio-aguardando" contenteditable="true" data-field="DataInicio">Aguardando data de In\u00edcio</span>');
+      const diasHtml = '<span class="tech-dias">' + diasContador(inicioFinal) + '</span>';
+"""
 
 
 def log(msg):
@@ -160,6 +185,24 @@ def js_str(s):
     return "'" + str(s).replace("\\", "\\\\").replace("'", "\\'") + "'"
 
 
+def data_valida(d, m, a):
+    try:
+        ano = int(a) + (2000 if len(str(a)) == 2 else 0)
+        return datetime.date(ano, int(m), int(d)).strftime("%d/%m/%Y")
+    except Exception:
+        return ""
+
+
+def data_do_texto(txt, so_parenteses=True):
+    """Primeira data valida dd/mm/aaaa em um texto (por padrao, entre parenteses). '' se nao houver."""
+    rx = RX_DATA_PAR if so_parenteses else RX_DATA_SOLTA
+    for m in rx.finditer(str(txt or "")):
+        d = data_valida(*m.groups())
+        if d:
+            return d
+    return ""
+
+
 def fmt_parque(titulo):
     """'SIE - SAO VITOR - BA' -> ('Sao Vitor - BA', 'SIE'). Mantem acentos do titulo; sufixo de UF em maiusculas."""
     m = RX_PARQUE.match(re.sub(r"\s+", " ", titulo.strip().upper()))
@@ -206,7 +249,7 @@ def ler_bdh(caminho_xlsx):
             parques.append((i, p, c))
     pessoas, sem_mat = [], 0
     for linha in alvo.iter_rows(min_row=linha_cab + 1, values_only=True):
-        if not linha or i_status >= len(linha) or norm(linha[i_status]) != "BDH":
+        if not linha or i_status >= len(linha) or not RX_BDH.search(norm(linha[i_status])):
             continue
         mat = matricula(linha[i_mat]) if i_mat < len(linha) else ""
         nome = re.sub(r"\s+", " ", str(linha[i_nome] or "")).strip().upper() if i_nome < len(linha) else ""
@@ -215,11 +258,12 @@ def ler_bdh(caminho_xlsx):
             continue
         pessoas.append({
             "mat": mat, "nome": nome,
+            "inicio": data_do_texto(linha[i_status], so_parenteses=False),
             "certs": [c for i, c in certs if i < len(linha) and valor_um(linha[i])],
             "parques": [(p, c) for i, p, c in parques if i < len(linha) and celula_preenchida(linha[i])],
         })
-    resumo = "colunas: %d certificacao(oes), %d parque(s); BDH na planilha: %d; sem matricula ou nome: %d" % (
-        len(certs), len(parques), len(pessoas) + sem_mat, sem_mat)
+    resumo = "colunas: %d certificacao(oes), %d parque(s); BDH na planilha: %d; com data de inicio: %d; sem matricula ou nome: %d" % (
+        len(certs), len(parques), len(pessoas) + sem_mat, sum(1 for p in pessoas if p["inicio"]), sem_mat)
     return pessoas, resumo
 
 
@@ -235,8 +279,9 @@ def montar_corpo(pessoas):
         vistos.add(p["mat"])
         certs = "[" + ", ".join(js_str(c) for c in p["certs"]) + "]"
         parq = "[" + ", ".join("{ parque: %s, cliente: %s }" % (js_str(a), js_str(b)) for a, b in p["parques"]) + "]"
-        linhas.append("    %s: { nome: %s,\n             certificacoes: %s,\n             parques: %s }" % (
-            js_str(p["mat"]), js_str(p["nome"]), certs, parq))
+        ini = ("\n             inicio: %s," % js_str(p["inicio"])) if p.get("inicio") else ""
+        linhas.append("    %s: { nome: %s,%s\n             certificacoes: %s,\n             parques: %s }" % (
+            js_str(p["mat"]), js_str(p["nome"]), ini, certs, parq))
     return "\n" + ",\n".join(linhas)
 
 
@@ -255,11 +300,79 @@ def trocar_bloco(html, pessoas, hoje):
     return novo, True
 
 
+def garantir_suporte_inicio(html):
+    """Aplica (uma unica vez) a mudanca de codigo que le oficial.inicio. Retorna (html, aplicou)."""
+    if BOOT_NEW in html:
+        return html, False
+    if html.count(BOOT_OLD) != 1:
+        raise RuntimeError("trecho do codigo da pagina (Inicio/Dias) nao encontrado exatamente 1 vez; nao mexi.")
+    return html.replace(BOOT_OLD, BOOT_NEW), True
+
+
+def js_valido(html):
+    """node --check em cada <script> inline. Retorna (ok, mensagem)."""
+    blocos = [b for b in re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, re.S) if b.strip()]
+    for i, b in enumerate(blocos):
+        caminho = os.path.join(tempfile.mkdtemp(prefix="js_"), "s%d.js" % i)
+        with open(caminho, "w", encoding="utf-8") as f:
+            f.write(b)
+        try:
+            r = subprocess.run(["node", "--check", caminho], capture_output=True, text=True, timeout=60)
+        except FileNotFoundError:
+            return False, "node nao disponivel para conferir a sintaxe"
+        if r.returncode != 0:
+            return False, "erro de sintaxe no script %d: %s" % (i + 1, (r.stderr or "").strip().splitlines()[-1][:120] if r.stderr else "?")
+    return True, "%d script(s) conferido(s)" % len(blocos)
+
+
 def so_o_bloco_mudou(antigo, novo):
     def sem(t):
+        t = t.replace(BOOT_NEW, "@@BOOT@@").replace(BOOT_OLD, "@@BOOT@@")
         t = RX_BLOCO.sub(lambda m: m.group(1) + "@@" + m.group(3), t, count=1)
         return RX_DATA.sub(lambda mm: mm.group(1) + "@@" + mm.group(2), t, count=1)
     return sem(antigo) == sem(novo)
+
+
+def descobrir_datas(caminho_xlsx):
+    """Modo teste: onde a planilha guarda datas? Imprime so cabecalhos, contagens e datas (nunca nomes)."""
+    import openpyxl
+    wb = openpyxl.load_workbook(caminho_xlsx, read_only=True, data_only=True)
+    alvo = next((ws for ws in wb.worksheets if norm(ws.title) == norm(ABA)), None)
+    linha_cab, cab = achar_cabecalho(alvo)
+    ncab = [norm(t) for t in cab]
+    i_status = ncab.index(COL_STATUS)
+
+    def data_da_celula(v):
+        if isinstance(v, (datetime.datetime, datetime.date)):
+            return v.strftime("%d/%m/%Y")
+        return data_do_texto(v, so_parenteses=False)
+
+    contagem, bdh_datas, status_com_data = {}, [], 0
+    for linha in alvo.iter_rows(min_row=linha_cab + 1, values_only=True):
+        if not linha:
+            continue
+        st = norm(linha[i_status]) if i_status < len(linha) else ""
+        if st and RX_DATA_PAR.search(st):
+            status_com_data += 1
+        eh_bdh = bool(RX_BDH.search(st))
+        for i, v in enumerate(linha):
+            d = data_da_celula(v)
+            if d and i < len(cab) and cab[i].strip():
+                contagem[i] = contagem.get(i, 0) + 1
+                if eh_bdh and not re.search(r"ADMISS|NASC", norm(cab[i])):   # nada de dados pessoais no log publico
+                    bdh_datas.append("%d: %s = %s" % (i + 1, cab[i].strip()[:40], d))
+    top = sorted(contagem.items(), key=lambda kv: -kv[1])[:20]
+    log("[DESCOBERTA] colunas com datas (coluna: titulo = quantas linhas): " + " | ".join(
+        "%d: %s = %d" % (i + 1, cab[i].strip()[:35], n) for i, n in top))
+    log("[DESCOBERTA] celulas de status com data entre parenteses: %d." % status_com_data)
+    log("[DESCOBERTA] datas nas linhas de BDH (so coluna e data): " + (" | ".join(bdh_datas) or "nenhuma"))
+    achados = []
+    for ws in wb.worksheets:
+        for r, linha in enumerate(ws.iter_rows(min_row=1, max_row=6, values_only=True), start=1):
+            for i, v in enumerate(linha or ()):
+                if isinstance(v, str) and "CONVOC" in norm(v):
+                    achados.append("%s (linha %d, coluna %d): %s" % (ws.title, r, i + 1, re.sub(r"\s+", " ", v.strip())[:40]))
+    log("[DESCOBERTA] titulos com 'CONVOC': " + (" | ".join(achados[:12]) or "nenhum"))
 
 
 def avisar_workflow(changed):
@@ -314,17 +427,30 @@ def main():
         len(pessoas), sum(len(p["certs"]) for p in pessoas), sum(len(p["parques"]) for p in pessoas)))
     try:
         hoje = datetime.datetime.now().strftime("%d/%m/%Y")
-        novo, mudou = trocar_bloco(html, pessoas, hoje)
+        base, boot = garantir_suporte_inicio(html)
+        novo, mudou_bloco = trocar_bloco(base, pessoas, hoje)
+        mudou = mudou_bloco or boot
     except Exception as e:  # noqa: BLE001
         log("[ERRO] %s" % str(e)[:200])
         return 1
+    if dry:
+        try:
+            descobrir_datas(destino)
+        except Exception as e:  # noqa: BLE001
+            log("[AVISO] descoberta de datas falhou (%s): %s" % (type(e).__name__, str(e)[:120]))
     if not mudou:
         log("Sem mudanca: a lista BDH da pagina ja esta igual a planilha.")
         return 0
     if not so_o_bloco_mudou(html, novo):
-        log("[TRAVA] a troca alteraria mais do que o bloco BDH -- NAO publicado.")
+        log("[TRAVA] a troca alteraria mais do que o bloco BDH e o trecho de Inicio/Dias -- NAO publicado.")
         return 1
-    log("Mudanca confirmada: so o bloco BDH_VAGAS_MESTRE (e a data do comentario) mudam.")
+    ok_js, msg_js = js_valido(novo)
+    if not ok_js:
+        log("[TRAVA] conferencia de sintaxe falhou (%s) -- NAO publicado." % msg_js)
+        return 1
+    log("Conferencia de sintaxe: %s." % msg_js)
+    log("Mudanca confirmada: so o bloco BDH_VAGAS_MESTRE, a data do comentario%s." % (
+        " e o trecho de codigo de Inicio/Dias (aplicado uma unica vez)" if boot else ""))
     if dry:
         log("[TESTE] haveria publicacao; nada foi gravado.")
         return 0
