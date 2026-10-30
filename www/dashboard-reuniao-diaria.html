@@ -3440,6 +3440,9 @@
       const antK = Object.keys(fonte.dias).filter(function(k){ return k < segK && doDia(k); }).sort().pop();
       if (antK) diasBox.unshift({ k: antK, br: antK.slice(6,8) + '/' + antK.slice(4,6), ant: true });
       const pend = [], sbDias = [];
+      /* 30/10/2026 (Robson): REGRA - havendo SIM em um dia posterior, os dias anteriores ficam OK (pendencias e stand-by quitados). */
+      let ultSimK = '';
+      diasBox.forEach(function(dd){ const s = doDia(dd.k); if (s && dd.k <= hojeK && dd.k > ultSimK && Object.keys(s).some(function(x){ return s[x] === true; })) ultSimK = dd.k; });
       const horaVencida = function(dd, sl, h){
         if (sl[h] === true || evidEhMotivo(sl[h])) return false;
         if (sl[h] === 'x' || (typeof sl[h] === 'string' && sl[h].indexOf('r:') === 0)) return true;
@@ -3460,6 +3463,7 @@
         const tip = horas.map(function(h){ return h + ' ' + (sl[h] === true ? '✔ enviado' : (evidEhMotivo(sl[h]) ? '⏸ ' + sl[h].slice(2) : (typeof sl[h] === 'string' && sl[h].indexOf('r:') === 0 ? '✖ não enviado — ' + sl[h].slice(2) : '✖ não enviado'))); }).join('\n');
         const todos = horas.length && horas.every(function(h){ return sl[h] === true; });
         if (dd.k > hojeK) return '<span class="ehsr-dia neutro" title="Dia ainda não chegou"><b>' + dd.br + '</b>–</span>';
+        if (ultSimK && dd.k < ultSimK){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip + '\nQuitado: há envio (SIM) em dia posterior') + '"><b>' + dd.br + '</b>✔</span>'; }
         if (todos){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✔</span>'; }
         if (ex) return chipSb(tip);
         const venc = horas.filter(function(h){ return horaVencida(dd, sl, h); });
