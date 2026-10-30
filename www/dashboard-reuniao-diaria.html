@@ -3361,6 +3361,9 @@
   const EVID_REPORT_URL = 'https://docs.google.com/spreadsheets/d/14lyIvLElV7oYFwsO6R5x7vgY2d1lzdKEaOIPPWs69iU/gviz/tq?tqx=out:json&headers=0&sheet=' + encodeURIComponent('Banco de dados');
   const EVID_REPARO_URL = null;
   let EVID_REPORT = null, EVID_REPARO = null;
+  /* 30/10/2026 (Robson): a BASE e esta planilha. "NAO (Stand-By)", "NAO (Desmob)", "NAO (Inspecao)" = nao enviado COM motivo (laranja, padrao do quadro EHS); "NAO" sem motivo = pendencia (vermelho). */
+  function evidMotivo(t){ const m = String(t).match(/^N[\u00c3A]O\s*\((.+?)\)\s*$/i); if (!m) return 'x'; const mt = m[1].trim(); return (/^(stand[\s-]*by|desmob\w*)$/i.test(mt) ? 'm:' : 'r:') + mt; }
+  function evidEhMotivo(v){ return typeof v === 'string' && v.indexOf('m:') === 0; }
   function evidParseGrid(rows){
     /* rows: matriz de textos. Devolve { 'aaaammdd': { parqueNome: { 'hh:mm': true/false } } } */
     const out = {}; let dia = null, cols = null;
@@ -3372,7 +3375,7 @@
       if (dia && cols && /^\d{1,2}:\d{2}$/.test(txt[0])){
         const hh = txt[0].padStart(5, '0');
         cols.forEach(function(nome, i){ if (nome){ /* 28/10/2026 (Robson): so "SIM" conta como enviado (true); vazio = false; outro texto (ex. NAO) = 'x' (vermelho na hora). */
-          (out[dia][nome] = out[dia][nome] || {})[hh] = /^sim$/i.test(txt[i]) ? true : (txt[i] === '' ? false : 'x'); } });
+          (out[dia][nome] = out[dia][nome] || {})[hh] = /^sim$/i.test(txt[i]) ? true : (txt[i] === '' ? false : evidMotivo(txt[i])); } });
       }
     });
     return out;
@@ -3392,17 +3395,12 @@
   }
   setInterval(function(){ if (!document.hidden) loadEvidencias(); }, 5000);
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) loadEvidencias(); });
-  /* 30/10/2026 (Robson): Stand-by do cliente por parque/dia, da MESMA aba que o quadro EHS usa (RD_EHS_Excecoes -> REPORT_EHS_EXC).
-     Tudo que nao for AUTORIZADO conta como stand-by (igual ao quadro EHS). Mesma regra de casamento: mesmoProjeto + numero da equipe. */
-  function evidStandbyDoDia(nomeCard, k){
-    let achada = null;
-    (REPORT_EHS_EXC || []).forEach(function(x){
-      if (x.data !== k || x.tipo === 'AUTORIZADO' || !x.parque) return;
-      const nCard = (String(nomeCard).match(/(\d+)\s*$/) || [])[1], nExc = (String(x.parque).match(/(\d+)\s*$/) || [])[1];
-      if (nCard && nExc && Number(nCard) !== Number(nExc)) return;
-      if (mesmoProjeto(nomeCard, x.parque)) achada = x;
-    });
-    return achada;
+  /* Motivo do dia (da propria planilha de evidencias): so quando todo horario esta SIM ou com motivo, e ha ao menos um motivo. */
+  function evidMotivoDoDia(sl){
+    const hs = Object.keys(sl).sort();
+    if (!hs.length || !hs.every(function(x){ return sl[x] === true || evidEhMotivo(sl[x]); })) return null;
+    const ms = []; hs.forEach(function(x){ if (evidEhMotivo(sl[x])){ const m = sl[x].slice(2); if (ms.indexOf(m) < 0) ms.push(m); } });
+    return ms.length ? { obs: ms.join(' / ') } : null;
   }
   function preencherQuadrosEvidencias(){
     const boxes = Array.prototype.slice.call(document.querySelectorAll('[data-evid-box]'));
@@ -3443,34 +3441,35 @@
       if (antK) diasBox.unshift({ k: antK, br: antK.slice(6,8) + '/' + antK.slice(4,6), ant: true });
       const pend = [], sbDias = [];
       const horaVencida = function(dd, sl, h){
-        if (sl[h] === true) return false;
-        if (sl[h] === 'x') return true;
+        if (sl[h] === true || evidEhMotivo(sl[h])) return false;
+        if (sl[h] === 'x' || (typeof sl[h] === 'string' && sl[h].indexOf('r:') === 0)) return true;
         if (dd.k !== hojeK) return dd.k < hojeK;
         const hm = h.split(':'); return minAgora >= Number(hm[0]) * 60 + Number(hm[1]);
       };
       const chips = diasBox.map(function(dd){
         const sl = doDia(dd.k);
         /* 30/10/2026 (Robson): Stand-by do cliente no MESMO padrao do quadro EHS (aba RD_EHS_Excecoes): chip laranja com pausa e a observacao em laranja abaixo. Dia completo (tudo enviado) continua verde. */
-        const ex = dd.k <= hojeK ? evidStandbyDoDia(nomeCard, dd.k) : null;
+        const ex = (sl && dd.k <= hojeK) ? evidMotivoDoDia(sl) : null;
         const chipSb = function(tipHoras){
           const obsEx = (ex.obs && !/^n\/?a$/i.test(ex.obs)) ? ex.obs : '';
           sbDias.push({ br: dd.br, obs: obsEx });
-          return '<span class="ehsr-dia sb" title="' + escapeHtml('Stand-by do cliente' + (obsEx ? ' — ' + obsEx : '') + (tipHoras ? '\n' + tipHoras : '')) + '"><b>' + dd.br + '</b>⏸</span>';
+          return '<span class="ehsr-dia sb" title="' + escapeHtml((obsEx || 'Sem envio justificado') + (tipHoras ? '\n' + tipHoras : '')) + '"><b>' + dd.br + '</b>⏸</span>';
         };
         if (!sl) return ex ? chipSb('') : '<span class="ehsr-dia neutro" title="Sem bloco deste projeto na planilha"><b>' + dd.br + '</b>–</span>';
         const horas = Object.keys(sl).sort();
-        const tip = horas.map(function(h){ return h + ' ' + (sl[h] === true ? '✔ enviado' : '✖ não enviado'); }).join('\n');
+        const tip = horas.map(function(h){ return h + ' ' + (sl[h] === true ? '✔ enviado' : (evidEhMotivo(sl[h]) ? '⏸ ' + sl[h].slice(2) : (typeof sl[h] === 'string' && sl[h].indexOf('r:') === 0 ? '✖ não enviado — ' + sl[h].slice(2) : '✖ não enviado'))); }).join('\n');
         const todos = horas.length && horas.every(function(h){ return sl[h] === true; });
         if (dd.k > hojeK) return '<span class="ehsr-dia neutro" title="Dia ainda não chegou"><b>' + dd.br + '</b>–</span>';
         if (todos){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✔</span>'; }
         if (ex) return chipSb(tip);
         const venc = horas.filter(function(h){ return horaVencida(dd, sl, h); });
         if (dd.k === hojeK && !venc.length) return '<span class="ehsr-dia hoje" title="' + escapeHtml('Hoje: aguardando horários\n' + tip) + '"><b>' + dd.br + '</b>…</span>';
-        pend.push({ br: dd.br, horas: venc });
+        const motR = []; horas.forEach(function(x){ if (typeof sl[x] === 'string' && sl[x].indexOf('r:') === 0 && motR.indexOf(sl[x].slice(2)) < 0) motR.push(sl[x].slice(2)); });
+        pend.push({ br: dd.br, horas: venc, mot: motR.join(' / ') });
         return '<span class="ehsr-dia nok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✖</span>';
       }).join('');
-      const notas = (pend.length ? '<div class="evid-pend nok" title="Horários sem evidência enviada">Pendências: ' + pend.map(function(p){ return '<b>' + p.br + '</b> — ' + p.horas.join(', '); }).join(' · ') + '</div>' : '')
-        + (sbDias.length ? '<div class="evid-pend sb">⏸ Stand-by: ' + sbDias.map(function(s){ return '<b>' + s.br + '</b>' + (s.obs ? ' — ' + escapeHtml(s.obs) : ''); }).join(' · ') + '</div>' : '');
+      const notas = (pend.length ? '<div class="evid-pend nok" title="Horários sem evidência enviada">Pendências: ' + pend.map(function(p){ return '<b>' + p.br + '</b> — ' + (p.mot ? escapeHtml(p.mot) : p.horas.join(', ')); }).join(' · ') + '</div>' : '')
+        + (sbDias.length ? '<div class="evid-pend sb">⏸ ' + sbDias.map(function(s){ return '<b>' + s.br + '</b>' + (s.obs ? ' — ' + escapeHtml(s.obs) : ''); }).join(' · ') + '</div>' : '');
       alvo.innerHTML = '<div class="ehsr-dias">' + chips + '</div>' + '<div class="ehsr-ult' + (ultOk ? ' ok' : '') + '">' + (ultOk ? 'Último completo: ' + ultOk : 'Nenhum dia completo na semana') + '</div>' + notas;
     });
   }
