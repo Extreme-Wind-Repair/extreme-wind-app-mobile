@@ -849,8 +849,12 @@
      como BDH HOJE -- se alguém sair do BDH lá, sai daqui também no proximo
      ciclo, mesmo que ainda reste uma linha antiga na aba do Sheets (a linha
      antiga simplesmente para de ser exibida, não é apagada da planilha).
-     Última atualização: 29/10/2026. */
+     Última atualização: 30/10/2026. */
   const BDH_VAGAS_MESTRE = {
+    '394': { nome: 'ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA',
+             inicio: '26/10/2026',
+             certificacoes: [],
+             parques: [] }
   };
   /* BONUS SEMANAL (06/10/2026, Robson): bonus por tecnico (semana mais recente + 4 anteriores) vindo da planilha "Bonus" (Google Sheets de outro setor, SO LEITURA).
      Dado ESTATICO atualizado pelas 3 tarefas de dashboard (ver REGRAS_AUTOMACAO.md, secao Bonus semanal). Sem CPF. Nao editar a mao. */
@@ -3007,10 +3011,16 @@
       // colado os dois junto do nome). Sem DataInicio, mostra o aviso
       // "Aguardando data de Início" no lugar da data (editável -- clicar e
       // digitar a data já salva na planilha, mesmo campo/fluxo de antes).
-      const dataHtml = t.DataInicio
-        ? '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>'
-        : '<span class="tech-data tech-inicio-aguardando" contenteditable="true" data-field="DataInicio">Aguardando data de Início</span>';
-      const diasHtml = '<span class="tech-dias">' + diasContador(t.DataInicio) + '</span>';
+      // 29/10/2026 (Robson): a data de Início vem da VAGAS MESTRE ("BDH (dd/mm/aaaa)") e manda sobre a digitada aqui;
+      // os Dias contam a partir dela. Sem data na planilha, vale o comportamento antigo (campo editável).
+      const inicioPlanilha = oficial.inicio || '';
+      const inicioFinal = inicioPlanilha || t.DataInicio;
+      const dataHtml = inicioPlanilha
+        ? '<span class="tech-data">' + formatDataInicio(inicioPlanilha) + '</span>'
+        : (t.DataInicio
+            ? '<span class="tech-data" contenteditable="true" data-field="DataInicio">' + formatDataInicio(t.DataInicio) + '</span>'
+            : '<span class="tech-data tech-inicio-aguardando" contenteditable="true" data-field="DataInicio">Aguardando data de Início</span>');
+      const diasHtml = '<span class="tech-dias">' + diasContador(inicioFinal) + '</span>';
 
       // Certificações: vem direto da aba BANCO DE DADOS da VAGAS MESTRE
       // (colunas BST/BTT/BRT/ART/BTT-E/LIFT USER/LOTO GE.../LOTO Autorizado
