@@ -3470,6 +3470,8 @@
         if (dd.k > hojeK) return '<span class="ehsr-dia neutro" title="Dia ainda não chegou"><b>' + dd.br + '</b>–</span>';
         if (ultSimK && dd.k < ultSimK){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip + '\nQuitado: há envio (SIM) em dia posterior') + '"><b>' + dd.br + '</b>✔</span>'; }
         if (todos){ if (!dd.ant) ultOk = dd.br; return '<span class="ehsr-dia ok" title="' + escapeHtml(tip) + '"><b>' + dd.br + '</b>✔</span>'; }
+        /* 30/10/2026 (Robson): hoje SEM nenhum lancamento na planilha (todas as celulas vazias) = sem atualizacao ainda: fica cinza (\u2013), igual aos dias futuros. Com algum lancamento, o vazio vencido segue vermelho. */
+        if (dd.k === hojeK && horas.every(function(h){ return sl[h] === false; })) return '<span class="ehsr-dia neutro" title="Hoje: sem lançamento na planilha ainda"><b>' + dd.br + '</b>–</span>';
         if (ex) return chipSb(tip);
         const venc = horas.filter(function(h){ return horaVencida(dd, sl, h); });
         if (dd.k === hojeK && !venc.length) return '<span class="ehsr-dia hoje" title="' + escapeHtml('Hoje: aguardando horários\n' + tip) + '"><b>' + dd.br + '</b>…</span>';
