@@ -208,6 +208,9 @@ def main():
     est = diferenca_estrutural(base, novo)
     if est:
         log("[TRAVA] %d linha(s) com diferenca ESTRUTURAL em relacao ao publicado -- NAO publicado." % len(est))
+        if dry:  # TEMPORARIO (30/10/2026): diagnostico; remover depois
+            for l in est[:12]:
+                log("[DEBUG-TEMP] " + l[:110])
         return 1
     log("Mudanca so de dados confirmada (trava OK).")
     if dry:
