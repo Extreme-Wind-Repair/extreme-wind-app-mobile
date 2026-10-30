@@ -114,8 +114,10 @@ def diferenca_estrutural(antigo, novo):
 
     def e_dado(l):
         t = l[1:].strip()
+        # 30/10/2026: o grafico de evolucao ganha um mes (e uma posicao nas listas) a cada virada de mes: e dado, nao estrutura.
         return (not t) or t.startswith("<tr") or "itensEnvioData" in t or "Atualizado" in t \
-            or t.startswith("[{") or t.startswith("const DATA")
+            or t.startswith("[{") or t.startswith("const DATA") \
+            or re.match(r"var evolucao(Meses|Req|Ent) = \[", t) is not None
 
     return [l for l in difs if not e_dado(l)]
 
@@ -208,9 +210,6 @@ def main():
     est = diferenca_estrutural(base, novo)
     if est:
         log("[TRAVA] %d linha(s) com diferenca ESTRUTURAL em relacao ao publicado -- NAO publicado." % len(est))
-        if dry:  # TEMPORARIO (30/10/2026): diagnostico; remover depois
-            for l in est[:12]:
-                log("[DEBUG-TEMP] " + l[:110])
         return 1
     log("Mudanca so de dados confirmada (trava OK).")
     if dry:
