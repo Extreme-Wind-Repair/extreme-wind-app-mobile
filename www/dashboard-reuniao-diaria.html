@@ -3434,7 +3434,7 @@
         const bloco = fonte.dias[k]; if (!bloco) return null;
         const nomes = Object.keys(bloco);
         /* 28/10/2026: a planilha traz "Gameleira - RN", "Sao Vitor - Ba", "Dolores MX-Nx": tira o sufixo de UF/pais antes de casar com o card. */
-        const limpa = function(n){ return String(n).replace(/\s*[-–]\s*[A-Za-z]{2}\s*$/, '').replace(/\s+MX-?Nx\s*$/i, ''); };
+        const limpa = function(n){ return String(n).replace(/\s+MX-?Nx\s*$/i, '').replace(/\s*[-–]\s*[A-Za-z]{2}\s*$/, ''); }; /* 30/10/2026: MX-Nx ANTES do sufixo de UF (senao "-Nx" era lido como UF e sobrava "MX") */
         for (let i = 0; i < nomes.length; i++){ if (mesmoProjeto(nomeCard, limpa(nomes[i])) || evidCasaMulti(nomeCard, limpa(nomes[i]))) return bloco[nomes[i]]; }
         return null;
       };
