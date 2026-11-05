@@ -163,11 +163,11 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">728</div>
+    <div class="n" id="kpiTotal">739</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
-    <div class="n" id="kpiAlmox">728</div>
+    <div class="n" id="kpiAlmox">739</div>
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
@@ -183,10 +183,10 @@
   <h2>Resumo — Requisições em Aberto 2026</h2>
   <p class="panel-note">Situações que ainda aguardam ação (Almoxarifado ou Logística)</p>
   <div class="aberto" id="abertoBadges">
-    <div class="aberto-badge"><div class="n" id="abEmSeparacao">7</div><div class="l">Em separação</div></div>
+    <div class="aberto-badge"><div class="n" id="abEmSeparacao">18</div><div class="l">Em separação</div></div>
     <div class="aberto-badge"><div class="n" id="abAguardandoColeta">31</div><div class="l">Aguardando coleta</div></div>
     <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">3</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">41</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">52</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -213,7 +213,7 @@
 
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
-    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">38</div><div class="l">Ações Almoxarifado</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">49</div><div class="l">Ações Almoxarifado</div></div>
     <div class="aberto-badge"><div class="n" id="acaoCountLog">3</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">1</div><div class="l">Aguardando Assinatura</div></div>
   </div>
@@ -261,6 +261,17 @@
     <tr><td>TUCANO 3</td><td>EPI - VICTOR HUGO GOMES</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>SÃO VITOR</td><td>EPI - MATTHEAUS ANTONIO PIMENTEL COSTA</td><td>JAMILE</td><td>06/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>BAIXA DO FEIJÃO</td><td>EPI - LUIZ FERNANDO BATISTA FERREIRA</td><td>JAMILE</td><td>06/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>TUCANO 3</td><td>FERRAMENTAS - TUCANO 3</td><td>EVAIR</td><td>06/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - ALDEMIR CORREIA DE JESUS</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - KAYWAN FELIPE MARQUES SILVA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - DIEGO PEREIRA BERNARDINO</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - MEZAC MARQUES DA ROCHA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - PATRICK VINICIUS RIBEIRO TARDELLI</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - DIEGO BARBOSA DA SILVA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>CORDEIRO</td><td>EPI - BRAULLE ROBERTO SANTOS SOARES</td><td>JAMILE</td><td>05/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>CORDEIRO</td><td>EPI - CASSIUS LUIZ DA SILVA</td><td>JAMILE</td><td>05/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>CORDEIRO</td><td>EPI - RESERVA INSPEÇÃO CORDEIRO 1</td><td>JAMILE</td><td>05/11/2026</td><td></td><td>A SEPARAR</td></tr>
+    <tr><td>CORDEIRO</td><td>EPI - RESERVA INSPEÇÃO CORDEIRO 2</td><td>JAMILE</td><td>05/11/2026</td><td></td><td>A SEPARAR</td></tr>
     </tbody>
   </table>
   </div>
@@ -294,7 +305,7 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 14];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 25];
   var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 44, 0];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
