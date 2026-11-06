@@ -163,11 +163,11 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">743</div>
+    <div class="n" id="kpiTotal">745</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
-    <div class="n" id="kpiAlmox">743</div>
+    <div class="n" id="kpiAlmox">745</div>
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
@@ -183,10 +183,10 @@
   <h2>Resumo — Requisições em Aberto 2026</h2>
   <p class="panel-note">Situações que ainda aguardam ação (Almoxarifado ou Logística)</p>
   <div class="aberto" id="abertoBadges">
-    <div class="aberto-badge"><div class="n" id="abEmSeparacao">16</div><div class="l">Em separação</div></div>
-    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">37</div><div class="l">Aguardando coleta</div></div>
+    <div class="aberto-badge"><div class="n" id="abEmSeparacao">17</div><div class="l">Em separação</div></div>
+    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">38</div><div class="l">Aguardando coleta</div></div>
     <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">3</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">56</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">58</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -213,7 +213,7 @@
 
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
-    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">53</div><div class="l">Ações Almoxarifado</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">55</div><div class="l">Ações Almoxarifado</div></div>
     <div class="aberto-badge"><div class="n" id="acaoCountLog">3</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">1</div><div class="l">Aguardando Assinatura</div></div>
   </div>
@@ -276,6 +276,8 @@
     <tr><td>TUCANO 3</td><td>EQUIPAMENTOS - TUCANO 3</td><td>EVAIR</td><td>06/11/2026</td><td></td><td>A SEPARAR</td></tr>
     <tr><td>CORDEIRO</td><td>FERRAMENTAS - CASSIUS</td><td>EVAIR</td><td>06/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>OITIS</td><td>EPI - ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA</td><td>JAMILE</td><td>06/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>LDV</td><td>EPI - CARLOS ITALO COLIMODIO DOS SANTOS</td><td>JAMILE</td><td>10/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>TUCANO 1</td><td>EPI - JOAO PAULO SILVA SANTOS</td><td>JAMILE</td><td>10/11/2026</td><td></td><td>A SEPARAR</td></tr>
     </tbody>
   </table>
   </div>
@@ -309,7 +311,7 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 29];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 31];
   var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 44, 0];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
