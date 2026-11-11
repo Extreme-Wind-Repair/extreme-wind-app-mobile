@@ -35,13 +35,26 @@
   body.focus-mode{padding-top:14px;}
   /* MODO EMBUTIDO (08/10/2026, Robson): dentro do index.html o cabecalho proprio da pagina some (a barra do topo do app ja mostra titulo/caminho/data) e os botoes Modo Diurno/Tela Cheia sobem para a barra do topo, ao lado de "Atualizado". Fora do index.html (pagina aberta direto) nada muda. */
   body.embedded header{display:none;}
-  body.embedded .theme-toggle, body.embedded .fullscreen-toggle{display:none;}
+  /* BAIXAR PDF (11/11/2026, Robson): terceiro botao, abaixo de Tela Cheia */
+  .pdf-toggle{
+    position:fixed; top:112px; right:16px; z-index:200;
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    border-radius:20px; padding:9px 18px; font-size:14px; font-weight:700;
+    cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.25);
+  }
+  .pdf-toggle:disabled{opacity:.7; cursor:progress;}
+  body.focus-mode .pdf-toggle{display:none;}
+  body.embedded .theme-toggle, body.embedded .fullscreen-toggle, body.embedded .pdf-toggle{display:none;}
   body.embedded .sync-inline:not(.err){display:none;}
   body.embedded .sync-inline{margin:0 0 12px;}
   @media (max-width: 640px){
     .fullscreen-toggle{top:auto; bottom:16px; right:16px;}
+    .pdf-toggle{top:auto; bottom:64px; right:16px;}
   }
+  /* durante a geracao do PDF: mostra os blocos 1, 2 e 3 de uma vez (so por instantes) */
+  body.pdf-gerando .block-view#b1, body.pdf-gerando .block-view#b2, body.pdf-gerando .block-view#b3{display:block !important;}
   @media (min-width: 641px){
+    .pdf-toggle{width:150px; text-align:center; white-space:nowrap;}
     .fullscreen-toggle{width:150px; text-align:center; white-space:nowrap; top:64px;}
     .theme-toggle{width:150px; text-align:center; white-space:nowrap;}
   }
@@ -115,7 +128,7 @@
   }
   /* margin-top pra não ficar embaixo dos botões fixos (Modo Diurno em cima,
      Tela Cheia embaixo, empilhados) no canto superior direito. */
-  .header-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:84px;}
+  .header-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:132px;}
   .sync-inline{font-size:12.5px; color:var(--muted); text-align:right;}
   .sync-inline.err{ color:var(--nok); font-weight:700; }
   header{
@@ -559,6 +572,14 @@
   .panel > table.has-bonus th, .panel > table.has-bonus td{width:1%; white-space:nowrap;}
   .panel > table.has-bonus .bonus-mot-td, .panel > table.has-bonus th.bonus-mot-th{text-align:left; width:190px; min-width:190px; white-space:normal; padding-left:8px; padding-right:8px;}
   .panel > table.has-bonus .bonus-fill{width:auto;}
+  /* INTEGRACAO (11/11/2026): colunas RH/DP/Frota/EHS/Medicao na Mobilizacao */
+  td.int-td, th.int-th{min-width:58px; text-align:center; padding-left:6px; padding-right:6px;}
+  td.int-first, th.int-first{border-left:2px solid var(--line);}
+  td.int-td{cursor:text; font-weight:700;}
+  td.int-td:hover{background:rgba(28,140,232,.06);}
+  td.int-td:focus{outline:none; background:rgba(28,140,232,.16);}
+  td.int-td.int-ok{color:#2ec4a1; background:rgba(46,196,161,.10);}
+  body.light-mode td.int-td.int-ok{color:#1b8a6b;}
   .bonus-chips{display:flex; flex-wrap:wrap; gap:4px;}
   .bonus-chip{font-size:13.5px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
   .bonus-chip.ok{color:#2ec4a1; border-color:rgba(46,196,161,.55);}
@@ -625,6 +646,7 @@
 
   <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">☀️ Modo Diurno</button>
   <button class="fullscreen-toggle" id="fullscreenToggleBtn" onclick="toggleFullscreen()">⛶ Tela Cheia</button>
+  <button class="pdf-toggle" id="pdfBtn" onclick="baixarPdfReuniao()">📄 Baixar PDF</button>
 
   <div class="undo-toast" id="undoToast" hidden>
     <span class="undo-msg" id="undoToastMsg"></span>
@@ -1479,7 +1501,7 @@
       return '<option value="' + o.value + '"' + (p.Status === o.value ? ' selected' : '') + '>' + o.label + '</option>';
     }).join('');
     const cols = colunasEquipe(p);
-    const theadHtml = bonusTheadHtml(cols);
+    const theadHtml = bonusTheadHtml(cols, p.Bloco === 'b2');
     /* 21/10/2026 (Robson): no Bloco 3 (Aprovação de Documentações) o projeto ainda nao esta ativo --
        sem quadros operacionais (Veículos/Frota, Envios, RDO Último registro/Ontem, Último RDO e
        Segurança/EHS). Ficam so Observações gerais, RH / Tramitação e Compras. */
@@ -1664,19 +1686,34 @@
     const atual = arr.pop();
     return [atual].concat(arr);
   }
-  function bonusTheadHtml(cols){
+  /* INTEGRACAO (11/11/2026, Robson): so na Mobilizacao (Bloco 2), ao lado de Bonificacoes, grupo "Integração"
+     com 5 colunas editaveis por tecnico, para marcar "ok" na reuniao. Grava na aba RD_Equipe, colunas
+     IntRH / IntDP / IntFrota / IntEHS / IntMedicao (precisam existir no cabecalho). */
+  const INTEGRACAO_COLS = [
+    { f:'IntRH', h:'RH' }, { f:'IntDP', h:'DP' }, { f:'IntFrota', h:'Frota' }, { f:'IntEHS', h:'EHS' }, { f:'IntMedicao', h:'Medição' }
+  ];
+  function integracaoTheadTop(){ return '<th class="bonus-group int-group" colspan="' + INTEGRACAO_COLS.length + '">Integração</th>'; }
+  function integracaoTheadSub(){ return INTEGRACAO_COLS.map(function(c, i){ return '<th class="bonus-th int-th' + (i === 0 ? ' int-first' : '') + '">' + c.h + '</th>'; }).join(''); }
+  function integracaoCellsHtml(row){
+    return INTEGRACAO_COLS.map(function(c, i){
+      const v = String(row[c.f] == null ? '' : row[c.f]).trim();
+      return '<td contenteditable="true" class="int-td' + (i === 0 ? ' int-first' : '') + (/^ok$/i.test(v) ? ' int-ok' : '') + '" data-field="' + c.f + '" title="Integração ' + c.h + '">' + escapeHtml(v) + '</td>';
+    }).join('');
+  }
+  function bonusTheadHtml(cols, comIntegracao){
     const base = cols.map(function(h){ return '<th rowspan="2">' + escapeHtml(h) + '</th>'; }).join('');
     const sems = bonusSemanas();
-    if (!sems.length) return '<thead><tr>' + cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '</tr></thead>';
+    if (!sems.length && !comIntegracao) return '<thead><tr>' + cols.map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '</tr></thead>';
     const semHead = sems.map(function(sw, i){
       const h = '<th class="bonus-th" title="' + escapeHtml('Bônus ' + sw.s + ' (' + sw.p + ')' + (sw.parcial ? ' — semana em apuração' : '')) + '">' + escapeHtml(sw.s) + (sw.parcial ? '*' : '') + '</th>';
       return i === 0 ? h + '<th class="bonus-th bonus-mot-th">Motivo da perda</th>' : h;
     }).join('');
-    return '<thead><tr>' + base + '<th class="bonus-group" colspan="' + (sems.length + 1) + '">Bonificações</th><th rowspan="2" class="bonus-fill"></th></tr><tr>' + semHead + '</tr></thead>';
+    const bonusTop = sems.length ? '<th class="bonus-group" colspan="' + (sems.length + 1) + '">Bonificações</th>' : '';
+    return '<thead><tr>' + base + bonusTop + (comIntegracao ? integracaoTheadTop() : '') + '<th rowspan="2" class="bonus-fill"></th></tr><tr>' + semHead + (comIntegracao ? integracaoTheadSub() : '') + '</tr></thead>';
   }
-  function bonusCellHtml(row){
+  function bonusCellHtml(row, comIntegracao){
     const sems = bonusSemanas();
-    if (!sems.length) return '';
+    if (!sems.length) return comIntegracao ? integracaoCellsHtml(row) + '<td class="bonus-fill"></td>' : '';
     const nome = String(row.Val1 || '').split(/\s+[—-]\s+|\s*=\s*/)[0].trim();
     const p = bonusDoTecnico(nome);
     let out = '';
@@ -1697,7 +1734,7 @@
       out += cell;
       if (first) out += '<td class="bonus-mot-td">' + (motivo ? '<span class="bonus-motivo">' + escapeHtml(motivo) + '</span>' : '') + '</td>';
     });
-    return out + '<td class="bonus-fill"></td>';
+    return out + (comIntegracao ? integracaoCellsHtml(row) : '') + '<td class="bonus-fill"></td>';
   }
   /* EXIBICAO CURTA DO NOME (08/10/2026, Robson): na tabela de equipe mostra "MAT · NOME SOBRENOME" (so 2 nomes) + o resto da celula (UF/anotacoes); substituto depois de "=" idem. O valor GRAVADO continua sendo o nome oficial completo: ao clicar para editar aparece o texto bruto (data-raw). Nome fora do banco oficial = mostra como esta. */
   function nomeSemAcento(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z ]/g,' ').replace(/\s+/g,' ').trim(); }
@@ -1719,7 +1756,7 @@
       td.addEventListener('blur', function(){ td.dataset.raw = td.textContent.trim(); td.textContent = nomeCurtoCelula(td.dataset.raw); });
     });
   }
-  function equipeRowHtml(row, colCount, nomeParque, certIdx){
+  function equipeRowHtml(row, colCount, nomeParque, certIdx, comIntegracao){
     let tds = '';
     for (let i = 1; i <= colCount; i++){
       if (i === certIdx){
@@ -1737,7 +1774,7 @@
       const certCls = certSt ? ' class="cert-cell-' + certSt.cls + '" title="' + escapeHtml(certSt.quando) + '"' : '';
       tds += '<td contenteditable="true"' + certCls + ' data-field="Val' + i + '">' + escapeHtml(row['Val' + i]) + '</td>';
     }
-    tds += bonusCellHtml(row);
+    tds += bonusCellHtml(row, comIntegracao);
     return '<tr data-row="' + row._row + '">' + tds + '</tr>';
   }
 
@@ -1809,7 +1846,11 @@
     const equipeRows = DATA.equipe.filter(function(r){ return r.ParkID === p.ParkID; }).sort(function(a,b){ return a.Ordem - b.Ordem; });
     const colsEq = colunasEquipe(p);
     const certIdx = colsEq.findIndex(function(h){ return /certifica/i.test(h); }) + 1;
-    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque, certIdx))); });
+    equipeRows.forEach(function(r){ tbody.appendChild(elTr(equipeRowHtml(r, colCount, p.NomeParque, certIdx, p.Bloco === 'b2'))); });
+    /* 11/11/2026: Integração -- "ok" fica verde enquanto digita */
+    tbody.querySelectorAll('td.int-td').forEach(function(td){
+      td.addEventListener('input', function(){ td.classList.toggle('int-ok', /^ok$/i.test(td.textContent.trim())); });
+    });
     const alertas = [];
     equipeRows.forEach(function(r){ certAlertasDaLinha(r).forEach(function(a){ alertas.push(a); }); });
     if (alertas.length){
@@ -4008,12 +4049,105 @@
     });
   });
 
+  /* ============ BAIXAR PDF (11/11/2026, Robson) ============
+     Um PDF so com as abas Parques Ativos, Mobilizacao e Aprovacao de Documentacoes, do jeito que aparecem
+     na tela (tema atual: Modo Diurno/Noturno). Cada parque e "fotografado" inteiro (html2canvas) e colocado
+     em paginas A4 deitadas sem cortar no meio; parque mais alto que a pagina e reduzido para caber.
+     As bibliotecas so carregam no 1o clique. */
+  const PDF_LIBS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  ];
+  function carregarScript(src){
+    return new Promise(function(ok, falha){
+      if (document.querySelector('script[src="' + src + '"]')) return ok();
+      const s = document.createElement('script'); s.src = src; s.onload = function(){ ok(); }; s.onerror = function(){ falha(new Error('Falha ao carregar ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function pdfBtnTexto(txt){
+    const b = document.getElementById('pdfBtn'); if (b) b.textContent = txt;
+    if (window.__rdTopPdf) window.__rdTopPdf.textContent = txt;
+  }
+  let _pdfGerando = false;
+  async function baixarPdfReuniao(){
+    if (_pdfGerando) return;
+    _pdfGerando = true;
+    const btn = document.getElementById('pdfBtn'); if (btn) btn.disabled = true;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); /* salva a celula em edicao antes */
+    try{
+      pdfBtnTexto('⏳ Preparando…');
+      for (const src of PDF_LIBS) await carregarScript(src);
+      const jsPDF = window.jspdf.jsPDF;
+      document.body.classList.add('pdf-gerando');
+      await new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(r); }); });
+      const BLOCOS = [
+        { id:'b1', nome:'Parques Ativos' },
+        { id:'b2', nome:'Mobilização' },
+        { id:'b3', nome:'Aprovação de Documentações' }
+      ];
+      const itens = [];
+      BLOCOS.forEach(function(b){
+        const view = document.getElementById(b.id);
+        Array.prototype.slice.call(view ? view.children : []).forEach(function(el){ if (el.offsetHeight > 0) itens.push({ bloco: b.nome, el: el }); });
+      });
+      const cs = getComputedStyle(document.body);
+      const paraHex = function(c, padrao){
+        const m = String(c || '').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (!m || (m[4] != null && Number(m[4]) === 0)) return padrao;
+        return '#' + [m[1], m[2], m[3]].map(function(n){ return Number(n).toString(16).padStart(2, '0'); }).join('');
+      };
+      const corFundo = paraHex(cs.backgroundColor, '#0b1e33');
+      const corTexto = paraHex(cs.color, '#ffffff');
+      const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+      const W = 297, H = 210, M = 8, TOPO = 16;
+      const hoje = new Date();
+      const dataBR = String(hoje.getDate()).padStart(2,'0') + '/' + String(hoje.getMonth()+1).padStart(2,'0') + '/' + hoje.getFullYear();
+      let y = H, blocoAtual = null, primeira = true;
+      function novaPagina(bloco){
+        if (!primeira) doc.addPage();
+        primeira = false;
+        doc.setFillColor(corFundo); doc.rect(0, 0, W, H, 'F');
+        doc.setTextColor(corTexto); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+        doc.text('Reunião Diária — ' + bloco, M, 10);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+        doc.text(dataBR + ' · pág. ' + doc.getNumberOfPages(), W - M, 10, { align:'right' });
+        y = TOPO;
+      }
+      for (let i = 0; i < itens.length; i++){
+        pdfBtnTexto('⏳ Gerando PDF ' + (i + 1) + '/' + itens.length);
+        const it = itens[i];
+        const canvas = await html2canvas(it.el, { scale: 1.5, useCORS: true, backgroundColor: corFundo, logging: false,
+          windowWidth: document.documentElement.scrollWidth });
+        let w = W - 2 * M, h = canvas.height * w / canvas.width;
+        const maxH = H - TOPO - M;
+        if (h > maxH){ w = w * maxH / h; h = maxH; }
+        if (it.bloco !== blocoAtual || y + h > H - M){ novaPagina(it.bloco); blocoAtual = it.bloco; }
+        doc.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', M, y, w, h);
+        y += h + 4;
+      }
+      if (!itens.length){ novaPagina('sem dados'); }
+      const nomeArq = 'Reuniao-Diaria-' + hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0') + '-' + String(hoje.getDate()).padStart(2,'0') + '.pdf';
+      doc.save(nomeArq);
+    } catch(err){
+      console.error('Falha ao gerar PDF:', err);
+      alert('Não foi possível gerar o PDF: ' + (err && err.message ? err.message : err));
+    } finally {
+      document.body.classList.remove('pdf-gerando');
+      pdfBtnTexto('📄 Baixar PDF');
+      if (btn) btn.disabled = false;
+      _pdfGerando = false;
+    }
+  }
+
   /* MODO EMBUTIDO (08/10/2026, Robson): ver CSS "body.embedded". Cria os botoes na barra do topo do index.html (mesma origem) e os mostra so quando esta aba esta ativa. */
   function syncTopBtns(){
     try{
       const t = document.getElementById('themeToggleBtn'), f = document.getElementById('fullscreenToggleBtn');
       if (window.__rdTopTheme && t) window.__rdTopTheme.textContent = t.textContent;
       if (window.__rdTopFs && f) window.__rdTopFs.textContent = f.textContent;
+      const pb = document.getElementById('pdfBtn');
+      if (window.__rdTopPdf && pb) window.__rdTopPdf.textContent = pb.textContent;
     }catch(e){}
   }
   (function embutirBotoesNoTopo(){
@@ -4038,6 +4172,7 @@
       }
       window.__rdTopTheme = mk(function(){ toggleTheme(); });
       window.__rdTopFs = mk(function(){ toggleFullscreen(); });
+      window.__rdTopPdf = mk(function(){ baixarPdfReuniao(); });
       badge.parentNode.insertBefore(wrap, badge);
       function vis(){
         const fe = window.frameElement;
