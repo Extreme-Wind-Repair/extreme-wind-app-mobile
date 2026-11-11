@@ -52,7 +52,8 @@
     .pdf-toggle{top:auto; bottom:64px; right:16px;}
   }
   /* durante a geracao do PDF: mostra os blocos 1, 2 e 3 de uma vez (so por instantes) */
-  body.pdf-gerando .block-view#b1, body.pdf-gerando .block-view#b2, body.pdf-gerando .block-view#b3{display:block !important;}
+  body.pdf-gerando .block-view#b1, body.pdf-gerando .block-view#b2, body.pdf-gerando .block-view#b3,
+  body.pdf-gerando .block-view#b4, body.pdf-gerando .block-view#b5{display:block !important;}
   @media (min-width: 641px){
     .pdf-toggle{width:150px; text-align:center; white-space:nowrap;}
     .fullscreen-toggle{width:150px; text-align:center; white-space:nowrap; top:64px;}
@@ -580,6 +581,9 @@
   td.int-td:focus{outline:none; background:rgba(28,140,232,.16);}
   td.int-td.int-ok{color:#2ec4a1; background:rgba(46,196,161,.10);}
   body.light-mode td.int-td.int-ok{color:#1b8a6b;}
+  .integ-cliente-box{min-width:190px; flex:none !important; align-self:flex-start;}  /* so a altura do conteudo (titulo + data) */
+  .ab-daycol:has(> .integ-cliente-box){align-self:flex-start;}
+  .integ-cliente-box .integ-cliente-data{font-size:20px; font-weight:800; padding:6px 2px; min-height:1.6em;}
   .bonus-chips{display:flex; flex-wrap:wrap; gap:4px;}
   .bonus-chip{font-size:13.5px; font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--line); white-space:nowrap; color:var(--muted);}
   .bonus-chip.ok{color:#2ec4a1; border-color:rgba(46,196,161,.55);}
@@ -1506,6 +1510,10 @@
        sem quadros operacionais (Veículos/Frota, Envios, RDO Último registro/Ontem, Último RDO e
        Segurança/EHS). Ficam so Observações gerais, RH / Tramitação e Compras. */
     const operacional = p.Bloco !== 'b3';
+    /* 11/11/2026 (Robson): na Mobilizacao (Bloco 2) o projeto ainda nao comecou -- sem RDO (Ultimo registro/Ontem),
+       Ultimo RDO e Seguranca/EHS (nunca tem registro). No lugar entra a caixa "Data Integração Cliente" (editavel,
+       coluna DataIntegracaoCliente da aba RD_Parques -- precisa existir no cabecalho). */
+    const comRdo = operacional && p.Bloco !== 'b2';
     return '' +
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
@@ -1548,7 +1556,14 @@
             '</div>' +
             '') : '') +
             '</div>' +
-          (operacional ? (
+          (p.Bloco === 'b2' ? (
+          '<div class="ab-daycol"><div class="ab-daycol-label">&nbsp;</div>' +
+            '<div class="ehs-box integ-cliente-box">' +
+              '<div class="ab-title">Data Integração Cliente</div>' +
+              '<div class="box-texto integ-cliente-data" contenteditable="true" data-field="DataIntegracaoCliente" data-vazio="dd/mm/aa">' + escapeHtml(p.DataIntegracaoCliente || '') + '</div>' +
+            '</div></div>' +
+          '') : '') +
+          (comRdo ? (
           '<div class="ab-rdo-wrap"><div class="ab-rdo-pair">' +
           '<div class="ab-daycol ab-rdo-inicio"><div class="ab-daycol-label" data-ab-daylabel>Último registro</div>' +
             '<div class="activity-box" data-activity-box data-dayoffset="2" data-parkname="' + escapeHtml(p.NomeParque) + '"></div></div>' +
@@ -1562,7 +1577,7 @@
         '</div>' +
         '<div class="status-col">' +
           '<select class="status-select st-' + p.Status + '" data-field="Status">' + statusOptions + '</select>' +
-          (operacional ? (
+          (comRdo ? (
           '<div class="rdo-resumo-box" data-rdo-resumo-box data-parkname="' + escapeHtml(p.NomeParque) + '"></div>' +
           '<div class="ehs-box ehs-col-dir" data-ehs-box data-parkname="' + escapeHtml(p.NomeParque) + '">' +
               '<div class="ab-title">Segurança / EHS</div>' +
@@ -1692,7 +1707,7 @@
   const INTEGRACAO_COLS = [
     { f:'IntRH', h:'RH' }, { f:'IntDP', h:'DP' }, { f:'IntFrota', h:'Frota' }, { f:'IntEHS', h:'EHS' }, { f:'IntMedicao', h:'Medição' }
   ];
-  function integracaoTheadTop(){ return '<th class="bonus-group int-group" colspan="' + INTEGRACAO_COLS.length + '">Integração</th>'; }
+  function integracaoTheadTop(){ return '<th class="bonus-group int-group" colspan="' + INTEGRACAO_COLS.length + '">Integração Extreme</th>'; }
   function integracaoTheadSub(){ return INTEGRACAO_COLS.map(function(c, i){ return '<th class="bonus-th int-th' + (i === 0 ? ' int-first' : '') + '">' + c.h + '</th>'; }).join(''); }
   function integracaoCellsHtml(row){
     return INTEGRACAO_COLS.map(function(c, i){
@@ -2641,7 +2656,7 @@
                              rowHost.closest('.note-item.blank-item');
       /* 20/10/2026 (Robson): data digitada no card (dd/mm/aa) vai como TEXTO para o Sheets
          (apostrofo na frente), senao o Sheets le no formato americano e troca dia/mes (07/01 -> 1o de julho). */
-      const valorGravar = (field === 'Data' && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value)) ? "'" + value : value;
+      const valorGravar = ((field === 'Data' || field === 'DataIntegracaoCliente') && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value)) ? "'" + value : value;
       apiPost({ action:'updateCell', sheet: sheet, row: row, field: field, value: valorGravar, autoUnblank: !!wasPlaceholder });
       if (field === 'Fabricante'){
         const img = fieldEl.parentElement.querySelector('.mfr-logo');
@@ -4050,7 +4065,7 @@
   });
 
   /* ============ BAIXAR PDF (11/11/2026, Robson) ============
-     Um PDF so com as abas Parques Ativos, Mobilizacao e Aprovacao de Documentacoes, do jeito que aparecem
+     Um PDF com as 5 abas (Parques Ativos, Mobilizacao, Aprovacao de Documentacoes, Novas Demandas e Temas Diversos), do jeito que aparecem
      na tela (tema atual: Modo Diurno/Noturno). Cada parque e "fotografado" inteiro (html2canvas) e colocado
      em paginas A4 deitadas sem cortar no meio; parque mais alto que a pagina e reduzido para caber.
      As bibliotecas so carregam no 1o clique. */
@@ -4084,7 +4099,9 @@
       const BLOCOS = [
         { id:'b1', nome:'Parques Ativos' },
         { id:'b2', nome:'Mobilização' },
-        { id:'b3', nome:'Aprovação de Documentações' }
+        { id:'b3', nome:'Aprovação de Documentações' },
+        { id:'b4', nome:'Novas Demandas' },
+        { id:'b5', nome:'Temas Diversos' }
       ];
       const itens = [];
       BLOCOS.forEach(function(b){
