@@ -259,8 +259,7 @@
   }
   .info-chips{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .info-chips .chip{min-width:0;}
-  .info-chips .chip.chip-wide{grid-column:1 / -1;}
-  .info-chips .chip-value{white-space:normal; overflow-wrap:anywhere;}
+  .info-chips .chip.chip-wide{grid-column:1 / -1;}  .info-chips .chip-value{white-space:normal; overflow-wrap:anywhere;}
   .chip{
     background:var(--brand-deep); border:1px solid var(--line); border-radius:8px;
     padding:6px 14px; display:flex; flex-direction:column; gap:2px; min-width:84px;
@@ -739,16 +738,19 @@
   const CHIP_LABELS = {
     Tipo:'Tipo', Card:'Card', Supervisor:'Supervisor', Estado:'Estado', Cliente:'Cliente', Data:'Previsão de término', EHS:'EHS', Condicao:'Condição',
     Tramitacao:'Tramitação', OcorrenciaRH:'Ocorrência RH', OcorrenciaEHS:'Ocorrência EHS',
-    MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO', Cintos:'Cintos de Alpinismo'
+    MaterialCompras:'Material e Compras', Veiculo:'Veículo', OcorrenciaQualidade:'Ocorrência Qualidade/PO', Cintos:'Cintos de Alpinismo',
+    Especialista:'Especialista'
   };
   /* Estado (26/09/2026, pedido do Robson): caixa fixa ao lado de Supervisor,
      sempre visivel (mesmo vazia) -- o nome do card passou a ser o nome exato do
      RDO (ex.: "OITIS MCU 2"), que nao traz a UF; a UF fica aqui. Grava na
      coluna "Estado" da aba RD_Parques (precisa existir no cabecalho). */
   const CHIP_ORDER = [
-    'Tipo','Card','Supervisor','Estado','Cliente','Data','EHS','Condicao',
+    'Tipo','Card','Supervisor','Estado','Cliente','Data','Especialista','EHS','Condicao',
     'OcorrenciaQualidade','Cintos'
   ];
+  /* 11/11/2026 (Robson): caixa "Especialista" em todos os parques, na coluna da direita
+     (embaixo de Cliente). Grava na coluna "Especialista" da aba RD_Parques (precisa existir no cabecalho). */
   /* 26/09/2026 (Robson): MaterialCompras saiu das caixinhas -- virou o quadro
      "Solicitação de Compras / Aluguel" (editavel, mesma coluna MaterialCompras),
      com "Envios Logísticos / Requisições" logo abaixo (automatico, puxa do
@@ -1442,16 +1444,20 @@
   function buildChipsHtml(p){
     let fields = CHIP_ORDER.filter(function(k){
       if (k === 'Cintos') return true;   // caixa em todos os cards (blocos 1, 2 e 3), editavel
+      if (k === 'Especialista') return true;   // 11/11/2026: caixa em todos os parques, editavel
       if (p.Placeholder) return ['Tipo','Card','Supervisor','Estado','Cliente','Data'].indexOf(k) !== -1;
       if (k === 'Estado') return true;
       /* 23/10/2026 (Robson): campos padrao em TODOS os projetos, mesmo sem informacao */
       if (['Tipo','Supervisor','Cliente','Data'].indexOf(k) !== -1) return true;
       return p[k] !== undefined && String(p[k]).trim() !== '';
     });
-    if (fields.length <= 1 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data'];
+    if (fields.length <= 2 && !p.Placeholder) fields = ['Tipo','Card','Supervisor','Estado','Cliente','Data','Especialista','Cintos'];
+    /* 11/11/2026: Especialista vai na MESMA coluna do Cliente (esq. quando o card tem "Card", dir. quando nao tem),
+       logo na linha de baixo. Grade de 2 colunas: posicao do Cliente entre os campos anteriores define a coluna. */
+    const colCliente = (fields.indexOf('Cliente') % 2) + 1;
     return fields.map(function(k){
       const wide = ['Condicao','Tramitacao','OcorrenciaRH','OcorrenciaEHS','MaterialCompras','Veiculo','OcorrenciaQualidade','Cintos'].indexOf(k) !== -1;
-      return '<span class="chip' + (wide ? ' chip-wide' : '') + '"><span class="chip-label">' + (k === 'Data' && p.Bloco === 'b3' ? 'Data prevista de início' : CHIP_LABELS[k]) + '</span>' +
+      return '<span class="chip' + (wide ? ' chip-wide' : '') + '"' + (k === 'Especialista' ? ' style="grid-column:' + colCliente + '"' : '') + '><span class="chip-label">' + (k === 'Data' && p.Bloco === 'b3' ? 'Data prevista de início' : CHIP_LABELS[k]) + '</span>' +
         '<span class="chip-value' + (k === 'Data' && p.Bloco !== 'b3' && dataChipPassada(p[k]) ? ' chip-data-passada' : '') + '" contenteditable="true" data-field="' + k + '"' + (k === 'Cintos' ? ' data-vazio="—" style="white-space:pre-line;min-height:1.4em"' : '') + '>' + escapeHtml(k === 'Estado' ? estadoDe(p) : (k === 'Cintos' ? cintosDe(p) : p[k])) + '</span></span>';
     }).join('');
   }
