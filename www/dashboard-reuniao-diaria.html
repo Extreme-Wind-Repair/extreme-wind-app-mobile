@@ -1046,6 +1046,7 @@
      Validado em 30/09/2026 contra a analise: 82 de 87 reparos batem (os 5 que
      nao batem sao de agosto/inicio de setembro, com linhas duplicadas). */
   let PLANO_REPAROS = null; // tipo normalizado -> [{ativ, peso, acum, alvo}]
+  let ATIVIDADES_REPAROS_PLANILHA = {}; // 11/11/2026: atividades (coluna C) lidas da aba Reparos -> produtivo
   function pctNum(v){
     if (v == null || v === '') return null;
     if (typeof v === 'number') return v <= 1.0001 ? v * 100 : v;
@@ -1057,9 +1058,14 @@
       const url = 'https://docs.google.com/spreadsheets/d/' + ANALISE_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&sheet=Reparos';
       const j = await fetchGvizComRetry(url, 3);
       const plano = {};
+      const ativsPlanilha = {};
       (j.table.rows || []).forEach(function(row){
         const c = row.c || [];
         const cel = function(i){ return c[i] ? c[i].v : null; };
+        /* 11/11/2026: TODA atividade da coluna C (Atividade) da aba Reparos e produtiva (regra do Robson, 15/09/2026).
+           Lida direto da planilha para que etapas novas (ex.: "Teste de Estanqueidade") contem sem mexer no codigo. */
+        const ativTxt = normalizeTxt(cel(2));
+        if (ativTxt && ativTxt !== 'atividade') ativsPlanilha[ativTxt] = 1;
         const tipo = normalizeTipoReparo(cel(3));   // D = Tipo de Reparo
         const ativ = normalizeTipoReparo(cel(2));   // C = Atividade
         const alvo = Number(cel(8));                // I = Dia-alvo
@@ -1068,6 +1074,7 @@
         (plano[tipo] = plano[tipo] || []).push({ ativ: ativ, peso: peso, acum: acum, alvo: alvo });
       });
       PLANO_REPAROS = Object.keys(plano).length ? plano : null;
+      if (Object.keys(ativsPlanilha).length) ATIVIDADES_REPAROS_PLANILHA = ativsPlanilha;
     } catch(err){
       console.error('Falha ao carregar aba Reparos (situacao na data do RDO):', err);
       PLANO_REPAROS = null;
@@ -2240,7 +2247,17 @@
     'aguardando procedimento':'Stand by',
     'liberado pelo cliente':'Stand by',
     'almoco/janta':'Intervalo',
-    'outra atividade nao listada':'Outro'
+    'outra atividade nao listada':'Outro',
+    /* 11/11/2026: atividades lancadas nos RDOs que nao estavam em nenhuma lista e SUMIAM do calculo
+       (ex.: Tucano 2 em 10/11 -- 7h de Teste de Estanqueidade ignoradas, dia saiu 60% Stand by / 40% Setup).
+       "Feriado" fica de fora de proposito (nao conta em nenhum grupo). */
+    'integracao de tecnicos/treinamento':'Integração',
+    'stand by extreme':'Stand by',
+    'atividade a definir':'Atividade a definir',
+    'montagem da ancoragem':'Setup inicio',
+    'descida da wtg':'Setup final',
+    '5s, organizacao da area':'Setup final',
+    'deslocamento para subestacao':'Setup final'
   };
   /* PRODUTIVO 15/09/2026: lista das etapas de reparo cadastradas na coluna C
      ("Atividade") da aba "Reparos" da planilha — confirmado 53 valores
@@ -2271,7 +2288,9 @@
     'isolamento do cabo':1, 'reconexao da ponta (quando aplicavel)':1, 'conexao / reparo finalizado':1,
     'preparacao da area':1, 'colagem da ponta (tip)':1, 'preenchimento do cartao':1,
     'instalacao finalizada':1, 'lixamento / remocao do dano':1, 'pos-cura':1,
-    'inspecao interna':1, 'inspecao externa':1
+    'inspecao interna':1, 'inspecao externa':1,
+    /* 11/11/2026: etapas de reparo novas que nao estavam na lista (tempo era descartado) */
+    'teste de estanqueidade':1, 'preparacao para colagem do nucleo':1, 'cura do nucleo + vacuo':1, 'preparacao pintura':1
   };
   function normalizeTxt(s){
     return String(s == null ? '' : s)
@@ -2389,7 +2408,7 @@
         if (TIPO_TO_BUCKET[key]) return TIPO_TO_BUCKET[key];
         return 'produtivo';
       }
-      if (ATIVIDADES_PRODUTIVAS[chave]) return 'produtivo';
+      if (ATIVIDADES_PRODUTIVAS[chave] || ATIVIDADES_REPAROS_PLANILHA[chave]) return 'produtivo';
     }
     const bucketObs = classificaPorObservacao(observacaoTexto);
     if (bucketObs) return bucketObs;
@@ -3727,7 +3746,7 @@
   function chaveProjeto(nome){
     let t = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
     t = t.replace(/\/[A-Z]{2}\b.*$/, '');          // tira "/PI", "/RN"...
-    t = t.replace(/[·\-_.]/g, ' ');
+    t = t.replace(/[·\-_.—–]/g, ' ');   // 11/11/2026: travessao (—/–) tambem e separador -- card "Tucano 2 —" nao casava com "TUCANO 2"
     t = t.replace(/\bMCU\b|\bCORDAS\b|\bINSPECAO\b|\bINTERNA\b|\bEQUIPE\b/g, ' ');
     let palavras = t.split(/\s+/).filter(Boolean);
     let num = null;
