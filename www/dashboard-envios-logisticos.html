@@ -171,7 +171,7 @@
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
-    <div class="n" id="kpiEntregues">631</div>
+    <div class="n" id="kpiEntregues">633</div>
   </div>
   <div class="kpi kpi-fill-red">
     <div class="label">Canceladas 2026 (Almox.)</div>
@@ -185,8 +185,8 @@
   <div class="aberto" id="abertoBadges">
     <div class="aberto-badge"><div class="n" id="abEmSeparacao">7</div><div class="l">Em separação</div></div>
     <div class="aberto-badge"><div class="n" id="abAguardandoColeta">38</div><div class="l">Aguardando coleta</div></div>
-    <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">3</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">48</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">1</div><div class="l">Em trajeto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">46</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -214,7 +214,7 @@
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
     <div class="aberto-badge"><div class="n" id="acaoCountAlmox">45</div><div class="l">Ações Almoxarifado</div></div>
-    <div class="aberto-badge"><div class="n" id="acaoCountLog">3</div><div class="l">Ações Logística</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountLog">1</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">1</div><div class="l">Aguardando Assinatura</div></div>
   </div>
 
@@ -278,8 +278,6 @@
     <thead><tr><th>Projeto</th><th>Item</th><th>Responsável</th><th>Prazo para Entrega</th><th>Destinatário</th><th>Data de Entrega</th><th>Status</th></tr></thead>
     <tbody id="acoesLog">
     <tr class="row-warn"><td>MANUTENÇÃO</td><td>TALABARTE DBI (MANUTENÇÃO) - MANOEL</td><td>EVAIR</td><td>14/10/2026</td><td>MANOEL</td><td></td><td>EM TRAJETO</td></tr>
-    <tr class="row-warn"><td>OITIS MCU 1</td><td>DESCENSOR - JOHN LENON</td><td>EVAIR</td><td>28/10/2026</td><td>JOHN LENON</td><td></td><td>EM TRAJETO</td></tr>
-    <tr class="row-warn"><td>OITIS MCU 1</td><td>DESCENSOR - SANDRELINO</td><td>EVAIR</td><td>28/10/2026</td><td>SANDRELINO</td><td></td><td>EM TRAJETO</td></tr>
     </tbody>
   </table>
   </div>
@@ -302,7 +300,7 @@
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov"];
   var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 36];
-  var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 44, 0];
+  var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 46, 0];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
     data:{ labels: evolucaoMeses,
@@ -343,6 +341,6 @@
     acaoBody.closest(".panel").scrollIntoView({ behavior:"smooth", block:"start" });
   });
 </script>
-<script type="application/json" id="itensEnvioData">[{"projeto": "BAIXA DO FEIJÃO", "item": "MEDIDOR DE UMIDADE  - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "GAMELEIRA", "item": "SIKA - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - SANDRELINO", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MILI-OHM - MEZAC", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "EPI - FRANCISCO LUCAS RODRIGUES (TUCANO)", "status": "Entregue", "entrega": "2026-10-28", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JANAINA (ADM)", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "MANUTENÇÃO", "item": "TALABARTE DBI (MANUTENÇÃO) - MANOEL", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "PENTE DE MEDIÇÃO - JOHN LENON", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS MCU 2", "item": "PENTE DE MEDIÇÃO - ANTÔNIO ERIVANDO", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "CORDAS 150M - ELIELSON", "status": "Entregue", "entrega": "2026-10-28", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "CINTO ALPINISMO N3 - ELSON", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS", "item": "EPI - ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA", "status": "Aguardando assinatura", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "LDV", "item": "EPI - CARLOS EDUARDO RODRIGUES MARQUES", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "MANTA TÉRMICA - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS", "item": "EPI - ANTONIO EDSON BERNARDO DA COSTA", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - JOHN LENON", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - SANDRELINO", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}]</script>
+<script type="application/json" id="itensEnvioData">[{"projeto": "BAIXA DO FEIJÃO", "item": "MEDIDOR DE UMIDADE  - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "GAMELEIRA", "item": "SIKA - FRANCISCO ÁVILA", "status": "Entregue", "entrega": "2026-10-21", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - SANDRELINO", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "MILI-OHM - MEZAC", "status": "Entregue", "entrega": "2026-10-22", "resp": "EVAIR"}, {"projeto": "TUCANO", "item": "EPI - FRANCISCO LUCAS RODRIGUES (TUCANO)", "status": "Entregue", "entrega": "2026-10-28", "resp": "JAMILE"}, {"projeto": "ESCRITORIO", "item": "FARDAMENTO - JANAINA (ADM)", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "MANUTENÇÃO", "item": "TALABARTE DBI (MANUTENÇÃO) - MANOEL", "status": "Em trajeto", "entrega": "", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "PENTE DE MEDIÇÃO - JOHN LENON", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS MCU 2", "item": "PENTE DE MEDIÇÃO - ANTÔNIO ERIVANDO", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "SÃO VITOR", "item": "CORDAS 150M - ELIELSON", "status": "Entregue", "entrega": "2026-10-28", "resp": "EVAIR"}, {"projeto": "LDV MCU 2", "item": "CINTO ALPINISMO N3 - ELSON", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS", "item": "EPI - ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA", "status": "Aguardando assinatura", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "LDV", "item": "EPI - CARLOS EDUARDO RODRIGUES MARQUES", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "TUCANO", "item": "MANTA TÉRMICA - JOÃO PAULO", "status": "Entregue", "entrega": "2026-10-27", "resp": "EVAIR"}, {"projeto": "OITIS", "item": "EPI - ANTONIO EDSON BERNARDO DA COSTA", "status": "Entregue", "entrega": "2026-10-27", "resp": "JAMILE"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - JOHN LENON", "status": "Entregue", "entrega": "2026-10-28", "resp": "EVAIR"}, {"projeto": "OITIS MCU 1", "item": "DESCENSOR - SANDRELINO", "status": "Entregue", "entrega": "2026-10-28", "resp": "EVAIR"}]</script>
 </body>
 </html>
