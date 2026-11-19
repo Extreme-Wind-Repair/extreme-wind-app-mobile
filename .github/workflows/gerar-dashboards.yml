@@ -3,7 +3,7 @@ name: Gerar dashboards (Dropbox para o site)
 # Baixa do Dropbox (API) os arquivos de entrada e o gerar_dashboards.py (que continua morando no Dropbox),
 # monta a mesma arvore do PC, roda o gerador e publica so os dashboards que mudaram em www/.
 # Primeiro rode manual com dry_run = true (so mostra o que mudaria, nao publica).
-# Quando estiver estavel, tire o "#" das duas linhas de schedule.
+# Agenda: de hora em hora (08h-20h Brasilia, seg-sab), sempre publicando (dry_run = false).
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ on:
         description: "true = instala LibreOffice para recalcular os boletos"
         required: false
         default: "true"
-  # schedule:
-  #   - cron: "20,50 11-23 * * 1-6"
+  schedule:
+    - cron: "20 11-23 * * 1-6"
 
 concurrency:
   group: gerar-dashboards
