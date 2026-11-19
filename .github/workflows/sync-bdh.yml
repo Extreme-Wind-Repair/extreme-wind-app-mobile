@@ -1,12 +1,12 @@
 name: Sync BDH (VAGAS MESTRE no Dropbox para a Reuniao Diaria)
 
 # Mantem a lista BDH_VAGAS_MESTRE da Reuniao Diaria igual a planilha VAGAS MESTRE (aba BANCO DE DADOS,
-# coluna "RESUMO GESTAO A VISTA" = "BDH"). Roda no GitHub (sem PC e sem tarefa agendada) e troca SOMENTE
-# o bloco BDH_VAGAS_MESTRE (e a data do comentario) em www/dashboard-reuniao-diaria.html.
+# coluna "RESUMO GESTAO A VISTA" = "BDH" ou "BANCO DE HORAS"). Roda no GitHub (sem PC e sem tarefa agendada)
+# e troca SOMENTE o bloco BDH_VAGAS_MESTRE (e a data do comentario) em www/dashboard-reuniao-diaria.html.
 #
-# 1) Primeiro rode manual com dry_run = true (so testa, nao grava).
-# 2) Depois rode com dry_run = false para publicar uma vez.
-# 3) Quando estiver estavel, tire o "#" das duas linhas de schedule (a cada 30 min, 08h-20h, seg-sab).
+# Agenda propria: a cada 30 min, 08h-20h (Brasilia), seg-sab. O gatilho do Apps Script pode ser desligado.
+# Falha: abre UMA issue (sem repetir) e fecha sozinha quando voltar a funcionar.
+# Manual: Actions > Sync BDH > Run workflow (dry_run = true so testa).
 
 on:
   workflow_dispatch:
@@ -16,19 +16,20 @@ on:
         required: true
         default: "true"
       forcar:
-        description: "true = libera uma queda brusca da lista (so use se a saida de pessoas for real)"
+        description: "(reservado) sem uso desde a troca da trava"
         required: false
         default: "false"
-  # schedule:
-  #   - cron: "13,43 11-23 * * 1-6"
+  schedule:
+    - cron: "13,43 11-23 * * 1-6"
 
 concurrency:
   group: sync-bdh
   cancel-in-progress: false
 
 permissions:
-  contents: write   # commit/push do HTML
-  actions: write    # disparar o deploy (um push feito pelo GITHUB_TOKEN nao dispara o deploy sozinho)
+  contents: write # commit/push do HTML
+  actions: write  # disparar o deploy (um push feito pelo GITHUB_TOKEN nao dispara o deploy sozinho)
+  issues: write   # alerta unico de falha
 
 jobs:
   sync:
@@ -76,3 +77,22 @@ jobs:
             sleep 5
           done
           gh workflow run deploy-pages.yml --ref main
+
+      - name: Alerta unico de falha
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --state open --search "Sync BDH falhou in:title" --json number --jq '.[0].number')
+          if [ -z "$n" ]; then
+            gh issue create --title "Sync BDH falhou" --body "A sincronizacao da lista BDH falhou em $(date '+%d/%m/%Y %H:%M'). Veja o log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Esta issue fecha sozinha quando o proximo ciclo funcionar."
+          fi
+
+      - name: Fechar alerta quando voltar ao normal
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --search "Sync BDH falhou in:title" --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Voltou a funcionar em $(date '+%d/%m/%Y %H:%M')."
+          done
