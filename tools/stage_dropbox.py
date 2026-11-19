@@ -81,6 +81,57 @@ def baixar_um(tok, ns, caminho):
         return r.read()
 
 
+_CACHE_DIR = {}
+
+
+def listar_pasta(tok, ns, pasta):
+    """Arquivos de uma pasta do Dropbox: lista de (nome, server_modified ISO)."""
+    chave = (ns, pasta)
+    if chave in _CACHE_DIR:
+        return _CACHE_DIR[chave]
+    itens = []
+    url = "https://api.dropboxapi.com/2/files/list_folder"
+    corpo = {"path": "ns:%s/%s" % (ns, pasta), "recursive": False, "limit": 1000}
+    while True:
+        req = urllib.request.Request(url, data=json.dumps(corpo).encode(), method="POST",
+                                     headers={"Authorization": "Bearer " + tok, "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            res = json.loads(r.read().decode())
+        itens += [(e["name"], e.get("server_modified", "")) for e in res.get("entries", []) if e.get(".tag") == "file"]
+        if not res.get("has_more"):
+            break
+        url = "https://api.dropboxapi.com/2/files/list_folder/continue"
+        corpo = {"cursor": res["cursor"]}
+    _CACHE_DIR[chave] = itens
+    return itens
+
+
+def escolher_remoto(tok, ns, remoto):
+    """Regra (Robson, 19/11/2026): havendo copia em conflito do Dropbox, vale a de horario mais recente
+    (original ou copia). Retorna (caminho_a_baixar, quantas_copias_em_conflito)."""
+    pasta, _, nome = remoto.rpartition("/")
+    base, ponto, ext = nome.rpartition(".")
+    if not ponto:
+        return remoto, 0
+    try:
+        itens = listar_pasta(tok, ns, pasta)
+    except Exception:  # noqa: BLE001
+        return remoto, 0
+    cands = []
+    copias = 0
+    for n, mod in itens:
+        if n == nome:
+            cands.append((mod, n))
+        elif n.startswith(base + " (") and n.endswith("." + ext) and ("conflito" in n.lower() or "conflicted" in n.lower()):
+            cands.append((mod, n))
+            copias += 1
+    if not copias:
+        return remoto, 0
+    cands.sort()
+    escolhido = cands[-1][1]
+    return ((pasta + "/" + escolhido) if pasta else escolhido), copias
+
+
 def cmd_baixar(ws):
     tok = token()
     site_ws = os.path.join(ws, SITE)
@@ -97,8 +148,12 @@ def cmd_baixar(ws):
         destino = os.path.join(ws, local)
         os.makedirs(os.path.dirname(destino), exist_ok=True)
         rotulo = os.path.basename(local)
+        remoto_usar, copias = escolher_remoto(tok, ns, remoto)
+        if copias:
+            log("[conflito] %s: %d copia(s) em conflito; usando %s" % (
+                rotulo, copias, "a copia em conflito mais recente" if remoto_usar != remoto else "o original (mais recente)"))
         try:
-            dados = baixar_um(tok, ns, remoto)
+            dados = baixar_um(tok, ns, remoto_usar)
         except urllib.error.HTTPError as e:
             msg = "HTTP %s" % e.code
             if obrig:
