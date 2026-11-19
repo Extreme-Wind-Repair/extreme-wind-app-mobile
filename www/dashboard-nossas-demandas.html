@@ -96,15 +96,15 @@
       <div class="sub">Nossas Demandas — cópia consolidada de todos os itens em aberto/urgentes hoje</div>
     </div>
   </div>
-  <div class="badge-week" id="badgeData">Data: 18/11/2026</div>
+  <div class="badge-week" id="badgeData">Data: 20/11/2026</div>
 </header>
 
 <div class="kpis" id="kpisDemandas">
   <div class="kpi"><div class="label">Equipes</div><div class="n" id="cntEquipes">0</div></div>
-  <div class="kpi"><div class="label">Frota</div><div class="n" id="cntFrota">1</div></div>
-  <div class="kpi"><div class="label">Boletos</div><div class="n" id="cntBoletos">2</div></div>
-  <div class="kpi"><div class="label">Envios Logísticos</div><div class="n" id="cntEnvios">2</div></div>
-  <div class="kpi total"><div class="label">Total de demandas</div><div class="n" id="cntTotal">5</div></div>
+  <div class="kpi"><div class="label">Frota</div><div class="n" id="cntFrota">0</div></div>
+  <div class="kpi"><div class="label">Boletos</div><div class="n" id="cntBoletos">1</div></div>
+  <div class="kpi"><div class="label">Envios Logísticos</div><div class="n" id="cntEnvios">22</div></div>
+  <div class="kpi total"><div class="label">Total de demandas</div><div class="n" id="cntTotal">23</div></div>
 </div>
 
 <div class="panel">
@@ -126,14 +126,14 @@
 <div class="panel">
   <div class="panel-head">
     <h2>&#128663; Frota — Manutenção</h2>
-    <span class="count-pill" id="pillFrota">1</span>
+    <span class="count-pill" id="pillFrota">0</span>
   </div>
   <p class="panel-note">Ações com prazo em hoje (ou vencido) e ações marcadas como urgentes.</p>
   <div class="tablewrap">
   <table>
     <thead><tr><th>Ação</th><th>Tipo</th><th>Parque</th><th>Quem?</th><th>Status</th><th>Observação</th></tr></thead>
     <tbody id="bodyFrota">
-    <tr class="row-warn"><td>COMPRA DE MALAS PROJETO MÉXICO</td><td>ADMINISTRATIVA</td><td>ADM</td><td>JOÃO</td><td>18/11/2026</td><td>EM ANALISE</td></tr>
+    <tr><td colspan="6" class="empty-note">Nenhuma demanda</td></tr>
     </tbody>
   </table>
   </div>
@@ -142,15 +142,14 @@
 <div class="panel">
   <div class="panel-head">
     <h2>&#129534; Controle de Boletos</h2>
-    <span class="count-pill" id="pillBoletos">2</span>
+    <span class="count-pill" id="pillBoletos">1</span>
   </div>
   <p class="panel-note">Multas, contestações e sinistros em aberto (Unidas e Localiza).</p>
   <div class="tablewrap">
   <table>
     <thead><tr><th>Tipo</th><th>Placa</th><th>Locadora</th><th>Parque</th><th>Vencimento</th><th>Motivo</th></tr></thead>
     <tbody id="bodyBoletos">
-    <tr class="row-warn"><td>Multa</td><td>TEN7C77</td><td>UNIDAS</td><td>BLOCO NORTE/RN</td><td>22/10/2026</td><td>-</td></tr>
-    <tr class="row-warn"><td>Multa</td><td>TZL6G33</td><td>LOCALIZA</td><td>ADM 1/PE</td><td>14/11/2026</td><td>-</td></tr>
+    <tr class="row-warn"><td>Multa</td><td>UPV0B63</td><td>UNIDAS</td><td>A DEFINIR</td><td>16/12/2026</td><td>-</td></tr>
     </tbody>
   </table>
   </div>
@@ -159,15 +158,35 @@
 <div class="panel">
   <div class="panel-head">
     <h2>&#128230; Envios Logísticos</h2>
-    <span class="count-pill" id="pillEnvios">2</span>
+    <span class="count-pill" id="pillEnvios">22</span>
   </div>
   <p class="panel-note">Divergências no Almoxarifado e requisições em trajeto/aguardando assinatura na Logística.</p>
   <div class="tablewrap">
   <table>
     <thead><tr><th>Setor</th><th>Projeto</th><th>Responsável</th><th>Prazo</th><th>Destinatário</th><th>Status</th></tr></thead>
     <tbody id="bodyEnvios">
-    <tr class="row-warn"><td>Logística</td><td>MANUTENÇÃO</td><td>EVAIR</td><td>14/10/2026</td><td>MANOEL</td><td>EM TRAJETO</td></tr>
-    <tr class="row-warn"><td>Logística</td><td>OITIS</td><td>JAMILE</td><td>24/10/2026</td><td>ANTONIO ROMARIO TEIXEIRA DE OLIVEIRA</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>MANUTENÇÃO</td><td>EVAIR</td><td>29/10/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>CORDEIRO</td><td>JAMILE</td><td>05/11/2026</td><td>BRAULLE ROBERTO SANTOS SOARES</td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>CORDEIRO</td><td>JAMILE</td><td>05/11/2026</td><td>CASSIUS LUIZ DA SILVA</td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>CORDEIRO</td><td>JAMILE</td><td>05/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>CORDEIRO</td><td>EVAIR</td><td>06/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>LDV MCU 2</td><td>EVAIR</td><td>05/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>OITIS MCU 1</td><td>EVAIR</td><td>12/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>BAIXA DO FEIJÃO</td><td>EVAIR</td><td>12/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>SÃO VITOR 2</td><td>EVAIR</td><td>16/11/2026</td><td></td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>SÃO VITOR INSP. INTERNA</td><td>JAMILE</td><td>12/11/2026</td><td>MARCOS JOSÉ MUNIZ</td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>SÃO VITOR INSP. INTERNA</td><td>JAMILE</td><td>12/11/2026</td><td>YAN BRUNO DIAS</td><td>EM TRAJETO</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 1</td><td>EVAIR</td><td>23/10/2026</td><td></td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 2</td><td>EVAIR</td><td>23/10/2026</td><td></td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 1</td><td>EVAIR</td><td>24/10/2026</td><td></td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 2</td><td>EVAIR</td><td>24/10/2026</td><td></td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 1</td><td>JAMILE</td><td>03/11/2026</td><td>ELVIS BAZETH DE AGUIAR</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 1</td><td>JAMILE</td><td>03/11/2026</td><td>ARLINDO DA SILVA FLORINDO</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 1</td><td>JAMILE</td><td>03/11/2026</td><td>JOAO VICTOR BENTO DE SOUZA</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 2</td><td>JAMILE</td><td>03/11/2026</td><td>LAZARO LUIS ALMEIDA VINHAS</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 2</td><td>JAMILE</td><td>03/11/2026</td><td>EDUARDO DE OLIVEIRA BRAGA</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>UDV 2</td><td>JAMILE</td><td>03/11/2026</td><td>AILSON ALISON SILVA COSTA</td><td>Aguardando assinatura</td></tr>
+    <tr class="row-warn"><td>Logística</td><td>SÃO VITOR</td><td>JAMILE</td><td>06/11/2026</td><td>MATTHEAUS ANTONIO PIMENTEL COSTA</td><td>Aguardando assinatura</td></tr>
     </tbody>
   </table>
   </div>
