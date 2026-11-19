@@ -35,6 +35,7 @@ def reemb(ano):
 ITENS = [
     ("2024164339", SITE + "/_scripts/gerar_dashboards.py", SITE + "/_scripts/gerar_dashboards.py", True),
     ("2024164339", SITE + "/_scripts/gerar_checklists_busca.py", SITE + "/_scripts/gerar_checklists_busca.py", True),
+    ("2024164339", SITE + "/_scripts/validar_frota.py", SITE + "/_scripts/validar_frota.py", False),
     ("2024164339", SITE + "/Checklist (Sr. Fernando)/" + FROTA, SITE + "/Checklist (Sr. Fernando)/" + FROTA, True),
     ("2024164339", SITE + "/Checklist (Sr. Fernando)/painel_combustivel_2026.html",
      SITE + "/Checklist (Sr. Fernando)/painel_combustivel_2026.html", False),
