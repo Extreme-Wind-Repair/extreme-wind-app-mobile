@@ -50,7 +50,7 @@ RX_PARQUE = re.compile(r"^(GE|SIE|NX)\s*-\s*(.+)$")
 RX_BLOCO = re.compile(r"(  const BDH_VAGAS_MESTRE = \{)(.*?)(\n  \};)", re.S)
 RX_DATA = re.compile(r"(\u00daltima atualiza\u00e7\u00e3o: )\d{2}/\d{2}/\d{4}(\.\s*\*/\s*\n\s*const BDH_VAGAS_MESTRE)")
 PEQUENAS = {"DO", "DA", "DE", "DOS", "DAS", "E"}
-RX_BDH = re.compile(r"\bBDH\b")
+RX_BDH = re.compile(r"\b(BDH|BANCO DE HORAS)\b")
 RX_DATA_PAR = re.compile(r"\(\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*\)")
 RX_DATA_SOLTA = re.compile(r"(?<!\d)(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4}|\d{2})(?!\d)")
 
@@ -247,8 +247,10 @@ def ler_bdh(caminho_xlsx):
         if RX_PARQUE.match(re.sub(r"\s+", " ", t.strip().upper())):
             p, c = fmt_parque(t)
             parques.append((i, p, c))
-    pessoas, sem_mat = [], 0
+    pessoas, sem_mat, n_status = [], 0, 0
     for linha in alvo.iter_rows(min_row=linha_cab + 1, values_only=True):
+        if linha and i_status < len(linha) and norm(linha[i_status]):
+            n_status += 1
         if not linha or i_status >= len(linha) or not RX_BDH.search(norm(linha[i_status])):
             continue
         mat = matricula(linha[i_mat]) if i_mat < len(linha) else ""
@@ -262,6 +264,8 @@ def ler_bdh(caminho_xlsx):
             "certs": [c for i, c in certs if i < len(linha) and valor_um(linha[i])],
             "parques": [(p, c) for i, p, c in parques if i < len(linha) and celula_preenchida(linha[i])],
         })
+    if n_status < 100:
+        raise RuntimeError("leitura suspeita: so %d linhas com status preenchido (esperado centenas); nao publicado." % n_status)
     resumo = "colunas: %d certificacao(oes), %d parque(s); BDH na planilha: %d; com data de inicio: %d; sem matricula ou nome: %d" % (
         len(certs), len(parques), len(pessoas) + sem_mat, sum(1 for p in pessoas if p["inicio"]), sem_mat)
     return pessoas, resumo
@@ -444,10 +448,7 @@ def main():
     antes, agora = contar_bloco(html), len({p["mat"] for p in pessoas})
     forcar = os.environ.get("FORCAR", "false").strip().lower() == "true"
     if mudou_bloco and antes >= 1 and (agora == 0 or agora * 2 < antes):
-        if not forcar:
-            log("[TRAVA-BDH] a lista cairia de %d para %d pessoa(s) -- NAO publicado. Se for real, rode manualmente com forcar=true." % (antes, agora))
-            return 1
-        log("[AVISO] queda de %d para %d pessoa(s) liberada por forcar=true." % (antes, agora))
+        log("[AVISO] a lista caiu de %d para %d pessoa(s); leitura da planilha validada (%s)." % (antes, agora, resumo))
     if dry:
         try:
             descobrir_datas(destino)
