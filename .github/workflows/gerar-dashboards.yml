@@ -1,0 +1,119 @@
+name: Gerar dashboards (Dropbox para o site)
+
+# Baixa do Dropbox (API) os arquivos de entrada e o gerar_dashboards.py (que continua morando no Dropbox),
+# monta a mesma arvore do PC, roda o gerador e publica so os dashboards que mudaram em www/.
+# Primeiro rode manual com dry_run = true (so mostra o que mudaria, nao publica).
+# Quando estiver estavel, tire o "#" das duas linhas de schedule.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = so testa, nao publica; false = publica o que mudou"
+        required: true
+        default: "true"
+      soffice:
+        description: "true = instala LibreOffice para recalcular os boletos"
+        required: false
+        default: "true"
+  # schedule:
+  #   - cron: "20,50 11-23 * * 1-6"
+
+concurrency:
+  group: gerar-dashboards
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TZ: America/Sao_Paulo
+      WS: /tmp/dbx/ws
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Dependencias
+        run: pip install openpyxl
+
+      - name: LibreOffice (recalculo dos boletos)
+        if: github.event.inputs.soffice != 'false'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends libreoffice-calc
+
+      - name: Baixar entradas do Dropbox e montar a arvore
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+        run: python tools/stage_dropbox.py baixar "$WS"
+
+      - name: Rodar o gerador
+        id: gen
+        run: |
+          set +e
+          python "$WS/17 - SITE E APP (DASHBOARDS)/_scripts/gerar_dashboards.py" > gen.log 2>&1
+          rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "--- ultimas linhas do gerador (codigo de saida $rc) ---"
+          tail -n 80 gen.log
+
+      - name: Comparar saidas com o publicado
+        id: cmp
+        run: python tools/stage_dropbox.py voltar "$WS"
+
+      - name: Commit, push e deploy
+        if: steps.cmp.outputs.changed == 'true' && (github.event_name == 'schedule' || github.event.inputs.dry_run == 'false')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "Extreme Wind Automacao"
+          git config user.email "automacao@extremewind.local"
+          while read -r f; do [ -n "$f" ] && git add "www/$f"; done < changed.txt
+          if git diff --cached --quiet; then
+            echo "Sem mudanca."
+            exit 0
+          fi
+          git commit -m "Dashboards: atualizacao automatica pelo Dropbox (workflow) - $(date '+%d/%m/%Y %H:%M')"
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              break
+            fi
+            sleep 5
+          done
+          gh workflow run deploy-pages.yml --ref main
+
+      - name: Falha parcial do gerador
+        if: steps.gen.outputs.rc != '0'
+        run: |
+          echo "O gerador terminou com codigo ${{ steps.gen.outputs.rc }}: algum bloco falhou (HTML anterior mantido)."
+          exit 1
+
+      - name: Alerta unico de falha
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --state open --search "Gerar dashboards falhou in:title" --json number --jq '.[0].number')
+          if [ -z "$n" ]; then
+            gh issue create --title "Gerar dashboards falhou" --body "A geracao dos dashboards falhou em $(date '+%d/%m/%Y %H:%M'). Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Fecha sozinha quando o proximo ciclo funcionar."
+          fi
+
+      - name: Fechar alerta quando voltar ao normal
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --search "Gerar dashboards falhou in:title" --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Voltou a funcionar em $(date '+%d/%m/%Y %H:%M')."
+          done
