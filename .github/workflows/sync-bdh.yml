@@ -70,12 +70,18 @@ jobs:
             exit 0
           fi
           git commit -m "Reuniao Diaria: lista BDH atualizada pela VAGAS MESTRE (workflow) - $(date '+%d/%m/%Y %H:%M')"
+          ok=0
           for i in 1 2 3; do
-            if git pull --rebase origin main && git push origin main; then
+            if git pull --rebase --autostash origin main && git push origin main; then
+              ok=1
               break
             fi
             sleep 5
           done
+          if [ "$ok" != "1" ]; then
+            echo "Push falhou apos 3 tentativas."
+            exit 1
+          fi
           gh workflow run deploy-pages.yml --ref main
 
       - name: Alerta unico de falha
