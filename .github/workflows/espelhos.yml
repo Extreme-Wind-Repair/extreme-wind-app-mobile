@@ -1,0 +1,94 @@
+name: Espelhos (Dropbox para o site)
+
+# Espelha portais estaticos do Dropbox para www/ sem PC: hoje, Calibracao.
+# Disparado pelo Apps Script (relogio confiavel) a cada 15 min. Manual: Actions > Espelhos > Run workflow
+# (dry_run = true so mostra o que mudaria).
+# O Apps Script envia dry_run = false.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = so testa, nao publica; false = publica o que mudou"
+        required: true
+        default: "true"
+
+concurrency:
+  group: espelhos
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+jobs:
+  espelhar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TZ: America/Sao_Paulo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Dependencias
+        run: pip install openpyxl
+
+      - name: Espelhar do Dropbox
+        id: rodar
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: python tools/espelhos.py
+
+      - name: Commit, push e deploy
+        if: steps.rodar.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "Extreme Wind Automacao"
+          git config user.email "automacao@extremewind.local"
+          while IFS= read -r f || [ -n "$f" ]; do [ -n "$f" ] && git add "www/$f"; done < changed.txt
+          if git diff --cached --quiet; then
+            echo "Sem mudanca."
+            exit 0
+          fi
+          git commit -m "Espelhos: Calibracao atualizada pelo Dropbox (workflow) - $(date '+%d/%m/%Y %H:%M')"
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push origin main; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          if [ "$ok" != "1" ]; then
+            echo "Push falhou apos 3 tentativas."
+            exit 1
+          fi
+          gh workflow run deploy-pages.yml --ref main
+
+      - name: Alerta unico de falha
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --state open --search "Espelhos falhou in:title" --json number --jq '.[0].number')
+          if [ -z "$n" ]; then
+            gh issue create --title "Espelhos falhou" --body "O espelho dos portais falhou em $(date '+%d/%m/%Y %H:%M'). Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Fecha sozinha quando o proximo ciclo funcionar."
+          fi
+
+      - name: Fechar alerta quando voltar ao normal
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --search "Espelhos falhou in:title" --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Voltou a funcionar em $(date '+%d/%m/%Y %H:%M')."
+          done
