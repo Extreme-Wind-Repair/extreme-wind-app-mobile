@@ -596,6 +596,10 @@
 
   /* ============ Rodapé do painel — excluir (bloco 1) / avançar (blocos 2 e 3) ============ */
   .panel-footer{padding:8px 18px 12px; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--line);}
+  /* 23/11/2026 (Robson): Avançar vai para o bloco da ESQUERDA (rumo a Parques Ativos), Retornar para o da DIREITA; o rodapé espelha a direção. */
+  .panel-footer.pf-nav{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;}
+  .panel-footer.pf-nav .pf-esq{justify-self:start;}
+  .panel-footer.pf-nav .pf-dir{justify-self:end;}
   .btn-delete-park, .btn-advance-block{
     font-size:13.5px; font-weight:600; padding:5px 11px; border-radius:6px; cursor:pointer;
   }
@@ -1623,13 +1627,15 @@
       if (!extraDeletableBlank) return '';
       return '<div class="panel-footer"><button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir vaga em branco</button></div>';
     }
-    if (p.Bloco === 'b1'){
-      return '<div class="panel-footer"><button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir projeto</button></div>';
-    }
-    if (p.Bloco === 'b2' || p.Bloco === 'b3'){
-      return '<div class="panel-footer">' +
-        '<button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir projeto</button>' +
-        '<button type="button" class="btn-advance-block" data-action="advance-block">Avançar ▸</button>' +
+    const btnDel = '<button type="button" class="btn-delete-park" data-action="delete-park">🗑 Excluir projeto</button>';
+    const btnAv = '<button type="button" class="btn-advance-block" data-action="advance-block">◂ Avançar</button>';
+    const btnRet = '<button type="button" class="btn-advance-block btn-return-block" data-action="return-block">Retornar ▸</button>';
+    if (p.Bloco === 'b1' || p.Bloco === 'b2' || p.Bloco === 'b3'){
+      /* Avançar (esquerda): b3->b2->b1. Retornar (direita): b1->b2->b3. */
+      return '<div class="panel-footer pf-nav">' +
+        '<span class="pf-esq">' + (p.Bloco === 'b1' ? '' : btnAv) + '</span>' +
+        '<span class="pf-meio">' + btnDel + '</span>' +
+        '<span class="pf-dir">' + (p.Bloco === 'b3' ? '' : btnRet) + '</span>' +
       '</div>';
     }
     return '';
@@ -2732,6 +2738,8 @@
     if (delBtn) delBtn.addEventListener('click', function(){ deletePark(p); });
     const advBtn = node.querySelector('[data-action="advance-block"]');
     if (advBtn) advBtn.addEventListener('click', function(){ advancePark(p); });
+    const retBtn = node.querySelector('[data-action="return-block"]');
+    if (retBtn) retBtn.addEventListener('click', function(){ returnPark(p); });
   }
 
   /* ============ Excluir projeto (Bloco 1) / Avançar bloco (Blocos 2 e 3) ============ */
@@ -2822,6 +2830,27 @@
       console.error('Erro ao desfazer exclusão:', err);
       alert('Não consegui desfazer a exclusão (erro de conexão ou ao atualizar a tela). Detalhe técnico: ' + err.message);
     }
+  }
+  function blocoSeguinte(bloco){
+    if (bloco === 'b1') return 'b2';
+    if (bloco === 'b2') return 'b3';
+    return null;
+  }
+  async function returnPark(p){
+    const destino = blocoSeguinte(p.Bloco);
+    if (!destino) return;
+    const nome = (p.NomeParque || '').trim() || 'este projeto';
+    if (!confirm('Retornar "' + nome + '" para o bloco "' + BLOCO_LABEL[destino] + '"?')) return;
+    const origem = p.Bloco;
+    const resp = await apiPost({ action:'updateCell', sheet:'RD_Parques', row: p._row, field:'Bloco', value: destino });
+    if (!resp || resp.ok === false){
+      alert('Falha ao mover: ' + (resp && resp.error ? resp.error : 'erro desconhecido'));
+      return;
+    }
+    p.Bloco = destino;
+    renderBlock(origem);
+    renderBlock(destino);
+    renderKpis();
   }
   async function advancePark(p){
     const destino = blocoAnterior(p.Bloco);
