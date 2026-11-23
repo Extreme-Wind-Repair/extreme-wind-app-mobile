@@ -3510,11 +3510,11 @@
     const hojeK = chave(agora), minAgora = agora.getHours() * 60 + agora.getMinutes();
     const dias = []; const d0 = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
     const voltaSeg = (d0.getDay() + 6) % 7;
-    /* 28/10/2026 (Robson): mostra a semana inteira (seg a dom, pode haver servico no fim de semana). Na segunda a semana recomeca;
+    /* 23/11/2026 (Robson): janela movel = os ULTIMOS 7 DIAS terminando HOJE (sem dias futuros); a cada dia novo o mais antigo sai. O bloco 'ant' ficou desativado (if false abaixo). Antes: 28/10/2026 (Robson): mostra a semana inteira (seg a dom, pode haver servico no fim de semana). Na segunda a semana recomeca;
        so no comeco fica o ULTIMO bloco da semana anterior (marcado ant:true, nao entra no "Ultimo completo"). */
     const segK = chave(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - voltaSeg));
     for (let i = 0; i < 7; i++){
-      const x = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - voltaSeg + i);
+      const x = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - 6 + i);
       dias.push({ k: chave(x), br: String(x.getDate()).padStart(2,'0') + '/' + String(x.getMonth()+1).padStart(2,'0') });
     }
     boxes.forEach(function(box){
@@ -3538,7 +3538,7 @@
       let ultOk = '';
       const diasBox = dias.slice();
       const antK = Object.keys(fonte.dias).filter(function(k){ return k < segK && doDia(k); }).sort().pop();
-      if (antK) diasBox.unshift({ k: antK, br: antK.slice(6,8) + '/' + antK.slice(4,6), ant: true });
+      if (false) diasBox.unshift({ k: antK, br: antK.slice(6,8) + '/' + antK.slice(4,6), ant: true });
       const pend = [], sbDias = [];
       /* 30/10/2026 (Robson): REGRA - havendo SIM em um dia posterior, os dias anteriores ficam OK (pendencias e stand-by quitados). */
       let ultSimK = '';
@@ -3576,7 +3576,7 @@
       }).join('');
       const notas = (pend.length ? '<div class="evid-pend nok" title="Horários sem evidência enviada">Pendências: ' + pend.map(function(p){ return '<b>' + p.br + '</b> — ' + (p.mot ? escapeHtml(p.mot) : p.horas.join(', ')); }).join(' · ') + '</div>' : '')
         + (sbDias.length ? '<div class="evid-pend sb">⏸ ' + sbDias.map(function(s){ return '<b>' + s.br + '</b>' + (s.obs ? ' — ' + escapeHtml(s.obs) : ''); }).join(' · ') + '</div>' : '');
-      alvo.innerHTML = '<div class="ehsr-dias">' + chips + '</div>' + '<div class="ehsr-ult' + (ultOk ? ' ok' : '') + '">' + (ultOk ? 'Último completo: ' + ultOk : 'Nenhum dia completo na semana') + '</div>' + notas;
+      alvo.innerHTML = '<div class="ehsr-dias">' + chips + '</div>' + '<div class="ehsr-ult' + (ultOk ? ' ok' : '') + '">' + (ultOk ? 'Último completo: ' + ultOk : 'Nenhum dia completo nos últimos 7 dias') + '</div>' + notas;
     });
   }
   /* ===== Barras Setup / Stand-by / Produtivo + Stop Work (24/10/2026, Robson) =====
