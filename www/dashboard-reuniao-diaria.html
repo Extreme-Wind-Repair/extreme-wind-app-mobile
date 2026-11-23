@@ -3225,16 +3225,46 @@
     return idx === -1 ? FABRICANTE_ORDER.length : idx;
   }
 
+  /* 23/11/2026 (Robson): ORDEM DOS PROJETOS DENTRO DE CADA FABRICANTE (GE -> SIEMENS -> NORDEX).
+     GE: OITIS em 1o e LDV em 2o; depois (e em SIEMENS e NORDEX) por estado: PI, RN, PB, PE, CE, MA, BA.
+     UF do Brasil fora dessa lista vem depois; depois os sem estado; parques do EXTERIOR sempre por ultimo.
+     Mesmo projeto: por numero (Dolores 1, 2, 3). Empate entre projetos: campo Ordem. */
+  const ORDEM_ESTADOS = ['PI','RN','PB','PE','CE','MA','BA'];
+  const UFS_BR = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
+  const NOME_ESTADO_UF = { 'PIAUI':'PI', 'RIO GRANDE DO NORTE':'RN', 'PARAIBA':'PB', 'PERNAMBUCO':'PE', 'CEARA':'CE', 'MARANHAO':'MA', 'BAHIA':'BA', 'RIO GRANDE DO SUL':'RS' };
+  function estadoRank(p){
+    let v = String(estadoDe(p) || '').trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (!v) return 50;
+    if (NOME_ESTADO_UF[v]) v = NOME_ESTADO_UF[v];
+    const par = v.match(/\(([A-Z]{2})\)/);
+    if (par && UFS_BR.indexOf(par[1]) !== -1) v = par[1];
+    if (/^[A-Z]{2}$/.test(v)){
+      if (UFS_BR.indexOf(v) === -1) return 100;
+      const i = ORDEM_ESTADOS.indexOf(v);
+      return i === -1 ? 20 : i;
+    }
+    if (/\([A-Z]{2}\)|MEXICO|ARGENTINA|URUGUAI|CHILE|PERU|COLOMBIA|ESPANHA|EUA|USA|ESTADOS UNIDOS/.test(v)) return 100;
+    return 20;
+  }
+  function geRank(p){
+    if (fabricanteRank(p.Fabricante) !== 0) return 0;
+    const b = nomeBaseProjeto(p.NomeParque);
+    const i = ['OITIS','LDV'].findIndex(function(x){ return b === x || b.indexOf(x + ' ') === 0; });
+    return i === -1 ? 9 : i;
+  }
+
   /* ORDEM NATURAL DENTRO DO FABRICANTE (26/09/2026, Robson): cards do mesmo
      projeto ficam juntos e em sequencia numerica (OITIS MCU 1, OITIS MCU 2,
      LDV MCU 1, LDV MCU 2...). O projeto que vem primeiro e o que tem o menor
      campo Ordem entre os seus cards. Nome base = nome sem o numero final. */
   function nomeBaseProjeto(n){
-    return String(n || '').trim().toUpperCase().replace(/\s*\d+\s*$/, '').trim();
+    return String(n || '').trim().toUpperCase().replace(/\s*[-–—]\s*[^\d]*$/, '').replace(/\s*\d+\s*$/, '').trim();
   }
   function numeroProjeto(n){
-    const m = String(n || '').trim().match(/(\d+)\s*$/);
-    return m ? Number(m[1]) : 0;
+    const s = String(n || '').trim();
+    const m = s.replace(/\s*[-–—]\s*[^\d]*$/, '').match(/(\d+)\s*$/);
+    if (m) return Number(m[1]);
+    return /\s[-–—]\s*\S/.test(s) ? 1000 : 0; /* sufixo sem numero (ex.: "- INSPEÇÃO INTERNA") vem depois dos numerados */
   }
 
   /* ORDEM = CAMPO Ordem DA REUNIAO DIARIA (26/10/2026, Robson): a sequencia dos
@@ -3263,11 +3293,21 @@
     /* 26/10/2026 (Robson): sequencia = GE -> SIEMENS -> NORDEX; dentro do fabricante, projetos
        na ordem do campo Ordem (menor Ordem do projeto) e, no mesmo projeto, por numero
        (OITIS 1, OITIS 2, LDV 1, LDV 2...). Ordem desempata. */
+    const projEstado = {};
+    naoPlaceholder.forEach(function(p){
+      const k = fabricanteRank(p.Fabricante) + '|' + nomeBaseProjeto(p.NomeParque);
+      const r = estadoRank(p);
+      if (!(k in projEstado) || r < projEstado[k]) projEstado[k] = r;
+    });
     naoPlaceholder.sort(function(a,b){
       const fa = fabricanteRank(a.Fabricante), fb = fabricanteRank(b.Fabricante);
       if (fa !== fb) return fa - fb;
+      const ga = geRank(a), gb = geRank(b);
+      if (ga !== gb) return ga - gb;
       const ka = fa + '|' + nomeBaseProjeto(a.NomeParque), kb = fb + '|' + nomeBaseProjeto(b.NomeParque);
       if (ka !== kb){
+        const ea = projEstado[ka], eb = projEstado[kb];
+        if (ea !== eb) return ea - eb;
         const oa = minOrdemProjeto[ka], ob = minOrdemProjeto[kb];
         if (oa !== ob) return oa - ob;
         return ka.localeCompare(kb);
