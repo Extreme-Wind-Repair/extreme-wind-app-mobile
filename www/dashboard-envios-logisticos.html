@@ -163,11 +163,11 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">780</div>
+    <div class="n" id="kpiTotal">786</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
-    <div class="n" id="kpiAlmox">780</div>
+    <div class="n" id="kpiAlmox">786</div>
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
@@ -184,9 +184,9 @@
   <p class="panel-note">Situações que ainda aguardam ação (Almoxarifado ou Logística)</p>
   <div class="aberto" id="abertoBadges">
     <div class="aberto-badge"><div class="n" id="abEmSeparacao">13</div><div class="l">Em separação</div></div>
-    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">26</div><div class="l">Aguardando coleta</div></div>
+    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">32</div><div class="l">Aguardando coleta</div></div>
     <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">1</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">40</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">46</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -213,7 +213,7 @@
 
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
-    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">39</div><div class="l">Ações Almoxarifado</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">45</div><div class="l">Ações Almoxarifado</div></div>
     <div class="aberto-badge"><div class="n" id="acaoCountLog">1</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">15</div><div class="l">Aguardando Assinatura</div></div>
   </div>
@@ -262,6 +262,12 @@
     <tr><td>DOLORES 1</td><td>TERMO-HIGRÔMETRO - TAYLAN</td><td>EVAIR</td><td>23/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>TUCANO 2</td><td>QUÍMICOS E CONSUMÍVEIS - JEFERSON</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - ALESSANDRO OLIVEIRA GUIMARAES DA SILVA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 1</td><td>TALABARTE DE POSICIONAMENTO - ELVIS BAZETH</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 1</td><td>TALABARTE DE POSICIONAMENTO - ARLINDO FLORINDO</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 1</td><td>TALABARTE DE POSICIONAMENTO - JOÃO VICTOR</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 2</td><td>TALABARTE DE POSICIONAMENTO - AILSON COSTA</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 2</td><td>TALABARTE DE POSICIONAMENTO - LÁZARO VINHAS</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>UDV 2</td><td>BLOQUEADOR E PEÇA ROTOR - EDUARDO BRAGA</td><td>EVAIR</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     </tbody>
   </table>
   </div>
@@ -307,7 +313,7 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 58, 8];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 64, 8];
   var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 59, 34, 0];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
