@@ -8,7 +8,8 @@
 // index.html mudar de forma relevante -- forca todo cliente que ja tinha o
 // app/site aberto a descartar o cache antigo e buscar tudo de novo na
 // proxima visita, em vez de ficar preso numa versao antiga do menu.
-const CACHE_NAME = "extreme-wind-v6";
+// v7 (23/11/2026): descarta data.json antigo preso no cache (ex.: calibracao/data.json).
+const CACHE_NAME = "extreme-wind-v7";
 const PRECACHE_URLS = [
   "./",
   "./index.html",
@@ -55,7 +56,10 @@ self.addEventListener("fetch", (event) => {
 
   const isHTML = req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
 
-  if (isHTML) {
+  // .json (dados dos dashboards, ex.: calibracao/data.json) tambem e network-first: nunca servir dado velho do cache.
+  const isJSON = new URL(req.url).pathname.endsWith(".json");
+
+  if (isHTML || isJSON) {
     // network-first: dados de hoje em primeiro lugar, cache so como reserva offline
     event.respondWith(
       fetch(req, { cache: "no-store" })
@@ -64,7 +68,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((cached) => cached || caches.match("./index.html")))
+        .catch(() => caches.match(req).then((cached) => cached || (isJSON ? Response.error() : caches.match("./index.html"))))
     );
   } else {
     // cache-first pra imagens/estaticos
