@@ -89,7 +89,7 @@
   function negadoErr() { var e = new Error(MSG_NEGADO); e.negado = true; return e; }
   function obter(f, n) {
     if (typeof EWAuth !== 'object' || !EWAuth || !EWAuth.post) return Promise.reject(negadoErr());
-    return EWAuth.post({ action: 'indicarEquipes', cli: f.cli, atv: f.atv, abr: f.abr, qtd: f.qtd, uf: f.abr === 'exterior' ? '' : (f.uf || ''), n: n || 0 }).then(function (j) {
+    return EWAuth.post({ action: 'indicarEquipes', cli: f.cli, atv: f.atv, abr: f.abr, qtd: f.qtd, uf: f.abr === 'exterior' ? '' : (f.uf || ''), dt: f.dt || '', n: n || 0 }).then(function (j) {
       if (j && (j.motivo === 'NEGADO' || j.motivo === 'SESSAO')) throw negadoErr();
       if (!j || j.ok !== true || !j.equipes) throw new Error(j && j.error ? j.error : (j && j.motivo ? 'servidor: ' + j.motivo : 'resposta inesperada'));
       return { c: { faltam: j.faltam, aviso_contratacao: j.aviso_contratacao, perfis_contratar: [] }, equipes: j.equipes, vivo: true, gerado_em: j.gerado_em };
@@ -115,7 +115,7 @@
   function ler(pref, root) {
     function v(id) { var e = root.querySelector('#' + pref + id); return e ? e.value : ''; }
     var atv = v('Atv'), c = ATIVIDADES.filter(function (a) { return a[0] === atv; })[0], cordas = c && c[2] === 'c';
-    return { cli: v('Cli'), atv: atv, abr: v('Abr'), uf: v('Uf'), qtd: cordas ? '3' : v('For'), cordas: cordas };
+    return { cli: v('Cli'), atv: atv, abr: v('Abr'), uf: v('Uf'), dt: v('Dt'), qtd: cordas ? '3' : v('For'), cordas: cordas };
   }
   function aplicarRegras(pref, root) {
     var abr = root.querySelector('#' + pref + 'Abr').value, selC = root.querySelector('#' + pref + 'Cli'), selA = root.querySelector('#' + pref + 'Atv'), sf = root.querySelector('#' + pref + 'For');
@@ -132,6 +132,7 @@
       '<label class="rdoeq-field">Atividade<select class="rdoeq-sel" id="' + pref + 'Atv">' + opts(ATIVIDADES, 'Selecione…') + '</select></label>' +
       '<label class="rdoeq-field">Abrangência<select class="rdoeq-sel" id="' + pref + 'Abr"><option value="">Selecione…</option><option value="brasil">Brasil</option><option value="exterior">Exterior</option></select></label>' +
       '<label class="rdoeq-field">Local do projeto (UF)<select class="rdoeq-sel" id="' + pref + 'Uf"><option value="">Não informar</option>' + UFS.map(function (u) { return '<option value="' + u + '">' + u + '</option>'; }).join('') + '</select></label>' +
+      '<label class="rdoeq-field">Previsão de início<input type="date" class="rdoeq-sel" id="' + pref + 'Dt" title="Opcional: considera também técnicos cujo projeto atual termina antes desta data"></label>' +
       '<label class="rdoeq-field" hidden>Formação<select class="rdoeq-sel" id="' + pref + 'For"><option value="">Selecione…</option><option value="2">Dupla</option><option value="3">Trio</option></select></label>';
   }
   function completo(f) { return f.cli && f.atv && f.abr && f.qtd; }
