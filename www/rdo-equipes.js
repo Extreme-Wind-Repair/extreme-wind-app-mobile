@@ -453,19 +453,101 @@
     roda();
   }
 
+  /* ---------- botão "Vagas": o RH altera o status dos técnicos pelo portal (23/11/2026, Robson) ----------
+     A aba EQ_StatusTecnicos (Google Sheets) manda no motor; a Matriz não é mais a fonte do status. Perfis ADMIN/EDITOR alteram; SERVICO só vê. O servidor valida. */
+  var vTab, vPage, vDados = [], vEdit = false, vOpc = [], vSeqV = 0;
+  var vSt = document.createElement('style');
+  vSt.textContent = '.rdoeq-vt{width:100%;border-collapse:collapse;font-size:13px}.rdoeq-vt th{position:sticky;top:0;background:var(--panel2);text-align:left;padding:6px 8px;font-size:11.5px;text-transform:uppercase;letter-spacing:.02em;color:var(--muted);border-bottom:1px solid var(--line)}.rdoeq-vt td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:middle}.rdoeq-vt .rdoeq-sel{margin:0;padding:5px 7px;font-size:13px}.rdoeq-vw{max-height:68vh;overflow:auto;border:1px solid var(--line);border-radius:8px}.rdoeq-vc{color:#b42318;font-size:11.5px;font-weight:600}.rdoeq-vok{color:var(--ok);font-size:11.5px}.rdoeq-vt small{color:var(--muted);font-size:11.5px}';
+  document.head.appendChild(vSt);
+  function vagasBarra() {
+    var nav = document.getElementById('blockNav'); if (!nav || nav.querySelector('.rdoeq-vtab')) return;
+    vTab = document.createElement('button'); vTab.type = 'button'; vTab.className = 'block-btn rdoeq-tab rdoeq-vtab'; vTab.setAttribute('data-block', 'vagas');
+    vTab.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>Vagas';
+    nav.appendChild(vTab);
+    vPage = document.createElement('div'); vPage.className = 'block-view'; vPage.id = 'vagas';
+    var ref = page || document.getElementById('b5'); (ref && ref.parentNode ? ref.parentNode : document.body).insertBefore(vPage, ref ? ref.nextSibling : null);
+    vPage.innerHTML = '<div class="rdoeq-bar"><label class="rdoeq-field">Status<select class="rdoeq-sel" id="rdoeqVFil"></select></label><label class="rdoeq-field">Buscar técnico<input type="search" class="rdoeq-sel" id="rdoeqVBus" placeholder="Nome ou matrícula"></label></div><div id="rdoeqVRes"></div>';
+    vPage.querySelector('#rdoeqVFil').addEventListener('change', vagasTabela);
+    vPage.querySelector('#rdoeqVBus').addEventListener('input', vagasTabela);
+    vPage.addEventListener('change', function (e) { var el = e.target; if (el && el.getAttribute && el.getAttribute('data-vm') && (el.tagName === 'SELECT' || el.tagName === 'INPUT')) vagasSalvar(el.getAttribute('data-vm')); });
+    vTab.addEventListener('click', function () {
+      document.querySelectorAll('.block-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.block-view').forEach(function (v) { v.classList.remove('active'); });
+      vTab.classList.add('active'); vPage.classList.add('active');
+      var tb = document.getElementById('b3Toolbar'); if (tb) tb.style.display = 'none';
+      try { if (location.hash !== '#vagas') history.replaceState(null, '', location.pathname + location.search + '#vagas'); } catch (e) { }
+      vagasCarregar();
+    });
+    nav.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.block-btn') : null;
+      if (b && b !== vTab && location.hash === '#vagas') { try { history.replaceState(null, '', location.pathname + location.search); } catch (x) { } }
+    });
+  }
+  function vagasCarregar() {
+    var out = vPage.querySelector('#rdoeqVRes'), id = ++vSeqV;
+    out.innerHTML = carregando('Carregando técnicos…');
+    EWAuth.post({ action: 'indicarEquipes', modo: 'statusListar' }).then(function (j) {
+      if (id !== vSeqV) return;
+      if (!j || !j.ok) throw new Error(j && j.motivo === 'NEGADO' ? 'NEGADO' : (j && j.error) || 'falha');
+      vDados = j.tecnicos.map(function (r) { return { mat: r[0], nome: r[1], nivel: r[2], uf: r[3], status: r[4], motivo: r[5], por: r[6], em: r[7], aloc: r[8] }; });
+      vEdit = !!j.pode_editar; vOpc = j.opcoes || [];
+      var f = vPage.querySelector('#rdoeqVFil'), cur = f.value;
+      f.innerHTML = '<option value="">Todos</option>' + vOpc.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '<option value="__conf">Conflito (em equipe no RDO sem status Ativo)</option>';
+      f.value = cur;
+      vagasTabela();
+    }).catch(function (e) { if (id === vSeqV) out.innerHTML = '<div class="rdoeq-warn">' + esc(e && e.message === 'NEGADO' ? MSG_NEGADO : 'Não foi possível carregar os técnicos agora (' + (e && e.message) + ').') + '</div>'; });
+  }
+  function vConflito(t) { return !!t.aloc && t.status !== 'Ativo'; }
+  function vagasTabela() {
+    var out = vPage.querySelector('#rdoeqVRes'), fil = vPage.querySelector('#rdoeqVFil').value, q = norm(vPage.querySelector('#rdoeqVBus').value), dig = vPage.querySelector('#rdoeqVBus').value.replace(/\D/g, '');
+    var tk = q.split(' ').filter(Boolean);
+    var L = vDados.filter(function (t) {
+      if (fil === '__conf') { if (!vConflito(t)) return false; } else if (fil && t.status !== fil) return false;
+      if (!tk.length) return true;
+      if (/^\s*\d+\s*$/.test(vPage.querySelector('#rdoeqVBus').value)) return t.mat.indexOf(dig) === 0;
+      var w = norm(t.nome).split(' '); return tk.every(function (k) { return w.some(function (p) { return p.indexOf(k) === 0; }); });
+    }).sort(function (a, b) { return a.nome.localeCompare(b.nome); });
+    var cont = {}; vDados.forEach(function (t) { cont[t.status] = (cont[t.status] || 0) + 1; });
+    var h = '<div class="rdoeq-meta">' + vOpc.map(function (o) { return esc(o) + ': <b>' + (cont[o] || 0) + '</b>'; }).join(' · ') + ' · Conflitos: <b>' + vDados.filter(vConflito).length + '</b>' + (vEdit ? '' : ' · Somente consulta (seu perfil não altera status).') + '</div>';
+    h += '<div class="rdoeq-vw"><table class="rdoeq-vt"><thead><tr><th>Mat.</th><th>Técnico</th><th>Status</th><th>Motivo / observação</th><th>No RDO</th><th>Última alteração</th></tr></thead><tbody>';
+    L.forEach(function (t) {
+      var sel = vEdit ? '<select class="rdoeq-sel" data-vm="' + esc(t.mat) + '" data-k="s">' + vOpc.map(function (o) { return '<option' + (o === t.status ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>' : esc(t.status);
+      var mot = vEdit ? '<input class="rdoeq-sel" data-vm="' + esc(t.mat) + '" data-k="m" maxlength="200" value="' + esc(t.motivo) + '">' : esc(t.motivo);
+      h += '<tr data-vr="' + esc(t.mat) + '"><td>' + esc(t.mat) + '</td><td>' + esc(t.nome) + ' <small>' + esc((t.uf || '') + (t.nivel ? '/' + t.nivel : '')) + '</small></td><td>' + sel + '</td><td>' + mot + '</td><td>' + (t.aloc ? esc(t.aloc) + (vConflito(t) ? '<div class="rdoeq-vc">status diferente de Ativo</div>' : '') : '—') + '</td><td><small>' + esc((t.por ? t.por + ' · ' : '') + (t.em || '')) + '</small><div class="rdoeq-vok" data-vs="' + esc(t.mat) + '"></div></td></tr>';
+    });
+    out.innerHTML = h + '</tbody></table></div>' + (L.length ? '' : '<div class="rdoeq-warn">Nenhum técnico neste filtro.</div>');
+  }
+  function vagasSalvar(mat) {
+    var row = vPage.querySelector('tr[data-vr="' + mat + '"]'), t = vDados.filter(function (x) { return x.mat === mat; })[0]; if (!row || !t) return;
+    var s = row.querySelector('select').value, m = row.querySelector('input').value, msg = row.querySelector('[data-vs="' + mat + '"]');
+    if (s === t.status && m === t.motivo) return;
+    msg.textContent = 'Salvando…';
+    EWAuth.post({ action: 'indicarEquipes', modo: 'statusSalvar', mat: mat, status: s, motivo: m }).then(function (j) {
+      if (!j || !j.ok) throw new Error(j && j.motivo === 'NEGADO' ? 'NEGADO' : (j && j.error) || 'falha');
+      t.status = j.status; t.motivo = j.motivo; t.por = j.por; t.em = j.em;
+      msg.textContent = 'Salvo ✓'; msg.className = 'rdoeq-vok';
+      setTimeout(function () { try { vagasTabela(); } catch (e) { } }, 900);
+    }).catch(function (e) {
+      row.querySelector('select').value = t.status; row.querySelector('input').value = t.motivo;
+      msg.className = 'rdoeq-vc'; msg.textContent = e && e.message === 'NEGADO' ? 'Sem permissão para alterar' : 'Não salvou (' + (e && e.message) + ')';
+    });
+  }
+
   var iniciado = false;
   function init() {
     if (!permitido()) return false;
     if (!iniciado) {
       iniciado = true;
-      montarBarra(); montarModal();
+      montarBarra(); vagasBarra(); montarModal();
       autocompleteTecnicos();
       observarCerts();
       var ov = document.getElementById('novoProjetoOverlay');
       if (ov) new MutationObserver(function () { if (!ov.hidden) { montarModal(); resetModal(); } }).observe(ov, { attributes: true, attributeFilter: ['hidden'] });
       window.addEventListener('hashchange', function () { if (location.hash === '#equipes' && tab) tab.click(); });
+      window.addEventListener('hashchange', function () { if (location.hash === '#vagas' && vTab) vTab.click(); });
     }
     if (location.hash === '#equipes' && tab) tab.click();
+    if (location.hash === '#vagas' && vTab) vTab.click();
     return true;
   }
   function iniciar() {                       // EWAuth/sessão podem chegar depois do DOM: tenta por até 15 s
