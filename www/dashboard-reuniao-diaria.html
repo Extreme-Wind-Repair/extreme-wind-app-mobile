@@ -2031,7 +2031,10 @@
     /* Radar de Campo usa "Lajes" como apelido de campo pro card "Santo
        Agostinho/RN" (definido por Robson em 21/09/2026, usado pelo
        casamento tecnico<->radar via parque -- ver radarCampoDe). */
-    ['santo agostinho', 'lajes']
+    ['santo agostinho', 'lajes'],
+    /* 23/11/2026 (Robson): card renomeado para UDV; a equipe de campo continua preenchendo o RDO como "UNIAO DOS VENTOS 1/2". */
+    ['uniao dos ventos 1', 'udv equipe 1'],
+    ['uniao dos ventos 2', 'udv equipe 2']
   ];
   function parkAliasGroup(nome){
     for (var i = 0; i < PARK_NAME_ALIAS_GROUPS.length; i++){
@@ -2930,11 +2933,11 @@
   function npChaveDe(exibe){ return npNorm(exibe).replace(/\s*\/\s*[A-Z]{2}$/,''); }
   function npAnalisa(nome){
     var n = String(nome||'').replace(/\s+/g,' ').trim();
-    var m = n.match(/^(.*?)\s*[·•|]\s*Equipe\s*(\d+)\s*$/i);
+    var m = n.match(/^(.*?)\s*[·•|\-–—]\s*Equipe\s*(\d+)\s*$/i);
     if (m) return { exibe:m[1].trim(), num:parseInt(m[2],10), padrao:'equipe', semNum:false, ativ:false };
     var suf = n.match(/\s*[-–—]\s*([^\d]*)$/);
     var corpo = suf ? n.slice(0, n.length - suf[0].length).trim() : n;
-    var dg = corpo.match(/^(.*?)\s*(\d+)\s*$/);
+    var dg = corpo.match(/^(.*?)\s+(\d+)\s*$/); /* digito colado ao nome (VSM1) faz parte do nome do projeto */
     if (dg) return { exibe:dg[1].trim(), num:parseInt(dg[2],10), padrao:'num', semNum:false, ativ:false };
     if (suf) return { exibe:corpo, num:0, padrao:'num', semNum:false, ativ:true };
     return { exibe:n, num:0, padrao:'num', semNum:true, ativ:false };
@@ -2947,7 +2950,7 @@
       var key = npChaveDe(a.exibe);
       var e = map[key] || (map[key] = { key:key, exibe:a.exibe, padrao:'num', cards:[], usados:{}, fab:p.Fabricante||'', cliente:p.Cliente||'', exibeFixo:false });
       e.cards.push(a);
-      if (a.padrao === 'equipe') e.padrao = 'equipe';
+      if (a.padrao === 'equipe' || /\d$/.test(a.exibe)) e.padrao = 'equipe';
       if (a.num > 0 && !e.exibeFixo){ e.exibe = a.exibe; e.exibeFixo = true; }
     });
     Object.keys(map).forEach(function(k){
