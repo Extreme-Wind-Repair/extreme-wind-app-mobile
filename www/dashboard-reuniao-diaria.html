@@ -712,6 +712,14 @@
       <label class="modal-field">Projeto
         <input type="text" id="npProjeto" placeholder="Nome do parque/projeto">
       </label>
+      <datalist id="npProjLista"></datalist>
+      <label class="modal-field" style="display:flex; align-items:center; gap:8px; flex-direction:row;">
+        <input type="checkbox" id="npNovoChk" style="width:auto; margin:0;"> <span>Cadastrar como projeto novo (nome que não está na lista)</span>
+      </label>
+      <label class="modal-field" id="npEquipeWrap" style="display:none;">Equipe
+        <select id="npEquipe"></select>
+      </label>
+      <div id="npDica" style="display:none; font-size:12.5px; color:var(--warn); margin:-4px 0 8px;"></div>
       <label class="modal-field">Cliente
         <input type="text" id="npCliente" placeholder="Ex.: GE, Siemens, Nordex...">
       </label>
@@ -2916,22 +2924,121 @@
      Substitui o antigo link externo pro Portal Administrativo: agora cria o
      projeto direto no Bloco 3, gravando em RD_Parques / RD_Equipe / RD_Aprovados
      pelo mesmo Apps Script já usado pelo resto do dashboard. */
+  /* 23/11/2026 (Robson): nome do projeto travado na lista de projetos existentes; equipe numerada (numeros em uso ficam travados).
+     Projeto fora da lista so com a marcacao "Cadastrar como projeto novo". Fabricante/cliente herdados do projeto existente. */
+  function npNorm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim(); }
+  function npChaveDe(exibe){ return npNorm(exibe).replace(/\s*\/\s*[A-Z]{2}$/,''); }
+  function npAnalisa(nome){
+    var n = String(nome||'').replace(/\s+/g,' ').trim();
+    var m = n.match(/^(.*?)\s*[·•|]\s*Equipe\s*(\d+)\s*$/i);
+    if (m) return { exibe:m[1].trim(), num:parseInt(m[2],10), padrao:'equipe', semNum:false, ativ:false };
+    var suf = n.match(/\s*[-–—]\s*([^\d]*)$/);
+    var corpo = suf ? n.slice(0, n.length - suf[0].length).trim() : n;
+    var dg = corpo.match(/^(.*?)\s*(\d+)\s*$/);
+    if (dg) return { exibe:dg[1].trim(), num:parseInt(dg[2],10), padrao:'num', semNum:false, ativ:false };
+    if (suf) return { exibe:corpo, num:0, padrao:'num', semNum:false, ativ:true };
+    return { exibe:n, num:0, padrao:'num', semNum:true, ativ:false };
+  }
+  function npIndice(){
+    var map = {};
+    DATA.parques.forEach(function(p){
+      if (p.Placeholder || !String(p.NomeParque||'').trim()) return;
+      var a = npAnalisa(p.NomeParque);
+      var key = npChaveDe(a.exibe);
+      var e = map[key] || (map[key] = { key:key, exibe:a.exibe, padrao:'num', cards:[], usados:{}, fab:p.Fabricante||'', cliente:p.Cliente||'', exibeFixo:false });
+      e.cards.push(a);
+      if (a.padrao === 'equipe') e.padrao = 'equipe';
+      if (a.num > 0 && !e.exibeFixo){ e.exibe = a.exibe; e.exibeFixo = true; }
+    });
+    Object.keys(map).forEach(function(k){
+      var e = map[k], u = e.usados;
+      e.cards.forEach(function(a){ if (a.num > 0) u[a.num] = true; });
+      e.cards.forEach(function(a){ if (a.num === 0){ var n = 1; while (u[n]) n++; u[n] = true; } });
+      e.max = Math.max.apply(null, Object.keys(u).map(Number));
+    });
+    return map;
+  }
+  function npEntradaDe(v){ return npIndice()[npChaveDe(npAnalisa(v).exibe)] || null; }
+  function npAtualizar(reset){
+    var inp = document.getElementById('npProjeto'), chk = document.getElementById('npNovoChk'),
+        wrap = document.getElementById('npEquipeWrap'), sel = document.getElementById('npEquipe'),
+        dl = document.getElementById('npProjLista'), dica = document.getElementById('npDica'),
+        cli = document.getElementById('npCliente');
+    var idx = npIndice();
+    if (reset){ chk.checked = false; cli.dataset.auto = ''; sel.dataset.key = ''; }
+    inp.setAttribute('list', 'npProjLista');
+    var nomes = Object.keys(idx).map(function(k){ return idx[k].exibe; }).sort(function(a,b){ return a.localeCompare(b, 'pt-BR'); });
+    if (dl.dataset.n !== String(nomes.length) || reset){
+      dl.innerHTML = '';
+      nomes.forEach(function(n){ var o = document.createElement('option'); o.value = n; dl.appendChild(o); });
+      dl.dataset.n = String(nomes.length);
+    }
+    var v = inp.value.trim();
+    var e = (!chk.checked && v) ? npEntradaDe(v) : null;
+    window.__npFab = e ? e.fab : '';
+    if (e){
+      if (!cli.value.trim() || cli.dataset.auto === '1'){ cli.value = e.cliente; cli.dataset.auto = '1'; }
+      if (sel.dataset.key !== e.key){
+        sel.innerHTML = '';
+        for (var n = 1; n <= e.max + 1; n++){
+          var o = document.createElement('option'); o.value = String(n);
+          if (e.usados[n]){ o.disabled = true; o.textContent = n + 'ª equipe (em uso)'; }
+          else { o.textContent = n + 'ª equipe'; }
+          sel.appendChild(o);
+        }
+        var livre = 1; while (e.usados[livre]) livre++; sel.value = String(livre); /* menor numero livre: equipe desmobilizada libera o seu numero */
+        sel.dataset.key = e.key;
+      }
+      wrap.style.display = '';
+    } else {
+      wrap.style.display = 'none';
+      sel.dataset.key = '';
+    }
+    if (!chk.checked && v && !e){
+      dica.textContent = 'Projeto fora da lista. Escolha um nome da lista ou marque "Cadastrar como projeto novo".';
+      dica.style.display = '';
+    } else if (chk.checked && v && npEntradaDe(v)){
+      dica.textContent = 'Esse projeto já existe. Desmarque "Cadastrar como projeto novo" e escolha a equipe.';
+      dica.style.display = '';
+    } else { dica.style.display = 'none'; }
+  }
+  function npNomeFinal(){
+    var inp = document.getElementById('npProjeto'), chk = document.getElementById('npNovoChk');
+    var v = inp.value.trim(); window.__npMsg = '';
+    if (!v){ window.__npMsg = 'Preencha o nome do projeto.'; return ''; }
+    var e = npEntradaDe(v);
+    if (chk.checked){
+      if (e){ window.__npMsg = '"' + e.exibe + '" já existe. Desmarque "Cadastrar como projeto novo" e escolha a equipe.'; return ''; }
+      window.__npFab = ''; return v;
+    }
+    if (!e){ window.__npMsg = 'Projeto fora da lista. Escolha um nome da lista ou marque "Cadastrar como projeto novo".'; return ''; }
+    var n = parseInt(document.getElementById('npEquipe').value, 10);
+    if (!n || e.usados[n]){ window.__npMsg = 'Escolha um número de equipe livre.'; return ''; }
+    window.__npFab = e.fab;
+    return e.padrao === 'equipe' ? (e.exibe + ' · Equipe ' + n) : (e.exibe + ' ' + n);
+  }
+  (function(){
+    var inp = document.getElementById('npProjeto');
+    ['input','change','focus'].forEach(function(ev){ inp.addEventListener(ev, function(){ npAtualizar(false); }); });
+    document.getElementById('npNovoChk').addEventListener('change', function(){ npAtualizar(false); });
+    document.getElementById('npCliente').addEventListener('input', function(){ this.dataset.auto = '0'; });
+  })();
   function abrirModalNovoProjeto(){
     ['npProjeto','npCliente','npSupervisor','npTecnico1','npTecnico2','npTecnico3'].forEach(function(id){
       document.getElementById(id).value = '';
     });
     document.getElementById('npErro').hidden = true;
     document.getElementById('novoProjetoOverlay').hidden = false;
-    document.getElementById('npProjeto').focus();
+    npAtualizar(true); document.getElementById('npProjeto').focus();
   }
   function fecharModalNovoProjeto(){
     document.getElementById('novoProjetoOverlay').hidden = true;
   }
   async function acrescentarNovoProjeto(){
-    const nomeProjeto = document.getElementById('npProjeto').value.trim();
+    const nomeProjeto = npNomeFinal();
     const erroEl = document.getElementById('npErro');
     if (!nomeProjeto){
-      erroEl.textContent = 'Preencha o nome do projeto.';
+      erroEl.textContent = window.__npMsg || 'Preencha o nome do projeto.';
       erroEl.hidden = false;
       return;
     }
@@ -2951,7 +3058,7 @@
       PARK_SEQ++;
       const uniqueSuffix = Date.now().toString(36) + '-' + PARK_SEQ + '-' + Math.random().toString(36).slice(2, 6);
       const p = {
-        ParkID: 'b3-novo-' + uniqueSuffix, Bloco: 'b3', Ordem: 999, Fabricante: 'GE', NomeParque: nomeProjeto,
+        ParkID: 'b3-novo-' + uniqueSuffix, Bloco: 'b3', Ordem: 999, Fabricante: (window.__npFab || 'GE'), NomeParque: nomeProjeto,
         Tipo:'', Card:'', Supervisor: supervisor, Cliente: cliente, Data:'', EHS:'', Condicao:'', Cintos: cintosNP, Status:'standby',
         ColunasEquipe:'Nome — Estado,Certificação,Observação', Placeholder:false, _row: null
       };
