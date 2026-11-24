@@ -4541,7 +4541,7 @@
       var rem = dur(st.list[st.idx]) - elapsed();
       if (rem <= 30 && rem > 0 && !st.b30 && dur(st.list[st.idx]) > 60){ st.b30 = true; beep(1); }
       if (rem <= 0 && !st.b0){ st.b0 = true; beep(2); }
-      if (rem <= 0 && cfg.auto){ vai(st.idx + 1); return; }
+      if (rem <= 0 && cfg.auto){ vai(st.idx + 1, true); return; }
     }
     pinta();
   }
@@ -4556,7 +4556,7 @@
     st.res[it.id] = (st.res[it.id] || 0) + elapsed();
     st.acc = 0; st.t0 = Date.now(); st.b30 = false; st.b0 = false;
   }
-  function vai(novo){
+  function vai(novo, auto){
     if (!st.list.length) return;
     var ativo = st.running;
     commit();
@@ -4564,7 +4564,7 @@
     if (novo < 0) novo = 0;
     st.idx = novo; st.running = ativo;
     if (ativo) st.t0 = Date.now();
-    garanteB1(); marca(); rola(); pinta();
+    if (!auto) garanteB1(); marca(); pinta();
   }
   function zera(){ st.acc = 0; st.t0 = Date.now(); st.b30 = false; st.b0 = false; pinta(); }
   function resumo(){
