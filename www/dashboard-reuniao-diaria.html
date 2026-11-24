@@ -4407,8 +4407,10 @@
 <!-- TEMPORIZADOR DA REUNIAO (24/11/2026, Robson): 3 min por projeto ativo, 5 min para os parques do Mexico. So roda na tela; nao grava nada na planilha. -->
 <style id="tmCss">
   #tmFab{position:fixed; left:14px; bottom:14px; z-index:9000; background:#0F2A3F; color:#EAF1F7; border:1px solid #1E4363; border-radius:999px; padding:8px 14px; font:600 13px system-ui,Segoe UI,Arial; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.35);}
-  #tmBar{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:9001; display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px; background:#0B1F30; color:#EAF1F7; border:2px solid var(--tm-c,#12AB76); border-radius:14px; padding:10px 16px; box-shadow:0 8px 30px rgba(0,0,0,.5); max-width:96vw; font-family:system-ui,Segoe UI,Arial;}
+  #tmBar{position:static; width:100%; box-sizing:border-box; margin-top:8px; z-index:9001; display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px; background:#0B1F30; color:#EAF1F7; border:2px solid var(--tm-c,#12AB76); border-radius:14px; padding:10px 16px; box-shadow:0 8px 30px rgba(0,0,0,.5); max-width:96vw; font-family:system-ui,Segoe UI,Arial;}
   #tmBar.open{display:flex;}
+  #tmBar{padding:6px 12px !important; gap:10px !important;} #tmBar .tm-time{font-size:30px !important;}
+  .tm-badge{display:block; font:600 11px system-ui,Arial; margin-top:3px; color:#8BA9C0;} .tm-badge.cur{color:var(--tm-c,#12AB76);} .tm-badge.done{color:#12AB76;}
   #tmBar.est{background:#4A1015; animation:tmPulse 1s ease-in-out infinite;}
   @keyframes tmPulse{50%{background:#7A1A22;}}
   #tmBar .tm-info{min-width:150px; max-width:320px;}
@@ -4499,7 +4501,21 @@
     var it = st.list[st.idx], b = (it && it.blk) || 'b1', pn = $(b);
     if (pn && !pn.offsetParent){ var btn = document.querySelector('.block-btn[data-block="' + b + '"]'); if (btn) btn.click(); }
   }
+  function badges(){
+    var bl = ["b1","b2","b3","b4","b5"], cur = st.list[st.idx];
+    bl.forEach(function(b){
+      var btn = document.querySelector('.block-btn[data-block="' + b + '"]'); if (!btn) return;
+      var sp = btn.querySelector('.tm-badge'); if (!sp){ sp = document.createElement('span'); sp.className = 'tm-badge'; btn.appendChild(sp); }
+      if (!st.aberto){ sp.remove(); return; }
+      var its = st.list.filter(function(it){ return (it.blk || 'b1') === b; }), pl = 0, feito = its.length > 0;
+      its.forEach(function(it){ pl += dur(it); if (!(st.res[it.id] > 0) || (cur && cur.id === it.id)) feito = false; });
+      var isCur = cur && (cur.blk || 'b1') === b;
+      sp.className = 'tm-badge' + (isCur ? ' cur' : (feito ? ' done' : ''));
+      sp.textContent = (feito ? '✓ ' : '⏱ ') + (Math.round(pl / 6) / 10) + ' min';
+    });
+  }
   function pinta(){
+    badges();
     var it = st.list[st.idx], bar = $('tmBar');
     if (!it){ $('tmName').textContent = 'Nenhum projeto ativo'; $('tmTime').textContent = '--:--'; return; }
     var d = dur(it), el = elapsed(), rem = d - el;
@@ -4563,13 +4579,13 @@
     st.list = montaLista();
     if (!st.list.length){ alert('Nenhum projeto ativo encontrado.'); return; }
     if (st.idx >= st.list.length) st.idx = 0;
-    st.aberto = true; $('tmBar').classList.add('open'); $('tmFab').style.display = 'none';
+    st.aberto = true; var nv = document.querySelector('.block-nav'); if (nv && $('tmBar').parentElement !== nv) nv.appendChild($('tmBar')); $('tmBar').classList.add('open'); $('tmFab').style.display = 'none';
     garanteB1(); marca(); rola(); pinta();
     if (!st.timer) st.timer = setInterval(tick, 250);
   }
   function fecha(){
     if (st.running){ st.acc = elapsed(); st.running = false; }
-    st.aberto = false; $('tmBar').classList.remove('open'); $('tmFab').style.display = ''; marca();
+    st.aberto = false; badges(); $('tmBar').classList.remove('open'); $('tmFab').style.display = ''; marca();
   }
   $('tmFab').addEventListener('click', abre);
   $('tmClose').addEventListener('click', fecha);
