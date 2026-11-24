@@ -744,6 +744,20 @@ const META0 = { mRkm: 0.75, mKml: 10 };
 const scoped = () => R.filter(r => !r.ger && (S.escopo === 'todas' || r.ativa));
 const scopedA = () => R.filter(r => !r.ger && (S.escA === 'todas' || r.ativa));
 const naJanela = r => r.wk >= WK0;
+/* período da barra do topo (S.per): ano, mês escolhido (S.mes) ou WK38 → hoje */
+const naPer = r => S.per === 'mes' ? r.mes === S.mes : S.per === 'janela' ? r.wk >= WK0 : true;
+/* um mês só: escolher o mês em qualquer lugar (barra, ranking, preço do litro, Comparativo mensal) move o mesmo mês em todos e o "comparado" do Comparativo */
+function mesEscolhe(m) {
+  S.mes = m; S.cmpB = m;
+  if (S.cmpAuto) S.cmpA = mesAnterior(m) ?? mesSeguinte(m) ?? S.cmpA;
+}
+/* trocar o período da barra leva junto o ranking e o preço do litro (cada um ainda pode ser mudado depois no seletor da própria seção) */
+function perSegue(v) {
+  S.per = v;
+  const j = { ano: 'ano', mes: 'mes', janela: 'wk38' }[v];
+  if (j) { S.rk = j; S.pr = j; S.allPr = false; }
+  if (v === 'mes') mesEscolhe(S.mes);
+}
 /* janela do ranking (seletor próprio): mês escolhido, WK38 → hoje, últimas 4 ou 8 semanas, ano */
 const RK_JAN = [{ v: 'mes', t: 'Mês' }, { v: 'wk38', t: 'WK' + WK0 + ' → hoje' }, { v: 's4', t: 'Últimas 4 semanas' }, { v: 's8', t: 'Últimas 8 semanas' }, { v: 'ano', t: 'Ano 2026' }];
 const rkWk0 = () => S.rk === 'mes' ? wkMes(S.mes)[0] : S.rk === 'wk38' ? WK0 : S.rk === 's4' ? Math.max(1, WKNOW - 3) : S.rk === 's8' ? Math.max(1, WKNOW - 7) : 1;
@@ -826,7 +840,7 @@ function segMes(label, opts, get, set) {
   const wrap = seg(label, opts, get, set);
   const sel = h('select', { class: 'sel', 'aria-label': 'Mês de ' + label.toLowerCase() });
   MESES_DADOS.forEach(m => sel.append(h('option', { value: String(m) }, mesNome(m) + (mesEmAndamento(m) ? ' (em andamento)' : ''))));
-  sel.addEventListener('change', () => { S.mes = +sel.value; synchers.forEach(f => f()); render(); });
+  sel.addEventListener('change', () => { mesEscolhe(+sel.value); synchers.forEach(f => f()); render(); });
   const sync = () => { sel.value = String(S.mes); sel.hidden = get() !== 'mes'; };
   synchers.push(sync); sync();
   wrap.append(sel);
@@ -849,7 +863,7 @@ function buildBar() {
   bar.append(
     seg('Leitura', [{ v: 'resumo', t: 'Resumo' }, { v: 'completo', t: 'Completo' }], () => S.modo, v => { S.modo = v; aplicaModo(); }),
     seg('Resumo, parques, ranking e preço', [{ v: 'ativa', t: 'Frota ativa (' + nAt + ')' }, { v: 'todas', t: 'Todas as placas (' + NPLACAS_ANO + ')' }], () => S.escopo, v => S.escopo = v),
-    segMes('Parques e setores', [{ v: 'ano', t: 'Ano 2026' }, { v: 'mes', t: 'Mês' }, { v: 'janela', t: 'WK' + WK0 + ' → hoje' }], () => S.per, v => S.per = v),
+    segMes('Período do painel', [{ v: 'ano', t: 'Ano 2026' }, { v: 'mes', t: 'Mês' }, { v: 'janela', t: 'WK' + WK0 + ' → hoje' }], () => S.per, perSegue),
     h('div', { class: 'ctl' }, h('span', { class: 'lab' }, 'Metas'),
       numField('Custo', 'R$/km', () => S.mRkm, v => S.mRkm = v, 2),
       numField('Eficiência', 'km/l', () => S.mKml, v => S.mKml = v, 1),
@@ -864,25 +878,33 @@ function kpi(label, value, delta, sub, cls) {
   return h('div', { class: 'card kpi ' + (cls || '') }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value), delta ? h('div', { class: 'd' }, delta) : null, sub ? h('div', { class: 's' }, sub) : null);
 }
 function renderKpis() {
-  const rows = scoped(), y = agg(rows), w = agg(rows.filter(naJanela));
+  const base = scoped(), ano = S.per === 'ano', mes = S.per === 'mes', ant = mes ? mesAnterior(S.mes) : null;
+  const y = agg(ano ? base : base.filter(naPer));                                                          // números do período da barra
+  const w = ano ? agg(base.filter(naJanela)) : mes ? (ant ? agg(base.filter(r => r.mes === ant)) : null) : agg(base);   // linha de baixo: WK38 → hoje (ano), mês anterior (mês) ou o ano (WK38 → hoje)
+  const wl = ano ? 'WK' + WK0 + ' → hoje: ' : mes ? (ant ? mesNome(ant) + ': ' : '') : 'Ano 2026: ';
+  const sb = fn => w ? wl + fn(w) : null;
+  const quando = ano ? 'em 2026' : mes ? 'em ' + MESES_L[S.mes - 1] + (mesEmAndamento(S.mes) ? ' (até ' + dm(ULT.slice(0, 10)) + ')' : '') : 'em WK' + WK0 + ' → hoje';
   const eq = S.mRkm * S.mKml;
   const dK = ok(y.kml) ? y.kml - S.mKml : null, dR = ok(y.rkm) ? y.rkm - S.mRkm : null;
-  const wl = 'WK' + WK0 + ' → hoje: ';
-  document.getElementById('per-resumo').textContent = (S.escopo === 'ativa' ? 'Frota ativa (' + D.ativas.length + ' placas)' : 'Todas as placas com abastecimento em 2026 (' + NPLACAS_ANO + ')') + ' · 1º de janeiro a ' + dmy(ULT.slice(0, 10));
+  const toda = agg(R.filter(r => !r.ger && naPer(r)));
+  document.getElementById('per-resumo').textContent = (S.escopo === 'ativa' ? 'Frota ativa (' + D.ativas.length + ' placas)' : 'Todas as placas com abastecimento em 2026 (' + NPLACAS_ANO + ')') + ' · ' +
+    (ano ? '1º de janeiro a ' + dmy(ULT.slice(0, 10))
+      : mes ? mesLabel(S.mes) + ' (' + mesIniTxt(S.mes) + ' a ' + mesFimTxt(S.mes) + ')' + (mesEmAndamento(S.mes) ? ' · mês em andamento' : '')
+      : 'WK' + WK0 + ' a WK' + WKNOW + ' (' + wkRange(WK0).slice(0, 5) + ' a ' + dm(ULT.slice(0, 10)) + ')');
   document.getElementById('kpis').replaceChildren(
-    kpi(S.escopo === 'ativa' ? 'Custo da frota ativa em 2026' : 'Custo de combustível em 2026', brl(y.R), null,
-      [wl + brl(w.R), S.escopo === 'ativa' ? h('a', { class: 'kl', href: '#anual' }, 'Toda a frota em 2026: ' + brl(agg(R.filter(r => !r.ger)).R) + ' (custo anual)') : null]),
-    kpi('Litros abastecidos', f0(y.L) + ' L', h('span', { class: 'muted' }, plural(y.n, 'abastecimento', 'abastecimentos')), wl + f0(w.L) + ' L'),
-    kpi('Km rodados (válidos)', f0(y.kmV) + ' km', h('span', { class: 'muted' }, pct(y.nV / y.n) + ' dos abastecimentos com km válido'), wl + f0(w.kmV) + ' km'),
+    kpi(S.escopo === 'ativa' ? 'Custo da frota ativa ' + quando : 'Custo de combustível ' + quando, brl(y.R), null,
+      [sb(x => brl(x.R)), S.escopo === 'ativa' ? h('a', { class: 'kl', href: mes ? '#mensal' : '#anual' }, 'Toda a frota ' + quando + ': ' + brl(toda.R) + (mes ? ' (comparativo mensal)' : ' (custo anual)')) : null]),
+    kpi('Litros abastecidos', f0(y.L) + ' L', h('span', { class: 'muted' }, plural(y.n, 'abastecimento', 'abastecimentos')), sb(x => f0(x.L) + ' L')),
+    kpi('Km rodados (válidos)', f0(y.kmV) + ' km', h('span', { class: 'muted' }, y.n ? pct(y.nV / y.n) + ' dos abastecimentos com km válido' : 'sem abastecimento no período'), sb(x => f0(x.kmV) + ' km')),
     kpi('Eficiência média', f2(y.kml) + ' km/l',
       [chip(clsKml(y.kml), true), h('span', { class: dK >= 0 ? 'up' : 'dn' }, sgn(dK, f2) + ' vs meta ' + f1(S.mKml))],
-      wl + f2(w.kml) + ' km/l'),
+      sb(x => f2(x.kml) + ' km/l')),
     kpi('Custo por km rodado', brl(y.rkm, 2),
       [chip(clsRkm(y.rkm), true), h('span', { class: dR <= 0 ? 'up' : 'dn' }, sgn(dR, v => brl(v, 2)) + ' vs meta ' + brl(S.mRkm, 2))],
-      wl + brl(w.rkm, 2) + '/km'),
+      sb(x => brl(x.rkm, 2) + '/km')),
     kpi('Preço médio do litro', brl(y.preco, 2),
-      [chip(y.preco <= eq ? { k: 'good', t: 'Abaixo do limite' } : { k: 'warn', t: 'Acima do limite' }, true)],
-      'Limite que sustenta as duas metas: ' + brl(eq, 2) + '/L (' + f2(S.mRkm) + ' × ' + f1(S.mKml) + '). ' + wl + brl(w.preco, 2) + '/L', 'eq')
+      [ok(y.preco) ? chip(y.preco <= eq ? { k: 'good', t: 'Abaixo do limite' } : { k: 'warn', t: 'Acima do limite' }, true) : chip({ k: 'neutral', t: 'Sem dado' }, true)],
+      'Limite que sustenta as duas metas: ' + brl(eq, 2) + '/L (' + f2(S.mRkm) + ' × ' + f1(S.mKml) + ').' + (w ? ' ' + wl + brl(w.preco, 2) + '/L' : ''), 'eq')
   );
 }
 
@@ -1600,10 +1622,9 @@ function leituraMensal(a, b, P, O) {
 /* ---------- gráficos de colunas: um mês por coluna, B e A em destaque ---------- */
 function escolherB(m) {
   hideTip();
-  S.cmpB = m;
-  if (S.cmpAuto) S.cmpA = mesAnterior(m) ?? mesSeguinte(m) ?? S.cmpA;
+  mesEscolhe(m);
   synchers.forEach(f => f());
-  renderMensal();
+  render();
 }
 function chartMes(host, L, getv, aria, tipFn) {
   const W = Math.max(300, Math.round(host.getBoundingClientRect().width)), H = Math.round(clamp(W * .62, 230, 300));
