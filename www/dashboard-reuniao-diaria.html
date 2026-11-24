@@ -1544,7 +1544,7 @@
     '<div class="panel' + (p.Placeholder ? ' blank-panel' : '') + '" data-parkid="' + p.ParkID + '" data-row="' + p._row + '">' +
       '<div class="panel-head">' +
         '<div class="park-info">' +
-          '<h2 contenteditable="true" class="' + (p.Placeholder ? 'placeholder-title' : '') + '" data-field="NomeParque">' + escapeHtml(p.NomeParque) + '</h2>' +
+          '<h2 contenteditable="false" title="Nome travado (padrão da Reunião Diária)" class="' + (p.Placeholder ? 'placeholder-title' : '') + '" data-field="NomeParque">' + escapeHtml(p.NomeParque) + '</h2>' +
           '<span class="logo-picker">' +
             '<img class="mfr-logo" src="' + logo + '" alt="' + escapeHtml(p.Fabricante || 'GE') + '">' +
             '<select class="logo-select" data-field="Fabricante">' + logoOptions + '</select>' +
@@ -2001,7 +2001,8 @@
       .toLowerCase()
       .replace(/\/.*/g, '')       // corta sufixo "/RN", "/BA" etc.
       .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
+      .trim()
+      .replace(/ (?:eq|equipe) (\d+)$/, ' $1'); /* "X - EQ. 1" e "X - Equipe 1" casam com "X 1" (RDO) */
   }
   /* Mapa de aliases de nome de parque (03/09/2026): o RDO preenchido pela
      equipe as vezes usa um nome ligeiramente diferente do cadastro em
@@ -2033,8 +2034,8 @@
        casamento tecnico<->radar via parque -- ver radarCampoDe). */
     ['santo agostinho', 'lajes'],
     /* 23/11/2026 (Robson): card renomeado para UDV; a equipe de campo continua preenchendo o RDO como "UNIAO DOS VENTOS 1/2". */
-    ['uniao dos ventos 1', 'udv equipe 1'],
-    ['uniao dos ventos 2', 'udv equipe 2']
+    ['uniao dos ventos 1', 'udv 1'],
+    ['uniao dos ventos 2', 'udv 2']
   ];
   function parkAliasGroup(nome){
     for (var i = 0; i < PARK_NAME_ALIAS_GROUPS.length; i++){
@@ -2933,7 +2934,7 @@
   function npChaveDe(exibe){ return npNorm(exibe).replace(/\s*\/\s*[A-Z]{2}$/,''); }
   function npAnalisa(nome){
     var n = String(nome||'').replace(/\s+/g,' ').trim();
-    var m = n.match(/^(.*?)\s*[·•|\-–—]\s*Equipe\s*(\d+)\s*$/i);
+    var m = n.match(/^(.*?)\s*[·•|\-–—]\s*(?:Equipe|EQ\.?)\s*(\d+)\s*$/i);
     if (m) return { exibe:m[1].trim(), num:parseInt(m[2],10), padrao:'equipe', semNum:false, ativ:false };
     var suf = n.match(/\s*[-–—]\s*([^\d]*)$/);
     var corpo = suf ? n.slice(0, n.length - suf[0].length).trim() : n;
@@ -3012,13 +3013,13 @@
     var e = npEntradaDe(v);
     if (chk.checked){
       if (e){ window.__npMsg = '"' + e.exibe + '" já existe. Desmarque "Cadastrar como projeto novo" e escolha a equipe.'; return ''; }
-      window.__npFab = ''; return v;
+      window.__npFab = ''; return v.toUpperCase();
     }
     if (!e){ window.__npMsg = 'Projeto fora da lista. Escolha um nome da lista ou marque "Cadastrar como projeto novo".'; return ''; }
     var n = parseInt(document.getElementById('npEquipe').value, 10);
     if (!n || e.usados[n]){ window.__npMsg = 'Escolha um número de equipe livre.'; return ''; }
     window.__npFab = e.fab;
-    return e.padrao === 'equipe' ? (e.exibe + ' · Equipe ' + n) : (e.exibe + ' ' + n);
+    return String(e.exibe).toUpperCase() + ' - EQ. ' + n;
   }
   (function(){
     var inp = document.getElementById('npProjeto');
