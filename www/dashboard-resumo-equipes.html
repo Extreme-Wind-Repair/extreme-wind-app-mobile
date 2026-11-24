@@ -118,26 +118,29 @@
     <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">0</div></div>
   </div>
 </div>
-<div class="grid-gantt card" id="ganttCampo">
+<div class="grid-gantt card" id="ganttCampo" data-versao="v2">
 <!-- GANTT DE CAMPO (nov/2026) — NÃO MOVER NEM RENOMEAR a classe "grid-gantt".
      O gerar_dashboards.py troca os KPIs acima com uma regex que vai até o
      próximo '<div class="grid' — começando assim, este bloco fica de fora e
      sobrevive à geração de hora em hora. Os dados vêm do portal
-     administrativo (?acao=gantt): projetos + Reunião Diária, a cada 10 min. -->
+     administrativo (?acao=gantt): projetos + Reunião Diária, a cada 10 min.
+     A FONTE DESTE BLOCO É O gerar_dashboards.py (GANTT_CAMPO_BLOCO): se a
+     página vier sem o Gantt ou com versão antiga, o gerador recoloca. Mudou
+     o Gantt? Mude lá e suba a versão (data-versao). -->
 <style>
   #ganttCampo{margin-bottom:20px; padding:16px 16px 12px;}
   #ganttCampo .gc-topo{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
   #ganttCampo .gc-topo h2{margin:0;}
   #ganttCampo .gc-leg{display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted);}
   #ganttCampo .gc-leg i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px;}
-  #ganttCampo .gc-quadro{overflow:auto; max-height:620px; border:1px solid var(--line); border-radius:8px;}
-  #ganttCampo thead th{z-index:1;}
-  #ganttCampo table{border-collapse:separate; border-spacing:0; font-size:11.5px; width:max-content; min-width:100%;}
+  /* Sem rolagem própria: todas as frentes e semanas cabem na largura; quem rola é a página. */
+  #ganttCampo .gc-quadro{border:1px solid var(--line); border-radius:8px;}
+  #ganttCampo table{border-collapse:separate; border-spacing:0; font-size:11.5px; width:100%; table-layout:fixed;}
   #ganttCampo th, #ganttCampo td{padding:0; border-bottom:1px solid var(--line); white-space:nowrap;}
-  #ganttCampo thead th{background:#0B2235; color:var(--muted); font-size:10.5px; font-weight:600; text-align:center; padding:6px 4px; text-transform:none; position:sticky; top:0;}
+  #ganttCampo thead th{background:#0B2235; color:var(--muted); font-size:10.5px; font-weight:600; text-align:center; padding:6px 2px; text-transform:none; overflow:hidden;}
   #ganttCampo thead th.gc-hoje{color:var(--text); background:#123a5a;}
-  #ganttCampo .gc-fixa{position:sticky; left:0; z-index:2; background:var(--card); min-width:210px; max-width:210px; padding:6px 10px; border-right:1px solid var(--line); text-align:left;}
-  #ganttCampo thead .gc-fixa{z-index:3; background:#0B2235;}
+  #ganttCampo .gc-fixa{width:200px; background:var(--card); padding:6px 10px; border-right:1px solid var(--line); text-align:left; overflow:hidden;}
+  #ganttCampo thead .gc-fixa{background:#0B2235;}
   #ganttCampo .gc-nome{font-weight:700; font-size:12.5px; color:var(--text); overflow:hidden; text-overflow:ellipsis;}
   #ganttCampo .gc-sub{color:var(--muted); font-size:10.5px; overflow:hidden; text-overflow:ellipsis;}
   #ganttCampo .gc-pill{display:inline-block; padding:1px 7px; border-radius:20px; font-size:10px; font-weight:700; margin-right:5px;}
@@ -145,7 +148,7 @@
   #ganttCampo .gc-pill.mobilizacao{background:rgba(155,89,182,.22); color:#c68ce0;}
   #ganttCampo .gc-pill.documentacao{background:rgba(216,154,43,.18); color:var(--amber);}
   #ganttCampo .gc-pill.previsto{background:rgba(143,169,192,.16); color:var(--muted);}
-  #ganttCampo td.gc-sem{min-width:118px; width:118px; max-width:118px; height:40px; padding:2px 3px; vertical-align:middle;}
+  #ganttCampo td.gc-sem{height:40px; padding:2px 1px; vertical-align:middle; overflow:hidden;}
   #ganttCampo td.gc-sem.gc-hoje{background:rgba(28,140,232,.07);}
   #ganttCampo .gc-barra{height:100%; min-height:34px; border-radius:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:3px 4px;
      background:var(--gc-cor); color:#06121d; font-size:9.5px; font-weight:700; line-height:1.15; text-align:center; white-space:normal; overflow:hidden;}
@@ -155,11 +158,10 @@
   #ganttCampo .gc-barra span{display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   #ganttCampo .gc-barra .s{text-decoration:line-through; opacity:.7;}
   #ganttCampo tr.gc-grupo td{background:#0B2235; color:var(--text); font-weight:800; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:6px 10px;}
-  #ganttCampo tr.gc-grupo td span{position:sticky; left:10px;}
   #ganttCampo tr.gc-grupo small{font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:6px;}
   #ganttCampo .gc-rodape{font-size:11px; color:var(--muted); margin-top:8px;}
   #ganttCampo .gc-msg{padding:18px; color:var(--muted); font-size:13px;}
-  @media (max-width:820px){ #ganttCampo .gc-fixa{min-width:150px; max-width:150px;} #ganttCampo td.gc-sem{min-width:96px; width:96px; max-width:96px;} }
+  @media (max-width:1100px){ #ganttCampo .gc-fixa{width:150px;} #ganttCampo .gc-barra{font-size:8.5px;} }
 </style>
 <div class="gc-topo">
   <h2>Gantt de campo <span>ativos (GE · Siemens · Nordex) e previstos pela data de início · Reunião Diária</span></h2>
@@ -171,7 +173,7 @@
 (function(){
   'use strict';
   var GC_URL = 'https://script.google.com/macros/s/AKfycbyIT6qWi8CXQog8eQ6EHg65_CDVc1JPevbCGUj9wziNuhHDhyWXmOXvk-9shPrNwuxe/exec?acao=gantt';
-  var GC_SEMANAS_ANTES = 2, GC_SEMANAS_DEPOIS = 14, GC_ATUALIZAR_MS = 120000;
+  var GC_SEMANAS_ANTES = 2, GC_SEMANAS_DEPOIS = 13, GC_ATUALIZAR_MS = 120000;   // 15 semanas cabem na tela
   var GC_FAB = ['GE', 'SIEMENS', 'NORDEX'];
   var GC_COR = { GE:'#1C8CE8', SIEMENS:'#12A874', NORDEX:'#9b59b6' };
   var gcUltimo = '';
@@ -284,10 +286,9 @@
         var assinatura = JSON.stringify(j.linhas);
         if (assinatura === gcUltimo) return;             // nada mudou: não mexe na rolagem
         gcUltimo = assinatura;
-        var q = document.getElementById('ganttCampoQuadro'), x = q.scrollLeft;
+        var q = document.getElementById('ganttCampoQuadro');
         var r = gcDesenhar(j.linhas);
         q.innerHTML = r.total ? r.html : '<div class="gc-msg">Nenhum parque na Reunião Diária.</div>';
-        q.scrollLeft = x;
         var g = new Date(j.gerado);
         document.getElementById('ganttCampoRodape').textContent =
           r.total + ' frentes · atualizado ' + ('0'+g.getHours()).slice(-2) + ':' + ('0'+g.getMinutes()).slice(-2) +
@@ -302,7 +303,7 @@
   document.addEventListener('visibilitychange', gcCarregar);
 })();
 </script>
-</div>
+</div><!-- /GANTT_CAMPO -->
 <div class="grid2">
   <div class="card"><h2>Por cliente <span>tecnicos ativos</span></h2><canvas id="chartCliente" style="max-height:187px;"></canvas></div>
   <div class="card"><h2>Por supervisor (SUOP) <span>tecnicos ativos</span></h2><canvas id="chartSuop" style="max-height:187px;"></canvas></div>
