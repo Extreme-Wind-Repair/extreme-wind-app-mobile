@@ -4409,7 +4409,7 @@
   #tmFab{position:fixed; left:14px; bottom:14px; z-index:9000; background:#0F2A3F; color:#EAF1F7; border:1px solid #1E4363; border-radius:999px; padding:8px 14px; font:600 13px system-ui,Segoe UI,Arial; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.35);}
   #tmBar{position:static; width:100%; box-sizing:border-box; margin-top:8px; z-index:9001; display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px; background:#0B1F30; color:#EAF1F7; border:2px solid var(--tm-c,#12AB76); border-radius:14px; padding:10px 16px; box-shadow:0 8px 30px rgba(0,0,0,.5); max-width:96vw; font-family:system-ui,Segoe UI,Arial;}
   #tmBar.open{display:flex;}
-  .block-nav{flex-wrap:wrap !important;} #tmBar{flex:0 0 100% !important; width:100% !important; order:99;} #tmBar{padding:6px 12px !important; gap:10px !important;} #tmBar .tm-time{font-size:30px !important;}
+  #tmBar{padding:6px 12px !important; gap:10px !important;} #tmBar .tm-time{font-size:30px !important;}
   .tm-badge{display:block; font:600 11px system-ui,Arial; margin-top:3px; color:#8BA9C0;} .tm-badge.cur{color:var(--tm-c,#12AB76);} .tm-badge.done{color:#12AB76;}
   #tmBar.est{background:#4A1015; animation:tmPulse 1s ease-in-out infinite;}
   @keyframes tmPulse{50%{background:#7A1A22;}}
@@ -4427,15 +4427,21 @@
   #tmSumBox table{width:100%; border-collapse:collapse; font-size:14px; margin:10px 0 14px;}
   #tmSumBox th, #tmSumBox td{text-align:left; padding:6px 8px; border-bottom:1px solid #1E4363;}
   #tmSumBox .tm-over{color:#E5484D; font-weight:700;} #tmSumBox .tm-under{color:#12AB76;}
+  .block-nav{flex-wrap:nowrap !important;}
+  #tmBar{flex:1 1 230px !important; width:auto !important; min-width:200px; max-width:360px; margin:0 !important; order:99; box-sizing:border-box; align-self:stretch; display:none; grid-template-columns:repeat(6,1fr); gap:4px !important; padding:6px 8px !important; align-items:center;}
+  #tmBar.open{display:grid !important;}
+  #tmBar .tm-info{grid-column:1 / -1; min-width:0; max-width:none;} #tmBar .tm-name{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} #tmBar .tm-sub{font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #tmBar .tm-time{grid-column:1 / -1; min-width:0; font-size:28px !important; line-height:1.1;}
+  #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmSum{grid-column:span 2;}
 </style>
 <button type="button" id="tmFab">⏱ Temporizador</button>
 <div id="tmBar">
   <div class="tm-info"><div class="tm-name" id="tmName">-</div><div class="tm-sub" id="tmSub"></div></div>
   <div class="tm-time" id="tmTime">03:00</div>
-  <button type="button" class="tm-btn" id="tmPrev" title="Projeto anterior (seta esquerda)">◂ Anterior</button>
+  <button type="button" class="tm-btn" id="tmPrev" title="Projeto anterior (seta esquerda)">◂</button>
   <button type="button" class="tm-btn pri" id="tmPlay" title="Iniciar / pausar (espaço)">▶ Iniciar</button>
-  <button type="button" class="tm-btn" id="tmNext" title="Próximo projeto (seta direita)">Próximo ▸</button>
-  <button type="button" class="tm-btn" id="tmReset" title="Zerar o tempo deste projeto">⟲ Zerar</button>
+  <button type="button" class="tm-btn" id="tmNext" title="Próximo projeto (seta direita)">▸</button>
+  <button type="button" class="tm-btn" id="tmReset" title="Zerar o tempo deste projeto">⟲</button>
   <button type="button" class="tm-btn" id="tmSum">Resumo</button>
   <button type="button" class="tm-btn" id="tmCfg" title="Minutos por projeto">⚙</button>
   <button type="button" class="tm-btn" id="tmSnd" title="Som ligado/desligado">🔔</button>
