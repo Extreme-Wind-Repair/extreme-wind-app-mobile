@@ -3997,7 +3997,7 @@
     let t = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
     t = t.replace(/\/[A-Z]{2}\b.*$/, '');          // tira "/PI", "/RN"...
     t = t.replace(/[·\-_.—–]/g, ' ');   // 11/11/2026: travessao (—/–) tambem e separador -- card "Tucano 2 —" nao casava com "TUCANO 2"
-    t = t.replace(/\bMCU\b|\bCORDAS\b|\bINSPECAO\b|\bINTERNA\b|\bEQUIPE\b/g, ' ');
+    t = t.replace(/\bMCU\b|\bCORDAS\b|\bINSPECAO\b|\bINTERNA\b|\bEQUIPE\b|\bEQ\b/g, ' ');
     let palavras = t.split(/\s+/).filter(Boolean);
     let num = null;
     if (palavras.length && /^\d+$/.test(palavras[palavras.length - 1])) num = Number(palavras.pop());
