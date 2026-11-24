@@ -4452,8 +4452,8 @@
 <div id="tmSumOv"><div id="tmSumBox"></div></div>
 <script>
 (function(){
-  var LS = 'ew_tm_cfg_v2';
-  var cfg = { min:1, mx:2, b2:1, b3:1, b4:1, b5:1, sound:true };
+  var LS = 'ew_tm_cfg_v3';
+  var cfg = { min:1, mx:2, b2:1, b3:0.5, b4:1, b5:1, sound:true };
   try { var sv = JSON.parse(localStorage.getItem(LS) || 'null'); if (sv){ cfg.min = +sv.min || 3; cfg.mx = +sv.mx || 5; ['b2','b3','b4','b5'].forEach(function(k){ if (+sv[k]) cfg[k] = +sv[k]; }); cfg.sound = sv.sound !== false; } } catch(e){}
   function salvaCfg(){ try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){} }
   var st = { list:[], idx:0, running:false, t0:0, acc:0, res:{}, b30:false, b0:false, aberto:false, timer:null };
@@ -4490,7 +4490,18 @@
       out.push({ id:id, nome:p.NomeParque, mx:isMx(p) });
     }
     var NB = { b2:'Bloco 2 · Mobilização', b3:'Bloco 3 · Aprovação de Documentações', b4:'Bloco 4 · Novas Demandas', b5:'Bloco 5 · Temas Diversos' };
-    ['b2','b3','b4','b5'].forEach(function(b){ if ($(b)) out.push({ id:'blk-' + b, blk:b, nome:NB[b], mx:false }); });
+    ['b2','b3','b4','b5'].forEach(function(b){
+      if (b === 'b3'){
+        var cs3 = document.querySelectorAll('#b3 [data-parkid]'), vs3 = {}, n3 = 0;
+        for (var q = 0; q < cs3.length; q++){
+          var i3 = cs3[q].getAttribute('data-parkid'); if (vs3[i3]) continue; vs3[i3] = 1;
+          var t3 = String(cs3[q].innerText || '').split('\n')[0].trim(); if (!t3) continue;
+          out.push({ id:i3, blk:'b3', card:true, nome:'B3 · ' + t3, mx:false }); n3++;
+        }
+        if (n3) return;
+      }
+      if ($(b)) out.push({ id:'blk-' + b, blk:b, nome:NB[b], mx:false });
+    });
     return out;
   }
   function totalMin(){ var s = 0; st.list.forEach(function(it){ s += dur(it); }); return Math.round(s / 60); }
@@ -4498,7 +4509,7 @@
     var old = document.querySelectorAll('[data-tm-on]'); for (var i = 0; i < old.length; i++) old[i].removeAttribute('data-tm-on');
     if (!st.aberto || !st.list.length) return;
     var it = st.list[st.idx]; if (!it) return;
-    var el = it.blk ? $(it.blk) : document.querySelector('#b1 [data-parkid="' + it.id + '"]');
+    var el = (it.blk && !it.card) ? $(it.blk) : document.querySelector('#' + (it.blk || 'b1') + ' [data-parkid="' + it.id + '"]');
     if (el) el.setAttribute('data-tm-on', '1');
   }
   function rola(){
@@ -4529,9 +4540,9 @@
     if (!it){ $('tmName').textContent = 'Nenhum projeto ativo'; $('tmTime').textContent = '--:--'; return; }
     var d = dur(it), el = elapsed(), rem = d - el;
     $('tmName').textContent = it.nome;
-    $('tmSub').textContent = (st.idx + 1) + '/' + st.list.length + (it.mx ? ' · México' : '') + (it.blk ? ' · bloco inteiro' : '') + ' · previsto ' + (d / 60) + ' min · total ' + fmt(totAc()) + ' / ' + totalMin() + ' min';
+    $('tmSub').textContent = (st.idx + 1) + '/' + st.list.length + (it.mx ? ' · México' : '') + (it.blk && !it.card ? ' · bloco inteiro' : '') + (it.card ? ' · Bloco 3' : '') + ' · previsto ' + (d / 60) + ' min · total ' + fmt(totAc()) + ' / ' + totalMin() + ' min';
     $('tmTime').textContent = (rem < 0 ? '-' : '') + fmt(rem);
-    var cor = rem <= 0 ? '#E5484D' : (rem <= 60 ? '#D9A21B' : '#12AB76');
+    var cor = rem <= 0 ? '#E5484D' : (rem <= Math.min(30, d / 2) ? '#D9A21B' : '#12AB76');
     bar.style.setProperty('--tm-c', cor); bar.classList.toggle('est', rem <= 0);
     $('tmPlay').textContent = st.running ? '⏸ Pausar' : (el > 0 ? '▶ Continuar' : '▶ Iniciar');
     $('tmSnd').style.opacity = cfg.sound ? '1' : '.45';
@@ -4539,7 +4550,7 @@
   function tick(){
     if (st.running && st.list[st.idx]){
       var rem = dur(st.list[st.idx]) - elapsed();
-      if (rem <= 30 && rem > 0 && !st.b30 && dur(st.list[st.idx]) > 35){ st.b30 = true; beep(2); }
+      if (rem <= Math.min(30, dur(st.list[st.idx]) / 2) && rem > 0 && !st.b30){ st.b30 = true; beep(2); }
       if (rem > 3) st.cs = 0;
       var cs = Math.ceil(rem);
       if (rem > 0 && cs <= 3 && st.cs !== cs){ st.cs = cs; beep(1); }
@@ -4618,7 +4629,7 @@
     pinta();
   }
   function abre(){
-    var p1 = $('b1'); if (p1 && !p1.offsetParent){ var bb = document.querySelector('.block-btn[data-block="b1"]'); if (bb) bb.click(); setTimeout(abre2, 450); } else abre2();
+    var t3 = document.querySelector('.block-btn[data-block="b3"]'), t1 = document.querySelector('.block-btn[data-block="b1"]'); if (t3) t3.click(); setTimeout(function(){ if (t1) t1.click(); setTimeout(abre2, 450); }, 450);
   }
   function abre2(){
     st.list = montaLista();
@@ -4645,7 +4656,7 @@
   $('tmSnd').addEventListener('click', function(){ cfg.sound = !cfg.sound; salvaCfg(); pinta(); });
   
   $('tmCfg').addEventListener('click', function(){
-    var r = prompt('Minutos: projeto, México, Bloco 2, Bloco 3, Bloco 4, Bloco 5 (separe por vírgula)', [cfg.min, cfg.mx, cfg.b2, cfg.b3, cfg.b4, cfg.b5].join(', '));
+    var r = prompt('Minutos: projeto, México, Bloco 2, Bloco 3 por projeto, Bloco 4, Bloco 5 (separe por vírgula)', [cfg.min, cfg.mx, cfg.b2, cfg.b3, cfg.b4, cfg.b5].join(', '));
     if (r === null) return;
     var v = r.split(',').map(function(x){ return parseFloat(x.replace(',', '.')); });
     if (v.length !== 6 || v.some(function(x){ return !(x >= 0.5 && x <= 60); })) { alert('Informe 6 valores entre 0,5 e 60.'); return; }
