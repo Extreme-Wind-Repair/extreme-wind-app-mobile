@@ -102,3 +102,17 @@ jobs:
           for n in $(gh issue list --state open --search "Sync BDH falhou in:title" --json number --jq '.[].number'); do
             gh issue close "$n" --comment "Voltou a funcionar em $(date '+%d/%m/%Y %H:%M')."
           done
+
+      # 24/11/2026 (Robson): grava o status do portal na coluna de status da VAGAS MESTRE (Dropbox).
+      # continue-on-error: falha aqui NUNCA derruba o BDH nem abre issue. Comeca so em teste (DRY_RUN true);
+      # para gravar de verdade, trocar o padrao 'true' por 'false' abaixo.
+      - name: Gravar status do portal na VAGAS MESTRE
+        continue-on-error: true
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          PORTAL_STATUS_URL: ${{ secrets.PORTAL_STATUS_URL }}
+          PORTAL_STATUS_KEY: ${{ secrets.PORTAL_STATUS_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+        run: python tools/sync_mestre_status.py
