@@ -118,6 +118,191 @@
     <div style="flex:1; padding:16px 14px; border-left:1px solid var(--line);"><div class="label">Em tramitacao</div><div class="value amber">0</div></div>
   </div>
 </div>
+<div class="grid-gantt card" id="ganttCampo">
+<!-- GANTT DE CAMPO (nov/2026) — NÃO MOVER NEM RENOMEAR a classe "grid-gantt".
+     O gerar_dashboards.py troca os KPIs acima com uma regex que vai até o
+     próximo '<div class="grid' — começando assim, este bloco fica de fora e
+     sobrevive à geração de hora em hora. Os dados vêm do portal
+     administrativo (?acao=gantt): projetos + Reunião Diária, a cada 10 min. -->
+<style>
+  #ganttCampo{margin-bottom:20px; padding:16px 16px 12px;}
+  #ganttCampo .gc-topo{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  #ganttCampo .gc-topo h2{margin:0;}
+  #ganttCampo .gc-leg{display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted);}
+  #ganttCampo .gc-leg i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px;}
+  #ganttCampo .gc-quadro{overflow:auto; max-height:620px; border:1px solid var(--line); border-radius:8px;}
+  #ganttCampo thead th{z-index:1;}
+  #ganttCampo table{border-collapse:separate; border-spacing:0; font-size:11.5px; width:max-content; min-width:100%;}
+  #ganttCampo th, #ganttCampo td{padding:0; border-bottom:1px solid var(--line); white-space:nowrap;}
+  #ganttCampo thead th{background:#0B2235; color:var(--muted); font-size:10.5px; font-weight:600; text-align:center; padding:6px 4px; text-transform:none; position:sticky; top:0;}
+  #ganttCampo thead th.gc-hoje{color:var(--text); background:#123a5a;}
+  #ganttCampo .gc-fixa{position:sticky; left:0; z-index:2; background:var(--card); min-width:210px; max-width:210px; padding:6px 10px; border-right:1px solid var(--line); text-align:left;}
+  #ganttCampo thead .gc-fixa{z-index:3; background:#0B2235;}
+  #ganttCampo .gc-nome{font-weight:700; font-size:12.5px; color:var(--text); overflow:hidden; text-overflow:ellipsis;}
+  #ganttCampo .gc-sub{color:var(--muted); font-size:10.5px; overflow:hidden; text-overflow:ellipsis;}
+  #ganttCampo .gc-pill{display:inline-block; padding:1px 7px; border-radius:20px; font-size:10px; font-weight:700; margin-right:5px;}
+  #ganttCampo .gc-pill.ativo{background:rgba(18,168,116,.18); color:var(--green);}
+  #ganttCampo .gc-pill.mobilizacao{background:rgba(155,89,182,.22); color:#c68ce0;}
+  #ganttCampo .gc-pill.documentacao{background:rgba(216,154,43,.18); color:var(--amber);}
+  #ganttCampo .gc-pill.previsto{background:rgba(143,169,192,.16); color:var(--muted);}
+  #ganttCampo td.gc-sem{min-width:118px; width:118px; max-width:118px; height:40px; padding:2px 3px; vertical-align:middle;}
+  #ganttCampo td.gc-sem.gc-hoje{background:rgba(28,140,232,.07);}
+  #ganttCampo .gc-barra{height:100%; min-height:34px; border-radius:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:3px 4px;
+     background:var(--gc-cor); color:#06121d; font-size:9.5px; font-weight:700; line-height:1.15; text-align:center; white-space:normal; overflow:hidden;}
+  #ganttCampo .gc-barra.ini{border-top-left-radius:7px; border-bottom-left-radius:7px;}
+  #ganttCampo .gc-barra.fim{border-top-right-radius:7px; border-bottom-right-radius:7px;}
+  #ganttCampo .gc-barra.prev{background:repeating-linear-gradient(135deg, var(--gc-cor) 0 6px, rgba(255,255,255,.55) 6px 9px);}
+  #ganttCampo .gc-barra span{display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #ganttCampo .gc-barra .s{text-decoration:line-through; opacity:.7;}
+  #ganttCampo tr.gc-grupo td{background:#0B2235; color:var(--text); font-weight:800; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:6px 10px;}
+  #ganttCampo tr.gc-grupo td span{position:sticky; left:10px;}
+  #ganttCampo tr.gc-grupo small{font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:6px;}
+  #ganttCampo .gc-rodape{font-size:11px; color:var(--muted); margin-top:8px;}
+  #ganttCampo .gc-msg{padding:18px; color:var(--muted); font-size:13px;}
+  @media (max-width:820px){ #ganttCampo .gc-fixa{min-width:150px; max-width:150px;} #ganttCampo td.gc-sem{min-width:96px; width:96px; max-width:96px;} }
+</style>
+<div class="gc-topo">
+  <h2>Gantt de campo <span>ativos (GE · Siemens · Nordex) e previstos pela data de início · Reunião Diária</span></h2>
+  <div class="gc-leg"><span><i style="background:#1C8CE8"></i>GE</span><span><i style="background:#12A874"></i>Siemens</span><span><i style="background:#9b59b6"></i>Nordex</span><span><i style="background:repeating-linear-gradient(135deg,#8FA9C0 0 4px,#fff 4px 6px)"></i>previsto</span></div>
+</div>
+<div class="gc-quadro" id="ganttCampoQuadro"><div class="gc-msg">Carregando o Gantt…</div></div>
+<div class="gc-rodape" id="ganttCampoRodape"></div>
+<script>
+(function(){
+  'use strict';
+  var GC_URL = 'https://script.google.com/macros/s/AKfycbyIT6qWi8CXQog8eQ6EHg65_CDVc1JPevbCGUj9wziNuhHDhyWXmOXvk-9shPrNwuxe/exec?acao=gantt';
+  var GC_SEMANAS_ANTES = 2, GC_SEMANAS_DEPOIS = 14, GC_ATUALIZAR_MS = 120000;
+  var GC_FAB = ['GE', 'SIEMENS', 'NORDEX'];
+  var GC_COR = { GE:'#1C8CE8', SIEMENS:'#12A874', NORDEX:'#9b59b6' };
+  var gcUltimo = '';
+
+  function gcEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function gcData(iso){ var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; }
+  function gcSegunda(d){ var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); var w = (x.getDay() + 6) % 7; x.setDate(x.getDate() - w); return x; }
+  function gcMaisSem(d, n){ var x = new Date(d); x.setDate(x.getDate() + 7*n); return x; }
+  function gcDd(d){ return ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2); }
+  function gcNumSem(d){ var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); var dia = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - dia); var a = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil((((t - a) / 86400000) + 1) / 7); }
+  function gcFab(l){ var t = String(l.fabricante || '').toUpperCase(); for (var i = 0; i < GC_FAB.length; i++) if (t.indexOf(GC_FAB[i]) > -1) return GC_FAB[i]; return t; }
+  function gcHojeIso(){ var d = new Date(); return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
+
+  /* Ativo: etapa "ativo" na Reunião Diária, ou projeto do portal já iniciado. */
+  function gcGrupo(l){
+    if (l.etapa === 'ativo') return 0;
+    if (l.etapa === 'mobilizacao' || l.etapa === 'documentacao') return 1;
+    return (l.inicio && l.inicio <= gcHojeIso()) ? 0 : 1;
+  }
+  function gcInicioOrdem(l){ var h = gcHojeIso(); return !l.inicio ? '9999-12-31' : (l.inicio < h ? h : l.inicio); }
+  function gcOrdem(a, b){
+    var ga = gcGrupo(a), gb = gcGrupo(b); if (ga !== gb) return ga - gb;
+    if (ga === 1){ var ia = gcInicioOrdem(a), ib = gcInicioOrdem(b); if (ia !== ib) return ia < ib ? -1 : 1; }
+    var fa = GC_FAB.indexOf(gcFab(a)), fb = GC_FAB.indexOf(gcFab(b)); fa = fa < 0 ? 9 : fa; fb = fb < 0 ? 9 : fb;
+    if (fa !== fb) return fa - fb;
+    return String(a.parque).localeCompare(String(b.parque), 'pt-BR');
+  }
+
+  /* Intervalo da barra, em segundas-feiras. Previsto com início vencido começa nesta semana. */
+  function gcIntervalo(l, hojeSeg){
+    var ini = gcData(l.inicio), fim = gcData(l.fimPrevisto);
+    var previsto = gcGrupo(l) === 1;
+    if (!ini) return null;
+    ini = gcSegunda(ini);
+    if (previsto && ini < hojeSeg) ini = hojeSeg;
+    // Sem término: previsto ganha 2 meses (regra da Reunião Diária); ativo vai até hoje.
+    if (!fim) fim = previsto ? gcMaisSem(ini, 8) : hojeSeg; else fim = gcSegunda(fim);
+    if (!previsto && fim < hojeSeg) fim = hojeSeg;      // ativo com previsão vencida segue até hoje
+    if (fim < ini) fim = ini;
+    return { ini: ini, fim: fim };
+  }
+  function gcEquipeEm(l, seg){
+    var eqs = (l.equipes || []).map(function(e){ return { d: gcSegunda(gcData(e.desde) || seg), t: e.tecnicos || [] }; })
+      .sort(function(a, b){ return a.d - b.d; });
+    var atual = eqs.length ? eqs[0].t : [];
+    eqs.forEach(function(e){ if (e.d <= seg) atual = e.t; });
+    return atual;
+  }
+  function gcChave(t){ return String(t.matricula || '') || String(t.nome || '').toUpperCase(); }
+  function gcMesma(a, b){ if (a.length !== b.length) return false; var k = b.map(gcChave); return a.every(function(t){ return k.indexOf(gcChave(t)) > -1; }); }
+  function gcPrimeiro(n){ var p = String(n || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length-1] : (p[0] || ''); }
+
+  function gcDesenhar(linhas){
+    var hojeSeg = gcSegunda(new Date());
+    var semanas = [];
+    for (var i = -GC_SEMANAS_ANTES; i < GC_SEMANAS_DEPOIS; i++) semanas.push(gcMaisSem(hojeSeg, i));
+    linhas = linhas.slice().sort(gcOrdem);
+
+    var h = '<table><thead><tr><th class="gc-fixa">Parque</th>';
+    semanas.forEach(function(s){
+      var hj = s.getTime() === hojeSeg.getTime();
+      h += '<th class="' + (hj ? 'gc-hoje' : '') + '">W' + gcNumSem(s) + '<br>' + gcDd(s) + '</th>';
+    });
+    h += '</tr></thead><tbody>';
+
+    var ROT = [['Parques ativos', 'GE · Siemens · Nordex'], ['Previstos', 'Mobilização e Aprovação de Documentações, pela data de início']];
+    var grupoAnt = -1;
+    linhas.forEach(function(l){
+      var g = gcGrupo(l);
+      if (g !== grupoAnt){
+        var qtd = linhas.filter(function(x){ return gcGrupo(x) === g; }).length;
+        h += '<tr class="gc-grupo"><td colspan="' + (semanas.length + 1) + '"><span>' + ROT[g][0] + ' (' + qtd + ')<small>' + ROT[g][1] + '</small></span></td></tr>';
+        grupoAnt = g;
+      }
+      var fab = gcFab(l), cor = GC_COR[fab] || '#8FA9C0';
+      var etapa = l.etapa === 'mobilizacao' ? ['mobilizacao','Mobilização'] : l.etapa === 'documentacao' ? ['documentacao','Aprov. documentação']
+                : g === 0 ? ['ativo','Ativo'] : ['previsto','A iniciar'];
+      var datas = (l.inicio ? gcDd(gcData(l.inicio)) : 's/ início') + ' → ' + (l.fimPrevisto ? gcDd(gcData(l.fimPrevisto)) + (l.estimado ? ' (est.)' : '') : (g === 1 && l.inicio ? '+2 meses (est.)' : '—'));
+      h += '<tr><td class="gc-fixa"><div class="gc-nome" title="' + gcEsc(l.parque) + '">' + gcEsc(l.parque) + '</div>' +
+           '<div class="gc-sub"><span class="gc-pill ' + etapa[0] + '">' + etapa[1] + '</span>' + gcEsc(fab) + ' · ' + datas + '</div></td>';
+      var it = gcIntervalo(l, hojeSeg);
+      semanas.forEach(function(s){
+        var hj = s.getTime() === hojeSeg.getTime();
+        if (!it || s < it.ini || s > it.fim){ h += '<td class="gc-sem' + (hj ? ' gc-hoje' : '') + '"></td>'; return; }
+        var atual = gcEquipeEm(l, s), ant = gcEquipeEm(l, gcMaisSem(s, -1));
+        var prox = gcMaisSem(s, 1) <= it.fim ? gcEquipeEm(l, gcMaisSem(s, 1)) : atual;
+        var primeira = s.getTime() === it.ini.getTime(), ultima = s.getTime() === it.fim.getTime();
+        var mostra = atual.length && (primeira || hj || !gcMesma(atual, ant) || !gcMesma(atual, prox));
+        var nomes = mostra ? atual.map(function(t){
+          var sai = !ultima && prox.map(gcChave).indexOf(gcChave(t)) < 0;
+          return '<span' + (sai ? ' class="s"' : '') + '>' + gcEsc((t.nivel ? t.nivel + '-' : '') + gcPrimeiro(t.nome)) + '</span>';
+        }).join('') : '';
+        var dica = 'W' + gcNumSem(s) + ' — ' + atual.map(function(t){ return t.nome + (t.matricula ? ' (' + t.matricula + ')' : ''); }).join(', ');
+        var prev = g === 1 || s > hojeSeg;
+        h += '<td class="gc-sem' + (hj ? ' gc-hoje' : '') + '" title="' + gcEsc(dica) + '"><div class="gc-barra' + (primeira ? ' ini' : '') + (ultima ? ' fim' : '') +
+             (prev ? ' prev' : '') + '" style="--gc-cor:' + cor + '">' + nomes + '</div></td>';
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    return { html: h, total: linhas.length };
+  }
+
+  function gcCarregar(){
+    if (document.hidden) return;
+    fetch(GC_URL + '&_=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (!j || !j.ok || !Array.isArray(j.linhas)) throw new Error('resposta inválida');
+        var assinatura = JSON.stringify(j.linhas);
+        if (assinatura === gcUltimo) return;             // nada mudou: não mexe na rolagem
+        gcUltimo = assinatura;
+        var q = document.getElementById('ganttCampoQuadro'), x = q.scrollLeft;
+        var r = gcDesenhar(j.linhas);
+        q.innerHTML = r.total ? r.html : '<div class="gc-msg">Nenhum parque na Reunião Diária.</div>';
+        q.scrollLeft = x;
+        var g = new Date(j.gerado);
+        document.getElementById('ganttCampoRodape').textContent =
+          r.total + ' frentes · atualizado ' + ('0'+g.getHours()).slice(-2) + ':' + ('0'+g.getMinutes()).slice(-2) +
+          ' · segue a Reunião Diária automaticamente (tachado = última semana do técnico na frente)';
+      })
+      .catch(function(){
+        if (!gcUltimo) document.getElementById('ganttCampoQuadro').innerHTML = '<div class="gc-msg">Não foi possível carregar o Gantt agora. Tenta de novo em 2 minutos.</div>';
+      });
+  }
+  gcCarregar();
+  setInterval(gcCarregar, GC_ATUALIZAR_MS);
+  document.addEventListener('visibilitychange', gcCarregar);
+})();
+</script>
+</div>
 <div class="grid2">
   <div class="card"><h2>Por cliente <span>tecnicos ativos</span></h2><canvas id="chartCliente" style="max-height:187px;"></canvas></div>
   <div class="card"><h2>Por supervisor (SUOP) <span>tecnicos ativos</span></h2><canvas id="chartSuop" style="max-height:187px;"></canvas></div>
