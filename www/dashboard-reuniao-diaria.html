@@ -4432,7 +4432,7 @@
   #tmBar.open{display:grid !important;}
   #tmBar .tm-info{grid-column:1 / -1; min-width:0; max-width:none;} #tmBar .tm-name{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} #tmBar .tm-sub{font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #tmBar .tm-time{grid-column:1 / -1; min-width:0; font-size:28px !important; line-height:1.1;}
-  #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmBar #tmSum, #tmBar #tmAuto{font-size:11px;}
+  #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmBar #tmSum, #tmBar #tmAuto, #tmBar #tmClose{font-size:11px;}
   .block-nav > #tmFab{position:static !important; flex:1 1 230px; min-width:200px; max-width:360px; align-self:stretch; order:99; border-radius:12px; font-size:15px; box-shadow:none; background:#0F2A3F; border:1px solid #1E4363; cursor:pointer; color:#EAF1F7;} .block-nav > #tmFab:hover{background:#1B4A73;}
 </style>
 <button type="button" id="tmFab">⏱ Temporizador</button>
@@ -4447,7 +4447,7 @@
   <button type="button" class="tm-btn" id="tmAuto" title="Avançar sozinho quando o tempo acabar">Auto</button>
   <button type="button" class="tm-btn" id="tmCfg" title="Minutos por projeto">⚙</button>
   <button type="button" class="tm-btn" id="tmSnd" title="Som ligado/desligado">🔔</button>
-  <button type="button" class="tm-btn" id="tmClose" title="Fechar">✕</button>
+  <button type="button" class="tm-btn" id="tmClose" title="Finalizar a reunião">✔ Fim</button>
 </div>
 <div id="tmSumOv"><div id="tmSumBox"></div></div>
 <script>
@@ -4560,7 +4560,7 @@
     if (!st.list.length) return;
     var ativo = st.running;
     commit();
-    if (novo >= st.list.length){ st.running = false; resumo(); pinta(); return; }
+    if (novo >= st.list.length){ finaliza(); return; }
     if (novo < 0) novo = 0;
     st.idx = novo; st.running = ativo;
     if (ativo) st.t0 = Date.now();
@@ -4585,6 +4585,37 @@
     $('tmSumOk').onclick = function(){ $('tmSumOv').classList.remove('open'); };
     $('tmSumZ').onclick = function(){ st.res = {}; st.running = false; st.acc = 0; st.idx = 0; st.b30 = st.b0 = false; $('tmSumOv').classList.remove('open'); abre(); };
   }
+  function finaliza(){
+    if (st.running){ st.acc = elapsed(); st.running = false; }
+    var cur = st.list[st.idx], linhas = '', real = 0, prev = 0, vis = 0, ov = [];
+    function esc(s){ return String(s).split('<').join('&lt;'); }
+    st.list.forEach(function(it){
+      var r = (st.res[it.id] || 0) + (cur && cur.id === it.id ? st.acc : 0);
+      if (r <= 0) return;
+      var p = dur(it), df = r - p; vis++; real += r; prev += p;
+      if (df > 0) ov.push({ n: it.nome, d: df });
+      linhas += '<tr><td>' + esc(it.nome) + '</td><td>' + fmt(p) + '</td><td>' + fmt(r) + '</td><td class="' + (df > 0 ? 'tm-over' : 'tm-under') + '">' + (df > 0 ? '+' : '-') + fmt(df) + '</td></tr>';
+    });
+    ov.sort(function(a, b){ return b.d - a.d; });
+    var ok = real <= prev, dif = Math.abs(real - prev), msg;
+    if (!vis) msg = 'Nenhum item foi cronometrado.';
+    else if (ok) msg = '🎉 Parabéns, time! Atingimos o tempo programado da reunião' + (dif >= 1 ? ' e ainda sobraram ' + fmt(dif) : '') + '. Meta batida, bom trabalho!';
+    else msg = '⚠️ Passamos ' + fmt(dif) + ' do tempo programado. Precisamos melhorar e otimizar a reunião.' + (ov.length ? ' Onde mais estouramos: ' + ov.slice(0, 3).map(function(o){ return esc(o.n) + ' (+' + fmt(o.d) + ')'; }).join(', ') + '.' : '');
+    var bg = !vis ? '#123350' : (ok ? '#0E3B2A' : '#4A1015'), bc = !vis ? '#1E4363' : (ok ? '#12AB76' : '#E5484D');
+    var lb = 'font-size:12px;color:#8BA9C0', nb = 'font:700 28px ui-monospace,Consolas,monospace';
+    var bt = 'background:#123350;color:#EAF1F7;border:1px solid #1E4363;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;margin-right:8px';
+    $('tmSumBox').innerHTML = '<h3 style="margin:0 0 10px">Reunião encerrada</h3>' +
+      '<div style="background:' + bg + ';border:2px solid ' + bc + ';border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:15px;line-height:1.45">' + msg + '</div>' +
+      '<div style="display:flex;gap:28px;flex-wrap:wrap;margin-bottom:8px"><div><div style="' + lb + '">Tempo programado</div><div style="' + nb + '">' + fmt(prev) + '</div></div>' +
+      '<div><div style="' + lb + '">Tempo real</div><div style="' + nb + ';color:' + bc + '">' + fmt(real) + '</div></div></div>' +
+      (vis < st.list.length ? '<div style="' + lb + ';margin-bottom:6px">' + vis + ' de ' + st.list.length + ' itens da pauta cronometrados (o programado considera só esses).</div>' : '') +
+      (linhas ? '<table><tr><th>Item</th><th>Previsto</th><th>Real</th><th>Dif.</th></tr>' + linhas + '</table>' : '') +
+      '<button type="button" id="tmFimV" style="' + bt + '">Voltar à reunião</button><button type="button" id="tmFimOk" style="' + bt + ';background:#00679A;border-color:#00679A">Concluir</button>';
+    $('tmSumOv').classList.add('open');
+    $('tmFimV').onclick = function(){ $('tmSumOv').classList.remove('open'); pinta(); };
+    $('tmFimOk').onclick = function(){ $('tmSumOv').classList.remove('open'); st.res = {}; st.idx = 0; st.acc = 0; st.b30 = st.b0 = false; fecha(); };
+    pinta();
+  }
   function abre(){
     var p1 = $('b1'); if (p1 && !p1.offsetParent){ var bb = document.querySelector('.block-btn[data-block="b1"]'); if (bb) bb.click(); setTimeout(abre2, 450); } else abre2();
   }
@@ -4604,7 +4635,7 @@
   }
   $('tmFab').addEventListener('click', abre);
   (function(){ function pos(){ var nv = document.querySelector('.block-nav'), f = $('tmFab'); if (nv && f && f.parentElement !== nv){ nv.appendChild(f); } return !!(nv && f && f.parentElement === nv); } if (!pos()){ var tries = 0, iv = setInterval(function(){ if (pos() || ++tries > 60) clearInterval(iv); }, 1000); } })();
-  $('tmClose').addEventListener('click', fecha);
+  $('tmClose').addEventListener('click', finaliza);
   $('tmPlay').addEventListener('click', play);
   $('tmNext').addEventListener('click', function(){ vai(st.idx + 1); });
   $('tmPrev').addEventListener('click', function(){ vai(st.idx - 1); });
