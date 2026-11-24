@@ -4432,7 +4432,7 @@
   #tmBar.open{display:grid !important;}
   #tmBar .tm-info{grid-column:1 / -1; min-width:0; max-width:none;} #tmBar .tm-name{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} #tmBar .tm-sub{font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #tmBar .tm-time{grid-column:1 / -1; min-width:0; font-size:28px !important; line-height:1.1;}
-  #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmBar #tmSum, #tmBar #tmAuto, #tmBar #tmClose{font-size:11px;}
+  #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmBar #tmSum{grid-column:span 2;} #tmBar #tmSum, #tmBar #tmClose{font-size:11px;}
   .block-nav > #tmFab{position:static !important; flex:1 1 230px; min-width:200px; max-width:360px; align-self:stretch; order:99; border-radius:12px; font-size:15px; box-shadow:none; background:#0F2A3F; border:1px solid #1E4363; cursor:pointer; color:#EAF1F7;} .block-nav > #tmFab:hover{background:#1B4A73;}
 </style>
 <button type="button" id="tmFab">⏱ Temporizador</button>
@@ -4444,7 +4444,7 @@
   <button type="button" class="tm-btn" id="tmNext" title="Próximo projeto (seta direita)">▸</button>
   <button type="button" class="tm-btn" id="tmReset" title="Zerar o tempo deste projeto">⟲</button>
   <button type="button" class="tm-btn" id="tmSum">Resumo</button>
-  <button type="button" class="tm-btn" id="tmAuto" title="Avançar sozinho quando o tempo acabar">Auto</button>
+  
   <button type="button" class="tm-btn" id="tmCfg" title="Minutos por projeto">⚙</button>
   <button type="button" class="tm-btn" id="tmSnd" title="Som ligado/desligado">🔔</button>
   <button type="button" class="tm-btn" id="tmClose" title="Finalizar a reunião">✔ Fim</button>
@@ -4452,9 +4452,9 @@
 <div id="tmSumOv"><div id="tmSumBox"></div></div>
 <script>
 (function(){
-  var LS = 'ew_tm_cfg_v1';
-  var cfg = { min:3, mx:5, b2:3, b3:3, b4:2, b5:3, sound:true, auto:true };
-  try { var sv = JSON.parse(localStorage.getItem(LS) || 'null'); if (sv){ cfg.min = +sv.min || 3; cfg.mx = +sv.mx || 5; ['b2','b3','b4','b5'].forEach(function(k){ if (+sv[k]) cfg[k] = +sv[k]; }); cfg.sound = sv.sound !== false; cfg.auto = sv.auto !== false; } } catch(e){}
+  var LS = 'ew_tm_cfg_v2';
+  var cfg = { min:1, mx:2, b2:1, b3:1, b4:1, b5:1, sound:true };
+  try { var sv = JSON.parse(localStorage.getItem(LS) || 'null'); if (sv){ cfg.min = +sv.min || 3; cfg.mx = +sv.mx || 5; ['b2','b3','b4','b5'].forEach(function(k){ if (+sv[k]) cfg[k] = +sv[k]; }); cfg.sound = sv.sound !== false; } } catch(e){}
   function salvaCfg(){ try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){} }
   var st = { list:[], idx:0, running:false, t0:0, acc:0, res:{}, b30:false, b0:false, aberto:false, timer:null };
   var $ = function(id){ return document.getElementById(id); };
@@ -4530,18 +4530,19 @@
     var d = dur(it), el = elapsed(), rem = d - el;
     $('tmName').textContent = it.nome;
     $('tmSub').textContent = (st.idx + 1) + '/' + st.list.length + (it.mx ? ' · México' : '') + (it.blk ? ' · bloco inteiro' : '') + ' · previsto ' + (d / 60) + ' min · total ' + fmt(totAc()) + ' / ' + totalMin() + ' min';
-    $('tmTime').textContent = (rem < 0 ? '+' : '') + fmt(rem);
+    $('tmTime').textContent = (rem < 0 ? '-' : '') + fmt(rem);
     var cor = rem <= 0 ? '#E5484D' : (rem <= 60 ? '#D9A21B' : '#12AB76');
     bar.style.setProperty('--tm-c', cor); bar.classList.toggle('est', rem <= 0);
     $('tmPlay').textContent = st.running ? '⏸ Pausar' : (el > 0 ? '▶ Continuar' : '▶ Iniciar');
-    $('tmSnd').style.opacity = cfg.sound ? '1' : '.45'; $('tmAuto').style.opacity = cfg.auto ? '1' : '.5'; $('tmAuto').textContent = cfg.auto ? 'Auto ✓' : 'Auto ✗';
+    $('tmSnd').style.opacity = cfg.sound ? '1' : '.45';
   }
   function tick(){
     if (st.running && st.list[st.idx]){
       var rem = dur(st.list[st.idx]) - elapsed();
-      if (rem <= 30 && rem > 0 && !st.b30 && dur(st.list[st.idx]) > 60){ st.b30 = true; beep(1); }
-      if (rem <= 0 && !st.b0){ st.b0 = true; beep(2); }
-      if (rem <= 0 && cfg.auto){ vai(st.idx + 1, true); return; }
+      if (rem <= 30 && rem > 0 && !st.b30 && dur(st.list[st.idx]) > 35){ st.b30 = true; beep(2); }
+      if (rem > 3) st.cs = 0;
+      var cs = Math.ceil(rem);
+      if (rem > 0 && cs <= 3 && st.cs !== cs){ st.cs = cs; beep(1); }
     }
     pinta();
   }
@@ -4564,7 +4565,7 @@
     if (novo < 0) novo = 0;
     st.idx = novo; st.running = ativo;
     if (ativo) st.t0 = Date.now();
-    if (!auto) garanteB1(); marca(); pinta();
+    garanteB1(); marca(); rola(); pinta();
   }
   function zera(){ st.acc = 0; st.t0 = Date.now(); st.b30 = false; st.b0 = false; pinta(); }
   function resumo(){
@@ -4642,7 +4643,7 @@
   $('tmReset').addEventListener('click', zera);
   $('tmSum').addEventListener('click', resumo);
   $('tmSnd').addEventListener('click', function(){ cfg.sound = !cfg.sound; salvaCfg(); pinta(); });
-  $('tmAuto').addEventListener('click', function(){ cfg.auto = !cfg.auto; salvaCfg(); pinta(); });
+  
   $('tmCfg').addEventListener('click', function(){
     var r = prompt('Minutos: projeto, México, Bloco 2, Bloco 3, Bloco 4, Bloco 5 (separe por vírgula)', [cfg.min, cfg.mx, cfg.b2, cfg.b3, cfg.b4, cfg.b5].join(', '));
     if (r === null) return;
