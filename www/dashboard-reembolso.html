@@ -238,9 +238,9 @@
 
 <script>
   var reembolsoSubLabels = ["01 - SERVIÇOS - MOB/DESMOB","02 - MATERIAL - DIVERSOS","01 - SERVIÇOS - LOGÍSTICA ENVIO/RETORNO MATÉRIA-PRIMA","01 - SERVIÇOS - BORRACHARIA DIVERSOS","01 - SERVIÇOS - MANUTENÇÃO","02 - MATERIAL - MAQUINÁRIO + ATIVO MOBILIZADO","02 - MATERIAL - EPI","01 - SERVIÇOS - TRANSPORTE","01 - SERVIÇOS - DIVERSOS","02 - MATERIAL - ESCRITÓRIO"];
-  var reembolsoSubValores = [51453.24,42565.12,31995.95,22375.74,15231.74,10220.13,9346.71,5715.1,2401.95,2367.73];
-  var reembolsoSubQtd = [515,805,290,305,183,102,190,74,134,59];
-  var reembolsoSubCumPct = [26.1,47.7,63.9,75.3,83.0,88.2,92.9,95.8,97.1,98.3];
+  var reembolsoSubValores = [51583.24,42565.12,32031.0,22375.74,15231.74,10220.13,9346.71,5550.05,2401.95,2367.73];
+  var reembolsoSubQtd = [517,805,292,305,183,102,190,70,134,59];
+  var reembolsoSubCumPct = [26.2,47.8,64.0,75.4,83.1,88.3,93.0,95.8,97.1,98.3];
 
   // Vermelho suave nas barras cujo PROPRIO valor ja passa de 80% do eixo de
   // valor (R$) do grafico -- e o corte que fica visualmente "acima da linha
@@ -374,9 +374,9 @@
   // -- por isso este grafico nao tem linha de referencia de 80%, so a curva
   // de % acumulado.
   var reembolsoDescTop2Labels = ["Translados Mobs ou Desmobs","Fita Crepe","Abastecimento de Combustível","Potes de Químicos","Rolos de Laminação","Material de Limpeza","Utensílhos","Impressões de Documentações EHS","Pilotos","Disco Lixa"];
-  var reembolsoDescTop2Valores = [39271.52,7710.9,5687.7,3741.19,2414.55,2411.13,1487.04,1408.45,1251.5,1144.18];
-  var reembolsoDescTop2Qtd = [376,122,32,79,36,35,52,53,42,20];
-  var reembolsoDescTop2CumPct = [41.8,50.0,56.0,60.0,62.6,65.1,66.7,68.2,69.5,70.8];
+  var reembolsoDescTop2Valores = [39401.52,7710.9,5687.7,3741.19,2414.55,2411.13,1487.04,1408.45,1251.5,1144.18];
+  var reembolsoDescTop2Qtd = [378,122,32,79,36,35,52,53,42,20];
+  var reembolsoDescTop2CumPct = [41.9,50.0,56.1,60.1,62.6,65.2,66.8,68.3,69.6,70.8];
 
   var reembolsoDescTop2ValorMax = Math.max.apply(null, reembolsoDescTop2Valores);
   var reembolsoDescTop2AxisMax = Math.ceil(reembolsoDescTop2ValorMax / 500) * 500;
@@ -467,8 +467,8 @@
 
 <script>
   var reembolsoCliLabels = ["GE","SIEMENS","NORDEX / LWS","Não identificado"];
-  var reembolsoCliValores = [119023.02,44336.49,32361.38,1370.38];
-  var reembolsoCliPct = [60.4,22.5,16.4,0.7];
+  var reembolsoCliValores = [118877.97,44481.54,32361.38,1370.38];
+  var reembolsoCliPct = [60.3,22.6,16.4,0.7];
   var reembolsoCliNProjetos = [12,17,6,2];
 
   var coresPorCliente = {
