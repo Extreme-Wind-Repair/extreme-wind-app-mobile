@@ -4495,7 +4495,7 @@
         var cs3 = document.querySelectorAll('#b3 [data-parkid]'), vs3 = {}, n3 = 0;
         for (var q = 0; q < cs3.length; q++){
           var i3 = cs3[q].getAttribute('data-parkid'); if (vs3[i3]) continue; vs3[i3] = 1;
-          var t3 = String(cs3[q].innerText || '').split('\n')[0].trim(); if (!t3) continue;
+          var pk3 = null; for (var w = 0; w < DATA.parques.length; w++){ if (DATA.parques[w].ParkID === i3){ pk3 = DATA.parques[w]; break; } } if (pk3 && pk3.Placeholder) continue; var t3 = pk3 ? String(pk3.NomeParque || '').trim() : String(cs3[q].innerText || '').split('\n')[0].trim(); if (!t3) continue;
           out.push({ id:i3, blk:'b3', card:true, nome:'B3 · ' + t3, mx:false }); n3++;
         }
         if (n3) return;
