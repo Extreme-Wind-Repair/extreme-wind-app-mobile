@@ -4433,6 +4433,7 @@
   #tmBar .tm-info{grid-column:1 / -1; min-width:0; max-width:none;} #tmBar .tm-name{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} #tmBar .tm-sub{font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #tmBar .tm-time{grid-column:1 / -1; min-width:0; font-size:28px !important; line-height:1.1;}
   #tmBar .tm-btn{padding:4px 2px; font-size:12px; min-width:0;} #tmPlay{grid-column:span 4;} #tmSum{grid-column:span 2;}
+  .block-nav > #tmFab{position:static !important; flex:1 1 230px; min-width:200px; max-width:360px; align-self:stretch; order:99; border-radius:12px; font-size:15px; box-shadow:none; background:#0F2A3F; border:1px solid #1E4363; cursor:pointer; color:#EAF1F7;} .block-nav > #tmFab:hover{background:#1B4A73;}
 </style>
 <button type="button" id="tmFab">⏱ Temporizador</button>
 <div id="tmBar">
@@ -4594,6 +4595,7 @@
     st.aberto = false; badges(); $('tmBar').classList.remove('open'); $('tmFab').style.display = ''; marca();
   }
   $('tmFab').addEventListener('click', abre);
+  (function(){ function pos(){ var nv = document.querySelector('.block-nav'), f = $('tmFab'); if (nv && f && f.parentElement !== nv){ nv.appendChild(f); } return !!(nv && f && f.parentElement === nv); } if (!pos()){ var tries = 0, iv = setInterval(function(){ if (pos() || ++tries > 60) clearInterval(iv); }, 1000); } })();
   $('tmClose').addEventListener('click', fecha);
   $('tmPlay').addEventListener('click', play);
   $('tmNext').addEventListener('click', function(){ vai(st.idx + 1); });
