@@ -73,7 +73,7 @@ def _post(url, headers, data=None, timeout=120):
             return r.read(), dict(r.headers)
     except urllib.error.HTTPError as e:
         try:
-            c = e.read().decode("utf-8", "replace")[:160]
+            c = e.read().decode("utf-8", "replace")[:400]
         except Exception:
             c = ""
         raise RuntimeError("Dropbox HTTP %s em %s: %s" % (e.code, url.split("/2/")[-1], c))
@@ -82,6 +82,8 @@ def _post(url, headers, data=None, timeout=120):
 def token():
     import base64
     k, s, rt = (os.environ.get(x, "") for x in ("DROPBOX_APP_KEY", "DROPBOX_APP_SECRET", "DROPBOX_REFRESH_TOKEN"))
+    wr = os.environ.get("DROPBOX_WRITE_REFRESH_TOKEN", "")
+    rt = wr or rt   # 24/11/2026: token proprio com permissao de escrita (so este script); sem ele usa o token de leitura
     if not (k and s and rt):
         raise RuntimeError("Faltam segredos do Dropbox.")
     b = base64.b64encode(("%s:%s" % (k, s)).encode()).decode()
