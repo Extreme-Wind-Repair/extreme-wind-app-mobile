@@ -262,7 +262,7 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--ok)">95%</div>
+    <div class="value" style="color:var(--warn)">94%</div>
     <div class="foot">WK 48 · 17 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">7</span><span class="l">Emergenciais</span></div>
@@ -272,7 +272,7 @@
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="13256" style="color: var(--ok);">13.256</div>
+    <div class="value" id="kmValue" data-km="13419" style="color: var(--ok);">13.419</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
@@ -989,10 +989,10 @@ render();
     <text x="600.0" y="49.0" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 95%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,59.1 467.5,59.9 C511.7,60.7 577.9,50.0 600.0,48.0 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,57.6 467.5,59.9 C511.7,62.2 577.9,57.6 600.0,57.1 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,59.1 467.5,59.9 C511.7,60.7 577.9,50.0 600.0,48.0" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,57.6 467.5,59.9 C511.7,62.2 577.9,57.6 600.0,57.1" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
@@ -1008,8 +1008,8 @@ render();
       <circle cx="467.5" cy="59.9" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="467.5" y="47.9" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
 
-      <circle cx="600.0" cy="48.0" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="36.0" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
+      <circle cx="600.0" cy="57.1" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="45.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">95%</text>
     </g>
 
     <!-- x labels -->
@@ -1053,7 +1053,7 @@ render();
       <rect x="468.0" y="181.7" width="46" height="48.7" rx="4" fill="#E0483C"></rect>
       <rect x="536.0" y="127.7" width="46" height="54.0" rx="4" fill="#12A874"></rect>
       <rect x="604.0" y="119.5" width="46" height="62.3" rx="4" fill="#12A874"></rect>
-      <rect x="672.0" y="173.8" width="46" height="7.9" rx="4" fill="#12A874"></rect>
+      <rect x="672.0" y="181.7" width="46" height="39.0" rx="4" fill="#E0483C"></rect>
       <rect x="740.0" y="181.7" width="46" height="2.0" rx="4" fill="#E0483C"></rect>
       <rect x="808.0" y="165.0" width="46" height="16.7" rx="4" fill="#12A874"></rect>
       <rect x="876.0" y="170.3" width="46" height="11.4" rx="4" fill="#12A874"></rect>
@@ -1067,7 +1067,7 @@ render();
       <text x="491.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.538</text>
       <text x="559.0" y="119.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.816</text>
       <text x="627.0" y="111.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">3.245</text>
-      <text x="695.0" y="165.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">414</text>
+      <text x="695.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.032</text>
       <text x="763.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-81</text>
       <text x="831.0" y="157.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">873</text>
       <text x="899.0" y="162.3" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">595</text>
@@ -1113,7 +1113,7 @@ render();
       <tr><td>KM Ponto de Troca</td><td class="cell-warn">91%</td><td class="cell-warn">91%</td><td class="cell-warn">92%</td><td class="cell-warn">93%</td><td class="cell-warn cur">93%</td></tr>
       <tr><td>Saldo Extra</td><td class="cell-nok">46%</td><td class="cell-nok">46%</td><td class="cell-nok">46%</td><td class="cell-nok">57%</td><td class="cell-nok cur">33%</td></tr>
       <tr><td>Checklist</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">93%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Revisão</td><td class="cell-warn">82%</td><td class="cell-warn">82%</td><td class="cell-warn">83%</td><td class="cell-warn">79%</td><td class="cell-warn cur">80%</td></tr>
+      <tr><td>Revisão</td><td class="cell-warn">82%</td><td class="cell-warn">82%</td><td class="cell-warn">83%</td><td class="cell-warn">79%</td><td class="cell-warn cur">73%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Medição Pneus</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
@@ -1122,7 +1122,7 @@ render();
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-warn">95%</td><td class="cell-ok">96%</td><td class="cell-ok">97%</td><td class="cell-warn">94%</td><td class="cell-ok cur">96%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-warn">95%</td><td class="cell-ok">96%</td><td class="cell-ok">97%</td><td class="cell-warn">94%</td><td class="cell-warn cur">95%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1189,7 +1189,7 @@ render();
   <svg id="kmhSvg" viewBox="0 0 1000 340" class="trend-chart" style="width:100%; height:auto"></svg>
   <div id="kmhVazio" style="display:none; color:var(--muted); font-size:13px; padding:8px 0">Nenhuma placa selecionada.</div>
   <div class="note">Fonte: planilha "Controle de Frota", aba GRÁFICOS — tabela do gráfico "Saldo de km por placa" (estouro = −saldo). Use o filtro de projeto ou marque/desmarque as placas.</div>
-  <script type="application/json" id="kmhData">{"semanas":["WK30 · 26/07","WK31 · 02/08","WK32 · 09/08","WK33 · 16/08","WK34 · 23/08","WK35 · 30/08","WK36 · 06/09","WK37 · 13/09","WK38 · 20/09","WK39 · 27/09","WK40 · 04/10","WK41 · 11/10","WK42 · 18/10","WK43* · 22/10","WK44* · 28/10","WK45* · 03/11","WK46* · 10/11","WK47* · 17/11","WK48* · 23/11"],"series":[{"placa":"TXY8H30","parque":"Baixa do Feijão/RN","v":[5212,4800,4317,3786,3140,2462,2524,3044,2852,2964,2867,2744,2273,1873,1806,1499,609,-324,-104]},{"placa":"UVN9J75","parque":"LDV 1/PI","v":[null,null,null,null,null,null,null,null,515,402,440,327,1730,1330,2889,2886,2839,2984,2805]},{"placa":"UVN2B79","parque":"Oitis 2/PI","v":[4927,4368,4928,4351,3584,3000,2301,1632,938,183,-467,32,1357,1090,1892,2470,3328,3206,3408]},{"placa":"UHS5E92","parque":"Oitis 1/PI","v":[1964,2518,2940,3489,3615,3167,2807,2424,2182,2051,1942,1621,1250,987,1045,651,831,727,511]},{"placa":"NC7492D","parque":"Dolores 2/MEX","v":[null,null,null,null,null,null,null,null,null,null,null,160,251,97,262,-338,164,386,-214]},{"placa":"UVN9J44","parque":"LDV 2/PI","v":[null,null,null,null,null,null,null,null,363,340,280,4,470,70,210,422,332,632,400]}]}</script>
+  <script type="application/json" id="kmhData">{"semanas":["WK30 · 26/07","WK31 · 02/08","WK32 · 09/08","WK33 · 16/08","WK34 · 23/08","WK35 · 30/08","WK36 · 06/09","WK37 · 13/09","WK38 · 20/09","WK39 · 27/09","WK40 · 04/10","WK41 · 11/10","WK42 · 18/10","WK43* · 22/10","WK44* · 28/10","WK45* · 03/11","WK46* · 10/11","WK47* · 17/11","WK48* · 23/11"],"series":[{"placa":"TXY8H30","parque":"Baixa do Feijão/RN","v":[5212,4800,4317,3786,3140,2462,2524,3044,2852,2964,2867,2744,2273,1873,1806,1499,609,-324,-104]},{"placa":"UVN9J75","parque":"LDV 1/PI","v":[null,null,null,null,null,null,null,null,515,402,440,327,1730,1330,2889,2886,2839,2984,2805]},{"placa":"UVN2B79","parque":"Oitis 2/PI","v":[4927,4368,4928,4351,3584,3000,2301,1632,938,183,-467,32,1357,1090,1892,2470,3328,3206,3408]},{"placa":"UHS5E92","parque":"Oitis 1/PI","v":[1964,2518,2940,3489,3615,3167,2807,2424,2182,2051,1942,1621,1250,987,1045,651,831,727,511]},{"placa":"NC7492D","parque":"Dolores 2/MEX","v":[null,null,null,null,null,null,null,null,null,null,null,160,251,97,262,-338,164,386,2232]},{"placa":"UVN9J44","parque":"LDV 2/PI","v":[null,null,null,null,null,null,null,null,363,340,280,4,470,70,210,422,332,632,400]}]}</script>
   <script type="text/javascript">
   (function(){
     var D; try{ D = JSON.parse(document.getElementById('kmhData').textContent); }catch(e){ return; }
@@ -1274,7 +1274,7 @@ const rows = [
 ["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","2,27","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["TZL6G42","LOCALIZA","","TUCANO 1/BA","SIEMENS","21/09/2026","2,17","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["NC7495D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","1,70","OK","OK","OK","N/OK","OK","OK","N/A","None","N/A","N/A"],
-["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","1,70","OK","ATENÇÃO","-","OK","-","-","N/A","None","N/A","N/A"],
+["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","1,70","OK","N/OK","OK","N/OK","OK","OK","N/A","None","N/A","N/A"],
 ["UWD1H88","UNIDAS","","SÃO VITOR 2/BA","SIEMENS","07/11/2026","0,60","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["UWD1H82","UNIDAS","","UDV 2","SIEMENS","13/11/2026","0,40","OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
 ["UWD1H76","UNIDAS","","UDV 1","SIEMENS","13/11/2026","0,40","OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
@@ -1454,7 +1454,7 @@ const histData = [
   { wk:"WK45", geral:96.4, cats:[90.9,45.5,100,81.8,100,100,100,null,null,null] },
   { wk:"WK46", geral:96.7, cats:[91.7,45.5,100,83.3,100,100,100,null,null,null] },
   { wk:"WK47", geral:94.3, cats:[92.9,57.1,92.9,78.6,100,100,100,null,null,null] },
-  { wk:"WK48", geral:96.0, cats:[93.3,33.3,100,80.0,100,100,100,null,null,null] },
+  { wk:"WK48", geral:94.7, cats:[93.3,33.3,100,73.3,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
