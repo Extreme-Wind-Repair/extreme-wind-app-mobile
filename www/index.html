@@ -459,5 +459,15 @@
     });
   }
 </script>
+<script>
+/* login unico: responde ao Portal Administrativo (iframe) com o token do site, so para a origem do portal */
+window.addEventListener('message', function (e) {
+  if (e.origin !== 'https://extremewind-ferramentas-de-campo.github.io') return;
+  if (!e.data || e.data.tipo !== 'ew-pedir-sessao') return;
+  var tok = null;
+  try { tok = sessionStorage.getItem('ew_tok') || localStorage.getItem('ew_tok'); } catch (err) {}
+  if (tok) e.source.postMessage({ tipo: 'ew-sessao', tokenSite: tok }, e.origin);
+});
+</script>
 </body>
 </html>
