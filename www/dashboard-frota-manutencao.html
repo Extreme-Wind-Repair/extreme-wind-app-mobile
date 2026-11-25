@@ -263,9 +263,9 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--ok)">95%</div>
-    <div class="foot">WK 48 · 19 ações pendentes no total</div>
+    <div class="foot">WK 48 · 17 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">9</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">7</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">9</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativas</span></div>
     </div>
@@ -729,7 +729,7 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">9</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">7</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">9</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativa</span></div>
     </div>
@@ -1110,8 +1110,8 @@ render();
       </tr>
     </thead>
     <tbody>
-      <tr><td>KM Ponto de Troca</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn cur">93%</td></tr>
-      <tr><td>Saldo Extra</td><td class="cell-nok">55%</td><td class="cell-nok">55%</td><td class="cell-nok">55%</td><td class="cell-nok">57%</td><td class="cell-nok cur">43%</td></tr>
+      <tr><td>KM Ponto de Troca</td><td class="cell-warn">91%</td><td class="cell-warn">91%</td><td class="cell-warn">92%</td><td class="cell-warn">93%</td><td class="cell-warn cur">93%</td></tr>
+      <tr><td>Saldo Extra</td><td class="cell-nok">46%</td><td class="cell-nok">46%</td><td class="cell-nok">46%</td><td class="cell-nok">57%</td><td class="cell-nok cur">43%</td></tr>
       <tr><td>Checklist</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">93%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Revisão</td><td class="cell-warn">82%</td><td class="cell-warn">82%</td><td class="cell-warn">83%</td><td class="cell-warn">79%</td><td class="cell-warn cur">79%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
@@ -1430,29 +1430,29 @@ const histData = [
   { wk:"WK22", geral:82.9, cats:[80.0,60.0,61.9,71.4,90.5,76.2,100,null,100.0,100.0] },
   { wk:"WK23", geral:91.0, cats:[80.0,73.3,90.0,75.0,95.2,95.0,100,null,100.0,100.0] },
   { wk:"WK24", geral:85.0, cats:[80.0,73.3,80.0,65.0,90.0,90.0,100,null,100.0,100.0] },
-  { wk:"WK25", geral:89.0, cats:[66.7,80.0,90.0,70.0,100,85.0,100,null,100.0,100.0] },
-  { wk:"WK26", geral:91.6, cats:[66.7,100.0,89.5,78.9,94.7,100,94.7,null,100.0,null] },
-  { wk:"WK27", geral:96.2, cats:[66.7,100.0,93.8,93.8,100,100,93.8,null,100.0,null] },
-  { wk:"WK28", geral:98.8, cats:[66.7,100.0,93.8,100,100,100,100,null,100.0,null] },
-  { wk:"WK29", geral:94.7, cats:[66.7,100.0,100,93.3,86.7,93.3,100,null,100.0,null] },
-  { wk:"WK30", geral:96.2, cats:[60.0,80.0,100,93.8,100,87.5,100,null,100.0,null] },
-  { wk:"WK31", geral:96.0, cats:[60.0,80.0,100,86.7,100,93.3,100,null,100.0,null] },
-  { wk:"WK32", geral:92.7, cats:[60.0,80.0,100,90.9,100,72.7,100,null,100.0,null] },
-  { wk:"WK33", geral:90.0, cats:[60.0,80.0,100,90.0,100,60.0,100,null,100.0,null] },
-  { wk:"WK34", geral:80.0, cats:[60.0,80.0,100,40.0,100,60.0,100,null,100.0,null] },
-  { wk:"WK35", geral:82.2, cats:[60.0,80.0,100,44.4,100,66.7,100,null,100.0,null] },
-  { wk:"WK36", geral:82.9, cats:[60.0,80.0,100,57.1,100,57.1,100,null,100.0,null] },
-  { wk:"WK37", geral:88.6, cats:[66.7,66.7,100,71.4,100,71.4,100,null,100.0,null] },
-  { wk:"WK38", geral:82.9, cats:[66.7,66.7,100,71.4,100,42.9,100,null,null,null] },
-  { wk:"WK39", geral:92.0, cats:[77.8,55.6,100,70.0,100,90.0,100,null,null,null] },
-  { wk:"WK40", geral:94.0, cats:[77.8,55.6,100,80.0,100,90.0,100,null,null,null] },
-  { wk:"WK41", geral:96.7, cats:[83.3,58.3,100,83.3,100,100,100,null,null,null] },
-  { wk:"WK42", geral:94.5, cats:[90.9,54.5,100,81.8,100,90.9,100,null,null,null] },
-  { wk:"WK43", geral:88.0, cats:[100.0,50.0,80.0,70.0,100,90.0,100,null,null,null] },
-  { wk:"WK44", geral:94.5, cats:[100.0,54.5,90.9,81.8,100,100,100,null,null,null] },
-  { wk:"WK45", geral:96.4, cats:[100.0,54.5,100,81.8,100,100,100,null,null,null] },
-  { wk:"WK46", geral:96.7, cats:[100.0,54.5,100,83.3,100,100,100,null,null,null] },
-  { wk:"WK47", geral:94.3, cats:[100.0,57.1,92.9,78.6,100,100,100,null,null,null] },
+  { wk:"WK25", geral:89.0, cats:[33.3,60.0,90.0,70.0,100,85.0,100,null,100.0,100.0] },
+  { wk:"WK26", geral:91.6, cats:[33.3,66.7,89.5,78.9,94.7,100,94.7,null,100.0,null] },
+  { wk:"WK27", geral:96.2, cats:[33.3,66.7,93.8,93.8,100,100,93.8,null,100.0,null] },
+  { wk:"WK28", geral:98.8, cats:[33.3,66.7,93.8,100,100,100,100,null,100.0,null] },
+  { wk:"WK29", geral:94.7, cats:[33.3,66.7,100,93.3,86.7,93.3,100,null,100.0,null] },
+  { wk:"WK30", geral:96.2, cats:[40.0,60.0,100,93.8,100,87.5,100,null,100.0,null] },
+  { wk:"WK31", geral:96.0, cats:[40.0,60.0,100,86.7,100,93.3,100,null,100.0,null] },
+  { wk:"WK32", geral:92.7, cats:[40.0,60.0,100,90.9,100,72.7,100,null,100.0,null] },
+  { wk:"WK33", geral:90.0, cats:[40.0,60.0,100,90.0,100,60.0,100,null,100.0,null] },
+  { wk:"WK34", geral:80.0, cats:[40.0,60.0,100,40.0,100,60.0,100,null,100.0,null] },
+  { wk:"WK35", geral:82.2, cats:[40.0,60.0,100,44.4,100,66.7,100,null,100.0,null] },
+  { wk:"WK36", geral:82.9, cats:[40.0,60.0,100,57.1,100,57.1,100,null,100.0,null] },
+  { wk:"WK37", geral:88.6, cats:[50.0,50.0,100,71.4,100,71.4,100,null,100.0,null] },
+  { wk:"WK38", geral:82.9, cats:[50.0,50.0,100,71.4,100,42.9,100,null,null,null] },
+  { wk:"WK39", geral:92.0, cats:[66.7,44.4,100,70.0,100,90.0,100,null,null,null] },
+  { wk:"WK40", geral:94.0, cats:[66.7,44.4,100,80.0,100,90.0,100,null,null,null] },
+  { wk:"WK41", geral:96.7, cats:[75.0,50.0,100,83.3,100,100,100,null,null,null] },
+  { wk:"WK42", geral:94.5, cats:[81.8,45.5,100,81.8,100,90.9,100,null,null,null] },
+  { wk:"WK43", geral:88.0, cats:[90.0,40.0,80.0,70.0,100,90.0,100,null,null,null] },
+  { wk:"WK44", geral:94.5, cats:[90.9,45.5,90.9,81.8,100,100,100,null,null,null] },
+  { wk:"WK45", geral:96.4, cats:[90.9,45.5,100,81.8,100,100,100,null,null,null] },
+  { wk:"WK46", geral:96.7, cats:[91.7,45.5,100,83.3,100,100,100,null,null,null] },
+  { wk:"WK47", geral:94.3, cats:[92.9,57.1,92.9,78.6,100,100,100,null,null,null] },
   { wk:"WK48", geral:95.7, cats:[92.9,42.9,100,78.6,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
@@ -1549,13 +1549,12 @@ toggleHist.addEventListener("click", () => {
 // Plano de Ação — WK29 (aba BASE DESHBOARD, colunas V–AD, linhas 1231–1262)
 const acaoData = [
   { acao:"UWD1H82 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"UDV 2", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
-  { acao:"TYQ5C48 - DISCO E SUSPENSÃO (NOVA AVALIAÇÃO)", tipo:"CORRETIVA", parque:"TUCANO 2/BA", quem:"Sandoval", status:"30/11/2026", obs:"AGUARDANDO NOVA AVALIAÇÃO DA OFICINA", categoria:"Emergencial" },
   { acao:"UHS5E92 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"OITIS 1/PI", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
-  { acao:"TYD9F24 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"UDV2/RN", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
-  { acao:"UWD1H76 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"SÃO VITOR 1", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
+  { acao:"TYD9F24 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
   { acao:"UVN9J75 - 1.2 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"28/11/2026", obs:"ALINHAR A TROCA PARA O SABADO", categoria:"Emergencial" },
-  { acao:"TYD9F24 - 1.2 REVISÃO VENCIDA", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"28/11/2026", obs:"AGENDAR COM A LOCADORA", categoria:"Emergencial" },
+  { acao:"TYD9F24 - 1.2 REVISÃO", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"28/11/2026", obs:"AGENDAR COM A LOCADORA", categoria:"Emergencial" },
   { acao:"TZL6G42 - 1.1 PARA-BRISA TRINCADO", tipo:"CORRETIVA", parque:"TUCANO 1/BA", quem:"Sandoval", status:"28/11/2026", obs:"ACOMPANHAR EVOLUÇÃO DO TRINCO", categoria:"Emergencial" },
+  { acao:"UVN9J44 - 1.2 REVISÃO", tipo:"CORRETIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"27/11/2026", obs:"REVISÃO AGENDADA", categoria:"Emergencial" },
   { acao:"UVN9J75 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 1/PI", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN9J44 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UVN2B79 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"OITIS 2/PI", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
@@ -1565,7 +1564,6 @@ const acaoData = [
   { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
   { acao:"NC7492D - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UWD1H88 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"SÃO VITOR 2/BA", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"UVN9J44 - 1.2 REVISÃO", tipo:"CORRETIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"27/11/2026", obs:"REVISÃO AGENDADA", categoria:"Emergencial" },
   { acao:"TXY8H30 - KM ACIMA DO PONTO DE TROCA (40.000 KM)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/11/2026", obs:"KM 40.199 EM 22/11 - ALINHAR A TROCA DO VEÍCULO COM A LOCADORA", categoria:"Programada" }
 ];
 
