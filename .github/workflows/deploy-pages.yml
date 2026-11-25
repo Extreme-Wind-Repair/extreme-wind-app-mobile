@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  actions: read   # 25/11/2026: deploy-pages precisa ler o artefato do proprio run (sem isso: "No artifacts named github-pages")
   pages: write
   id-token: write
 
