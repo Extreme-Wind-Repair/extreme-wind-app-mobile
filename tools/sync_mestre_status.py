@@ -9,6 +9,8 @@ sync_mestre_status.py -- liga a VAGAS MESTRE (Dropbox) ao portal da Reuniao Diar
 Seguranca (o log do repositorio e PUBLICO): so imprime contagens, NUNCA nome/matricula/valor de pessoa nem credencial.
 - so troca celulas da coluna de status; todo o resto do .xlsx e copiado byte a byte (patch de XML, sem openpyxl);
 - v42 (25/11/2026): BDH e Backup agora vem do portal; so DESQUALIFICADO / ADMINISTRATIVO nunca sao sobrescritos;
+- 25/11/2026 (correcao): celula com formula ou dentro de bloco de formula NUNCA e trocada; se algum bloco ficar incompleto, cancela;
+  se o Excel salvou ha menos de 30 min (alguem editando), nao grava naquele ciclo;
 - sobe com checagem de revisao (mode=update): se o arquivo mudou no Dropbox no meio do caminho, descarta e tenta no proximo ciclo;
 - sem diferenca = nao grava nada; falha NUNCA derruba o job do BDH (o passo roda com continue-on-error).
 
@@ -117,7 +119,19 @@ def baixar(tok):
     arg = json.dumps({"path": "ns:%s/%s" % (NS, CAMINHO)}, ensure_ascii=True)
     dados, h = _post("https://content.dropboxapi.com/2/files/download", {"Authorization": "Bearer " + tok, "Dropbox-API-Arg": arg}, None, 180)
     res = json.loads({k.lower(): v for k, v in h.items()}["dropbox-api-result"])
-    return dados, res["rev"]
+    return dados, res["rev"], res.get("server_modified", "")
+
+
+def em_edicao(dados, server_modified, minutos=30):
+    """True se o ultimo a salvar foi o Excel (gente) ha menos de N minutos: alguem provavelmente esta com o arquivo aberto."""
+    import datetime
+    try:
+        z = zipfile.ZipFile(io.BytesIO(dados))
+        excel = {i.create_system for i in z.infolist()} == {0}
+        quando = datetime.datetime.strptime(server_modified, "%Y-%m-%dT%H:%M:%SZ")
+        return excel and (datetime.datetime.utcnow() - quando).total_seconds() < minutos * 60
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def subir(tok, dados, rev):
@@ -157,6 +171,45 @@ def _coluna(cel, titulo):
         if r == 2 and norm(v) == norm(titulo):
             return c
     return None
+
+
+def col_num(c):
+    n = 0
+    for ch in c:
+        n = n * 26 + ord(ch) - 64
+    return n
+
+
+def _ref(ref):
+    m = re.fullmatch(r"([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?", ref)
+    if not m:
+        return None
+    c1, r1 = col_num(m.group(1)), int(m.group(2))
+    c2, r2 = (col_num(m.group(3)), int(m.group(4))) if m.group(3) else (c1, r1)
+    return (c1, r1, c2, r2)
+
+
+def _blocos_formula(x):
+    """Faixas (col1, lin1, col2, lin2) de formulas compartilhadas e de matriz da aba."""
+    out = []
+    for m in re.finditer(r'<f\b([^>]*)>', x):
+        at = m.group(1)
+        if 't="shared"' in at or 't="array"' in at:
+            r = re.search(r'ref="([^"]+)"', at)
+            if r and _ref(r.group(1)):
+                out.append(_ref(r.group(1)))
+    return out
+
+
+def _conferir_blocos(x):
+    """Toda celula existente dentro de um bloco de formula tem que continuar com formula; se nao, cancela (nao sobe nada)."""
+    blocos = _blocos_formula(x)
+    if not blocos:
+        return
+    for m in re.finditer(r'<c r="([A-Z]+)(\d+)"[^>]*?(?:/>|>(.*?)</c>)', x, flags=re.S):
+        c, r = col_num(m.group(1)), int(m.group(2))
+        if any(c1 <= c <= c2 and r1 <= r <= r2 for (c1, r1, c2, r2) in blocos) and "<f" not in (m.group(3) or ""):
+            raise RuntimeError("TRAVA: bloco de formula ficaria incompleto em %s%d; nada foi gravado." % (m.group(1), r))
 
 
 def lista_tecnicos(dados):
@@ -204,13 +257,23 @@ def patch(dados, port):
     if not col:
         raise RuntimeError("Coluna de status nao encontrada pelo titulo.")
     mats = {m.group(1): m.group(2) for m in re.finditer(r'<c r="A(\d+)"[^>]*><v>(\d+)</v>', x)}
-    stats = {"trocadas": 0, "iguais": 0, "preservadas": 0, "sem_portal": 0}
+    stats = {"trocadas": 0, "iguais": 0, "preservadas": 0, "sem_portal": 0, "puladas_formula": 0}
+    # 25/11/2026: blocos de formula (compartilhada/matriz) que cobrem a coluna de status NUNCA sao tocados.
+    # (O Excel guarda formulas copiadas como um bloco, ex.: AL309:AM314; trocar uma celula do meio por valor corrompe o arquivo.)
+    blocos = _blocos_formula(x)
+    cn = col_num(col)
+
+    def dentro_de_bloco(linha):
+        return any(c1 <= cn <= c2 and r1 <= linha <= r2 for (c1, r1, c2, r2) in blocos)
 
     def rep(m):
         r, a, b = m.group(1), m.group(2), m.group(3) or ""
         mat = mats.get(r)
         if not mat or mat not in port:
             stats["sem_portal"] += 1
+            return m.group(0)
+        if "<f" in b or dentro_de_bloco(int(r)):
+            stats["puladas_formula"] += 1
             return m.group(0)
         v = re.search(r"<v>(\d+)</v>", b)
         atual = T[int(v.group(1))] if v and 't="s"' in a else ""
@@ -245,6 +308,7 @@ def patch(dados, port):
     b = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", x2, flags=re.S)
     if a != b:
         raise RuntimeError("TRAVA: o patch alterou algo fora da coluna de status.")
+    _conferir_blocos(x2)
     return saida.getvalue(), stats
 
 
@@ -256,7 +320,7 @@ def main():
             dados, rev, tok = open(local, "rb").read(), None, None
         else:
             tok = token()
-            dados, rev = baixar(tok)
+            dados, rev, quando = baixar(tok)
         lista = lista_tecnicos(dados)
         log("VAGAS: %d tecnico(s) de campo na lista." % len(lista))
         if not local:
@@ -276,6 +340,9 @@ def main():
             log("[TESTE] haveria gravacao de %d celula(s); nada foi gravado." % st["trocadas"])
             if local:
                 open(os.environ.get("SAIDA_LOCAL", "/tmp/mestre_sync_out.xlsx"), "wb").write(novo)
+            return 0
+        if em_edicao(dados, quando):
+            log("Arquivo salvo pelo Excel ha menos de 30 min (alguem editando): nao grava agora; tenta no proximo ciclo.")
             return 0
         subir(tok, novo, rev)
         log("Gravado no Dropbox (%d celula(s), revisao conferida)." % st["trocadas"])
