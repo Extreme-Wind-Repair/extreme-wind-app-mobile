@@ -49,7 +49,7 @@ def ler_portal():
     url, chave = os.environ.get("PORTAL_STATUS_URL", ""), os.environ.get("PORTAL_STATUS_KEY", "")
     if not (url and chave):
         raise RuntimeError("Faltam PORTAL_STATUS_URL e/ou PORTAL_STATUS_KEY.")
-    corpo = json.dumps({"modo": "statusMestre", "chave": chave}).encode()
+    corpo = json.dumps({"acao": "indicarEquipes", "modo": "statusMestre", "chave": chave}).encode()
     req = urllib.request.Request(url, data=corpo, headers={"Content-Type": "text/plain"}, method="POST")
     with urllib.request.urlopen(req, timeout=60) as r:
         d = json.loads(r.read().decode("utf-8"))
