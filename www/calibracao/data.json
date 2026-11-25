@@ -1,8 +1,8 @@
 {
-  "generated_at": "25/11/2026 às 08:10",
-  "total": 160,
+  "generated_at": "25/11/2026 às 16:00",
+  "total": 161,
   "counts": {
-    "OK": 75,
+    "OK": 76,
     "VENCE": 70,
     "VENCIDO": 15,
     "SEM": 0
@@ -1288,6 +1288,14 @@
       "proximaCalibracao": "05/10/2027",
       "certificado": "2522/26",
       "diasRaw": "314"
+    },
+    {
+      "codigo": "MOM-009",
+      "status": "OK",
+      "dataCalibracao": "24/11/2026",
+      "proximaCalibracao": "24/11/2027",
+      "certificado": "2806/26",
+      "diasRaw": "364"
     }
   ]
 }
