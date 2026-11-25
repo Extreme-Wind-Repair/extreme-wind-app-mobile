@@ -8,7 +8,9 @@ sync_mestre_status.py -- liga a VAGAS MESTRE (Dropbox) ao portal da Reuniao Diar
 
 Seguranca (o log do repositorio e PUBLICO): so imprime contagens, NUNCA nome/matricula/valor de pessoa nem credencial.
 - so troca celulas da coluna de status; todo o resto do .xlsx e copiado byte a byte (patch de XML, sem openpyxl);
-- v42 (25/11/2026): BDH e Backup agora vem do portal; so DESQUALIFICADO / ADMINISTRATIVO nunca sao sobrescritos;
+- v42 (25/11/2026): BDH e Backup agora vem do portal;
+- v43 (25/11/2026): DESQUALIFICADO e ADMINISTRATIVO/ ENG tambem vem do portal (manuais la); nome sem matricula = EM CONTRATACAO;
+  sem nome e sem matricula = coluna vazia; a coluna recebe uma validacao que recusa digitacao (o resto da aba fica livre);
 - 25/11/2026 (correcao): celula com formula ou dentro de bloco de formula NUNCA e trocada; se algum bloco ficar incompleto, cancela;
   se o Excel salvou ha menos de 30 min (alguem editando), nao grava naquele ciclo;
 - sobe com checagem de revisao (mode=update): se o arquivo mudou no Dropbox no meio do caminho, descarta e tenta no proximo ciclo;
@@ -33,7 +35,10 @@ ABA = "BANCO DE DADOS"
 COL_STATUS = "RESUMO GESTAO A VISTA"
 COL_NOME = "NOME"
 COL_CONTRATO = "CONTRATO"
-TEXTO = {"A": "AGUARDANDO CONVOCAÇÃO", "R": "RESERVAS", "T": "ATIVO PARQUE", "I": "INDISPONIVEL", "B": "BANCO DE HORAS", "K": "BACKUP"}
+TEXTO = {"A": "AGUARDANDO CONVOCAÇÃO", "R": "RESERVAS", "T": "ATIVO PARQUE", "I": "INDISPONIVEL", "B": "BANCO DE HORAS", "K": "BACKUP",
+         "D": "DESQUALIFICADO", "E": "ADMINISTRATIVO/ ENG"}
+EM_CONTRATACAO = "EM CONTRATAÇÃO"  # v43: linha com nome e sem matricula (automatico)
+TRAVA_TITULO = "Coluna travada"  # v43: validacao de dados que impede digitar na coluna de status
 PRESERVAR = re.compile(r"\b(DESQUALIFICADO|ADMINISTRATIVO)\b")
 CONTRATO_FORA = ("MEI", "DETERMINADO")  # cargos administrativos (regra Robson 25/11/2026)
 
@@ -52,6 +57,10 @@ def prio_letra(nome):
         return "B"
     if n.startswith("BACKUP"):
         return "K"
+    if n.startswith("DESQUALIF"):
+        return "D"
+    if n.startswith("ADMINISTR"):
+        return "E"
     return "A" if n.startswith("AGUARD") else "R" if n.startswith("RESERV") else "T" if n.startswith("ATIV") else "I" if n.startswith("INDISP") else ""
 
 
@@ -201,6 +210,16 @@ def _blocos_formula(x):
     return out
 
 
+def _bloco_shared(x, b):
+    """True se o bloco b e de formula COMPARTILHADA (nao matriz)."""
+    for m in re.finditer(r'<f\b([^>]*)>', x):
+        at = m.group(1)
+        r = re.search(r'ref="([^"]+)"', at)
+        if r and _ref(r.group(1)) == b:
+            return 't="shared"' in at
+    return False
+
+
 def _conferir_blocos(x):
     """Toda celula existente dentro de um bloco de formula tem que continuar com formula; se nao, cancela (nao sobe nada)."""
     blocos = _blocos_formula(x)
@@ -231,84 +250,188 @@ def lista_tecnicos(dados):
         nome = re.sub(r"\s+", " ", str(cel.get((cn, r), ""))).strip()
         status = norm(cel.get((cs, r), ""))
         ctt = norm(cel.get((cc, r), "")) if cc else ""
-        if not nome or PRESERVAR.search(status) or ctt in CONTRATO_FORA:
+        marca = "D" if "DESQUALIFICADO" in status else "E" if "ADMINISTRATIVO" in status else ""
+        if not nome or (ctt in CONTRATO_FORA and not marca):
             continue
         vistos.add(mat)
-        out.append([mat, nome, ctt])
+        out.append([mat, nome, ctt, marca])  # v43: marca D/E = carga unica no portal (Desqualificado / Administrativo-Eng)
     return out
 
 
-def patch(dados, port):
+def _xml_esc(t):
+    return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _trava_coluna(x, col):
+    """v43: garante a validacao de dados que RECUSA digitacao na coluna de status (so nela; o resto da aba fica livre).
+    Se o RH apagar a validacao, ela volta na proxima rodada."""
+    if 'errorTitle="%s"' % TRAVA_TITULO in x:
+        return x, 0
+    dv = ('<dataValidation type="custom" allowBlank="1" showErrorMessage="1" errorStyle="stop" errorTitle="%s" '
+          'error="O status vem do portal (Vagas). Altere pelo portal." sqref="%s3:%s5000"><formula1>FALSE</formula1></dataValidation>'
+          % (TRAVA_TITULO, col, col))
+    m = re.search(r'<dataValidations\b[^>]*>', x)
+    if m:
+        c = re.search(r'count="(\d+)"', m.group(0))
+        ini = m.group(0).replace(c.group(0), 'count="%d"' % (int(c.group(1)) + 1)) if c else m.group(0)
+        return x[:m.start()] + ini + dv + x[m.end():], 1
+    fim = x.find("</sheetData>")
+    m2 = re.compile(r'<(hyperlinks|printOptions|pageMargins|pageSetup|headerFooter|rowBreaks|colBreaks|customProperties|cellWatches|'
+                    r'ignoredErrors|smartTags|drawing|legacyDrawing|legacyDrawingHF|picture|oleObjects|controls|webPublishItems|tableParts|extLst)[\s/>]').search(x, fim)
+    pos = m2.start() if m2 else x.rfind("</worksheet>")
+    return x[:pos] + '<dataValidations count="1">' + dv + '</dataValidations>' + x[pos:], 1
+
+
+def patch(dados, port, preservar_manual=False):
+    """Coluna de status = espelho do portal. v43 (25/11/2026, Robson):
+    - com matricula: texto do status do portal (Desqualificado e Administrativo/Eng tambem vem do portal);
+    - nome sem matricula: EM CONTRATACAO;  - sem nome e sem matricula: coluna vazia (desfaz texto colado por cima da trava);
+    - celula de formula / bloco de formula nunca e tocada;  - garante a trava (validacao) da coluna."""
     z = zipfile.ZipFile(io.BytesIO(dados))
     caminho = achar_aba(z)
     T = _strings(z)
-    idx = {}
-    for l, t in TEXTO.items():
-        if t not in T:
-            raise RuntimeError("Texto de status ausente nas strings da planilha (%s)." % l)
-        idx[l] = T.index(t)
+    pos_T = {}
+    for i, t in enumerate(T):
+        pos_T.setdefault(t, i)
     x = z.read(caminho).decode("utf-8")
-    # acha a coluna pelo titulo (linha 2), nao por posicao fixa
-    col = None
-    for m in re.finditer(r'<c r="([A-Z]+)2"([^>]*?)(?:/>|>(.*?)</c>)', x, flags=re.S):
-        v = re.search(r"<v>(\d+)</v>", m.group(3) or "")
-        if v and 't="s"' in m.group(2) and norm(T[int(v.group(1))]) == norm(COL_STATUS):
-            col = m.group(1)
-    if not col:
-        raise RuntimeError("Coluna de status nao encontrada pelo titulo.")
-    mats = {m.group(1): m.group(2) for m in re.finditer(r'<c r="A(\d+)"[^>]*><v>(\d+)</v>', x)}
-    stats = {"trocadas": 0, "iguais": 0, "preservadas": 0, "sem_portal": 0, "puladas_formula": 0}
-    # 25/11/2026: blocos de formula (compartilhada/matriz) que cobrem a coluna de status NUNCA sao tocados.
-    # (O Excel guarda formulas copiadas como um bloco, ex.: AL309:AM314; trocar uma celula do meio por valor corrompe o arquivo.)
-    blocos = _blocos_formula(x)
+    cel = _celulas(x, T)
+    col, cnome = _coluna(cel, COL_STATUS), _coluna(cel, COL_NOME)
+    if not (col and cnome):
+        raise RuntimeError("Coluna de status/nome nao encontrada pelo titulo.")
+    mats, nomes = {}, set()
+    for (c, r), v in cel.items():
+        if r <= 2:
+            continue
+        if c == "A":
+            mt = str(v).strip()
+            mt = mt[:-2] if mt.endswith(".0") else mt
+            if re.fullmatch(r"\d{1,5}", mt):
+                mats[r] = mt
+        elif c == cnome and str(v).strip():
+            nomes.add(r)
+    stats = {"trocadas": 0, "iguais": 0, "preservadas": 0, "sem_portal": 0, "puladas_formula": 0,
+             "em_contratacao": 0, "limpas": 0, "inseridas": 0, "trava_coluna": 0, "formulas_desfeitas": 0}
+    # blocos de formula (compartilhada/matriz) que cobrem a coluna de status NUNCA sao tocados (ex.: AL309:AM314).
     cn = col_num(col)
+    # v43: bloco de formula que fica SO na coluna de status (ex.: AM323:AM386 =IF($A323="","","RESERVAS"), modelo do RH)
+    # e desfeito INTEIRO (todas as celulas viram valor de uma vez, nunca pela metade). Bloco que pega outra coluna
+    # (ex.: AL309:AM314) continua intocavel.
+    blocos = [b for b in _blocos_formula(x) if b[0] <= cn <= b[2] and not (b[0] == b[2] == cn and _bloco_shared(x, b))]
+    soltos = {"n": 0}
 
     def dentro_de_bloco(linha):
         return any(c1 <= cn <= c2 and r1 <= linha <= r2 for (c1, r1, c2, r2) in blocos)
 
-    def rep(m):
-        r, a, b = m.group(1), m.group(2), m.group(3) or ""
+    def alvo(r, atual):
         mat = mats.get(r)
-        if not mat or mat not in port:
-            stats["sem_portal"] += 1
+        if mat:
+            if mat not in port:
+                stats["sem_portal"] += 1
+                return None
+            l = port[mat]
+            if preservar_manual and l not in ("D", "E") and PRESERVAR.search(norm(atual)):
+                stats["preservadas"] += 1
+                return None
+            if l == "E" and norm(atual).startswith("ADMINISTRATIVO"):
+                return atual  # mantem a variacao ja usada pelo RH (ADMINISTRATIVO / ADMINISTRATIVO/ ENG)
+            return TEXTO[l]
+        if r in nomes:
+            return EM_CONTRATACAO
+        return ""
+
+    def xml_cel(r, attrs, texto):
+        attrs = re.sub(r'\s*t="[^"]*"', "", attrs)
+        if texto == "":
+            return '<c r="%s%d"%s/>' % (col, r, attrs)
+        if texto in pos_T:
+            return '<c r="%s%d"%s t="s"><v>%d</v></c>' % (col, r, attrs, pos_T[texto])
+        return '<c r="%s%d"%s t="inlineStr"><is><t>%s</t></is></c>' % (col, r, attrs, _xml_esc(texto))
+
+    vistas = set()
+
+    def rep(m):
+        r, a, b = int(m.group(1)), m.group(2), m.group(3) or ""
+        vistas.add(r)
+        if r <= 2:
             return m.group(0)
-        if "<f" in b or dentro_de_bloco(int(r)):
+        if dentro_de_bloco(r) or 't="array"' in b:
             stats["puladas_formula"] += 1
             return m.group(0)
-        v = re.search(r"<v>(\d+)</v>", b)
-        atual = T[int(v.group(1))] if v and 't="s"' in a else ""
-        if PRESERVAR.search(norm(atual)):
-            stats["preservadas"] += 1
+        formula = "<f" in b
+        v = re.search(r"<v>(.*?)</v>", b, flags=re.S)
+        if v:
+            atual = T[int(v.group(1))] if 't="s"' in a else v.group(1)
+        else:
+            it = re.search(r"<t[^>]*>(.*?)</t>", b, flags=re.S)
+            atual = it.group(1) if it else ""
+        novo = alvo(r, atual)
+        if formula:
+            soltos["n"] += 1
+            stats["formulas_desfeitas"] += 1
+            return xml_cel(r, a, atual if novo is None else novo)
+        if novo is None or novo == atual:
+            if novo is not None:
+                stats["iguais"] += 1
             return m.group(0)
-        if atual == TEXTO[port[mat]]:
-            stats["iguais"] += 1
-            return m.group(0)
-        stats["trocadas"] += 1
-        return '<c r="%s%s"%s t="s"><v>%d</v></c>' % (col, r, re.sub(r'\s*t="[^"]*"', "", a), idx[port[mat]])
+        stats["limpas" if novo == "" else "em_contratacao" if novo == EM_CONTRATACAO else "trocadas"] += 1
+        return xml_cel(r, a, novo)
 
     x2 = re.sub(r'<c r="%s(\d+)"([^>]*?)(?:/>|>(.*?)</c>)' % col, rep, x, flags=re.S)
-    if x2 == x:
-        return None, stats
-    saida = io.BytesIO()
-    zo = zipfile.ZipFile(saida, "w", zipfile.ZIP_DEFLATED)
-    for it in z.infolist():
-        d = z.read(it.filename)
-        ni = zipfile.ZipInfo(it.filename, it.date_time)
-        ni.compress_type, ni.external_attr = zipfile.ZIP_DEFLATED, it.external_attr
-        zo.writestr(ni, x2.encode("utf-8") if it.filename == caminho else d)
-    zo.close()
-    # conferencia: reabre e confere que so a coluna de status mudou
-    z2 = zipfile.ZipFile(io.BytesIO(saida.getvalue()))
-    if z2.testzip() is not None:
-        raise RuntimeError("zip invalido apos o patch")
-    for it in z.infolist():
-        if it.filename != caminho and z.read(it.filename) != z2.read(it.filename):
-            raise RuntimeError("TRAVA: outra parte do arquivo mudou.")
+
+    # linha de tecnico (ou de contratacao) sem a celula de status: cria a celula na posicao certa
+    def rep_linha(m):
+        r = int(m.group(1))
+        if r <= 2 or r in vistas or dentro_de_bloco(r):
+            return m.group(0)
+        novo = alvo(r, "")
+        if not novo:
+            return m.group(0)
+        corpo = m.group(3)
+        depois = [mm for mm in re.finditer(r'<c r="([A-Z]+)\d+"', corpo) if col_num(mm.group(1)) > cn]
+        p = depois[0].start() if depois else len(corpo)
+        stats["inseridas"] += 1
+        stats["em_contratacao" if novo == EM_CONTRATACAO else "trocadas"] += 1
+        return '<row r="%d"%s>%s%s%s</row>' % (r, m.group(2), corpo[:p], xml_cel(r, "", novo), corpo[p:])
+
+    x2 = re.sub(r'<row r="(\d+)"([^>]*?)>(.*?)</row>', rep_linha, x2, flags=re.S)
+    # conferencia: fora da coluna de status nada pode mudar
     a = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", x, flags=re.S)
     b = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", x2, flags=re.S)
     if a != b:
         raise RuntimeError("TRAVA: o patch alterou algo fora da coluna de status.")
+    x2, stats["trava_coluna"] = _trava_coluna(x2, col)
+    if x2 == x:
+        return None, stats
     _conferir_blocos(x2)
+    # formula desfeita: a cadeia de calculo (calcChain.xml) apontaria para celula sem formula -> sai do arquivo;
+    # o Excel recria sozinho ao abrir (mesmo comportamento de quando se apaga formula a mao).
+    trocar, tirar = {caminho: x2.encode("utf-8")}, set()
+    if soltos["n"] and "xl/calcChain.xml" in z.namelist():
+        tirar.add("xl/calcChain.xml")
+        ct = z.read("[Content_Types].xml").decode("utf-8")
+        trocar["[Content_Types].xml"] = re.sub(r'<Override [^>]*PartName="/xl/calcChain.xml"[^>]*/>', "", ct).encode("utf-8")
+        rl = z.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+        trocar["xl/_rels/workbook.xml.rels"] = re.sub(r'<Relationship [^>]*Target="(?:/xl/)?calcChain.xml"[^>]*/>', "", rl).encode("utf-8")
+    saida = io.BytesIO()
+    zo = zipfile.ZipFile(saida, "w", zipfile.ZIP_DEFLATED)
+    for it in z.infolist():
+        if it.filename in tirar:
+            continue
+        d = trocar.get(it.filename) or z.read(it.filename)
+        ni = zipfile.ZipInfo(it.filename, it.date_time)
+        ni.compress_type, ni.external_attr = zipfile.ZIP_DEFLATED, it.external_attr
+        zo.writestr(ni, d)
+    zo.close()
+    z2 = zipfile.ZipFile(io.BytesIO(saida.getvalue()))
+    if z2.testzip() is not None:
+        raise RuntimeError("zip invalido apos o patch")
+    for it in z.infolist():
+        if it.filename in trocar or it.filename in tirar:
+            continue
+        if z.read(it.filename) != z2.read(it.filename):
+            raise RuntimeError("TRAVA: outra parte do arquivo mudou.")
+    if tirar and ("calcChain" in z2.read("[Content_Types].xml").decode() or "calcChain" in z2.read("xl/_rels/workbook.xml.rels").decode()):
+        raise RuntimeError("TRAVA: referencia a calcChain ficou no arquivo.")
     return saida.getvalue(), stats
 
 
@@ -323,15 +446,17 @@ def main():
             dados, rev, quando = baixar(tok)
         lista = lista_tecnicos(dados)
         log("VAGAS: %d tecnico(s) de campo na lista." % len(lista))
+        lista_ok = False
         if not local:
             try:
                 r = enviar_lista(lista)
+                lista_ok = True
                 log("Lista enviada ao portal: %d novo(s), %d nome(s) e %d contrato(s) atualizados." % (r.get("novos", 0), r.get("nomes", 0), r.get("contratos", 0)))
             except Exception as e:  # noqa: BLE001  (a lista falhar nao impede a gravacao do status)
                 log("[AVISO] lista nao enviada: %s" % str(e)[:200])
         port = ler_portal() if not os.environ.get("PORTAL_LOCAL") else json.load(open(os.environ["PORTAL_LOCAL"]))
         log("Portal: %d tecnico(s) com status." % len(port))
-        novo, st = patch(dados, port)
+        novo, st = patch(dados, port, preservar_manual=not lista_ok)  # lista falhou: nao mexe em DESQUALIFICADO/ADMINISTRATIVO
         log("Resultado: %s" % json.dumps(st))
         if novo is None:
             log("Sem mudanca: o Mestre ja esta igual ao portal.")
