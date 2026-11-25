@@ -262,7 +262,7 @@
   </div>
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
-    <div class="value" style="color:var(--ok)">96%</div>
+    <div class="value" style="color:var(--ok)">95%</div>
     <div class="foot">WK 48 · 19 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
       <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">9</span><span class="l">Emergenciais</span></div>
@@ -272,7 +272,7 @@
   </div>
   <div class="kpi">
     <div class="label">Média de KM</div>
-    <div class="value" id="kmValue" data-km="12589" style="color: var(--ok);">12.589</div>
+    <div class="value" id="kmValue" data-km="13256" style="color: var(--ok);">13.256</div>
     <div class="foot">Limite p/ renovação: ≥ 30.000 km</div>
   </div>
 </div>
@@ -989,10 +989,10 @@ render();
     <text x="600.0" y="49.0" fill="#D89A2B" font-size="11.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">Meta 95%</text>
 
     <!-- area fill under the smoothed trend curve -->
-    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,42.3 335.0,43.1 C379.2,43.9 423.3,50.6 467.5,50.1 C511.7,49.6 577.9,41.9 600.0,40.3 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
+    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,58.7 467.5,59.9 C511.7,61.1 577.9,51.7 600.0,50.1 L600.0,160 L70.0,160 Z" fill="url(#areaGrad)"></path>
 
     <!-- smoothed trend line -->
-    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,42.3 335.0,43.1 C379.2,43.9 423.3,50.6 467.5,50.1 C511.7,49.6 577.9,41.9 600.0,40.3" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
+    <path d="M70.0,58.5 C92.1,56.3 158.3,47.8 202.5,45.2 C246.7,42.6 290.8,40.6 335.0,43.1 C379.2,45.5 423.3,58.7 467.5,59.9 C511.7,61.1 577.9,51.7 600.0,50.1" fill="none" stroke="#00679A" stroke-width="3" stroke-linecap="round"></path>
 
     <!-- points -->
     <g font-family="Segoe UI,Arial,sans-serif">
@@ -1005,11 +1005,11 @@ render();
       <circle cx="335.0" cy="43.1" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
       <text x="335.0" y="31.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">97%</text>
 
-      <circle cx="467.5" cy="50.1" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="467.5" y="38.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
+      <circle cx="467.5" cy="59.9" r="5.5" fill="#0F2A40" stroke="#D89A2B" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="467.5" y="47.9" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">94%</text>
 
-      <circle cx="600.0" cy="40.3" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
-      <text x="600.0" y="28.3" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">97%</text>
+      <circle cx="600.0" cy="50.1" r="5.5" fill="#0F2A40" stroke="#12A874" stroke-width="2.5" filter="url(#ptShadow)"></circle>
+      <text x="600.0" y="38.1" fill="#EAF1F7" font-size="13.5" font-weight="700" text-anchor="middle">96%</text>
     </g>
 
     <!-- x labels -->
@@ -1036,56 +1036,56 @@ render();
   <div style="overflow-x:auto;">
   <svg viewBox="0 0 1010 320" class="trend-chart saldo-km-chart" style="height:auto; max-height:340px;">
     <!-- linha zero -->
-    <line x1="50" y1="187.8" x2="1000" y2="187.8" stroke="#3A567A" stroke-width="1.2"></line>
-    <text x="44" y="191.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
+    <line x1="50" y1="181.7" x2="1000" y2="181.7" stroke="#3A567A" stroke-width="1.2"></line>
+    <text x="44" y="185.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">0</text>
 
     <!-- linha de referencia +4.000 km (limite da faixa verde) -->
-    <line x1="50" y1="106.8" x2="1000" y2="106.8" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
-    <text x="1000" y="100.8" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
+    <line x1="50" y1="105.0" x2="1000" y2="105.0" stroke="#D89A2B" stroke-width="1.4" stroke-dasharray="6,5"></line>
+    <text x="1000" y="99.0" fill="#D89A2B" font-size="10.5" font-weight="700" text-anchor="end" font-family="Segoe UI,Arial,sans-serif">+4.000 km</text>
 
     <g font-family="Segoe UI,Arial,sans-serif">
-      <rect x="60.0" y="187.8" width="46" height="46.1" rx="4" fill="#E0483C"></rect>
-      <rect x="128.0" y="187.8" width="46" height="7.7" rx="4" fill="#E0483C"></rect>
-      <rect x="196.0" y="152.1" width="46" height="35.8" rx="4" fill="#12A874"></rect>
-      <rect x="264.0" y="183.0" width="46" height="4.8" rx="4" fill="#12A874"></rect>
-      <rect x="332.0" y="26.0" width="46" height="161.8" rx="4" fill="#E0483C"></rect>
-      <rect x="400.0" y="187.8" width="46" height="5.4" rx="4" fill="#E0483C"></rect>
-      <rect x="468.0" y="187.8" width="46" height="54.2" rx="4" fill="#E0483C"></rect>
-      <rect x="536.0" y="133.5" width="46" height="54.4" rx="4" fill="#12A874"></rect>
-      <rect x="604.0" y="111.7" width="46" height="76.2" rx="4" fill="#12A874"></rect>
-      <rect x="672.0" y="181.5" width="46" height="6.4" rx="4" fill="#12A874"></rect>
-      <rect x="740.0" y="187.8" width="46" height="4.3" rx="4" fill="#E0483C"></rect>
-      <rect x="808.0" y="172.9" width="46" height="15.0" rx="4" fill="#12A874"></rect>
-      <rect x="876.0" y="158.1" width="46" height="29.7" rx="4" fill="#12A874"></rect>
-      <rect x="944.0" y="168.9" width="46" height="18.9" rx="4" fill="#12A874"></rect>
-      <text x="83.0" y="201.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.273</text>
-      <text x="151.0" y="201.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-378</text>
-      <text x="219.0" y="144.1" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.765</text>
-      <text x="287.0" y="175.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">237</text>
-      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">7.985</text>
-      <text x="423.0" y="201.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-267</text>
-      <text x="491.0" y="201.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.672</text>
-      <text x="559.0" y="125.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.682</text>
-      <text x="627.0" y="103.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">3.757</text>
-      <text x="695.0" y="173.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">314</text>
-      <text x="763.0" y="201.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-214</text>
-      <text x="831.0" y="164.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">740</text>
-      <text x="899.0" y="150.1" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.467</text>
-      <text x="967.0" y="160.9" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">933</text>
-      <text x="83.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 221.8)">OITIS 2/PI</text>
-      <text x="151.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 221.8)">OITIS 1/PI</text>
-      <text x="219.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 221.8)">TUCANO 2/BA</text>
-      <text x="287.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 221.8)">BAIXA DO FEIJÃO/RN</text>
-      <text x="355.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 221.8)">SÃO VITOR/BA</text>
-      <text x="423.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 221.8)">LDV 2/PI</text>
-      <text x="491.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 221.8)">LDV 1/PI</text>
-      <text x="559.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 221.8)">TUCANO 1/BA</text>
-      <text x="627.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 627.0 221.8)">DOLORES 1/MEX</text>
-      <text x="695.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 695.0 221.8)">DOLORES 2/MEX</text>
-      <text x="763.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 763.0 221.8)">SÃO VITOR 2/BA</text>
-      <text x="831.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 831.0 221.8)">UDV 2</text>
-      <text x="899.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 899.0 221.8)">UDV 1</text>
-      <text x="967.0" y="221.8" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 967.0 221.8)">ADM 1</text>
+      <rect x="60.0" y="181.7" width="46" height="60.3" rx="4" fill="#E0483C"></rect>
+      <rect x="128.0" y="181.7" width="46" height="4.7" rx="4" fill="#E0483C"></rect>
+      <rect x="196.0" y="145.3" width="46" height="36.4" rx="4" fill="#12A874"></rect>
+      <rect x="264.0" y="174.6" width="46" height="7.1" rx="4" fill="#12A874"></rect>
+      <rect x="332.0" y="26.0" width="46" height="155.7" rx="4" fill="#E0483C"></rect>
+      <rect x="400.0" y="181.7" width="46" height="2.6" rx="4" fill="#E0483C"></rect>
+      <rect x="468.0" y="181.7" width="46" height="48.7" rx="4" fill="#E0483C"></rect>
+      <rect x="536.0" y="127.7" width="46" height="54.0" rx="4" fill="#12A874"></rect>
+      <rect x="604.0" y="119.5" width="46" height="62.3" rx="4" fill="#12A874"></rect>
+      <rect x="672.0" y="173.8" width="46" height="7.9" rx="4" fill="#12A874"></rect>
+      <rect x="740.0" y="181.7" width="46" height="2.0" rx="4" fill="#E0483C"></rect>
+      <rect x="808.0" y="165.0" width="46" height="16.7" rx="4" fill="#12A874"></rect>
+      <rect x="876.0" y="170.3" width="46" height="11.4" rx="4" fill="#12A874"></rect>
+      <rect x="944.0" y="161.3" width="46" height="20.5" rx="4" fill="#12A874"></rect>
+      <text x="83.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-3.142</text>
+      <text x="151.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-245</text>
+      <text x="219.0" y="137.3" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.898</text>
+      <text x="287.0" y="166.6" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">371</text>
+      <text x="355.0" y="18.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">8.118</text>
+      <text x="423.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-133</text>
+      <text x="491.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-2.538</text>
+      <text x="559.0" y="119.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">2.816</text>
+      <text x="627.0" y="111.5" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">3.245</text>
+      <text x="695.0" y="165.8" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">414</text>
+      <text x="763.0" y="195.7" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">-81</text>
+      <text x="831.0" y="157.0" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">873</text>
+      <text x="899.0" y="162.3" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">595</text>
+      <text x="967.0" y="153.3" fill="#EAF1F7" font-size="11.5" font-weight="700" text-anchor="middle">1.067</text>
+      <text x="83.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 83.0 215.7)">OITIS 2/PI</text>
+      <text x="151.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 151.0 215.7)">OITIS 1/PI</text>
+      <text x="219.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 219.0 215.7)">TUCANO 2/BA</text>
+      <text x="287.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 287.0 215.7)">BAIXA DO FEIJÃO/RN</text>
+      <text x="355.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 355.0 215.7)">SÃO VITOR/BA</text>
+      <text x="423.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 423.0 215.7)">LDV 2/PI</text>
+      <text x="491.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 491.0 215.7)">LDV 1/PI</text>
+      <text x="559.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 559.0 215.7)">TUCANO 1/BA</text>
+      <text x="627.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 627.0 215.7)">DOLORES 1/MEX</text>
+      <text x="695.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 695.0 215.7)">DOLORES 2/MEX</text>
+      <text x="763.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 763.0 215.7)">SÃO VITOR 2/BA</text>
+      <text x="831.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 831.0 215.7)">UDV 2</text>
+      <text x="899.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 899.0 215.7)">UDV 1</text>
+      <text x="967.0" y="215.7" fill="#8FA9C0" font-size="10.5" text-anchor="end" transform="rotate(-38 967.0 215.7)">ADM 1</text>
     </g>
   </svg>
   </div>
@@ -1113,7 +1113,7 @@ render();
       <tr><td>KM Ponto de Troca</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn cur">93%</td></tr>
       <tr><td>Saldo Extra</td><td class="cell-nok">55%</td><td class="cell-nok">55%</td><td class="cell-nok">55%</td><td class="cell-nok">57%</td><td class="cell-nok cur">43%</td></tr>
       <tr><td>Checklist</td><td class="cell-warn">91%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-warn">93%</td><td class="cell-ok cur">100%</td></tr>
-      <tr><td>Revisão</td><td class="cell-warn">82%</td><td class="cell-warn">82%</td><td class="cell-warn">83%</td><td class="cell-warn">86%</td><td class="cell-warn cur">86%</td></tr>
+      <tr><td>Revisão</td><td class="cell-warn">82%</td><td class="cell-warn">82%</td><td class="cell-warn">83%</td><td class="cell-warn">79%</td><td class="cell-warn cur">79%</td></tr>
       <tr><td>Estepe Extra</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Medição Pneus</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
       <tr><td>Rastreador + Bloqueador</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok">100%</td><td class="cell-ok cur">100%</td></tr>
@@ -1122,7 +1122,7 @@ render();
       <tr><td>Doc Entregue Cliente</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd">–</td><td class="nd cur">–</td></tr>
     </tbody>
     <tfoot>
-      <tr><td>Média Geral</td><td class="cell-warn">95%</td><td class="cell-ok">96%</td><td class="cell-ok">97%</td><td class="cell-ok">96%</td><td class="cell-ok cur">97%</td></tr>
+      <tr><td>Média Geral</td><td class="cell-warn">95%</td><td class="cell-ok">96%</td><td class="cell-ok">97%</td><td class="cell-warn">94%</td><td class="cell-ok cur">96%</td></tr>
     </tfoot>
   </table>
   </div>
@@ -1189,7 +1189,7 @@ render();
   <svg id="kmhSvg" viewBox="0 0 1000 340" class="trend-chart" style="width:100%; height:auto"></svg>
   <div id="kmhVazio" style="display:none; color:var(--muted); font-size:13px; padding:8px 0">Nenhuma placa selecionada.</div>
   <div class="note">Fonte: planilha "Controle de Frota", aba GRÁFICOS — tabela do gráfico "Saldo de km por placa" (estouro = −saldo). Use o filtro de projeto ou marque/desmarque as placas.</div>
-  <script type="application/json" id="kmhData">{"semanas":["WK30 · 26/07","WK31 · 02/08","WK32 · 09/08","WK33 · 16/08","WK34 · 23/08","WK35 · 30/08","WK36 · 06/09","WK37 · 13/09","WK38 · 20/09","WK39 · 27/09","WK40 · 04/10","WK41 · 11/10","WK42 · 18/10","WK43* · 22/10","WK44* · 28/10","WK45* · 03/11","WK46* · 10/11","WK47* · 17/11","WK48* · 23/11"],"series":[{"placa":"TXY8H30","parque":"Baixa do Feijão/RN","v":[5212,4800,4317,3786,3140,2462,2524,3044,2852,2964,2867,2744,2273,1873,1806,1499,609,-324,-104]},{"placa":"UVN9J75","parque":"LDV 1/PI","v":[null,null,null,null,null,null,null,null,515,402,440,327,1730,1330,2889,2886,2839,2984,2805]},{"placa":"UVN2B79","parque":"Oitis 2/PI","v":[4927,4368,4928,4351,3584,3000,2301,1632,938,183,-467,32,1357,1090,1892,2470,3328,3206,2406]},{"placa":"UHS5E92","parque":"Oitis 1/PI","v":[1964,2518,2940,3489,3615,3167,2807,2424,2182,2051,1942,1621,1250,987,1045,651,831,727,511]},{"placa":"NC7492D","parque":"Dolores 2/MEX","v":[null,null,null,null,null,null,null,null,null,null,null,160,251,97,262,-338,164,386,-214]},{"placa":"UVN9J44","parque":"LDV 2/PI","v":[null,null,null,null,null,null,null,null,363,340,280,4,470,70,210,422,332,632,400]}]}</script>
+  <script type="application/json" id="kmhData">{"semanas":["WK30 · 26/07","WK31 · 02/08","WK32 · 09/08","WK33 · 16/08","WK34 · 23/08","WK35 · 30/08","WK36 · 06/09","WK37 · 13/09","WK38 · 20/09","WK39 · 27/09","WK40 · 04/10","WK41 · 11/10","WK42 · 18/10","WK43* · 22/10","WK44* · 28/10","WK45* · 03/11","WK46* · 10/11","WK47* · 17/11","WK48* · 23/11"],"series":[{"placa":"TXY8H30","parque":"Baixa do Feijão/RN","v":[5212,4800,4317,3786,3140,2462,2524,3044,2852,2964,2867,2744,2273,1873,1806,1499,609,-324,-104]},{"placa":"UVN9J75","parque":"LDV 1/PI","v":[null,null,null,null,null,null,null,null,515,402,440,327,1730,1330,2889,2886,2839,2984,2805]},{"placa":"UVN2B79","parque":"Oitis 2/PI","v":[4927,4368,4928,4351,3584,3000,2301,1632,938,183,-467,32,1357,1090,1892,2470,3328,3206,3408]},{"placa":"UHS5E92","parque":"Oitis 1/PI","v":[1964,2518,2940,3489,3615,3167,2807,2424,2182,2051,1942,1621,1250,987,1045,651,831,727,511]},{"placa":"NC7492D","parque":"Dolores 2/MEX","v":[null,null,null,null,null,null,null,null,null,null,null,160,251,97,262,-338,164,386,-214]},{"placa":"UVN9J44","parque":"LDV 2/PI","v":[null,null,null,null,null,null,null,null,363,340,280,4,470,70,210,422,332,632,400]}]}</script>
   <script type="text/javascript">
   (function(){
     var D; try{ D = JSON.parse(document.getElementById('kmhData').textContent); }catch(e){ return; }
@@ -1265,20 +1265,20 @@ render();
 
 <script>
 const rows = [
-["TYQ5C48","LOCALIZA","","TUCANO 2/BA","SIEMENS","19/02/2026","9,27","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","6,50","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UVN2B79","LOCALIZA","","OITIS 2/PI","GE","21/02/2026","9,20","OK","N/OK","-","OK","-","-","-","None","N/A","N/A"],
-["TXY8H30","LOCALIZA","","BAIXA DO FEIJÃO/RN","SIEMENS","20/02/2026","9,23","N/OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","9,47","OK","OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
-["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","2,23","OK","N/OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
-["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","2,23","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["TZL6G42","LOCALIZA","","TUCANO 1/BA","SIEMENS","21/09/2026","2,13","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["NC7495D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","1,67","OK","OK","-","OK","-","-","N/A","None","N/A","N/A"],
-["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","1,67","OK","ATENÇÃO","-","OK","-","-","N/A","None","N/A","N/A"],
-["UWD1H88","UNIDAS","","SÃO VITOR 2/BA","SIEMENS","07/11/2026","0,57","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UWD1H82","UNIDAS","","UDV 2","SIEMENS","13/11/2026","0,37","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
-["UWD1H76","UNIDAS","","UDV 1","SIEMENS","13/11/2026","0,37","OK","OK","-","OK","-","-","-","None","N/A","N/A"],
-["UWD1H74","UNIDAS","","ADM 1","EXTREME","17/11/2026","0,23","OK","ATENÇÃO","-","-","-","-","-","None","N/A","N/A"],
+["TYQ5C48","LOCALIZA","","TUCANO 2/BA","SIEMENS","19/02/2026","9,30","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UHS5E92","LOCALIZA","","OITIS 1/PI","GE","13/05/2026","6,53","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UVN2B79","LOCALIZA","","OITIS 2/PI","GE","21/02/2026","9,23","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["TXY8H30","LOCALIZA","","BAIXA DO FEIJÃO/RN","SIEMENS","20/02/2026","9,27","N/OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["TYD9F24","LOCALIZA","","SÃO VITOR/BA","SIEMENS","13/02/2026","9,50","OK","OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
+["UVN9J44","UNIDAS","","LDV 2/PI","GE","18/09/2026","2,27","OK","N/OK","OK","N/OK","OK","OK","OK","None","N/A","N/A"],
+["UVN9J75","UNIDAS","","LDV 1/PI","GE","18/09/2026","2,27","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["TZL6G42","LOCALIZA","","TUCANO 1/BA","SIEMENS","21/09/2026","2,17","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["NC7495D","LOCALIZA","","DOLORES 1/MEX","NORDEX","05/10/2026","1,70","OK","OK","OK","N/OK","OK","OK","N/A","None","N/A","N/A"],
+["NC7492D","LOCALIZA","","DOLORES 2/MEX","NORDEX","05/10/2026","1,70","OK","ATENÇÃO","-","OK","-","-","N/A","None","N/A","N/A"],
+["UWD1H88","UNIDAS","","SÃO VITOR 2/BA","SIEMENS","07/11/2026","0,60","OK","N/OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UWD1H82","UNIDAS","","UDV 2","SIEMENS","13/11/2026","0,40","OK","OK","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UWD1H76","UNIDAS","","UDV 1","SIEMENS","13/11/2026","0,40","OK","ATENÇÃO","OK","OK","OK","OK","OK","None","N/A","N/A"],
+["UWD1H74","UNIDAS","","ADM 1","EXTREME","17/11/2026","0,27","OK","OK","-","-","-","-","-","None","N/A","N/A"],
 ];
 
 const STATUS_COLS = [7,8,9,10,11,12,13,15,16];
@@ -1452,8 +1452,8 @@ const histData = [
   { wk:"WK44", geral:94.5, cats:[100.0,54.5,90.9,81.8,100,100,100,null,null,null] },
   { wk:"WK45", geral:96.4, cats:[100.0,54.5,100,81.8,100,100,100,null,null,null] },
   { wk:"WK46", geral:96.7, cats:[100.0,54.5,100,83.3,100,100,100,null,null,null] },
-  { wk:"WK47", geral:95.7, cats:[100.0,57.1,92.9,85.7,100,100,100,null,null,null] },
-  { wk:"WK48", geral:97.1, cats:[92.9,42.9,100,85.7,100,100,100,null,null,null] },
+  { wk:"WK47", geral:94.3, cats:[100.0,57.1,92.9,78.6,100,100,100,null,null,null] },
+  { wk:"WK48", geral:95.7, cats:[92.9,42.9,100,78.6,100,100,100,null,null,null] },
 ];
 // Consumo, Doc Postado e Doc Entregue removidos desta tabela por pedido do
 // usuario (continuam existindo em "Conformidade por Categoria", que e uma
