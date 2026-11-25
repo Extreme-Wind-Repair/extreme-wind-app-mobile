@@ -1,0 +1,35 @@
+name: Restaurar VAGAS MESTRE (versoes no Dropbox)
+
+# 25/11/2026 (Robson): lista ou restaura versoes da VAGAS MESTRE. Manual. Log so com rev/data/tamanho.
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "listar ou restaurar"
+        required: true
+        default: "listar"
+      rev:
+        description: "rev a restaurar (so no modo restaurar)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  restaurar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Versoes da VAGAS MESTRE
+        env:
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_WRITE_REFRESH_TOKEN: ${{ secrets.DROPBOX_WRITE_REFRESH_TOKEN }}
+          MODO: ${{ github.event.inputs.modo }}
+          REV: ${{ github.event.inputs.rev }}
+        run: python tools/restaurar_mestre.py
