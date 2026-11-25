@@ -115,5 +115,5 @@ jobs:
           DROPBOX_WRITE_REFRESH_TOKEN: ${{ secrets.DROPBOX_WRITE_REFRESH_TOKEN }}
           PORTAL_STATUS_URL: ${{ secrets.PORTAL_STATUS_URL }}
           PORTAL_STATUS_KEY: ${{ secrets.PORTAL_STATUS_KEY }}
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
         run: python tools/sync_mestre_status.py
