@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-sync_mestre_status.py -- grava o STATUS do portal (aba EQ_StatusTecnicos) na coluna "RESUMO GESTAO A VISTA"
-da aba BANCO DE DADOS da planilha VAGAS MESTRE (Dropbox). O portal manda; a coluna fica travada para humanos.
+sync_mestre_status.py -- liga a VAGAS MESTRE (Dropbox) ao portal da Reuniao Diaria, nos dois sentidos:
+1) LISTA (VAGAS -> portal): tecnicos de campo da aba BANCO DE DADOS (matricula, nome oficial, contrato) vao para o portal
+   (modo rosterMestre). Quem nao existe no portal entra como Reserva. E esta lista que trava o titular das equipes.
+2) STATUS (portal -> VAGAS): o status do portal (aba EQ_StatusTecnicos) e gravado na coluna "RESUMO GESTAO A VISTA";
+   a coluna fica travada para humanos.
 
 Seguranca (o log do repositorio e PUBLICO): so imprime contagens, NUNCA nome/matricula/valor de pessoa nem credencial.
 - so troca celulas da coluna de status; todo o resto do .xlsx e copiado byte a byte (patch de XML, sem openpyxl);
-- nunca sobrescreve BDH / BANCO DE HORAS / BACKUP / DESQUALIFICADO / ADMINISTRATIVO (categorias que o portal nao tem);
-  EM CONTRATACAO so e trocado quando a matricula ja existe no portal;
+- v42 (25/11/2026): BDH e Backup agora vem do portal; so DESQUALIFICADO / ADMINISTRATIVO nunca sao sobrescritos;
 - sobe com checagem de revisao (mode=update): se o arquivo mudou no Dropbox no meio do caminho, descarta e tenta no proximo ciclo;
 - sem diferenca = nao grava nada; falha NUNCA derruba o job do BDH (o passo roda com continue-on-error).
 
-Variaveis: DROPBOX_APP_KEY/SECRET/REFRESH_TOKEN, PORTAL_STATUS_URL, PORTAL_STATUS_KEY, DRY_RUN ("true" = so testa),
-ARQUIVO_LOCAL (teste offline: caminho de um .xlsx; nao toca no Dropbox).
+Variaveis: DROPBOX_APP_KEY/SECRET/REFRESH_TOKEN, DROPBOX_WRITE_REFRESH_TOKEN, PORTAL_STATUS_URL, PORTAL_STATUS_KEY,
+DRY_RUN ("true" = nao grava na VAGAS; a lista ainda e enviada ao portal), ARQUIVO_LOCAL (teste offline: .xlsx; nao toca em nada).
 """
 import io
 import json
@@ -27,8 +29,11 @@ NS = "2024164339"
 CAMINHO = "2 - RH & DP/8 - VAGAS/VAGAS MESTRE.xlsx"
 ABA = "BANCO DE DADOS"
 COL_STATUS = "RESUMO GESTAO A VISTA"
-TEXTO = {"A": "AGUARDANDO CONVOCAÇÃO", "R": "RESERVAS", "T": "ATIVO PARQUE", "I": "INDISPONIVEL"}
-PRESERVAR = re.compile(r"\b(BDH|BANCO DE HORAS|BACKUP|DESQUALIFICADO|ADMINISTRATIVO)\b")
+COL_NOME = "NOME"
+COL_CONTRATO = "CONTRATO"
+TEXTO = {"A": "AGUARDANDO CONVOCAÇÃO", "R": "RESERVAS", "T": "ATIVO PARQUE", "I": "INDISPONIVEL", "B": "BANCO DE HORAS", "K": "BACKUP"}
+PRESERVAR = re.compile(r"\b(DESQUALIFICADO|ADMINISTRATIVO)\b")
+CONTRATO_FORA = ("MEI", "DETERMINADO")  # cargos administrativos (regra Robson 25/11/2026)
 
 
 def log(m):
@@ -41,18 +46,27 @@ def norm(s):
 
 def prio_letra(nome):
     n = norm(nome)
+    if n.startswith("BDH") or n.startswith("BANCO DE HORAS"):
+        return "B"
+    if n.startswith("BACKUP"):
+        return "K"
     return "A" if n.startswith("AGUARD") else "R" if n.startswith("RESERV") else "T" if n.startswith("ATIV") else "I" if n.startswith("INDISP") else ""
 
 
 # ------------------------------------------------------------ portal
-def ler_portal():
+def _portal(extra, timeout=90):
     url, chave = os.environ.get("PORTAL_STATUS_URL", ""), os.environ.get("PORTAL_STATUS_KEY", "")
     if not (url and chave):
         raise RuntimeError("Faltam PORTAL_STATUS_URL e/ou PORTAL_STATUS_KEY.")
-    corpo = json.dumps({"action": "indicarEquipes", "modo": "statusMestre", "chave": chave}).encode()
-    req = urllib.request.Request(url, data=corpo, headers={"Content-Type": "text/plain"}, method="POST")
-    with urllib.request.urlopen(req, timeout=60) as r:
-        d = json.loads(r.read().decode("utf-8"))
+    corpo = {"action": "indicarEquipes", "chave": chave}
+    corpo.update(extra)
+    req = urllib.request.Request(url, data=json.dumps(corpo).encode(), headers={"Content-Type": "text/plain"}, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def ler_portal():
+    d = _portal({"modo": "statusMestre"})
     if not d.get("ok") or not isinstance(d.get("status"), dict):
         raise RuntimeError("Portal nao devolveu a lista de status (resposta: %s)." % str(d.get("error") or d.get("motivo") or d.get("ok"))[:40])
     out = {}
@@ -63,6 +77,13 @@ def ler_portal():
     if len(out) < 50:
         raise RuntimeError("Lista do portal curta demais (%d); nao grava." % len(out))
     return out
+
+
+def enviar_lista(lista):
+    d = _portal({"modo": "rosterMestre", "tecnicos": lista}, timeout=180)
+    if not d.get("ok"):
+        raise RuntimeError("Portal recusou a lista (resposta: %s)." % str(d.get("error") or d.get("motivo") or d.get("ok"))[:40])
+    return d
 
 
 # ------------------------------------------------------------ dropbox
@@ -83,7 +104,7 @@ def token():
     import base64
     k, s, rt = (os.environ.get(x, "") for x in ("DROPBOX_APP_KEY", "DROPBOX_APP_SECRET", "DROPBOX_REFRESH_TOKEN"))
     wr = os.environ.get("DROPBOX_WRITE_REFRESH_TOKEN", "")
-    rt = wr or rt   # 24/11/2026: token proprio com permissao de escrita (so este script); sem ele usa o token de leitura
+    rt = wr or rt  # 24/11/2026: token proprio com permissao de escrita (so este script); sem ele usa o token de leitura
     if not (k and s and rt):
         raise RuntimeError("Faltam segredos do Dropbox.")
     b = base64.b64encode(("%s:%s" % (k, s)).encode()).decode()
@@ -115,11 +136,59 @@ def achar_aba(z):
     raise RuntimeError("Aba nao encontrada.")
 
 
+def _strings(z):
+    ss = z.read("xl/sharedStrings.xml").decode("utf-8")
+    return ["".join(re.findall(r"<t[^>]*>(.*?)</t>", s, flags=re.S)).replace("&amp;", "&") for s in re.findall(r"<si>(.*?)</si>", ss, flags=re.S)]
+
+
+def _celulas(x, T):
+    """{(col, linha): texto} de todas as celulas com valor."""
+    out = {}
+    for m in re.finditer(r'<c r="([A-Z]+)(\d+)"([^>]*?)(?:/>|>(.*?)</c>)', x, flags=re.S):
+        v = re.search(r"<v>(.*?)</v>", m.group(4) or "", flags=re.S)
+        if not v:
+            continue
+        out[(m.group(1), int(m.group(2)))] = T[int(v.group(1))] if 't="s"' in m.group(3) else v.group(1)
+    return out
+
+
+def _coluna(cel, titulo):
+    for (c, r), v in cel.items():
+        if r == 2 and norm(v) == norm(titulo):
+            return c
+    return None
+
+
+def lista_tecnicos(dados):
+    """[[matricula, nome oficial, contrato]] dos tecnicos de campo da aba BANCO DE DADOS."""
+    z = zipfile.ZipFile(io.BytesIO(dados))
+    T = _strings(z)
+    cel = _celulas(z.read(achar_aba(z)).decode("utf-8"), T)
+    cs, cn, cc = _coluna(cel, COL_STATUS), _coluna(cel, COL_NOME), _coluna(cel, COL_CONTRATO)
+    if not (cs and cn):
+        raise RuntimeError("Colunas de nome/status nao encontradas pelo titulo.")
+    out, vistos = [], set()
+    for (c, r), v in sorted(cel.items(), key=lambda kv: kv[0][1]):
+        if c != "A" or r <= 2:
+            continue
+        mat = str(v).strip()
+        mat = mat[:-2] if mat.endswith(".0") else mat
+        if not re.fullmatch(r"\d{1,5}", mat) or mat in vistos:
+            continue
+        nome = re.sub(r"\s+", " ", str(cel.get((cn, r), ""))).strip()
+        status = norm(cel.get((cs, r), ""))
+        ctt = norm(cel.get((cc, r), "")) if cc else ""
+        if not nome or PRESERVAR.search(status) or ctt in CONTRATO_FORA:
+            continue
+        vistos.add(mat)
+        out.append([mat, nome, ctt])
+    return out
+
+
 def patch(dados, port):
     z = zipfile.ZipFile(io.BytesIO(dados))
     caminho = achar_aba(z)
-    ss = z.read("xl/sharedStrings.xml").decode("utf-8")
-    T = ["".join(re.findall(r"<t[^>]*>(.*?)</t>", s, flags=re.S)).replace("&amp;", "&") for s in re.findall(r"<si>(.*?)</si>", ss, flags=re.S)]
+    T = _strings(z)
     idx = {}
     for l, t in TEXTO.items():
         if t not in T:
@@ -182,14 +251,22 @@ def patch(dados, port):
 def main():
     dry = os.environ.get("DRY_RUN", "false").strip().lower() == "true"
     try:
-        port = ler_portal() if not os.environ.get("PORTAL_LOCAL") else json.load(open(os.environ["PORTAL_LOCAL"]))
-        log("Portal: %d tecnico(s) com status." % len(port))
         local = os.environ.get("ARQUIVO_LOCAL")
         if local:
             dados, rev, tok = open(local, "rb").read(), None, None
         else:
             tok = token()
             dados, rev = baixar(tok)
+        lista = lista_tecnicos(dados)
+        log("VAGAS: %d tecnico(s) de campo na lista." % len(lista))
+        if not local:
+            try:
+                r = enviar_lista(lista)
+                log("Lista enviada ao portal: %d novo(s), %d nome(s) e %d contrato(s) atualizados." % (r.get("novos", 0), r.get("nomes", 0), r.get("contratos", 0)))
+            except Exception as e:  # noqa: BLE001  (a lista falhar nao impede a gravacao do status)
+                log("[AVISO] lista nao enviada: %s" % str(e)[:200])
+        port = ler_portal() if not os.environ.get("PORTAL_LOCAL") else json.load(open(os.environ["PORTAL_LOCAL"]))
+        log("Portal: %d tecnico(s) com status." % len(port))
         novo, st = patch(dados, port)
         log("Resultado: %s" % json.dumps(st))
         if novo is None:
