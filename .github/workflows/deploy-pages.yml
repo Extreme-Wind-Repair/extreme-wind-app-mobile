@@ -101,6 +101,10 @@ jobs:
         with:
           path: www
 
+      # 25/11/2026: o GitHub as vezes ainda nao lista o artefato logo apos o upload ("No artifacts named github-pages"); espera um pouco.
+      - name: Aguardar o artefato ficar disponivel
+        run: sleep 20
+
       - name: Publicar no GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
