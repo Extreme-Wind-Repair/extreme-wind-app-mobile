@@ -54,7 +54,7 @@ def ler_portal():
     with urllib.request.urlopen(req, timeout=60) as r:
         d = json.loads(r.read().decode("utf-8"))
     if not d.get("ok") or not isinstance(d.get("status"), dict):
-        raise RuntimeError("Portal nao devolveu a lista de status.")
+        raise RuntimeError("Portal nao devolveu a lista de status (resposta: %s)." % str(d.get("error") or d.get("motivo") or d.get("ok"))[:40])
     out = {}
     for mat, st in d["status"].items():
         l = prio_letra(st)
