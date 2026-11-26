@@ -210,13 +210,16 @@ def _blocos_formula(x):
     return out
 
 
-def _bloco_shared(x, b):
-    """True se o bloco b e de formula COMPARTILHADA (nao matriz)."""
-    for m in re.finditer(r'<f\b([^>]*)>', x):
+MODELO_RH = re.compile(r'^IF\(\$A\d+="","","RESERVAS"\)$')  # formula modelo do RH na coluna de status
+
+
+def _bloco_shared(x, b, so_modelo=False):
+    """True se o bloco b e de formula COMPARTILHADA (nao matriz). so_modelo: e ainda a formula modelo do RH."""
+    for m in re.finditer(r'<f\b([^>]*)>([^<]*)</f>', x):
         at = m.group(1)
         r = re.search(r'ref="([^"]+)"', at)
         if r and _ref(r.group(1)) == b:
-            return 't="shared"' in at
+            return 't="shared"' in at and (not so_modelo or bool(MODELO_RH.match(m.group(2).strip())))
     return False
 
 
@@ -316,7 +319,12 @@ def patch(dados, port, preservar_manual=False):
     # v43: bloco de formula que fica SO na coluna de status (ex.: AM323:AM386 =IF($A323="","","RESERVAS"), modelo do RH)
     # e desfeito INTEIRO (todas as celulas viram valor de uma vez, nunca pela metade). Bloco que pega outra coluna
     # (ex.: AL309:AM314) continua intocavel.
-    blocos = [b for b in _blocos_formula(x) if b[0] <= cn <= b[2] and not (b[0] == b[2] == cn and _bloco_shared(x, b))]
+    # v43b (25/11/2026, Robson autorizou): bloco com a formula modelo do RH (=IF($A..="","","RESERVAS")) que pega outra coluna
+    # junto (ex.: AL309:AM314) tambem e desfeito inteiro; nas outras colunas fica o VALOR que a formula mostrava.
+    cobrem = [b for b in _blocos_formula(x) if b[0] <= cn <= b[2]]
+    desfazer = [b for b in cobrem if _bloco_shared(x, b) and (b[0] == b[2] == cn or _bloco_shared(x, b, so_modelo=True))]
+    blocos = [b for b in cobrem if b not in desfazer]
+    outras = [b for b in desfazer if not (b[0] == b[2] == cn)]
     soltos = {"n": 0}
 
     def dentro_de_bloco(linha):
@@ -394,9 +402,34 @@ def patch(dados, port, preservar_manual=False):
         return '<row r="%d"%s>%s%s%s</row>' % (r, m.group(2), corpo[:p], xml_cel(r, "", novo), corpo[p:])
 
     x2 = re.sub(r'<row r="(\d+)"([^>]*?)>(.*?)</row>', rep_linha, x2, flags=re.S)
-    # conferencia: fora da coluna de status nada pode mudar
-    a = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", x, flags=re.S)
-    b = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", x2, flags=re.S)
+    def em_outras(c, r):
+        return c != col and any(c1 <= col_num(c) <= c2 and r1 <= r <= r2 for (c1, r1, c2, r2) in outras)
+
+    def rep_outra(m):
+        c, r, at, b = m.group(1), int(m.group(2)), m.group(3), m.group(4) or ""
+        if not em_outras(c, r) or "<f" not in b:
+            return m.group(0)
+        v = re.search(r"<v>(.*?)</v>", b, flags=re.S)
+        val = (T[int(v.group(1))] if 't="s"' in at else v.group(1)) if v else ""
+        at2 = re.sub(r'\s*t="[^"]*"', "", at)
+        soltos["n"] += 1
+        stats["formulas_desfeitas"] += 1
+        if val == "":
+            return '<c r="%s%d"%s/>' % (c, r, at2)
+        if val in pos_T:
+            return '<c r="%s%d"%s t="s"><v>%d</v></c>' % (c, r, at2, pos_T[val])
+        return '<c r="%s%d"%s t="inlineStr"><is><t>%s</t></is></c>' % (c, r, at2, _xml_esc(val))
+
+    if outras:
+        x2 = re.sub(r'<c r="([A-Z]+)(\d+)"([^>]*?)(?:/>|>(.*?)</c>)', rep_outra, x2, flags=re.S)
+
+    # conferencia: fora da coluna de status (e das celulas dos blocos-modelo desfeitos) nada pode mudar
+    def sem_cols(xx):
+        xx = re.sub(r'<c r="%s\d+"[^>]*?(?:/>|>.*?</c>)' % col, "", xx, flags=re.S)
+        if outras:
+            xx = re.sub(r'<c r="([A-Z]+)(\d+)"[^>]*?(?:/>|>.*?</c>)', lambda m: "" if em_outras(m.group(1), int(m.group(2))) else m.group(0), xx, flags=re.S)
+        return xx
+    a, b = sem_cols(x), sem_cols(x2)
     if a != b:
         raise RuntimeError("TRAVA: o patch alterou algo fora da coluna de status.")
     x2, stats["trava_coluna"] = _trava_coluna(x2, col)
