@@ -4961,7 +4961,7 @@ window.esPdfTxt = function (doc, partes, x, y, hh, cor, ali) {   // texto com o 
       let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch (e) { dl = null; }
       if (!dl) { msg.textContent = "Não foi possível salvar o arquivo. Tente de novo."; return; }
       await dl.save({ filename: "Proposta Euro Sette - " + String(d.cliente).replace(/[^\p{L}\p{N} ]/gu, "").slice(0, 60) + ".pdf", data: blob });
-      msg.textContent = "Proposta " + d.numero + " salva." + (d.imgs.proa || d.imgs.popa ? "" : " Sem as imagens 3D: não foi possível gerá-las neste aparelho.") + " Modelo v85 (26/11), " + d.paginas + " páginas.";
+      msg.textContent = "Proposta " + d.numero + " salva." + (d.imgs.proa || d.imgs.popa ? "" : " Sem as imagens 3D: não foi possível gerá-las neste aparelho.") + " Modelo v86 (26/11), " + d.paginas + " páginas.";
       const id = st.atId, at = st.ats.get(id);
       if (id && at && st.acol && st.canWrite) {
         const patch = { ultimaProposta: { numero: d.numero, em: nowIso(), total: Math.round(q.total) }, atualizadoEm: nowIso() };
@@ -5551,6 +5551,26 @@ window.esPdfTxt = function (doc, partes, x, y, hh, cor, ali) {   // texto com o 
   }
   // ---------- Modelo 3D do barco no Atendimento (ilustrativo) ----------
   const B3D = { estado: "off" };
+  // Resolução dinâmica do 3D: se o aparelho não sustenta a taxa de quadros da tela, o barco passa a ser desenhado com um pouco menos de pixels (o giro fica fluido);
+  // quando sobra folga, a resolução sobe de novo. Em telas de alta densidade e janelas grandes isso evita as "mini travadas".
+  function b3dCtrlRes(prMax0, prMin) {
+    const c = { pr: prMax0, max: prMax0, ema: 0, ult: 0, tAdj: 0, n: 0, teto: 99, tTeto: 0 };
+    c.limite = (m) => { c.max = m; if (c.pr > m) { c.pr = m; return true; } return false; };   // limite pelo tamanho da tela de desenho
+    c.quadro = (t) => {   // chamar a cada quadro desenhado; devolve o novo pixel ratio quando precisa mudar, senão null
+      const dt = c.ult ? t - c.ult : 0; c.ult = t;
+      if (dt > 0 && dt < 100) { c.ema = c.ema ? c.ema * 0.9 + dt * 0.1 : dt; c.n++; }
+      else if (dt >= 100) c.n = Math.max(0, c.n - 3);   // pausas longas (aba em segundo plano, carregamento) não contam
+      if (c.n < 60 || t - c.tAdj < 1500) return null;
+      let novo = null;
+      if (c.ema > 21 && c.pr > prMin + 0.02) { c.teto = c.pr; c.tTeto = t; novo = Math.max(prMin, c.pr * 0.85); }   // abaixo de ~47 quadros por segundo: reduz
+      else if (c.ema < 18.2 && c.pr < c.max - 0.02 && t - c.tAdj > 10000 && (c.pr * 1.12 < c.teto || t - c.tTeto > 90000)) novo = Math.min(c.max, c.pr * 1.12);   // com folga: tenta subir de novo
+      if (novo == null) return null;
+      novo = Math.round(novo * 20) / 20; if (Math.abs(novo - c.pr) < 0.04) return null;
+      c.pr = novo; c.tAdj = t; c.ema = 0; c.ult = 0; c.n = 30; return novo;
+    };
+    return c;
+  }
+  const b3dPrCap = (w, h, disp) => Math.max(0.75, Math.min(disp, Math.floor(Math.sqrt(4.2e6 / Math.max(1, w * h)) * 20) / 20));   // limite de pixels: janelas enormes não passam de ~4 megapixels
   const B3D_EST = { Branco: 0xF1EFEA, Bege: 0xB5835A, Cinza: 0x8C9197 };
   const B3D_PISO = { Branco: ["#E8E6E0", "#B8B5AD"], Bege: ["#C4A77C", "#EFE4CF"], Cinza: ["#8D8E8B", "#E2E1DC"] };
   function b3dVisivel() { const v = $("at-3d-v"); if (!v || !v.offsetParent) return false; return !(typeof cfx !== "undefined" && cfx.aberto && cfx.vista !== "3d"); }
@@ -5605,7 +5625,7 @@ window.esPdfTxt = function (doc, partes, x, y, hh, cor, ali) {   // texto com o 
     if (!T || !host) { B3D.estado = "erro"; return; }
     let ren;
     try { ren = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" }); } catch (e) { B3D.estado = "erro"; const c = $("at-3d"); if (c) c.hidden = true; return; }
-    ren.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    const PR_DISP = Math.min(2, window.devicePixelRatio || 1), ctrl = b3dCtrlRes(PR_DISP, Math.min(1, PR_DISP)); B3D.ctrlRes = ctrl; ren.setPixelRatio(ctrl.pr);
     ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
     ren.shadowMap.enabled = true; ren.shadowMap.type = T.PCFSoftShadowMap;
     host.appendChild(ren.domElement);
@@ -6288,7 +6308,7 @@ realOk = true; barco.visible = false; real.visible = true; chao.position.y = -1.
     const solta = (e) => { dedos.delete(e.pointerId); if (dedos.size < 2) pinca = null; if (!dedos.size) { arr = null; host.classList.remove("arrastando"); } };
     host.addEventListener("pointerup", solta); host.addEventListener("pointercancel", solta);
     host.addEventListener("wheel", (e) => { if (e.target.closest && e.target.closest(".b3d-tc-painel")) return; if (!(($("at-3d") && $("at-3d").classList.contains("grande")) || host.classList.contains("b3d-tc"))) return; e.preventDefault(); zoom = Math.min(ZMAX, Math.max(ZMIN, zoom * (1 + e.deltaY * 0.0012))); ultimo = performance.now(); posCam(); }, { passive: false });
-    const tamanho = () => { if (B3D.fotografando) return; const w = host.clientWidth || 300, h = host.clientHeight || 260; ren.setSize(w, h, false); ren.domElement.style.width = "100%"; ren.domElement.style.height = "100%"; cam.aspect = w / h; kAsp = Math.max(1, 1.62 / cam.aspect); if (B3D._tcOffset) cam.setViewOffset(w, h, 0, B3D._tcOffset, w, h); else cam.clearViewOffset(); posCam(); cam.updateProjectionMatrix(); };
+    const tamanho = () => { if (B3D.fotografando) return; const w = host.clientWidth || 300, h = host.clientHeight || 260; if (ctrl.limite(b3dPrCap(w, h, PR_DISP))) ren.setPixelRatio(ctrl.pr); ren.setSize(w, h, false); ren.domElement.style.width = "100%"; ren.domElement.style.height = "100%"; cam.aspect = w / h; kAsp = Math.max(1, 1.62 / cam.aspect); if (B3D._tcOffset) cam.setViewOffset(w, h, 0, B3D._tcOffset, w, h); else cam.clearViewOffset(); posCam(); cam.updateProjectionMatrix(); };
     if (window.ResizeObserver) new ResizeObserver(tamanho).observe(host); tamanho();
     { // controles da vista: capotas, giro, zoom e foco
       if (!document.getElementById("b3d-css")) { const st3 = document.createElement("style"); st3.id = "b3d-css";
@@ -6550,6 +6570,7 @@ realOk = true; barco.visible = false; real.visible = true; chao.position.y = -1.
     const loop = (t) => {
       requestAnimationFrame(loop);
       if (B3D.fotografando || !b3dVisivel() || document.hidden) return;
+      { const np = ctrl.quadro(t); if (np) ren.setPixelRatio(np); }   // resolução dinâmica
       if (!arr && !B3D.pausa && t - ultimo > 2500) ang += 0.003;
       if (B3D.tweenBanheiro) B3D.tweenBanheiro();
       if (B3D.tweenBanco) B3D.tweenBanco();
