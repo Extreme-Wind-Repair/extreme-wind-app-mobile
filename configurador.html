@@ -1962,5 +1962,14 @@ realOk = true; barco.visible = false; real.visible = true; chao.position.y = -1.
   window.addEventListener("hashchange", () => { lerHash(); render(); });
 })();
 </script>
+<script>
+/* marcador de versão: só aparece quando o endereço tem ?v=NN (o mesmo que a equipe usa para furar o cache); o cliente não vê */
+(function () { try {
+  if (!/[?&]v=/.test(location.search)) return;
+  var e = document.createElement("div"); e.id = "versao-cfg"; e.textContent = "Configurador v87 · 26/11";
+  e.style.cssText = "position:fixed;left:8px;bottom:6px;z-index:60;font:11px/1 system-ui,sans-serif;letter-spacing:.04em;color:#c9ccd2;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:999px;pointer-events:none";
+  document.body.appendChild(e);
+} catch (x) { /* sem marcador */ } })();
+</script>
 </body>
 </html>
