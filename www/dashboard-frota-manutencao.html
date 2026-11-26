@@ -263,9 +263,9 @@
   <div class="kpi">
     <div class="label">Conformidade Geral &amp; Ações Pendentes</div>
     <div class="value" style="color:var(--warn)">94%</div>
-    <div class="foot">WK 48 · 16 ações pendentes no total</div>
+    <div class="foot">WK 48 · 18 ações pendentes no total</div>
     <div class="locadoras" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">6</span><span class="l">Emergenciais</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">8</span><span class="l">Emergenciais</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">9</span><span class="l">Programadas</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativas</span></div>
     </div>
@@ -729,7 +729,7 @@ render();
   </div>
   <div class="collapsible" id="acaoBody">
     <div class="locadoras" style="max-width:420px; margin:6px 0 16px">
-      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">6</span><span class="l">Emergencial</span></div>
+      <div class="loc-badge" style="background:rgba(224,72,60,.18); color:var(--nok)"><span class="n">8</span><span class="l">Emergencial</span></div>
       <div class="loc-badge" style="background:rgba(216,154,43,.24); color:var(--warn)"><span class="n">9</span><span class="l">Programado</span></div>
       <div class="loc-badge" style="background:rgba(92,122,147,.24); color:var(--na)"><span class="n">1</span><span class="l">Administrativa</span></div>
     </div>
@@ -1564,7 +1564,9 @@ const acaoData = [
   { acao:"TXY8H30 - FURO NO BANCO/RETROVISOR/PARA-CHOQUE  ARRANHADO/CALOTA", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/11/2026", obs:"COBERTO PELO SEGURO E CALOTA DESCONTADA DO CONDUTOR( ALINHADO EM REUNIÃO)", categoria:"Administrativa" },
   { acao:"NC7492D - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"DOLORES 2/MEX", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
   { acao:"UWD1H88 - SALDO CONTRATO ESTOURADO", tipo:"ADMINISTRATIVA", parque:"SÃO VITOR 2/BA", quem:"Sandoval", status:"30/11/2026", obs:"ACOMPANHAR A REDUÇÃO EM PROJETO", categoria:"Programada" },
-  { acao:"TXY8H30 - KM ACIMA DO PONTO DE TROCA (40.000 KM)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/11/2026", obs:"ALINHAR A TROCA DO VEÍCULO COM A LOCADORA", categoria:"Programada" }
+  { acao:"TXY8H30 - KM ACIMA DO PONTO DE TROCA (40.000 KM)", tipo:"ADMINISTRATIVA", parque:"BAIXA DO FEIJÃO/RN", quem:"Sandoval", status:"30/11/2026", obs:"ALINHAR A TROCA DO VEÍCULO COM A LOCADORA", categoria:"Programada" },
+  { acao:"UVN9J44 - 1.3 REVISÃO", tipo:"CORRETIVA", parque:"LDV 2/PI", quem:"Sandoval", status:"27/11/2026", obs:"REALIZAR A REVISÃO", categoria:"Emergencial" },
+  { acao:"TYD9F24 - 1.3 REVISÃO", tipo:"CORRETIVA", parque:"SÃO VITOR/BA", quem:"Sandoval", status:"27/11/2026", obs:"REALIZAR A REVISÃO", categoria:"Emergencial" }
 ];
 
 function categoriaTag(categoria){
