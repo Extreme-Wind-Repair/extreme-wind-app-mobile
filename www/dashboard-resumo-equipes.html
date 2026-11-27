@@ -107,6 +107,8 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
 .pool tbody th{text-align:left;font:700 13px Montserrat,Arial,sans-serif;color:var(--ew-noite)}
 .pool td{font:800 16px Montserrat,Arial,sans-serif;color:var(--ew-noite)}
 .pool td.t{background:#F3F8FC}
+.pool .conc{flex-basis:100%;font-size:13px;color:var(--ew-noite);background:var(--ew-gelo);border-radius:8px;padding:8px 12px}
+html.ew-dark .pool .conc{background:#055384 !important;color:#FFFFFF !important}
 .pool .obs{flex-basis:100%;font-size:12.5px;color:var(--ew-cinza);margin-top:-4px}
 /* Legibilidade (os dois modos) */
 .nota{font-size:13px;line-height:1.5}
@@ -687,12 +689,22 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     }).join('');
     var pl = d.pool;
     if (pl) {
+      /* Conciliação: Reserva + Backup do portal x técnicos que o algoritmo considera */
+      var rb = (d.tecnicos || []).filter(function (t) { return /^(reserva|backup)$/i.test(String(t.status || '').trim()); });
+      var nBase = rb.filter(function (t) { return !t.na_base; }).length, nExc = rb.filter(function (t) { return t.na_base && t.excluir; }).length;
+      var nExcB = rb.filter(function (t) { return t.na_base && t.excluir && /backup/i.test(t.status); }).length;
+      var nCons = (pl.reserva ? pl.reserva.total : 0) + (pl.backup ? pl.backup.total : 0), nOut = rb.length - nCons - nBase - nExc;
+      var conc = '<div class="conc"><b>Conciliação:</b> Reserva + Backup no portal = <b>' + rb.length + '</b> → <b>' + nCons + '</b> considerados' +
+        (nBase ? ' + <b>' + nBase + '</b> fora da base do algoritmo (contratados depois da última base)' : '') +
+        (nExc ? ' + <b>' + nExc + '</b> excluídos por avaliação grave' + (nExcB ? ' (' + (nExc - nExcB) + ' Reserva, ' + nExcB + ' Backup)' : '') : '') +
+        (nOut > 0 ? ' + <b>' + nOut + '</b> já indicados em equipe do Bloco 3' : '') +
+        '. Os <b>' + pl.total + '</b> do quadro = ' + nCons + ' + ' + (pl.libera ? pl.libera.total : 0) + ' Ativos que liberam em até 15 dias.</div>';
       var lin = function (nome, o) { return '<tr><th>' + nome + '</th><td>' + o.N1 + '</td><td>' + o.N2 + '</td><td>' + o.N3 + '</td><td>' + o.SOLO + '</td><td class="t">' + o.total + '</td></tr>'; };
       $('pool').innerHTML = '<div class="pool"><div class="big"><b>' + pl.total + '</b><span>Técnicos que o algoritmo<br>está considerando</span></div>' +
         '<table><thead><tr><th style="text-align:left">Origem</th><th>N1</th><th>N2</th><th>N3</th><th>Solo<br><small>sem IRATA</small></th><th>Total</th></tr></thead><tbody>' +
         lin('Reservas', pl.reserva) + lin('Backups', pl.backup) + lin('Ativos que liberam em até 15 dias', pl.libera) + '</tbody></table>' +
         '<div class="obs">N1 / N2 / N3 = com IRATA válido · Solo = sem IRATA válido (só entra em dupla/trio de inspeção).' +
-        (pl.fora_base ? ' <b>' + pl.fora_base + '</b> técnico(s) Reserva/Backup no portal ainda fora da base do algoritmo (não contam).' : '') + '</div></div>';
+        (pl.fora_base ? ' <b>' + pl.fora_base + '</b> técnico(s) Reserva/Backup no portal ainda fora da base do algoritmo (não contam).' : '') + '</div>' + conc + '</div>';
     }
     $('resumo').innerHTML = '<table class="res"><thead><tr><th rowspan="2">Cliente</th><th colspan="2" class="g1">Hoje · Reunião Diária</th><th colspan="4" class="g2">Projeção de novas equipes · algoritmo</th></tr>' +
       '<tr><th class="g1">Equipes ativas<br><small>Bloco 1</small></th><th class="g1">Projetos definidos<br><small>Bloco 2/3</small></th>' + TIPOS.map(function (tp) { return '<th class="g2">' + esc(tp.replace(' (inspeção)', '').replace(' (cordas)', '')) + '<br><small>' + (tp.indexOf('Dupla') === 0 ? '2 pessoas' : '3 pessoas') + (tp.indexOf('insp') > 0 ? ' · inspeção' : tp.indexOf('Exterior') === 0 ? ' · cordas' : ' · IRATA') + '</small></th>'; }).join('') + '</tr></thead><tbody>' + linhasRes +
