@@ -52,3 +52,5 @@ th{font-family:var(--fonte-titulo);}
 :root{--ok:#2FCB8C; --nok:#FF6B61; --warn:#F2B84B; --na:#9CC7E8;}
 body.light-mode{--ok:#12A874; --nok:#E0483C; --warn:#D89A2B; --na:#5C7A93;}
 body:not(.light-mode) .ap-text, body:not(.light-mode) .gantt-status{color:#6EE7A5 !important;}
+svg text{font-family:var(--fonte-texto);}
+body:not(.light-mode) .btn-delete-park, body:not(.light-mode) .ab-empty.ab-not-sent{color:#FF8A80 !important;}

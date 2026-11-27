@@ -51,7 +51,8 @@
   /* status mais claros no escuro (mesmo significado) */
   var ST_ESC = 'html.ew-dark:root:root{--green:#3DDC97;--red:#FF7B72;--amber:#F2B84B;--gray:#9CC7E8;--crit-text:#FF7B72;--good-text:#3DDC97;}\n';
   var CAL2 = 'html.ew-dark .kpi .label{color:#9CC7E8 !important;}\nhtml.ew-dark .kpi .value{color:#E1EEF6 !important;}\nhtml.ew-dark .kpi.warn .value{color:#F2B84B !important;}\nhtml.ew-dark .kpi.risk .value{color:#FF7B72 !important;}\nhtml.ew-dark .panel:not(.panel-dark) h2{color:#E1EEF6 !important;}\n';
-  var EST2 = 'html.ew-dark .dash-title .t1, html.ew-dark .updated b{color:#E1EEF6 !important;}\nhtml.ew-dark .kpi-body .value{color:#E1EEF6 !important;}\n';
+  var EST2 = 'html.ew-dark:root:root{--c-red:#FF7B72;}\n'+
+    'html.ew-dark .dash-title .t1, html.ew-dark .updated b{color:#E1EEF6 !important;}\nhtml.ew-dark .kpi-body .value{color:#E1EEF6 !important;}\n';
   var EQ2 = 'html.ew-dark td[style*="background"]{background:#03456F !important;}\n';
   /* diurno: textos de status mais escuros para ler sobre fundo branco (cores de status inalteradas no escuro) */
   var STATUS_DIURNO = '--green:#0B7A55;--amber:#8A5A00;--red:#B3261E;--gray:#5E6B7A;--good-text:#0B7A55;--crit-text:#B3261E;';
