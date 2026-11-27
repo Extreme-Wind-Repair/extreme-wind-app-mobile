@@ -495,5 +495,19 @@ window.addEventListener('message', function (e) {
   if (fr.contentDocument && fr.contentDocument.readyState === 'complete') injeta();
 })();
 </script>
+<script>
+/* EW-LARGURA: paginas copiadas de outros sistemas (regeneradas por sincronizacao) tem largura maxima fixa e ficam centralizadas.
+   O portal injeta uma regra no iframe (mesma origem) para ocupar a tela toda, sem editar as copias. */
+(function(){
+  var ids = ['view-combustivel','view-efetivo','view-contratacao','view-radar-campo','view-ehs','view-ehs-painel'];
+  var css = '.page,.wrap,.container,.topbar-inner{max-width:none !important;}';
+  ids.forEach(function(id){
+    var fr = document.getElementById(id); if (!fr) return;
+    function inj(){ try{ var d = fr.contentDocument; if (!d || !d.head || d.getElementById('ew-largura')) return;
+      var st = d.createElement('style'); st.id = 'ew-largura'; st.textContent = css; d.head.appendChild(st); }catch(e){} }
+    fr.addEventListener('load', inj); inj();
+  });
+})();
+</script>
 </body>
 </html>
