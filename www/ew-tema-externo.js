@@ -20,12 +20,14 @@
   };
 
   /* Correcoes SO do modo escuro: estas paginas tem fundos claros fixos no codigo (nao usam variaveis). */
-  var EQ = 'html.ew-dark .card, html.ew-dark .grid-gantt, html.ew-dark select, html.ew-dark input{background:#03456F !important;color:#E1EEF6 !important;border-color:#055384 !important;}\n'+
+  var EQ = 'html.ew-dark:root:root{--ew-gelo:#055384;--ew-noite:#E1EEF6;}\nhtml.ew-dark #ganttCampo .gc-fixa{background:#03456F !important;}\n'+
+    'html.ew-dark .card, html.ew-dark .grid-gantt, html.ew-dark select, html.ew-dark input{background:#03456F !important;color:#E1EEF6 !important;border-color:#055384 !important;}\n'+
     'html.ew-dark th, html.ew-dark th.gc-fixa, html.ew-dark th.ocultar, html.ew-dark h3, html.ew-dark .chip, html.ew-dark .niv, html.ew-dark .kpi.claro{background:#055384 !important;color:#E1EEF6 !important;}\n'+
     'html.ew-dark th.gc-hoje{background:#2F6E9C !important;color:#fff !important;}\n'+
     'html.ew-dark td, html.ew-dark td.k, html.ew-dark td.hj, html.ew-dark td.nt{background:#03456F !important;color:#E1EEF6 !important;}\n'+
     'html.ew-dark button:not(.ew-keep){background:#055384 !important;color:#E1EEF6 !important;border-color:#2F6E9C !important;}';
-  var CAL = 'html.ew-dark td.row-ok{background:rgba(18,168,116,.20) !important;color:#E1EEF6 !important;}\n'+
+  var CAL = 'html.ew-dark:root:root{--green-bg:rgba(18,168,116,.20);--amber-bg:rgba(216,154,43,.22);--red-bg:rgba(224,72,60,.22);}\n'+
+    'html.ew-dark td.row-ok{background:rgba(18,168,116,.20) !important;color:#E1EEF6 !important;}\n'+
     'html.ew-dark td.row-vence{background:rgba(216,154,43,.22) !important;color:#E1EEF6 !important;}\n'+
     'html.ew-dark .status-badge.ok{background:rgba(18,168,116,.22) !important;color:#5EE0B0 !important;}\n'+
     'html.ew-dark .status-badge.vence{background:rgba(216,154,43,.25) !important;color:#F0B84F !important;}\n'+
