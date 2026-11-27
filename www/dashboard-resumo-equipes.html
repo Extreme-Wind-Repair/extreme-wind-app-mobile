@@ -169,7 +169,7 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
 </style>
 <div class="gc-topo">
   <h2>Gantt de campo <span>ativos (GE · Siemens · Nordex) e previstos pela data de início · Reunião Diária</span></h2>
-  <div class="gc-leg"><span><i style="background:#1C8CE8"></i>GE</span><span><i style="background:#12A874"></i>Siemens</span><span><i style="background:#9b59b6"></i>Nordex</span><span><i style="background:#DCE6EF;box-shadow:inset 0 0 0 1px #A9BED0"></i>previsto (fundo claro)</span></div>
+  <div class="gc-leg"><span><i style="background:linear-gradient(90deg,#1C8CE8 0 33%,#E8833A 33% 66%,#12A874 66%)"></i>cada equipe uma cor</span><span><i style="background:#DCE6EF;box-shadow:inset 0 0 0 1px #A9BED0"></i>previsto (fundo claro, mesma cor da equipe que vem do ativo)</span></div>
 </div>
 <div class="gc-quadro" id="ganttCampoQuadro"><div class="gc-msg">Carregando o Gantt…</div></div>
 <div class="gc-rodape" id="ganttCampoRodape"></div>
@@ -210,6 +210,7 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
   function gcIntervalo(l, hojeSeg){
     var ini = gcData(l.inicio), fim = gcData(l.fimPrevisto);
     var previsto = gcGrupo(l) === 1;
+    if (!ini && !previsto) ini = gcMaisSem(hojeSeg, -GC_SEMANAS_ANTES);   // ativo sem data de início na Reunião: barra desde o começo da janela
     if (!ini) return null;
     ini = gcSegunda(ini);
     if (previsto && ini < hojeSeg) ini = hojeSeg;
@@ -230,8 +231,46 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
   function gcMesma(a, b){ if (a.length !== b.length) return false; var k = b.map(gcChave); return a.every(function(t){ return k.indexOf(gcChave(t)) > -1; }); }
   function gcPrimeiro(n){ var p = String(n || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length-1] : (p[0] || ''); }
 
+  /* v3 (27/11/2026): a fonte traz cada frente 2x (Reunião Diária "rd:" e projeto antigo do portal "prj_").
+     A Reunião manda: fica a linha dela; do projeto do portal só aproveita a data de início quando a Reunião não tem. */
+  function gcNorm(s){ return String(s || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/-\s*EQ\.?\s*/g, ' ').replace(/[^A-Z0-9]+/g, ' ').trim(); }
+  function gcTime(l){ var e = (l.equipes || []).slice(-1)[0]; return e ? (e.tecnicos || []).map(function(t){ return String(t.matricula || ''); }).filter(Boolean).sort().join('.') : ''; }
+  function gcMesclar(linhas){
+    var rd = linhas.filter(function(l){ return String(l.id || '').indexOf('prj_') !== 0; });
+    var prj = linhas.filter(function(l){ return String(l.id || '').indexOf('prj_') === 0; });
+    var usados = {};
+    rd = rd.map(function(r){
+      var m = prj.filter(function(p){ return !usados[p.id] && gcNorm(p.parque) === gcNorm(r.parque); })[0] ||
+              prj.filter(function(p){ return !usados[p.id] && gcTime(r) && gcTime(p) === gcTime(r) && gcNorm(p.parque).slice(0, 3) === gcNorm(r.parque).slice(0, 3); })[0];
+      if (!m) return r;
+      usados[m.id] = 1;
+      if (r.inicio) return r;
+      var c = {}; for (var k in r) c[k] = r[k]; c.inicio = m.inicio; return c;
+    });
+    return rd.concat(prj.filter(function(p){ return !usados[p.id]; }));
+  }
+  /* Cor por equipe: cores bem distintas, alternadas para frentes vizinhas não ficarem parecidas.
+     Previsto cuja equipe vem de uma frente ativa herda a cor dela. */
+  var GC_PALETA = ['#1C8CE8','#E8833A','#12A874','#9B59B6','#E5B92E','#E05A6D','#17A2B8','#8D6E63','#7CB342','#D76BB0','#5C6BC0','#4DB6AC','#F4A259','#A1887F','#26A69A','#EF6C57'];
+  function gcCores(linhas, hojeSeg){
+    var cor = {}, n = 0, ativos = [];
+    linhas.forEach(function(l){
+      if (gcGrupo(l) !== 0) return;
+      cor[l.id] = GC_PALETA[n++ % GC_PALETA.length];
+      ativos.push({ id: l.id, t: gcEquipeEm(l, hojeSeg).map(gcChave) });
+    });
+    linhas.forEach(function(l){
+      if (gcGrupo(l) !== 1) return;
+      var ks = (l.equipes || []).length ? ((l.equipes.slice(-1)[0].tecnicos) || []).map(gcChave) : [], best = null, bq = 0;
+      ativos.forEach(function(a){ var q = a.t.filter(function(x){ return x && ks.indexOf(x) > -1; }).length; if (q > bq){ bq = q; best = a.id; } });
+      cor[l.id] = best ? cor[best] : GC_PALETA[n++ % GC_PALETA.length];
+    });
+    return cor;
+  }
+
   function gcDesenhar(linhas){
     var hojeSeg = gcSegunda(new Date());
+    linhas = gcMesclar(linhas);
     // Janela: 2 semanas antes de hoje até a maior data final entre os parques (sem corte fixo de 3 meses).
     var fimMax = gcMaisSem(hojeSeg, 4);
     linhas.forEach(function(l){ var it0 = gcIntervalo(l, hojeSeg); if (it0 && it0.fim > fimMax) fimMax = it0.fim; });
@@ -240,6 +279,7 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
     var gcBox = document.getElementById('ganttCampo');
     if (gcBox) gcBox.classList.toggle('gc-compacto', semanas.length > 20);
     linhas = linhas.slice().sort(gcOrdem);
+    var GC_CORES = gcCores(linhas, hojeSeg);
 
     var h = '<table><thead><tr><th class="gc-fixa">Parque</th>';
     semanas.forEach(function(s){
@@ -257,7 +297,7 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
         h += '<tr class="gc-grupo"><td colspan="' + (semanas.length + 1) + '"><span>' + ROT[g][0] + ' (' + qtd + ')<small>' + ROT[g][1] + '</small></span></td></tr>';
         grupoAnt = g;
       }
-      var fab = gcFab(l), cor = GC_COR[fab] || '#8FA9C0';
+      var fab = gcFab(l), cor = GC_CORES[l.id] || GC_COR[fab] || '#8FA9C0';
       var etapa = l.etapa === 'mobilizacao' ? ['mobilizacao','Mobilização'] : l.etapa === 'documentacao' ? ['documentacao','Aprov. documentação']
                 : g === 0 ? ['ativo','Ativo'] : ['previsto','A iniciar'];
       var datas = (l.inicio ? gcDd(gcData(l.inicio)) : 's/ início') + ' → ' + (l.fimPrevisto ? gcDd(gcData(l.fimPrevisto)) + (l.estimado ? ' (est.)' : '') : (g === 1 && l.inicio ? '+2 meses (est.)' : '—'));
