@@ -451,7 +451,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     var celMes = function(g, ini, cls, txt){
       var j = kHoje - ini;
       if (kHoje < 0 || j < 0 || j >= g.n) return '<td class="' + cls + '" colspan="' + g.n + '">' + txt + '</td>';
-      var antes = j, depois = g.n - j - 1, onde = antes >= depois ? (antes ? 'a' : 'h') : 'd', out = '';
+      var antes = j, depois = g.n - j - 1, onde = 'h', out = '';   // mês atual: a média fica na coluna da semana atual (dentro da borda laranja)
       if (antes) out += '<td class="' + cls + '" colspan="' + antes + '">' + (onde === 'a' ? txt : '') + '</td>';
       out += '<td class="' + cls + ' gc-hoje">' + (onde === 'h' ? txt : '') + '</td>';
       if (depois) out += '<td class="' + cls + '" colspan="' + depois + '" style="border-left:0">' + (onde === 'd' ? txt : '') + '</td>';
