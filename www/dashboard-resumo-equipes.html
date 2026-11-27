@@ -240,6 +240,8 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   #ganttCampo .gc-pdf{background:#016596; color:#fff; border:0; border-radius:8px; padding:7px 14px; font:700 12px Montserrat,Arial,sans-serif; cursor:pointer; white-space:nowrap;}
   #ganttCampo .gc-pdf:hover{background:#055384;}
   #ganttCampo .gc-cab-pdf{display:none;}
+  #ganttCampo thead.gc-thead-min{display:none;}
+  @media screen{ #ganttCampo .gc-t1:has(+ .gc-t2) tbody tr:last-child td.gc-hoje{border-bottom-width:0 !important;} }
   /* Semana atual: borda grossa laranja de cima a baixo (tela e PDF) */
   #ganttCampo th.gc-hoje, #ganttCampo td.gc-hoje{border-left:3px solid #F28C28 !important; border-right:3px solid #F28C28 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
   #ganttCampo thead tr:nth-child(2) th.gc-hoje{border-top:3px solid #F28C28 !important; background:#F28C28 !important; color:#FFFFFF !important;}
@@ -274,7 +276,9 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     #ganttCampo table{ font-size:9px; }
     #ganttCampo thead{ display:table-header-group; }
     #ganttCampo tr{ break-inside:avoid; page-break-inside:avoid; }
-    #ganttCampo tr.gc-g1{ break-before:page; page-break-before:always; }
+    #ganttCampo .gc-t2{ break-before:page; page-break-before:always; padding-top:7mm; }
+    #ganttCampo thead.gc-thead-min{ display:table-header-group !important; }
+    #ganttCampo .gc-t2 table{ border-top:1px solid #D5E3EE; }
     #ganttCampo{ --gcfx:165px; }
     #ganttCampo .gc-fixa{ width:165px !important; padding:3px 6px !important; }
     #ganttCampo .gc-nome{ font-size:10px !important; }
@@ -469,7 +473,9 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       return vals.length ? vals.reduce(function(a, b){ return a + b; }, 0) / vals.length : null;
     };
 
-    var h = '<table><thead><tr class="gc-mesl"><th class="gc-fixa gc-mes" rowspan="2">Parque</th>';
+    /* colgroup: mesma largura de colunas nas duas tabelas (ativos | previstos) */
+    var colg = '<colgroup><col style="width:var(--gcfx)">' + semanas.map(function(){ return '<col>'; }).join('') + '</colgroup>';
+    var h = '<table>' + colg + '<thead><tr class="gc-mesl"><th class="gc-fixa gc-mes" rowspan="2">Parque</th>';
     grupos.forEach(function(g){ h += '<th class="gc-mes" colspan="' + g.n + '">' + MESES[g.m % 12] + '/' + String(Math.floor(g.m / 12)).slice(-2) + '</th>'; });
     h += '</tr><tr>';
     semanas.forEach(function(s){
@@ -477,6 +483,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       h += '<th class="' + (hj ? 'gc-hoje' : '') + (s > hojeSeg ? '' : '') + '">W' + gcNumSem(s) + '<br>' + gcDd(s) + '</th>';
     });
     h += '</tr>';
+    var cabMin = h.slice(h.indexOf('<thead>') + 7);   // só meses + semanas (cabeçalho da folha 2 do PDF, sem o painel)
     h += '<tr class="gc-ind"><td class="gc-fixa gc-indl">Total de equipes planejadas<small>frentes no plano na semana</small></td>';
     semanas.forEach(function(s){ var hj = s.getTime() === hojeSeg.getTime(); h += '<td class="gc-indv' + (hj ? ' gc-hoje' : '') + '">' + plan(s).length + '</td>'; });
     h += '</tr><tr class="gc-ind"><td class="gc-fixa gc-indl">Total de equipes em andamento<small>planejadas sem Stop Work (fração dos dias)</small></td>';
@@ -491,10 +498,15 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     h += '</tr></thead><tbody>';
 
     var ROT = [['Parques ativos', 'GE · Siemens · Nordex'], ['Previstos', 'Mobilização e Aprovação de Documentações, pela data de início']];
-    var grupoAnt = -1;
+    var grupoAnt = -1, abriuT2 = false;
+    h = '<div class="gc-t1">' + h;
     linhas.forEach(function(l){
       var g = gcGrupo(l);
       if (g !== grupoAnt){
+        if (g === 1 && grupoAnt === 0){   // previstos em tabela própria: no PDF vão para a folha 2 com cabeçalho só de meses/semanas
+          h += '</tbody></table></div><div class="gc-t2"><table>' + colg + '<thead class="gc-thead-min">' + cabMin + '</thead><tbody>';
+          abriuT2 = true;
+        }
         var qtd = linhas.filter(function(x){ return gcGrupo(x) === g; }).length;
         h += '<tr class="gc-grupo gc-g' + g + '"><td colspan="' + (semanas.length + 1) + '"' + faixaLinha + ' title="' + gcEsc(ROT[g][1]) + '"><span>' + ROT[g][0] + ' (' + qtd + ')</span></td></tr>';
         grupoAnt = g;
@@ -525,7 +537,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       });
       h += '</tr>';
     });
-    h += '</tbody></table>';
+    h += '</tbody></table></div>';
     return { html: h, total: linhas.length };
   }
 
