@@ -240,6 +240,22 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   #ganttCampo .gc-pdf{background:#016596; color:#fff; border:0; border-radius:8px; padding:7px 14px; font:700 12px Montserrat,Arial,sans-serif; cursor:pointer; white-space:nowrap;}
   #ganttCampo .gc-pdf:hover{background:#055384;}
   #ganttCampo .gc-cab-pdf{display:none;}
+  /* Painel semanal (planejado x em andamento) */
+  #ganttCampo thead th.gc-mes{background:#055384 !important; color:#fff !important; font:700 11px Montserrat,Arial,sans-serif !important; text-transform:uppercase; letter-spacing:.04em; border-left:1px solid rgba(255,255,255,.35);}
+  #ganttCampo thead td.gc-indl{background:#F3F8FC; color:#03456F; font:700 11px Montserrat,Arial,sans-serif; padding:5px 10px; text-align:left; white-space:normal;}
+  #ganttCampo thead td.gc-indl small{display:block; font:400 9.5px 'Open Sans',Arial,sans-serif; color:#5E6B7A;}
+  #ganttCampo thead td.gc-indv{background:#FFFFFF; color:#03456F; font:800 14px Montserrat,Arial,sans-serif; text-align:center; padding:5px 2px; border-left:1px solid #EEF3F8;}
+  #ganttCampo thead td.gc-indv.gc-hoje{background:#E6F1FA;}
+  #ganttCampo thead td.gc-indv.gc-baixo{color:#B42318;}
+  #ganttCampo thead tr.gc-med td{background:#F3F8FC; border-top:1px solid #D5E3EE;}
+  #ganttCampo thead tr.gc-ind:last-child td{border-bottom:2px solid #9CC7E8;}
+  html.ew-dark #ganttCampo thead td.gc-indl{background:#055384 !important; color:#FFFFFF !important;}
+  html.ew-dark #ganttCampo thead td.gc-indl small{color:#C3DAEC !important;}
+  html.ew-dark #ganttCampo thead td.gc-indv{background:#03456F !important; color:#FFFFFF !important; border-left-color:#2F6E9C !important;}
+  html.ew-dark #ganttCampo thead td.gc-indv.gc-hoje{background:#0F5C8F !important;}
+  html.ew-dark #ganttCampo thead td.gc-indv.gc-baixo{color:#FF9C8F !important;}
+  html.ew-dark #ganttCampo thead tr.gc-med td{background:#0A2E47 !important;}
+  html.ew-dark #ganttCampo thead th.gc-mes{background:#012F4D !important;}
   @media print{
     @page{ size:A4 landscape; margin:7mm; }
     html,body{ background:#fff !important; }
@@ -261,6 +277,16 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     #ganttCampo td.gc-sem{ height:31px !important; padding:1px !important; }
     #ganttCampo .gc-barra{ min-height:27px !important; font-size:7.5px !important; padding:1px 2px !important; }
     #ganttCampo thead th{ font-size:8.5px !important; padding:3px 1px !important; }
+    #ganttCampo thead td.gc-indv{ font-size:10px !important; padding:2px 1px !important; }
+    #ganttCampo thead td.gc-indl{ font-size:8.5px !important; padding:2px 6px !important; }
+    #ganttCampo thead td.gc-indl small{ display:none !important; }
+    #ganttCampo thead th.gc-mes{ font-size:8px !important; padding:2px 1px !important; }
+    #ganttCampo td.gc-sem{ height:26px !important; }
+    #ganttCampo .gc-barra{ min-height:23px !important; font-size:6.8px !important; line-height:1.05 !important; }
+    #ganttCampo .gc-fixa{ padding:1px 6px !important; }
+    #ganttCampo .gc-nome{ font-size:9px !important; }
+    #ganttCampo .gc-sub{ font-size:7px !important; }
+    #ganttCampo .gc-pill{ font-size:7px !important; padding:0 5px !important; }
     #ganttCampo tr.gc-grupo td{ padding:3px 8px !important; font-size:9.5px !important; }
     #ganttCampo .gc-rodape{ font-size:8px; margin-top:4px; }
     /* Nomes no PDF: só no início de cada formação, escritos por cima das semanas seguintes (sem cortar) */
@@ -391,11 +417,56 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     linhas = linhas.slice().sort(gcOrdem);
     var GC_CORES = gcCores(linhas, hojeSeg);
 
-    var h = '<table><thead><tr><th class="gc-fixa">Parque</th>';
+    /* v6 (27/11/2026): painel semanal no cabeçalho.
+       Planejadas = frentes com barra na semana (plano da Reunião Diária: ativos + previstos).
+       Em andamento = planejadas menos os dias úteis em Stop Work (Status da Reunião começando com "stop"), em fração de dias;
+       só até a semana atual (futuro = —). Médias do mês = média de todas as semanas do mês (semana pertence ao mês da quinta-feira). */
+    var PAR = window.EW_PARADAS || null, hoje0 = new Date(); hoje0.setHours(0, 0, 0, 0);
+    var MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    var iso = function(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); };
+    var parado = function(l, d){ var iv = PAR && PAR[String(l.id || '').replace(/^rd:/, '')]; if (!iv) return false; var x = iso(d); return iv.some(function(p){ return p[0] <= x && (!p[1] || x < p[1]); }); };
+    var plan = function(seg){ return linhas.filter(function(l){ var it = gcIntervalo(l, hojeSeg); return it && seg >= it.ini && seg <= it.fim; }); };
+    var real = function(seg){
+      if (seg > hojeSeg || !PAR) return null;
+      return plan(seg).reduce(function(tot, l){
+        var dias = 0, ok = 0;
+        for (var k = 0; k < 5; k++){ var d = new Date(seg); d.setDate(d.getDate() + k); if (d > hoje0) break; dias++; if (!parado(l, d)) ok++; }
+        return tot + (dias ? ok / dias : 1);
+      }, 0);
+    };
+    var mesDe = function(seg){ var q = new Date(seg); q.setDate(q.getDate() + 3); return q.getFullYear() * 12 + q.getMonth(); };
+    var fmt = function(n){ if (n === null || n === undefined || isNaN(n)) return '—'; var r1 = Math.round(n * 10) / 10; return String(r1).replace('.', ','); };
+    var grupos = [];
+    semanas.forEach(function(s){ var m = mesDe(s); if (!grupos.length || grupos[grupos.length-1].m !== m) grupos.push({ m: m, n: 0 }); grupos[grupos.length-1].n++; });
+    var mediaMes = function(m, tipo){
+      var y = Math.floor(m / 12), mo = m % 12, seg = gcSegunda(new Date(y, mo, 1)), vals = [];
+      if (mesDe(seg) !== m) seg = gcMaisSem(seg, 1);
+      for (; mesDe(seg) === m; seg = gcMaisSem(seg, 1)){
+        if (tipo === 'p') vals.push(plan(seg).length);
+        else { var rv = real(seg); if (rv !== null) vals.push(rv); }
+      }
+      return vals.length ? vals.reduce(function(a, b){ return a + b; }, 0) / vals.length : null;
+    };
+
+    var h = '<table><thead><tr class="gc-mesl"><th class="gc-fixa gc-mes" rowspan="2">Parque</th>';
+    grupos.forEach(function(g){ h += '<th class="gc-mes" colspan="' + g.n + '">' + MESES[g.m % 12] + '/' + String(Math.floor(g.m / 12)).slice(-2) + '</th>'; });
+    h += '</tr><tr>';
     semanas.forEach(function(s){
       var hj = s.getTime() === hojeSeg.getTime();
-      h += '<th class="' + (hj ? 'gc-hoje' : '') + '">W' + gcNumSem(s) + '<br>' + gcDd(s) + '</th>';
+      h += '<th class="' + (hj ? 'gc-hoje' : '') + (s > hojeSeg ? '' : '') + '">W' + gcNumSem(s) + '<br>' + gcDd(s) + '</th>';
     });
+    h += '</tr>';
+    h += '<tr class="gc-ind"><td class="gc-fixa gc-indl">Total de equipes planejadas<small>frentes no plano na semana</small></td>';
+    semanas.forEach(function(s){ var hj = s.getTime() === hojeSeg.getTime(); h += '<td class="gc-indv' + (hj ? ' gc-hoje' : '') + '">' + plan(s).length + '</td>'; });
+    h += '</tr><tr class="gc-ind"><td class="gc-fixa gc-indl">Total de equipes em andamento<small>planejadas sem Stop Work (fração dos dias)</small></td>';
+    semanas.forEach(function(s){
+      var hj = s.getTime() === hojeSeg.getTime(), rv = real(s), pv = plan(s).length;
+      h += '<td class="gc-indv' + (hj ? ' gc-hoje' : '') + (rv !== null && rv < pv - 0.001 ? ' gc-baixo' : '') + '">' + (s > hojeSeg ? '—' : (PAR ? fmt(rv) : '…')) + '</td>';
+    });
+    h += '</tr><tr class="gc-ind gc-med"><td class="gc-fixa gc-indl">Média do mês (planejado)<small>todas as semanas do mês</small></td>';
+    grupos.forEach(function(g){ h += '<td class="gc-indv" colspan="' + g.n + '">' + fmt(mediaMes(g.m, 'p')) + '</td>'; });
+    h += '</tr><tr class="gc-ind gc-med"><td class="gc-fixa gc-indl">Média do mês (em andamento)<small>semanas até hoje; parada derruba a média</small></td>';
+    grupos.forEach(function(g){ var mp = mediaMes(g.m, 'p'), mr = PAR ? mediaMes(g.m, 'r') : null; h += '<td class="gc-indv' + (mr !== null && mp !== null && mr < mp - 0.001 ? ' gc-baixo' : '') + '" colspan="' + g.n + '">' + (PAR ? fmt(mr) : '…') + '</td>'; });
     h += '</tr></thead><tbody>';
 
     var ROT = [['Parques ativos', 'GE · Siemens · Nordex'], ['Previstos', 'Mobilização e Aprovação de Documentações, pela data de início']];
@@ -468,6 +539,14 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   window.gcPdf = gcPdf;
   document.getElementById('ganttCampoPdf').addEventListener('click', gcPdf);
 
+  var gcUltLinhas = null, gcUltGerado = null;
+  /* Redesenha com os dados já carregados (chamado quando as paralisações chegam do resumo do portal). */
+  window.gcRedesenhar = function(){
+    if (!gcUltLinhas) return;
+    var r = gcDesenhar(gcUltLinhas), q = document.getElementById('ganttCampoQuadro');
+    if (q && r.total) q.innerHTML = r.html;
+  };
+
   function gcCarregar(){
     if (document.hidden) return;
     fetch(GC_URL + '&_=' + Date.now(), { cache: 'no-store' })
@@ -478,6 +557,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
         if (assinatura === gcUltimo) return;             // nada mudou: não mexe na rolagem
         gcUltimo = assinatura;
         var q = document.getElementById('ganttCampoQuadro');
+        gcUltLinhas = j.linhas; gcUltGerado = j.gerado;
         var r = gcDesenhar(j.linhas);
         q.innerHTML = r.total ? r.html : '<div class="gc-msg">Nenhum parque na Reunião Diária.</div>';
         var g = new Date(j.gerado);
@@ -549,6 +629,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   var ORDEM_ST = ['Ativo', 'Aguardando convocação', 'Reserva', 'Backup', 'BDH - Aguardando em Casa', 'Indisponível', 'Desqualificado', 'Administrativo/Eng'];
 
   function render(d) {
+    window.EW_PARADAS = d.paradas || {}; if (window.gcRedesenhar) { try { window.gcRedesenhar(); } catch (e) {} }
     var b1 = d.parques.filter(function (p) { return p.bloco === 1; }), fut = d.parques.filter(function (p) { return p.bloco !== 1; });
     var emCampo = b1.reduce(function (s, p) { return s + p.real; }, 0), vagas = d.parques.reduce(function (s, p) { return s + p.vagas; }, 0);
     var st = d.status || {}, livre = (st['Reserva'] || 0) + (st['Backup'] || 0);
