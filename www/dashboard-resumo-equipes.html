@@ -57,6 +57,17 @@ h2.sec .n{display:inline-flex;width:26px;height:26px;border-radius:50%;backgroun
 .cen td{padding:6px 12px;border-top:1px solid #EEF3F8;vertical-align:top}
 .cen td.k{width:72px;color:var(--ew-cinza);font:700 11px Montserrat,Arial,sans-serif;white-space:nowrap}
 .cen .tfoot td{background:#F3F8FC;font-weight:700;color:var(--ew-noite)}
+.cen .mot{display:block;font-size:11.5px;color:#B42318;font-weight:600;margin-top:2px}
+.cen .mot.ok{color:var(--green)}
+.cen .trava{display:block;font-size:11px;color:var(--ew-cinza);font-weight:400}
+table.ct{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table.ct th{background:var(--ew-noite);color:#fff;font:700 11px Montserrat,Arial,sans-serif;text-transform:uppercase;padding:8px 10px;text-align:center}
+table.ct th.l,table.ct td.l{text-align:left}
+table.ct td{padding:7px 10px;border-top:1px solid #EEF3F8;text-align:center;vertical-align:top}
+table.ct td.num{font:800 15px Montserrat,Arial,sans-serif;color:var(--ew-noite)}
+table.ct td.hire{font:800 15px Montserrat,Arial,sans-serif;color:#B42318}
+table.ct tr.cl td{background:var(--ew-gelo);font:700 12px Montserrat,Arial,sans-serif;color:var(--ew-noite);text-align:left}
+table.ct .perf{font-size:12px;color:var(--ew-grafite)}
 .niv{display:inline-block;font:700 10px Montserrat,Arial,sans-serif;background:var(--ew-gelo);color:var(--ew-noite);border-radius:4px;padding:0 4px;margin-left:3px}
 .fim{color:var(--amber);font-size:11px}
 /* Parques */
@@ -82,7 +93,7 @@ table.res td.pj{font:800 18px Montserrat,Arial,sans-serif;color:var(--ew-extreme
 table.res td.pj.zero{color:#B42318}
 table.res tr.tt th,table.res tr.tt td{border-bottom:0;background:var(--ew-gelo)}
 table.res td.nt{font-size:11px;color:var(--ew-cinza);font-style:italic}
-h3.sub{font:700 13px Montserrat,Arial,sans-serif;color:var(--ew-noite);margin:4px 0 10px}
+h3.sub{font:700 13px Montserrat,Arial,sans-serif;color:var(--ew-noite);margin:20px 0 10px}
 h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
 /* Filtros da lista */
 .filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
@@ -318,6 +329,9 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
     <div class="wrap" id="resumo"><div class="msg">Carregando…</div></div>
     <h3 class="sub">Possibilidades por cenário <small>· clique para ver as equipes</small></h3>
     <div class="alg" id="alg"><div class="msg">Carregando…</div></div>
+    <h3 class="sub">Necessidade de contratação para a meta mínima <small>· meta = 10 equipes por cenário (Exterior 5)</small></h3>
+    <p class="nota">Estimativa por cenário: completa as equipes que faltam com os técnicos livres que sobraram (sem 2 N3 na mesma equipe) e conta o que precisa contratar. Os cenários não se somam: os mesmos técnicos livres servem para todos.</p>
+    <div class="wrap" id="contr"><div class="msg">Carregando…</div></div>
   </div>
 
   <div class="card">
@@ -385,10 +399,26 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
             return esc(m.mat) + ' · ' + esc(curto(m.nome)) + (m.nivel ? '<span class="niv">' + esc(m.nivel) + '</span>' : '') + (m.fim != null ? ' <span class="fim">(libera em ' + m.fim + 'd)</span>' : '');
           }).join('<br>') + '</td></tr>';
         }).join('');
-        return '<details class="cen"><summary><span class="t">' + esc(c.tipo) + ' <small>· ' + c.pessoas + ' pessoas</small></span><span class="tot' + (c.total ? '' : ' zero') + '">' + c.total + ' <small>equipe' + (c.total === 1 ? '' : 's') + '</small></span></summary>' +
+        var dg = c.diag || {}, f = dg.falhas || {}, tr = [];
+        if (f.bst) tr.push(f.bst + ' sem BST'); if (f.art) tr.push(f.art + ' sem ART'); if (f.irata) tr.push(f.irata + ' sem IRATA válido'); if (f.pass) tr.push(f.pass + ' sem passaporte/interesse');
+        var mot = dg.meta == null ? '' : (dg.faltam_equipes ? '<span class="mot">⚠ ' + esc(dg.motivo || 'Abaixo da meta') + '</span>' : '<span class="mot ok">✓ Meta mínima atingida</span>') +
+          (dg.livres != null ? '<span class="trava">Livres ' + dg.livres + ' · aptos ' + dg.elegiveis + (tr.length ? ' (fora: ' + tr.join(', ') + ')' : '') + '</span>' : '');
+        return '<details class="cen"><summary><span class="t">' + esc(c.tipo) + ' <small>· ' + c.pessoas + ' pessoas</small>' + mot + '</span><span class="tot' + (c.total ? '' : ' zero') + '">' + c.total + (dg.meta ? ' <small>de ' + dg.meta + '</small>' : ' <small>equipe' + (c.total === 1 ? '' : 's') + '</small>') + '</span></summary>' +
           (c.total ? '<table>' + linhas + '<tr class="tfoot"><td class="k">Total</td><td>' + c.total + ' equipe' + (c.total === 1 ? '' : 's') + ' de ' + c.pessoas + ' (' + (c.total * c.pessoas) + ' técnicos)</td></tr></table>' : '<table><tr><td class="msg">Nenhuma equipe completa com os técnicos livres hoje.</td></tr></table>') + '</details>';
       }).join('') + '</div>';
     }).join('');
+
+    $('contr').innerHTML = '<table class="ct"><thead><tr><th class="l">Cenário</th><th>Meta</th><th>Montadas</th><th>Faltam equipes</th><th>Contratar</th><th class="l">Perfil a contratar</th></tr></thead><tbody>' +
+      Object.keys(porCli).map(function (cli) {
+        return '<tr class="cl"><td colspan="6">' + esc(cli) + '</td></tr>' + porCli[cli].map(function (c) {
+          var dg = c.diag || {};
+          if (dg.meta == null) return '';
+          var perf = (dg.contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
+          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div></td><td class="num">' + dg.meta + '</td><td class="num">' + c.total + '</td>' +
+            '<td class="' + (dg.faltam_equipes ? 'hire' : 'num') + '">' + dg.faltam_equipes + '</td><td class="' + (dg.contratar_total ? 'hire' : 'num') + '">' + (dg.contratar_total || 0) + '</td>' +
+            '<td class="l perf">' + (perf || '<span style="color:var(--green)">Nada a contratar</span>') + '</td></tr>';
+        }).join('');
+      }).join('') + '</tbody></table>';
 
     var grupos = [[1, 'Bloco 1 · em atividade'], [2, 'Bloco 2 · próximos'], [3, 'Bloco 3 · previstos']];
     $('pq').innerHTML = grupos.map(function (g) {
