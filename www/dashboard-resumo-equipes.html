@@ -235,11 +235,48 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   #ganttCampo .gc-rodape{font-size:11px; color:var(--muted); margin-top:8px;}
   #ganttCampo .gc-msg{padding:18px; color:var(--muted); font-size:13px;}
   @media (max-width:1100px){ #ganttCampo .gc-fixa{width:150px;} #ganttCampo .gc-barra{font-size:8.5px;} }
+  /* v5: PDF em A4 paisagem — folha 1 = parques ativos, folha 2 = previstos (usa a impressão do navegador: "Salvar como PDF") */
+  #ganttCampo .gc-acoes{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  #ganttCampo .gc-pdf{background:#016596; color:#fff; border:0; border-radius:8px; padding:7px 14px; font:700 12px Montserrat,Arial,sans-serif; cursor:pointer; white-space:nowrap;}
+  #ganttCampo .gc-pdf:hover{background:#055384;}
+  #ganttCampo .gc-cab-pdf{display:none;}
+  @media print{
+    @page{ size:A4 landscape; margin:7mm; }
+    html,body{ background:#fff !important; }
+    body{ margin:0 !important; }
+    #ganttCampo{ border:0 !important; box-shadow:none !important; margin:0 !important; padding:0 !important; background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #ganttCampo .gc-pdf{ display:none !important; }
+    #ganttCampo .gc-topo{ margin-bottom:4px; }
+    #ganttCampo .gc-topo h2{ font-size:13px !important; }
+    #ganttCampo .gc-leg{ font-size:9px; }
+    #ganttCampo .gc-cab-pdf{ display:block; font:600 9px 'Open Sans',Arial,sans-serif; color:#5E6B7A; margin:0 0 4px; }
+    #ganttCampo .gc-quadro{ border:1px solid #D5E3EE; }
+    #ganttCampo table{ font-size:9px; }
+    #ganttCampo thead{ display:table-header-group; }
+    #ganttCampo tr{ break-inside:avoid; page-break-inside:avoid; }
+    #ganttCampo tr.gc-g1{ break-before:page; page-break-before:always; }
+    #ganttCampo .gc-fixa{ width:165px !important; padding:3px 6px !important; }
+    #ganttCampo .gc-nome{ font-size:10px !important; }
+    #ganttCampo .gc-sub{ font-size:8px !important; }
+    #ganttCampo td.gc-sem{ height:31px !important; padding:1px !important; }
+    #ganttCampo .gc-barra{ min-height:27px !important; font-size:7.5px !important; padding:1px 2px !important; }
+    #ganttCampo thead th{ font-size:8.5px !important; padding:3px 1px !important; }
+    #ganttCampo tr.gc-grupo td{ padding:3px 8px !important; font-size:9.5px !important; }
+    #ganttCampo .gc-rodape{ font-size:8px; margin-top:4px; }
+    /* Nomes no PDF: só no início de cada formação, escritos por cima das semanas seguintes (sem cortar) */
+    #ganttCampo td.gc-sem{ overflow:visible !important; }
+    #ganttCampo .gc-barra{ overflow:visible !important; align-items:flex-start !important; }
+    #ganttCampo .gc-barra span{ display:none !important; }
+    #ganttCampo .gc-barra.gc-nm-ini span{ display:block !important; position:relative; z-index:2; max-width:none !important; overflow:visible !important; text-overflow:clip !important; white-space:nowrap; text-align:left; }
+    #ganttCampo .gc-barra.gc-nm-ini span{ text-shadow:0 0 2px rgba(255,255,255,.85); }
+  }
 </style>
 <div class="gc-topo">
   <h2>Gantt de campo <span>ativos (GE · Siemens · Nordex) e previstos pela data de início · Reunião Diária</span></h2>
-  <div class="gc-leg"><span><i style="background:linear-gradient(90deg,#1C8CE8 0 33%,#E8833A 33% 66%,#12A874 66%)"></i>cada equipe uma cor</span><span><i style="background:#DCE6EF;box-shadow:inset 0 0 0 1px #A9BED0"></i>previsto (fundo claro, mesma cor da equipe que vem do ativo)</span></div>
+  <div class="gc-acoes"><div class="gc-leg"><span><i style="background:linear-gradient(90deg,#1C8CE8 0 33%,#E8833A 33% 66%,#12A874 66%)"></i>cada equipe uma cor</span><span><i style="background:#DCE6EF;box-shadow:inset 0 0 0 1px #A9BED0"></i>previsto (fundo claro, mesma cor da equipe que vem do ativo)</span></div>
+  <button type="button" class="gc-pdf ew-keep" id="ganttCampoPdf" title="A4 paisagem: folha 1 = ativos, folha 2 = previstos">⬇ Baixar PDF</button></div>
 </div>
+<div class="gc-cab-pdf" id="ganttCampoCabPdf"></div>
 <div class="gc-quadro" id="ganttCampoQuadro"><div class="gc-msg">Carregando o Gantt…</div></div>
 <div class="gc-rodape" id="ganttCampoRodape"></div>
 <script>
@@ -367,7 +404,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       var g = gcGrupo(l);
       if (g !== grupoAnt){
         var qtd = linhas.filter(function(x){ return gcGrupo(x) === g; }).length;
-        h += '<tr class="gc-grupo"><td colspan="' + (semanas.length + 1) + '"><span>' + ROT[g][0] + ' (' + qtd + ')<small>' + ROT[g][1] + '</small></span></td></tr>';
+        h += '<tr class="gc-grupo gc-g' + g + '"><td colspan="' + (semanas.length + 1) + '"><span>' + ROT[g][0] + ' (' + qtd + ')<small>' + ROT[g][1] + '</small></span></td></tr>';
         grupoAnt = g;
       }
       var fab = gcFab(l), cor = GC_CORES[l.id] || GC_COR[fab] || '#8FA9C0';
@@ -383,14 +420,15 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
         var atual = gcEquipeEm(l, s), ant = gcEquipeEm(l, gcMaisSem(s, -1));
         var prox = gcMaisSem(s, 1) <= it.fim ? gcEquipeEm(l, gcMaisSem(s, 1)) : atual;
         var primeira = s.getTime() === it.ini.getTime(), ultima = s.getTime() === it.fim.getTime();
-        var mostra = atual.length && (primeira || hj || !gcMesma(atual, ant) || !gcMesma(atual, prox));
+        var mostra = atual.length && (primeira || hj || s.getTime() === semanas[0].getTime() || !gcMesma(atual, ant) || !gcMesma(atual, prox));
         var nomes = mostra ? atual.map(function(t){
           var sai = !ultima && prox.map(gcChave).indexOf(gcChave(t)) < 0;
           return '<span' + (sai ? ' class="s"' : '') + '>' + gcEsc((t.nivel ? t.nivel + '-' : '') + gcPrimeiro(t.nome)) + '</span>';
         }).join('') : '';
         var dica = 'W' + gcNumSem(s) + ' — ' + atual.map(function(t){ return t.nome + (t.matricula ? ' (' + t.matricula + ')' : ''); }).join(', ');
         var prev = g === 1, fut = g === 0 && s > hojeSeg;
-        h += '<td class="gc-sem' + (hj ? ' gc-hoje' : '') + '" title="' + gcEsc(dica) + '"><div class="gc-barra' + (primeira ? ' ini' : '') + (ultima ? ' fim' : '') +
+        var nmIni = atual.length && (primeira || s.getTime() === semanas[0].getTime() || !gcMesma(atual, ant));   // início de cada formação: no PDF o nome aparece só aqui e corre pelas semanas seguintes
+        h += '<td class="gc-sem' + (hj ? ' gc-hoje' : '') + '" title="' + gcEsc(dica) + '"><div class="gc-barra' + (primeira ? ' ini' : '') + (ultima ? ' fim' : '') + (nmIni ? ' gc-nm-ini' : '') +
              (prev ? ' prev' : '') + (fut ? ' fut' : '') + '" style="--gc-cor:' + cor + '">' + nomes + '</div></td>';
       });
       h += '</tr>';
@@ -398,6 +436,37 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     h += '</tbody></table>';
     return { html: h, total: linhas.length };
   }
+
+  /* PDF: esconde o resto da página, força o modo claro, imprime e devolve tudo como estava. */
+  function gcPdf(){
+    var el = document.getElementById('ganttCampo'), html = document.documentElement, escondidos = [], n = el;
+    while (n && n !== document.body){
+      var pai = n.parentNode;
+      Array.prototype.forEach.call(pai.children, function(c){
+        if (c !== n && !/^(SCRIPT|STYLE|LINK)$/.test(c.tagName)){ escondidos.push([c, c.style.display]); c.style.display = 'none'; }
+      });
+      n = pai;
+    }
+    var escuro = html.classList.contains('ew-dark'), claroBody = document.body.classList.contains('light-mode'), titulo = document.title;
+    html.classList.remove('ew-dark'); document.body.classList.add('light-mode');
+    var d = new Date(), dd = ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + d.getFullYear();
+    document.getElementById('ganttCampoCabPdf').textContent = 'Extreme Wind · Controle de Equipes · Gantt de campo · gerado em ' + dd + ' ' + ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) + ' · folha 1: parques ativos · folha 2: previstos';
+    document.title = 'Gantt de Campo ' + dd.replace(/\//g, '-');
+    var feito = false;
+    function volta(){
+      if (feito) return; feito = true;
+      escondidos.forEach(function(x){ x[0].style.display = x[1]; });
+      if (escuro) html.classList.add('ew-dark');
+      if (!claroBody) document.body.classList.remove('light-mode');
+      document.title = titulo;
+      window.removeEventListener('afterprint', volta);
+    }
+    window.addEventListener('afterprint', volta);
+    window.__gcPdfVolta = volta;
+    if (!window.__gcSemPrint) { window.print(); setTimeout(volta, 1500); }
+  }
+  window.gcPdf = gcPdf;
+  document.getElementById('ganttCampoPdf').addEventListener('click', gcPdf);
 
   function gcCarregar(){
     if (document.hidden) return;
