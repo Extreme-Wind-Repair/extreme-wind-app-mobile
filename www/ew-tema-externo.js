@@ -18,16 +18,38 @@
     'view-ehs': {bg:'BG', surface:'S', 'surface-2':'S2', line:'LN', 'line-2':'LN', ink:'TX', 'ink-2':'MU', 'ink-3':'MU', brand:'AC', 'brand-2':'AC', 'brand-soft':'SOFT'},
     'view-ehs-painel': {page:'BG', surface:'S', 'surface-2':'S2', ink:'TX', 'ink-2':'MU', muted:'MU', grid:'LN', border:'RING', accent:'AC', 'accent-soft':'S2'}
   };
+
+  /* Correcoes SO do modo escuro: estas paginas tem fundos claros fixos no codigo (nao usam variaveis). */
+  var EQ = 'html.ew-dark .card, html.ew-dark .grid-gantt, html.ew-dark select, html.ew-dark input{background:#03456F !important;color:#E1EEF6 !important;border-color:#055384 !important;}\n'+
+    'html.ew-dark th, html.ew-dark th.gc-fixa, html.ew-dark th.ocultar, html.ew-dark h3, html.ew-dark .chip, html.ew-dark .niv, html.ew-dark .kpi.claro{background:#055384 !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark th.gc-hoje{background:#2F6E9C !important;color:#fff !important;}\n'+
+    'html.ew-dark td, html.ew-dark td.k, html.ew-dark td.hj, html.ew-dark td.nt{background:#03456F !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark button:not(.ew-keep){background:#055384 !important;color:#E1EEF6 !important;border-color:#2F6E9C !important;}';
+  var CAL = 'html.ew-dark td.row-ok{background:rgba(18,168,116,.20) !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark td.row-vence{background:rgba(216,154,43,.22) !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark .status-badge.ok{background:rgba(18,168,116,.22) !important;color:#5EE0B0 !important;}\n'+
+    'html.ew-dark .status-badge.vence{background:rgba(216,154,43,.25) !important;color:#F0B84F !important;}\n'+
+    'html.ew-dark a.cert-btn{background:#055384 !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark th.gridjs-th, html.ew-dark .gridjs-th{background:#055384 !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark .gridjs-wrapper, html.ew-dark .gridjs-table, html.ew-dark tbody.gridjs-tbody, html.ew-dark td.gridjs-td, html.ew-dark .gridjs-footer, html.ew-dark .gridjs-container{background:#03456F !important;color:#E1EEF6 !important;border-color:#055384 !important;}\n'+
+    'html.ew-dark .gridjs-search-input, html.ew-dark .gridjs-pagination button, html.ew-dark .gridjs-pagination .gridjs-summary{background:#055384 !important;color:#E1EEF6 !important;border-color:#2F6E9C !important;}';
+  var EST = 'html.ew-dark th, html.ew-dark th.num{background:#055384 !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark div.kpi-body{background:#055384 !important;color:#E1EEF6 !important;}\n'+
+    'html.ew-dark span.badge{background:rgba(237,125,49,.22) !important;color:#F4A261 !important;}\n'+
+    'html.ew-dark span.badge.fard, html.ew-dark span.badge.na{background:rgba(156,199,232,.18) !important;color:#9CC7E8 !important;}\n'+
+    'html.ew-dark span.badge.acc{background:rgba(160,110,220,.24) !important;color:#C9A8F0 !important;}';
+  var EXTRA = {'view-equipes':EQ, 'view-busca-tecnico':EQ, 'view-calibracao':CAL, 'view-estoque':EST};
   /* diurno: textos de status mais escuros para ler sobre fundo branco (cores de status inalteradas no escuro) */
   var STATUS_DIURNO = '--green:#0B7A55;--amber:#8A5A00;--red:#B3261E;--gray:#5E6B7A;--good-text:#0B7A55;--crit-text:#B3261E;';
   function css(id){
     var m = MAPA[id], d = '', l = '';
     Object.keys(m).forEach(function(k){ d += '--'+k+':'+D[m[k]]+';'; l += '--'+k+':'+L[m[k]]+';'; });
     var corpo = function(P){ return 'background:'+P.BG+' !important;color:'+P.TX+' !important;'; };
+    var ex = EXTRA[id] ? '\n'+EXTRA[id] : '';
     return 'html.ew-dark:root:root{color-scheme:dark;'+d+'}\n'+
            'html.ew-light:root:root{color-scheme:light;'+l+STATUS_DIURNO+'}\n'+
            'html.ew-dark body{'+corpo(D)+'}\nhtml.ew-light body{'+corpo(L)+'}\n'+
-           'html.ew-dark body, html.ew-light body{font-family:\'Open Sans\',\'Segoe UI\',Arial,sans-serif;}';
+           'html.ew-dark body, html.ew-light body{font-family:\'Open Sans\',\'Segoe UI\',Arial,sans-serif;}'+ex;
   }
   var FONTE = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap';
   function claro(){ return document.body.classList.contains('light-mode'); }
