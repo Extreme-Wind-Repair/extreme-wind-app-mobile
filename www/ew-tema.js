@@ -35,5 +35,6 @@
     aplica();
     if (window.self !== window.top){ var b = document.getElementById('themeToggleBtn'); if (b) b.style.display = 'none'; }
   }
-  if (document.body) init(); else document.addEventListener('DOMContentLoaded', init);
+  if (document.body) init();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); /* botao do cabecalho so existe depois */
 })();
