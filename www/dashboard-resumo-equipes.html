@@ -198,7 +198,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
      página vier sem o Gantt ou com versão antiga, o gerador recoloca. Mudou
      o Gantt? Mude lá e suba a versão (data-versao). -->
 <style>
-  #ganttCampo{margin-bottom:20px; padding:16px 16px 12px;}
+  #ganttCampo{margin-bottom:20px; padding:16px 16px 12px; --gcfx:200px;}
   #ganttCampo .gc-topo{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
   #ganttCampo .gc-topo h2{margin:0;}
   #ganttCampo .gc-leg{display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted);}
@@ -234,12 +234,16 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
   #ganttCampo tr.gc-grupo small{font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:6px;}
   #ganttCampo .gc-rodape{font-size:11px; color:var(--muted); margin-top:8px;}
   #ganttCampo .gc-msg{padding:18px; color:var(--muted); font-size:13px;}
-  @media (max-width:1100px){ #ganttCampo .gc-fixa{width:150px;} #ganttCampo .gc-barra{font-size:8.5px;} }
+  @media (max-width:1100px){ #ganttCampo{--gcfx:150px;} #ganttCampo .gc-fixa{width:150px;} #ganttCampo .gc-barra{font-size:8.5px;} }
   /* v5: PDF em A4 paisagem — folha 1 = parques ativos, folha 2 = previstos (usa a impressão do navegador: "Salvar como PDF") */
   #ganttCampo .gc-acoes{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
   #ganttCampo .gc-pdf{background:#016596; color:#fff; border:0; border-radius:8px; padding:7px 14px; font:700 12px Montserrat,Arial,sans-serif; cursor:pointer; white-space:nowrap;}
   #ganttCampo .gc-pdf:hover{background:#055384;}
   #ganttCampo .gc-cab-pdf{display:none;}
+  /* Semana atual: borda grossa laranja de cima a baixo (tela e PDF) */
+  #ganttCampo th.gc-hoje, #ganttCampo td.gc-hoje{border-left:3px solid #F28C28 !important; border-right:3px solid #F28C28 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  #ganttCampo thead tr:nth-child(2) th.gc-hoje{border-top:3px solid #F28C28 !important; background:#F28C28 !important; color:#FFFFFF !important;}
+  #ganttCampo tbody tr:last-child td.gc-hoje{border-bottom:3px solid #F28C28 !important;}
   /* Painel semanal (planejado x em andamento) */
   #ganttCampo thead th.gc-mes{background:#055384 !important; color:#fff !important; font:700 11px Montserrat,Arial,sans-serif !important; text-transform:uppercase; letter-spacing:.04em; border-left:1px solid rgba(255,255,255,.35);}
   #ganttCampo thead td.gc-indl{background:#F3F8FC; color:#03456F; font:700 11px Montserrat,Arial,sans-serif; padding:5px 10px; text-align:left; white-space:normal;}
@@ -271,6 +275,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     #ganttCampo thead{ display:table-header-group; }
     #ganttCampo tr{ break-inside:avoid; page-break-inside:avoid; }
     #ganttCampo tr.gc-g1{ break-before:page; page-break-before:always; }
+    #ganttCampo{ --gcfx:165px; }
     #ganttCampo .gc-fixa{ width:165px !important; padding:3px 6px !important; }
     #ganttCampo .gc-nome{ font-size:10px !important; }
     #ganttCampo .gc-sub{ font-size:8px !important; }
@@ -309,7 +314,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
 (function(){
   'use strict';
   var GC_URL = 'https://script.google.com/macros/s/AKfycbyIT6qWi8CXQog8eQ6EHg65_CDVc1JPevbCGUj9wziNuhHDhyWXmOXvk-9shPrNwuxe/exec?acao=gantt';
-  var GC_SEMANAS_ANTES = 2, GC_SEMANAS_DEPOIS = 13, GC_ATUALIZAR_MS = 120000;   // 15 semanas cabem na tela
+  var GC_SEMANAS_ANTES = 1, GC_SEMANAS_DEPOIS = 13, GC_ATUALIZAR_MS = 120000;   // 15 semanas cabem na tela
   var GC_FAB = ['GE', 'SIEMENS', 'NORDEX'];
   var GC_COR = { GE:'#1C8CE8', SIEMENS:'#12A874', NORDEX:'#9b59b6' };
   var gcUltimo = '';
@@ -438,6 +443,22 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     var fmt = function(n){ if (n === null || n === undefined || isNaN(n)) return '—'; var r1 = Math.round(n * 10) / 10; return String(r1).replace('.', ','); };
     var grupos = [];
     semanas.forEach(function(s){ var m = mesDe(s); if (!grupos.length || grupos[grupos.length-1].m !== m) grupos.push({ m: m, n: 0 }); grupos[grupos.length-1].n++; });
+    /* Faixa laranja da semana atual também nas linhas que juntam semanas (médias do mês e títulos de grupo):
+       desenhada como fundo, na posição exata da coluna atual (vale na tela e no PDF). */
+    var kHoje = -1; semanas.forEach(function(s2, i2){ if (s2.getTime() === hojeSeg.getTime()) kHoje = i2; });
+    var faixa = function(a, b){ return ' style="background-image:linear-gradient(90deg,transparent ' + a + ',#F28C28 ' + a + ',#F28C28 calc(' + a + ' + 3px),transparent calc(' + a + ' + 3px),transparent calc(' + b + ' - 3px),#F28C28 calc(' + b + ' - 3px),#F28C28 ' + b + ',transparent ' + b + ') !important;-webkit-print-color-adjust:exact;print-color-adjust:exact"'; };
+    /* mês da semana atual vira até 3 células (antes | semana atual | depois) para a borda passar sem cortar o número */
+    var celMes = function(g, ini, cls, txt){
+      var j = kHoje - ini;
+      if (kHoje < 0 || j < 0 || j >= g.n) return '<td class="' + cls + '" colspan="' + g.n + '">' + txt + '</td>';
+      var antes = j, depois = g.n - j - 1, onde = antes >= depois ? (antes ? 'a' : 'h') : 'd', out = '';
+      if (antes) out += '<td class="' + cls + '" colspan="' + antes + '">' + (onde === 'a' ? txt : '') + '</td>';
+      out += '<td class="' + cls + ' gc-hoje">' + (onde === 'h' ? txt : '') + '</td>';
+      if (depois) out += '<td class="' + cls + '" colspan="' + depois + '" style="border-left:0">' + (onde === 'd' ? txt : '') + '</td>';
+      return out;
+    };
+    var faixaLinha = kHoje < 0 ? '' : faixa('calc(var(--gcfx) + ' + kHoje + ' * (100% - var(--gcfx)) / ' + semanas.length + ')', 'calc(var(--gcfx) + ' + (kHoje + 1) + ' * (100% - var(--gcfx)) / ' + semanas.length + ')');
+    var iniG = []; (function(){ var acc = 0; grupos.forEach(function(g){ iniG.push(acc); acc += g.n; }); })();
     var mediaMes = function(m, tipo){
       var y = Math.floor(m / 12), mo = m % 12, seg = gcSegunda(new Date(y, mo, 1)), vals = [];
       if (mesDe(seg) !== m) seg = gcMaisSem(seg, 1);
@@ -464,9 +485,9 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       h += '<td class="gc-indv' + (hj ? ' gc-hoje' : '') + (rv !== null && rv < pv - 0.001 ? ' gc-baixo' : '') + '">' + (s > hojeSeg ? '—' : (PAR ? fmt(rv) : '…')) + '</td>';
     });
     h += '</tr><tr class="gc-ind gc-med"><td class="gc-fixa gc-indl">Média do mês (planejado)<small>todas as semanas do mês</small></td>';
-    grupos.forEach(function(g){ h += '<td class="gc-indv" colspan="' + g.n + '">' + fmt(mediaMes(g.m, 'p')) + '</td>'; });
+    grupos.forEach(function(g, gi){ h += celMes(g, iniG[gi], 'gc-indv', fmt(mediaMes(g.m, 'p'))); });
     h += '</tr><tr class="gc-ind gc-med"><td class="gc-fixa gc-indl">Média do mês (em andamento)<small>semanas até hoje; parada derruba a média</small></td>';
-    grupos.forEach(function(g){ var mp = mediaMes(g.m, 'p'), mr = PAR ? mediaMes(g.m, 'r') : null; h += '<td class="gc-indv' + (mr !== null && mp !== null && mr < mp - 0.001 ? ' gc-baixo' : '') + '" colspan="' + g.n + '">' + (PAR ? fmt(mr) : '…') + '</td>'; });
+    grupos.forEach(function(g, gi){ var mp = mediaMes(g.m, 'p'), mr = PAR ? mediaMes(g.m, 'r') : null; h += celMes(g, iniG[gi], 'gc-indv' + (mr !== null && mp !== null && mr < mp - 0.001 ? ' gc-baixo' : ''), PAR ? fmt(mr) : '…'); });
     h += '</tr></thead><tbody>';
 
     var ROT = [['Parques ativos', 'GE · Siemens · Nordex'], ['Previstos', 'Mobilização e Aprovação de Documentações, pela data de início']];
@@ -475,7 +496,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       var g = gcGrupo(l);
       if (g !== grupoAnt){
         var qtd = linhas.filter(function(x){ return gcGrupo(x) === g; }).length;
-        h += '<tr class="gc-grupo gc-g' + g + '"><td colspan="' + (semanas.length + 1) + '"><span>' + ROT[g][0] + ' (' + qtd + ')<small>' + ROT[g][1] + '</small></span></td></tr>';
+        h += '<tr class="gc-grupo gc-g' + g + '"><td colspan="' + (semanas.length + 1) + '"' + faixaLinha + ' title="' + gcEsc(ROT[g][1]) + '"><span>' + ROT[g][0] + ' (' + qtd + ')</span></td></tr>';
         grupoAnt = g;
       }
       var fab = gcFab(l), cor = GC_CORES[l.id] || GC_COR[fab] || '#8FA9C0';
