@@ -71,6 +71,10 @@ table.ct tbody tr.cl:first-child td{border-top:0}
 html.ew-dark table.ct tr.cl td{background:#F28C28 !important;color:#FFFFFF !important;border-top-color:#0B1F33}
 table.ct .perf{font-size:12px;color:var(--ew-grafite)}
 table.ct .cmot{font-size:11.5px;font-weight:600;color:#B42318;margin-top:3px}
+table.ct .cfora{font-size:11px;color:var(--ew-grafite);margin-top:1px}
+table.ct td.trn{font:800 15px Montserrat,Arial,sans-serif;color:#B25E09}
+table.ct details.qt{margin-top:4px}table.ct details.qt summary{cursor:pointer;font-size:11.5px;font-weight:700;color:#1F6FB2}
+html.ew-dark table.ct td.trn{color:#FFC27A !important}html.ew-dark table.ct details.qt summary{color:#9CD2FF !important}html.ew-dark table.ct .cfora{color:#C3DAEC !important}
 html.ew-dark table.ct .cmot{color:#FFB4A9 !important}
 .niv{display:inline-block;font:700 10px Montserrat,Arial,sans-serif;background:var(--ew-gelo);color:var(--ew-noite);border-radius:4px;padding:0 4px;margin-left:3px}
 .fim{color:var(--amber);font-size:11px}
@@ -632,6 +636,9 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     <h3 class="sub">Necessidade de contratação para a meta mínima <small>· meta = 10 equipes por cenário (Exterior 5)</small></h3>
     <p class="nota">Estimativa por cenário: completa as equipes que faltam com os técnicos livres que sobraram (sem 2 N3 na mesma equipe) e conta o que precisa contratar. Os cenários não se somam: os mesmos técnicos livres servem para todos.</p>
     <div class="wrap" id="contr"><div class="msg">Carregando…</div></div>
+    <h3 class="sub">Treinar os da casa antes de contratar <small>· Reserva/Backup que só falta curso (BST, ART, IRATA)</small></h3>
+    <p class="nota">Para cada cenário: primeiro completa as equipes com quem já é da casa e só falta curso (quem precisa de menos cursos vem antes); só o que ainda faltar vira contratação. Passaporte/interesse não contam como treinável. Os cenários não se somam.</p>
+    <div class="wrap" id="trein"><div class="msg">Carregando…</div></div>
   </div>
 
   <div class="card">
@@ -728,15 +735,37 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       }).join('') + '</div>';
     }).join('');
 
+    function foraTxt(dg) {
+      var f = dg.falhas || {}, tr = [];
+      if (f.art) tr.push(f.art + ' sem ART'); if (f.bst) tr.push(f.bst + ' sem BST'); if (f.irata) tr.push(f.irata + ' sem IRATA válido'); if (f.pass) tr.push(f.pass + ' sem passaporte/interesse');
+      return dg.livres != null ? '<div class="cfora">Livres ' + dg.livres + ' · aptos ' + dg.elegiveis + (tr.length ? ' · fora: ' + tr.join(', ') : '') + '</div>' : '';
+    }
     $('contr').innerHTML = '<table class="ct"><thead><tr><th class="l">Cenário</th><th>Meta</th><th>Montadas</th><th>Faltam equipes</th><th>Contratar</th><th class="l">Perfil a contratar</th></tr></thead><tbody>' +
       Object.keys(porCli).map(function (cli) {
         return '<tr class="cl"><td colspan="6">' + esc(cli) + '</td></tr>' + porCli[cli].map(function (c) {
           var dg = c.diag || {};
           if (dg.meta == null) return '';
           var perf = (dg.contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
-          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' + (dg.faltam_equipes ? '<div class="cmot">⚠ ' + esc(dg.motivo || 'Abaixo da meta') + '</div>' : '') + '</td><td class="num">' + dg.meta + '</td><td class="num">' + c.total + '</td>' +
+          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' + (dg.faltam_equipes ? '<div class="cmot">⚠ ' + esc(dg.motivo || 'Abaixo da meta') + '</div>' + foraTxt(dg) : '') + '</td><td class="num">' + dg.meta + '</td><td class="num">' + c.total + '</td>' +
             '<td class="' + (dg.faltam_equipes ? 'hire' : 'num') + '">' + dg.faltam_equipes + '</td><td class="' + (dg.contratar_total ? 'hire' : 'num') + '">' + (dg.contratar_total || 0) + '</td>' +
             '<td class="l perf">' + (perf || '<span style="color:var(--green)">Nada a contratar</span>') + '</td></tr>';
+        }).join('');
+      }).join('') + '</tbody></table>';
+
+    $('trein').innerHTML = '<table class="ct"><thead><tr><th class="l">Cenário</th><th>Déficit</th><th>Treinar</th><th class="l">Cursos</th><th>Contratar depois</th><th class="l">Perfil a contratar</th></tr></thead><tbody>' +
+      Object.keys(porCli).map(function (cli) {
+        return '<tr class="cl"><td colspan="6">' + esc(cli) + '</td></tr>' + porCli[cli].map(function (c) {
+          var dg = c.diag || {};
+          if (dg.meta == null) return '';
+          if (!dg.faltam_equipes) return '<tr><td class="l"><b>' + esc(c.tipo) + '</b></td><td class="num">0</td><td colspan="4" class="l perf"><span style="color:var(--green)">Meta atingida · nada a treinar ou contratar</span></td></tr>';
+          var cur = Object.keys(dg.treinar_cursos || {}).map(function (k) { return '<b>' + dg.treinar_cursos[k] + '×</b> ' + esc(k); }).join('<br>');
+          var lst = (dg.treinar || []).map(function (x) { return esc(x.mat) + ' · ' + esc(curto(x.nome)) + ' <span class="niv">' + esc(x.nivel) + '</span> — ' + esc(x.cursos.join(' + ')); }).join('<br>');
+          var perf = (dg.contratar2 || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
+          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' +
+            (lst ? '<details class="qt"><summary>Quem treinar (' + dg.treinar_total + ')</summary><div class="perf">' + lst + '</div></details>' : '') + '</td>' +
+            '<td class="hire">' + dg.faltam_equipes + '</td><td class="' + (dg.treinar_total ? 'trn' : 'num') + '">' + (dg.treinar_total || 0) + '</td>' +
+            '<td class="l perf">' + (cur || '—') + '</td><td class="' + (dg.contratar2_total ? 'hire' : 'num') + '">' + (dg.contratar2_total || 0) + '</td>' +
+            '<td class="l perf">' + (perf || '<span style="color:var(--green)">Só com treinamento bate a meta</span>') + '</td></tr>';
         }).join('');
       }).join('') + '</tbody></table>';
 
