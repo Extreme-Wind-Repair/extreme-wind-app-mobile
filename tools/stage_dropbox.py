@@ -51,7 +51,7 @@ ITENS = [
 ]
 
 # arquivos do topo de www/ que o gerador NAO produz (nunca voltam para o repositorio)
-EXCLUIR = {"dashboard-reuniao-diaria.html", "dashboard-equipes-vivo.html", "mob_resumo.json", "manifest.json"}
+EXCLUIR = {"dashboard-reuniao-diaria.html", "dashboard-equipes-vivo.html", "mob_resumo.json", "manifest.json", "dashboard-resumo-equipes.html"}
 
 
 def log(msg):
