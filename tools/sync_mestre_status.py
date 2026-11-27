@@ -28,6 +28,7 @@ import unicodedata
 import urllib.parse
 import urllib.request
 import zipfile
+import datetime
 
 NS = "2024164339"
 CAMINHO = "2 - RH & DP/8 - VAGAS/VAGAS MESTRE.xlsx"
@@ -234,14 +235,32 @@ def _conferir_blocos(x):
             raise RuntimeError("TRAVA: bloco de formula ficaria incompleto em %s%d; nada foi gravado." % (m.group(1), r))
 
 
+def _data_iso(v):
+    """Data da planilha (numero serial do Excel ou dd/mm/aaaa) -> 'aaaa-mm-dd'; vazio se nao der."""
+    v = str(v or "").strip()
+    try:
+        if re.fullmatch(r"\d+(\.\d+)?", v):
+            return (datetime.date(1899, 12, 30) + datetime.timedelta(days=int(float(v)))).isoformat()
+        m = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{2,4})", v)
+        if m:
+            a = int(m.group(3)); a = a + 2000 if a < 100 else a
+            return datetime.date(a, int(m.group(2)), int(m.group(1))).isoformat()
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
 def lista_tecnicos(dados):
-    """[[matricula, nome oficial, contrato]] dos tecnicos de campo da aba BANCO DE DADOS."""
+    """[[matricula, nome oficial, contrato, marca, atributos]] dos tecnicos de campo da aba BANCO DE DADOS.
+    v55 (27/11/2026): atributos (UF, BST, ART, nivel, funcao, passaporte, interesse) vao junto para o portal,
+    para o algoritmo enxergar na hora quem ainda nao esta na base semanal."""
     z = zipfile.ZipFile(io.BytesIO(dados))
     T = _strings(z)
     cel = _celulas(z.read(achar_aba(z)).decode("utf-8"), T)
     cs, cn, cc = _coluna(cel, COL_STATUS), _coluna(cel, COL_NOME), _coluna(cel, COL_CONTRATO)
     if not (cs and cn):
         raise RuntimeError("Colunas de nome/status nao encontradas pelo titulo.")
+    ce, cb, ca, cr, cf, cp, ci = (_coluna(cel, t) for t in ("ESTADO", "BST", "ART", "RESUMO IGOR", "FUNCAO", "DATA DE VALIDADE", "INTERESSE"))
     out, vistos = [], set()
     for (c, r), v in sorted(cel.items(), key=lambda kv: kv[0][1]):
         if c != "A" or r <= 2:
@@ -257,7 +276,10 @@ def lista_tecnicos(dados):
         if not nome or (ctt in CONTRATO_FORA and not marca):
             continue
         vistos.add(mat)
-        out.append([mat, nome, ctt, marca])  # v43: marca D/E = carga unica no portal (Desqualificado / Administrativo-Eng)
+        g = lambda col: str(cel.get((col, r), "")).strip() if col else ""  # noqa: E731
+        attrs = {"uf": g(ce)[:2].upper(), "bst": g(cb) not in ("", "0"), "art": g(ca) not in ("", "0"), "nivel": g(cr)[:40],
+                 "funcao": g(cf)[:40], "pass": _data_iso(g(cp)), "interesse": g(ci)[:20]}
+        out.append([mat, nome, ctt, marca, attrs])  # v43: marca D/E = carga unica no portal; v55: atributos para o algoritmo
     return out
 
 
