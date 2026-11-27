@@ -44,3 +44,11 @@ body.light-mode .tag-ok, body.light-mode .cell-ok, body.light-mode .kpi-fill-gre
 body.light-mode .tag-nok, body.light-mode .cell-nok, body.light-mode .kpi-fill-red .label, body.light-mode .kpi-fill-red .n{color:#B3261E;}
 /* Reunião Diária: selos de parque usam --brand como cor de texto; no escuro, usa Névoa (legibilidade) */
 body:not(.light-mode) .badge-parque{color:var(--steel); border-color:var(--steel);}
+
+/* ===== Padronizacao visual (27/11/2026): so fonte/cor/tamanho/fundo; nenhuma regra de negocio ===== */
+button,input,select,textarea{font-family:inherit;}
+th{font-family:var(--fonte-titulo);}
+/* Cores de status: mesmo significado, tom mais claro no escuro para ler sobre azul (contraste) */
+:root{--ok:#2FCB8C; --nok:#FF6B61; --warn:#F2B84B; --na:#9CC7E8;}
+body.light-mode{--ok:#12A874; --nok:#E0483C; --warn:#D89A2B; --na:#5C7A93;}
+body:not(.light-mode) .ap-text, body:not(.light-mode) .gantt-status{color:#6EE7A5 !important;}

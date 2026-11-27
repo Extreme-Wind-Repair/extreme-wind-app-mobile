@@ -41,13 +41,25 @@
     'html.ew-dark span.badge.fard, html.ew-dark span.badge.na{background:rgba(156,199,232,.18) !important;color:#9CC7E8 !important;}\n'+
     'html.ew-dark span.badge.acc{background:rgba(160,110,220,.24) !important;color:#C9A8F0 !important;}';
   var EXTRA = {'view-equipes':EQ, 'view-busca-tecnico':EQ, 'view-calibracao':CAL, 'view-estoque':EST};
+
+  /* Padronizacao (ambos os modos): Montserrat nos titulos/cabecalhos, Open Sans no texto; tamanhos unificados (exceto Equipes, que e denso). */
+  var FAM = 'html body :where(*:not(svg):not(svg *):not(code):not(pre):not(kbd)){font-family:\'Open Sans\',\'Segoe UI\',Arial,sans-serif !important;}\n'+
+    'html body h1, html body h2, html body h3, html body th, html body .pw-modal-title{font-family:\'Montserrat\',\'Segoe UI\',Arial,sans-serif !important;}\n';
+  var TAM = 'html body h1{font-size:24px !important;font-weight:800;}\nhtml body h2{font-size:17px !important;}\nhtml body h3{font-size:15px !important;}\n'+
+    'html body th{font-size:11.5px !important;font-weight:700;}\nhtml body td{font-size:13px !important;}\n';
+  var SEM_TAM = {'view-equipes':1, 'view-busca-tecnico':1};
+  /* status mais claros no escuro (mesmo significado) */
+  var ST_ESC = 'html.ew-dark:root:root{--green:#3DDC97;--red:#FF7B72;--amber:#F2B84B;--gray:#9CC7E8;--crit-text:#FF7B72;--good-text:#3DDC97;}\n';
+  var CAL2 = 'html.ew-dark .kpi .label{color:#9CC7E8 !important;}\nhtml.ew-dark .kpi .value{color:#E1EEF6 !important;}\nhtml.ew-dark .kpi.warn .value{color:#F2B84B !important;}\nhtml.ew-dark .kpi.risk .value{color:#FF7B72 !important;}\nhtml.ew-dark .panel:not(.panel-dark) h2{color:#E1EEF6 !important;}\n';
+  var EST2 = 'html.ew-dark .dash-title .t1, html.ew-dark .updated b{color:#E1EEF6 !important;}\nhtml.ew-dark .kpi-body .value{color:#E1EEF6 !important;}\n';
+  var EQ2 = 'html.ew-dark td[style*="background"]{background:#03456F !important;}\n';
   /* diurno: textos de status mais escuros para ler sobre fundo branco (cores de status inalteradas no escuro) */
   var STATUS_DIURNO = '--green:#0B7A55;--amber:#8A5A00;--red:#B3261E;--gray:#5E6B7A;--good-text:#0B7A55;--crit-text:#B3261E;';
   function css(id){
     var m = MAPA[id], d = '', l = '';
     Object.keys(m).forEach(function(k){ d += '--'+k+':'+D[m[k]]+';'; l += '--'+k+':'+L[m[k]]+';'; });
     var corpo = function(P){ return 'background:'+P.BG+' !important;color:'+P.TX+' !important;'; };
-    var ex = EXTRA[id] ? '\n'+EXTRA[id] : '';
+    var ex = (EXTRA[id] ? '\n'+EXTRA[id] : '') + '\n' + FAM + (SEM_TAM[id] ? '' : TAM) + ST_ESC + (id==='view-calibracao'?CAL2:'') + (id==='view-estoque'?EST2:'') + (/equipes|busca/.test(id)?EQ2:'');
     return 'html.ew-dark:root:root{color-scheme:dark;'+d+'}\n'+
            'html.ew-light:root:root{color-scheme:light;'+l+STATUS_DIURNO+'}\n'+
            'html.ew-dark body{'+corpo(D)+'}\nhtml.ew-light body{'+corpo(L)+'}\n'+
