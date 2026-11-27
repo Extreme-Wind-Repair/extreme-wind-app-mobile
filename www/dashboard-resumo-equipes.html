@@ -66,9 +66,13 @@ table.ct th.l,table.ct td.l{text-align:left}
 table.ct td{padding:7px 10px;border-top:1px solid #EEF3F8;text-align:center;vertical-align:top}
 table.ct td.num{font:800 15px Montserrat,Arial,sans-serif;color:var(--ew-noite)}
 table.ct td.hire{font:800 15px Montserrat,Arial,sans-serif;color:#B42318}
-table.ct tr.cl td{background:#F28C28 !important;font:800 12.5px Montserrat,Arial,sans-serif;color:#FFFFFF !important;text-align:left;text-transform:uppercase;letter-spacing:.06em;padding:6px 12px;border-top:3px solid var(--ew-noite)}
+table.ct tr.cl td{background:#F28C28 !important;font:800 16px Montserrat,Arial,sans-serif;color:#FFFFFF !important;text-align:left;text-transform:uppercase;letter-spacing:.12em;padding:11px 14px;border-top:6px solid var(--ew-noite);border-left:8px solid #B25E09;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+table.ct td.num.meta{white-space:nowrap}table.ct .medit{display:block;margin:3px auto 0;background:none;border:1px dashed #7AA7CC;border-radius:6px;color:#1F6FB2;font:600 10.5px Montserrat,Arial,sans-serif;padding:1px 6px;cursor:pointer}
+table.ct .mpad{font:600 10px Montserrat,Arial,sans-serif;color:#B25E09;margin-top:2px}table.ct .mform input{width:46px;font:800 14px Montserrat,Arial,sans-serif;text-align:center;padding:2px;border:1px solid #7AA7CC;border-radius:6px}
+table.ct .mform button{margin:3px 1px 0;font:700 10.5px Montserrat,Arial,sans-serif;border-radius:6px;border:0;padding:3px 7px;cursor:pointer}table.ct .mform .ok{background:#12A874;color:#fff}table.ct .mform .pd{background:#E6EEF5;color:#0B1F33}table.ct .mform .cx{background:none;color:#7A8A99}table.ct .mmsg{font-size:10.5px;color:#B42318;margin-top:2px}
+html.ew-dark table.ct .medit{color:#9CD2FF !important;border-color:#5C8DB5}html.ew-dark table.ct .mpad{color:#FFC27A !important}html.ew-dark table.ct .mform input{background:#0B2A45;color:#fff;border-color:#5C8DB5}html.ew-dark table.ct .mmsg{color:#FFB4A9 !important}html.ew-dark table.ct .mform .ok{background:#12A874 !important;color:#fff !important}html.ew-dark table.ct .mform .pd{background:#E6EEF5 !important;color:#0B1F33 !important}html.ew-dark table.ct .mform .cx{background:none !important;color:#C3DAEC !important}
 table.ct tbody tr.cl:first-child td{border-top:0}
-html.ew-dark table.ct tr.cl td{background:#F28C28 !important;color:#FFFFFF !important;border-top-color:#0B1F33}
+html.ew-dark table.ct tr.cl td{background:#F28C28 !important;color:#FFFFFF !important;border-top-color:#0B1F33;border-left-color:#B25E09}
 table.ct .perf{font-size:12px;color:var(--ew-grafite)}
 table.ct .cmot{font-size:11.5px;font-weight:600;color:#B42318;margin-top:3px}
 table.ct .cfora{font-size:11px;color:var(--ew-grafite);margin-top:1px}
@@ -735,6 +739,11 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       }).join('') + '</div>';
     }).join('');
 
+    function metaCel(dg) {
+      var alt = dg.meta_padrao != null && dg.meta !== dg.meta_padrao;
+      return '<span>' + dg.meta + '</span>' + (alt ? '<div class="mpad" title="Alterada por ' + esc(dg.meta_por || '') + ' em ' + esc(dg.meta_em || '') + '">padrão ' + dg.meta_padrao + (dg.meta_por ? ' · ' + esc(curto(dg.meta_por)) : '') + '</div>' : '') +
+        (dg.chave ? '<button type="button" class="medit" data-ch="' + esc(dg.chave) + '" data-m="' + dg.meta + '" data-p="' + dg.meta_padrao + '">✎ alterar</button>' : '');
+    }
     function foraTxt(dg) {
       var f = dg.falhas || {}, tr = [];
       if (f.art) tr.push(f.art + ' sem ART'); if (f.bst) tr.push(f.bst + ' sem BST'); if (f.irata) tr.push(f.irata + ' sem IRATA válido'); if (f.pass) tr.push(f.pass + ' sem passaporte/interesse');
@@ -746,7 +755,7 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
           var dg = c.diag || {};
           if (dg.meta == null) return '';
           var perf = (dg.contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
-          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' + (dg.faltam_equipes ? '<div class="cmot">⚠ ' + esc(dg.motivo || 'Abaixo da meta') + '</div>' + foraTxt(dg) : '') + '</td><td class="num">' + dg.meta + '</td><td class="num">' + c.total + '</td>' +
+          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' + (dg.faltam_equipes ? '<div class="cmot">⚠ ' + esc(dg.motivo || 'Abaixo da meta') + '</div>' + foraTxt(dg) : '') + '</td><td class="num meta">' + metaCel(dg) + '</td><td class="num">' + c.total + '</td>' +
             '<td class="' + (dg.faltam_equipes ? 'hire' : 'num') + '">' + dg.faltam_equipes + '</td><td class="' + (dg.contratar_total ? 'hire' : 'num') + '">' + (dg.contratar_total || 0) + '</td>' +
             '<td class="l perf">' + (perf || '<span style="color:var(--green)">Nada a contratar</span>') + '</td></tr>';
         }).join('');
@@ -823,6 +832,28 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     $('atualizado').textContent = txt;
   }
 
+  // v59: meta minima editavel por cenario (salva no portal para todos; "Padrão" volta para 10/5)
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('#contr .medit, #contr .mform button') : null;
+    if (!b) return;
+    var td = b.closest('td');
+    if (b.classList.contains('medit')) {
+      td.dataset.html = td.innerHTML;
+      td.innerHTML = '<div class="mform" data-ch="' + b.dataset.ch + '"><input type="number" min="0" max="30" step="1" value="' + b.dataset.m + '"><br><button type="button" class="ok">Salvar</button><button type="button" class="pd">Padrão (' + b.dataset.p + ')</button><button type="button" class="cx">cancelar</button></div>';
+      td.querySelector('input').focus(); return;
+    }
+    var fm = b.closest('.mform'), ch = fm.dataset.ch;
+    if (b.classList.contains('cx')) { td.innerHTML = td.dataset.html; return; }
+    var val = b.classList.contains('pd') ? '' : fm.querySelector('input').value.trim();
+    if (val !== '' && !/^\d{1,2}$/.test(val)) { fm.insertAdjacentHTML('beforeend', '<div class="mmsg">Use um número de 0 a 30.</div>'); return; }
+    fm.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
+    if (window.__MOCK) { window.__MOCK.cenarios.forEach(function (c) { if (c.diag && c.diag.chave === ch) c.diag.meta = val === '' ? c.diag.meta_padrao : +val; }); render(window.__MOCK); return; }
+    EWAuth.post({ action: 'indicarEquipes', modo: 'metaSalvar', chave: ch, meta: val }).then(function (r) {
+      if (r && r.ok) { carregar(); return; }
+      fm.querySelectorAll('button').forEach(function (x) { x.disabled = false; });
+      fm.insertAdjacentHTML('beforeend', '<div class="mmsg">' + (r && (r.motivo === 'NEGADO' || r.error === 'negado') ? 'Seu perfil não pode alterar a meta.' : esc((r && r.error) || 'Não foi possível salvar.')) + '</div>');
+    }).catch(function () { fm.querySelectorAll('button').forEach(function (x) { x.disabled = false; }); fm.insertAdjacentHTML('beforeend', '<div class="mmsg">Sem conexão. Tente de novo.</div>'); });
+  });
   function carregar() {
     $('atualizado').textContent = 'Carregando…';
     if (window.__MOCK) { render(window.__MOCK); return; }
