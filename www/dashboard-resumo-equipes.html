@@ -249,22 +249,26 @@ h3.sub small{font:400 12px Open Sans,Arial,sans-serif;color:var(--ew-cinza)}
     });
     return rd.concat(prj.filter(function(p){ return !usados[p.id]; }));
   }
-  /* Cor por equipe: cores bem distintas, alternadas para frentes vizinhas não ficarem parecidas.
-     Previsto cuja equipe vem de uma frente ativa herda a cor dela. */
-  var GC_PALETA = ['#1C8CE8','#E8833A','#12A874','#9B59B6','#E5B92E','#E05A6D','#17A2B8','#8D6E63','#7CB342','#D76BB0','#5C6BC0','#4DB6AC','#F4A259','#A1887F','#26A69A','#EF6C57'];
+  /* Cor por equipe (v4): cada frente recebe uma cor própria (ângulo dourado no círculo de cores: vizinhas ficam
+     distantes e não se repetem em ~30 frentes). Previsto só herda a cor de uma frente ativa quando a equipe vem
+     de lá de verdade (2 ou mais técnicos em comum); cada cor ativa vai para um único previsto (o de mais técnicos em comum). */
+  function gcCorN(n){ var h = Math.round((n * 137.508 + 205) % 360), l = n % 2 ? 58 : 46; return 'hsl(' + h + ',68%,' + l + '%)'; }
   function gcCores(linhas, hojeSeg){
-    var cor = {}, n = 0, ativos = [];
+    var cor = {}, n = 0, ativos = [], cand = [];
     linhas.forEach(function(l){
       if (gcGrupo(l) !== 0) return;
-      cor[l.id] = GC_PALETA[n++ % GC_PALETA.length];
+      cor[l.id] = gcCorN(n++);
       ativos.push({ id: l.id, t: gcEquipeEm(l, hojeSeg).map(gcChave) });
     });
     linhas.forEach(function(l){
       if (gcGrupo(l) !== 1) return;
-      var ks = (l.equipes || []).length ? ((l.equipes.slice(-1)[0].tecnicos) || []).map(gcChave) : [], best = null, bq = 0;
-      ativos.forEach(function(a){ var q = a.t.filter(function(x){ return x && ks.indexOf(x) > -1; }).length; if (q > bq){ bq = q; best = a.id; } });
-      cor[l.id] = best ? cor[best] : GC_PALETA[n++ % GC_PALETA.length];
+      var ks = (l.equipes || []).length ? ((l.equipes.slice(-1)[0].tecnicos) || []).map(gcChave) : [];
+      ativos.forEach(function(a){ var q = a.t.filter(function(x){ return x && ks.indexOf(x) > -1; }).length; if (q >= 2) cand.push({ p: l.id, a: a.id, q: q }); });
     });
+    cand.sort(function(x, y){ return y.q - x.q; });
+    var usadoA = {};
+    cand.forEach(function(c){ if (cor[c.p] || usadoA[c.a]) return; cor[c.p] = cor[c.a]; usadoA[c.a] = 1; });
+    linhas.forEach(function(l){ if (gcGrupo(l) === 1 && !cor[l.id]) cor[l.id] = gcCorN(n++); });
     return cor;
   }
 
