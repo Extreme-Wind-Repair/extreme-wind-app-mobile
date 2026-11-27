@@ -18,19 +18,19 @@
     --ew-degrade:linear-gradient(135deg,#055384,#016596,#2F6E9C);
     --fonte-titulo:'Montserrat','Segoe UI',Arial,sans-serif;
     --fonte-texto:'Open Sans','Segoe UI',Arial,sans-serif;
-    /* MODO DIURNO = padrão do manual (branco predominante). */
-    --bg:#FFFFFF; --panel:#FFFFFF; --panel2:#E1EEF6; --line:#E1EEF6;
-    --text:#1E2B38; --muted:#5E6B7A; --h:#03456F; --thead:#055384; --thead-text:#FFFFFF;
+    /* PADRÃO DO PORTAL = MODO ESCURO (decisão 27/11/2026); modo diurno = body.light-mode (branco predominante, manual). */
+    --bg:#1E2B38; --panel:#03456F; --panel2:#055384; --line:#055384;
+    --text:#E1EEF6; --muted:#9CC7E8; --h:#FFFFFF; --thead:#055384; --thead-text:#E1EEF6;
     --raio:16px; /* quadros: raio de 4 a 5 mm */
     /* status (regras do dashboard, inalteradas; exceção ao manual, que não define cores de status) */
     --ok:#12A874; --nok:#E0483C; --warn:#D89A2B; --na:#5C7A93; --orange:#E8730C;
-    --warn-ink:#8A5A00; --nok-ink:#B3261E; --on-warn:#1a1200;
+    --warn-ink:#D89A2B; --nok-ink:#E0483C; --on-warn:#1a1200;
   }
-  /* MODO NOTURNO: o manual não prevê; montado só com cores do manual (Grafite, Azul Noite, Turbina, Gelo, Névoa). */
-  body.dark-mode{
-    --bg:#1E2B38; --panel:#03456F; --panel2:#055384; --line:#055384;
-    --text:#E1EEF6; --muted:#9CC7E8; --h:#FFFFFF; --thead:#055384; --thead-text:#E1EEF6;
-    --warn-ink:#D89A2B; --nok-ink:#E0483C;
+  /* MODO DIURNO (manual): branco predominante. O modo escuro usa só cores do manual (Grafite, Azul Noite, Turbina, Gelo, Névoa). */
+  body.light-mode{
+    --bg:#FFFFFF; --panel:#FFFFFF; --panel2:#E1EEF6; --line:#E1EEF6;
+    --text:#1E2B38; --muted:#5E6B7A; --h:#03456F; --thead:#055384; --thead-text:#FFFFFF;
+    --warn-ink:#8A5A00; --nok-ink:#B3261E;
   }
   *{box-sizing:border-box;}
   body{
@@ -96,8 +96,8 @@
   .empty-note{color:var(--muted); text-align:center; padding:16px; font-size:13px; font-style:italic;}
 
   .note{font-size:12px; color:var(--muted); margin:18px 0 0; border-top:1px solid var(--line); padding:12px 0 24px; font-style:italic;}
-  footer.rodape{background:var(--ew-gelo); color:var(--ew-ardosia); font-family:var(--fonte-titulo); font-style:italic; font-weight:600; font-size:12px; text-align:center; padding:12px;}
-  body.dark-mode footer.rodape{background:var(--ew-turbina); color:var(--ew-gelo);}
+  footer.rodape{background:var(--ew-turbina); color:var(--ew-gelo); font-family:var(--fonte-titulo); font-style:italic; font-weight:600; font-size:12px; text-align:center; padding:12px;}
+  body.light-mode footer.rodape{background:var(--ew-gelo); color:var(--ew-ardosia);}
 
   /* Botão de modo diurno/noturno (mantido do portal; mesma chave de memória do portal) */
   .theme-toggle{
@@ -110,6 +110,8 @@
 </style>
 </head>
 <body>
+<script></script>
+<script src="ew-tema.js"></script>
 <button class="theme-toggle" id="themeToggleBtn" type="button" onclick="toggleTheme()">☀️ Modo Diurno</button>
 
 <div id="ewNav" style="position:fixed; top:14px; right:14px; z-index:999; font-family:var(--fonte-texto);">
@@ -145,23 +147,7 @@
       });
     }
   })();
-  /* Tema: mesma lógica e mesma chave ('reuniaoTheme') do dashboard da Reunião Diária */
-  function updateThemeBtn(){
-    var b = document.getElementById('themeToggleBtn');
-    if (!b) return;
-    b.textContent = document.body.classList.contains('dark-mode') ? '☀️ Modo Diurno' : '🌙 Modo Noturno';
-  }
-  function toggleTheme(){
-    document.body.classList.toggle('dark-mode');
-    try { localStorage.setItem('reuniaoTheme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e){}
-    updateThemeBtn();
-  }
-  (function(){
-    var saved = null;
-    try { saved = localStorage.getItem('reuniaoTheme'); } catch(e){}
-    if (saved === 'dark') document.body.classList.add('dark-mode');   /* padrão do manual: diurno */
-    updateThemeBtn();
-  })();
+  /* Tema: ver ew-tema.js (chave unica 'reuniaoTheme'; padrao escuro; classe body.light-mode) */
 </script>
 
 <header>

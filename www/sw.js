@@ -9,7 +9,8 @@
 // app/site aberto a descartar o cache antigo e buscar tudo de novo na
 // proxima visita, em vez de ficar preso numa versao antiga do menu.
 // v7 (23/11/2026): descarta data.json antigo preso no cache (ex.: calibracao/data.json).
-const CACHE_NAME = "extreme-wind-v7";
+// v8 (27/11/2026): tema unico (ew-tema.css/js) - css/js tambem network-first.
+const CACHE_NAME = "extreme-wind-v8";
 const PRECACHE_URLS = [
   "./",
   "./index.html",
@@ -20,6 +21,8 @@ const PRECACHE_URLS = [
   "./dashboard-combustivel.html",
   "./dashboard-envios-logisticos.html",
   "./manifest.json",
+  "./ew-tema.css",
+  "./ew-tema.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/logo-extreme-wind-white.png",
@@ -57,7 +60,7 @@ self.addEventListener("fetch", (event) => {
   const isHTML = req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
 
   // .json (dados dos dashboards, ex.: calibracao/data.json) tambem e network-first: nunca servir dado velho do cache.
-  const isJSON = new URL(req.url).pathname.endsWith(".json");
+  const isJSON = /\.(json|css|js)$/.test(new URL(req.url).pathname);
 
   if (isHTML || isJSON) {
     // network-first: dados de hoje em primeiro lugar, cache so como reserva offline

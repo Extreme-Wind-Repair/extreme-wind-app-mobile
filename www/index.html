@@ -66,7 +66,7 @@
   .topbar .badge{background:var(--panel2); border:1px solid var(--line); color:var(--muted); font-size:11.5px; padding:6px 12px; border-radius:20px;}
 
   .view{flex:1; position:relative; overflow:hidden;}
-  .view > iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:#0f1720;}
+  .view > iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:var(--bg);}
   .view > iframe.active{display:block;}
 
   .home{position:absolute; inset:0; overflow-y:auto; padding:32px; display:none;}
@@ -142,8 +142,11 @@
     .cards{grid-template-columns:1fr;}
   }
 </style>
+<!-- EW-TEMA:INICIO (tema unico escuro/diurno; remover estas 2 linhas + o botao #themeToggleBtn + bloco EW-TEMA-REUNIAO para reverter) -->
+<link rel="stylesheet" href="ew-tema.css">
 </head>
 <body>
+<script src="ew-tema.js"></script>
 <div class="app">
 
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -205,7 +208,10 @@
           <div class="path" id="topPath">Extreme Wind / Painel Geral</div>
         </div>
       </div>
-      <div class="badge" id="topBadge">Atualizado 27/11/2026</div>
+      <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+        <button class="badge" id="themeToggleBtn" type="button" onclick="toggleTheme()" style="cursor:pointer; font-weight:700; color:var(--text); font-family:inherit; white-space:nowrap;">☀️ Modo Diurno</button>
+        <div class="badge" id="topBadge">Atualizado 27/11/2026</div>
+      </div>
     </div>
 
     <div class="view">
@@ -468,6 +474,26 @@ window.addEventListener('message', function (e) {
   try { tok = sessionStorage.getItem('ew_tok') || localStorage.getItem('ew_tok'); } catch (err) {}
   if (tok) e.source.postMessage({ tipo: 'ew-sessao', tokenSite: tok }, e.origin);
 });
+</script>
+<script>
+/* EW-TEMA-REUNIAO: a Reunião Diária segue a regra de pacote/aprovação; enquanto o arquivo dela não recebe o tema, o portal
+   injeta ew-tema.css/js no iframe (mesma origem) e esconde o botão de tema duplicado dela. */
+(function(){
+  var fr = document.getElementById('view-reuniao-diaria');
+  if (!fr) return;
+  function injeta(){
+    try{
+      var d = fr.contentDocument;
+      if (!d || !d.head || !d.body || d.getElementById('ew-tema-css')) return;
+      var l = d.createElement('link'); l.id = 'ew-tema-css'; l.rel = 'stylesheet'; l.href = 'ew-tema.css'; d.head.appendChild(l);
+      var s = d.createElement('script'); s.src = 'ew-tema.js';
+      s.onload = function(){ try{ var t = fr.contentWindow.__rdTopTheme; if (t) t.style.display = 'none'; }catch(e){} };
+      d.body.appendChild(s);
+    }catch(e){}
+  }
+  fr.addEventListener('load', injeta);
+  if (fr.contentDocument && fr.contentDocument.readyState === 'complete') injeta();
+})();
 </script>
 </body>
 </html>

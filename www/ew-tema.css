@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;1,600&family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap');
+/* EW-TEMA v1 (27/11/2026) - tema unico do portal. Padrao ESCURO; modo diurno = body.light-mode.
+   Paleta: Manual de Marca Extreme Wind v1.0. Cores de status (ok/nok/warn/na/orange) NAO sao alteradas aqui.
+   Para reverter: remova o <link> deste arquivo e o <script src="ew-tema.js"> das paginas. */
+:root{
+  color-scheme:dark;
+  --ew-turbina:#055384; --ew-extreme:#016596; --ew-ardosia:#4A6791; --ew-ceu:#3477C3; --ew-nevoa:#9CC7E8; --ew-gelo:#E1EEF6;
+  --ew-noite:#03456F; --ew-grafite:#1E2B38; --ew-cinza:#5E6B7A;
+  --ew-degrade:linear-gradient(135deg,#055384,#016596,#2F6E9C);
+  --fonte-titulo:'Montserrat','Segoe UI',Arial,sans-serif; --fonte-texto:'Open Sans','Segoe UI',Arial,sans-serif;
+  --raio:16px;
+  --bg:#1E2B38; --panel:#03456F; --panel2:#055384; --line:#055384; --text:#E1EEF6; --muted:#9CC7E8;
+  --brand:#016596; --brand-dark:#055384; --brand-deep:#1E2B38; --steel:#9CC7E8; --teal:#12BFA8;
+  --h:#FFFFFF; --thead:#055384; --thead-text:#E1EEF6; --warn-ink:#D89A2B; --nok-ink:#E0483C;
+}
+body.light-mode{
+  color-scheme:light;
+  --bg:#FFFFFF; --panel:#FFFFFF; --panel2:#E1EEF6; --line:#E1EEF6; --text:#1E2B38; --muted:#5E6B7A;
+  --brand:#055384; --brand-dark:#03456F; --brand-deep:#E1EEF6; --steel:#2A5FA8; --teal:#0A7C6C;
+  --h:#03456F; --thead:#055384; --thead-text:#FFFFFF; --warn-ink:#8A5A00; --nok-ink:#B3261E;
+}
+html,body{background:var(--bg);}
+body{font-family:var(--fonte-texto);}
+h1,h2,h3{font-family:var(--fonte-titulo);}
+/* Menu lateral do portal: sempre azul de marca, nos dois modos */
+body.light-mode .sidebar{background:linear-gradient(180deg,#055384,#03456F) !important; --text:#E1EEF6; --muted:#9CC7E8; --line:#055384;}
+body.light-mode .sidebar .menu-item.active{background:#016596; color:#fff;}
+/* Botao de tema embutido no cabecalho das paginas */
+.theme-toggle-inline{margin-left:12px; background:#016596; border:1px solid #9CC7E8; color:#fff; border-radius:20px; padding:9px 18px; font-family:var(--fonte-titulo); font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap;}
+/* Graficos SVG gerados com cores fixas (ex.: Frota) */
+svg [stroke="#1E4363"]{stroke:rgba(156,199,232,.28);}
+svg [fill="#0F2A40"]{fill:#03456F;}
+body.light-mode svg [fill="#EAF1F7"]{fill:#1E2B38;}
+body.light-mode svg [fill="#8FA9C0"]{fill:#5E6B7A;}
+body.light-mode svg [fill="#0F2A40"]{fill:#FFFFFF;}
+body.light-mode svg [stroke="#1E4363"]{stroke:rgba(156,199,232,.55);}
+/* Menu de navegacao interno das paginas (botao do canto) */
+body.light-mode #ewNavPanel{background:#FFFFFF !important; border-color:#E1EEF6 !important;}
+body.light-mode .ew-nav-item{color:#5E6B7A;}
+body.light-mode .ew-nav-item:hover{background:#E1EEF6; color:#1E2B38;}
+/* Textos de status legiveis sobre fundo claro (cores de status mantidas; so o tom do texto) */
+body.light-mode .tag-warn, body.light-mode .cell-warn, body.light-mode .aberto-badge.warn .n, body.light-mode .aberto-badge.warn .l{color:#8A5A00;}
+body.light-mode .tag-ok, body.light-mode .cell-ok, body.light-mode .kpi-fill-green .label, body.light-mode .kpi-fill-green .n{color:#0B7A55;}
+body.light-mode .tag-nok, body.light-mode .cell-nok, body.light-mode .kpi-fill-red .label, body.light-mode .kpi-fill-red .n{color:#B3261E;}
