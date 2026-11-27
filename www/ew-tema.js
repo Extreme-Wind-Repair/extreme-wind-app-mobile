@@ -19,6 +19,7 @@
     if (!document.body) return;
     document.body.classList.toggle('light-mode', get() === 'light');
     rotulo();
+    (window.EW_HOOKS || []).forEach(function(f){ try{ f(); }catch(e){} });
     if (window.EW_RECARREGA && get() !== inicial){ location.reload(); }
   }
   window.__ewTemaAplica = aplica;

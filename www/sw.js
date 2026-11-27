@@ -23,6 +23,7 @@ const PRECACHE_URLS = [
   "./manifest.json",
   "./ew-tema.css",
   "./ew-tema.js",
+  "./ew-tema-externo.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/logo-extreme-wind-white.png",
