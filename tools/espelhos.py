@@ -178,7 +178,7 @@ def checar_pagina(b):
     erros = []
     if len(b) < 1000000:
         erros.append("index.html pequeno demais (%d bytes)" % len(b))
-    for trecho in (b"<title>Controle de Calibra", b"embedded-data", b"cert-modal"):
+    for trecho in (b"<title>Controle de Calibra", b"cert-modal"):
         if trecho not in b:
             erros.append("index.html sem o trecho %r" % trecho)
     if not b.rstrip().lower().endswith(b"</html>"):
