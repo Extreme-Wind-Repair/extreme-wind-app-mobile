@@ -139,6 +139,31 @@ html.ew-dark .ok{color:#7EE2B8 !important}
 html.ew-dark .no,html.ew-dark .erro{color:#FF9C8F !important}
 html.ew-dark .sd,html.ew-dark .cont{color:#C3DAEC !important}
 html.ew-dark .chk{color:#F2F7FB !important}
+/* Tabela-resumo: Hoje (Reunião) x Projeção (algoritmo) visivelmente separados nos dois modos */
+table.res th.g1+th.g2,table.res td.hj+td.pj,table.res td.hj+td.nt,table.res th.g1+th.g2{border-left:3px solid var(--ew-ceu)}
+html.ew-dark table.res thead th.g1{background:#012F4D !important;color:#FFFFFF !important}
+html.ew-dark table.res thead th.g2{background:#016596 !important;color:#FFFFFF !important}
+html.ew-dark table.res thead th[rowspan],html.ew-dark table.res tbody th{background:#055384 !important;color:#FFFFFF !important}
+html.ew-dark table.res td.hj{background:#0A2E47 !important;color:#FFFFFF !important}
+html.ew-dark table.res td.pj{background:#03456F !important}
+html.ew-dark table.res tr.tt td.hj{background:#0A2E47 !important}
+html.ew-dark table.res th.g1+th.g2,html.ew-dark table.res td.hj+td.pj,html.ew-dark table.res td.hj+td.nt{border-left:3px solid #9CC7E8 !important}
+/* Gantt no escuro: linhas de grupo, coluna de hoje e cabeçalho legíveis */
+html.ew-dark #ganttCampo tr.gc-grupo td{background:#055384 !important;color:#FFFFFF !important}
+html.ew-dark #ganttCampo tr.gc-grupo small{color:#C3DAEC !important}
+html.ew-dark #ganttCampo thead th,html.ew-dark #ganttCampo thead .gc-fixa{background:#055384 !important;color:#FFFFFF !important}
+html.ew-dark #ganttCampo thead th.gc-hoje{background:#3477C3 !important;color:#FFFFFF !important}
+html.ew-dark #ganttCampo td.gc-sem.gc-hoje{background:rgba(156,199,232,.12) !important}
+html.ew-dark #ganttCampo td.gc-sem{background:transparent !important}
+html.ew-dark #ganttCampo .gc-nome{color:#FFFFFF !important}
+html.ew-dark #ganttCampo .gc-sub,html.ew-dark #ganttCampo .gc-rodape,html.ew-dark #ganttCampo .gc-leg,html.ew-dark #ganttCampo .gc-msg{color:#C3DAEC !important}
+html.ew-dark #ganttCampo h2{color:#FFFFFF !important}
+html.ew-dark #ganttCampo .gc-pill.ativo{background:rgba(94,224,176,.2) !important;color:#9FF0CF !important}
+html.ew-dark #ganttCampo .gc-pill.mobilizacao{background:rgba(198,140,224,.25) !important;color:#E3C2F2 !important}
+html.ew-dark #ganttCampo .gc-pill.documentacao{background:rgba(245,196,107,.22) !important;color:#F8D79A !important}
+html.ew-dark #ganttCampo .gc-pill.previsto{background:rgba(195,218,236,.18) !important;color:#E1EEF6 !important}
+html.ew-dark #ganttCampo .gc-barra{color:#0B1A26}
+html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
 /* Filtros da lista */
 .filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .filtros input[type=search],.filtros select{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:13px 'Open Sans',Arial,sans-serif;color:var(--ew-grafite);background:#fff}
