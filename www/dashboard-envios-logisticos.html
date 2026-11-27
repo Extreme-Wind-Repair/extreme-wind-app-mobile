@@ -106,11 +106,38 @@
   }
 
   .note{font-size:12px; color:var(--muted); margin-top:18px; border-top:1px solid var(--line); padding-top:12px;}
+
+/* BRAND:INICIO - Manual de Marca Extreme Wind v1.0 (nov/2026). Para reverter: apague de BRAND:INICIO a BRAND:FIM e restaure o .bak */
+:root{
+  --ew-turbina:#055384; --ew-extreme:#016596; --ew-ardosia:#4A6791; --ew-ceu:#3477C3; --ew-nevoa:#9CC7E8; --ew-gelo:#E1EEF6;
+  --ew-noite:#03456F; --ew-grafite:#1E2B38; --ew-cinza:#5E6B7A;
+  --ew-degrade:linear-gradient(135deg,#055384,#016596,#2F6E9C);
+  --fonte-titulo:'Montserrat','Segoe UI',Arial,sans-serif; --fonte-texto:'Open Sans','Segoe UI',Arial,sans-serif;
+  --raio:16px;
+}
+body{font-family:var(--fonte-texto);}
+header{background:var(--ew-degrade); color:#fff; border-bottom:0 !important; border-radius:var(--raio); padding:20px 76px 20px 24px !important; position:relative; overflow:hidden;}
+header::before{content:""; position:absolute; right:40px; bottom:-120px; width:420px; height:210px; border:.75px solid rgba(255,255,255,.45); border-radius:50%; pointer-events:none;}
+header::after{content:""; position:absolute; right:-60px; bottom:-90px; width:380px; height:200px; border:1px solid rgba(156,199,232,.55); border-radius:50%; pointer-events:none;}
+header > *{position:relative; z-index:1;}
+.brand{gap:22px;}
+.brand .sub{color:var(--ew-gelo) !important; font-family:var(--fonte-titulo); font-style:italic; font-weight:600;}
+.badge-week{background:#fff !important; color:var(--ew-noite) !important; font-family:var(--fonte-titulo); font-weight:700; border-radius:8px !important;}
+.kpi{border-radius:var(--raio) !important;}
+.panel{border-radius:var(--raio) !important;}
+.panel h2, .panel-head h2{font-family:var(--fonte-titulo); font-weight:700;}
+th{font-family:var(--fonte-titulo); font-weight:700; font-size:11.5px;}
+.kpi .label{font-family:var(--fonte-titulo); font-weight:700;}
+#ewNavBtn{background:#016596 !important; border:1px solid #9CC7E8 !important; color:#fff !important; border-radius:10px !important;}
+/* BRAND:FIM */
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;1,600&family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="ewNav" style="position:fixed; top:14px; right:14px; z-index:999; font-family:Segoe UI,Arial,sans-serif;">
-  <button id="ewNavBtn" aria-label="Menu de navegação" style="width:42px; height:42px; border-radius:8px; border:1px solid #1E4363; background:#123350; color:#EAF1F7; font-size:18px; cursor:pointer;">&#9776;</button>
+  <button id="ewNavBtn" aria-label="Menu de navegação" style="width:42px; height:42px; border-radius:10px; border:1px solid #9CC7E8; background:#016596; color:#fff; font-size:18px; cursor:pointer;">&#9776;</button>
   <div id="ewNavPanel" style="display:none; position:absolute; top:48px; right:0; background:#0F2A40; border:1px solid #1E4363; border-radius:10px; padding:8px; min-width:210px; box-shadow:0 8px 24px rgba(0,0,0,.45);">
     <a href="index.html" class="ew-nav-item">&#8962; Início</a>
     <a href="dashboard-nossas-demandas.html" class="ew-nav-item">&#9888; Nossas Demandas</a>
@@ -147,9 +174,8 @@
 
 <header>
   <div class="brand">
-    <img src="assets/icone-helice-color.png" alt="" style="height:60px; width:auto; display:block;">
+    <img src="assets/logo-extreme-wind-white.png" alt="Extreme Wind Blade Services" style="width:160px; height:auto; display:block;">
     <div>
-      <img src="assets/logo-extreme-wind-white.png" alt="Extreme Wind" style="height:30px; width:auto; display:block; margin-bottom:6px;">
       <div class="sub">Dashboard de Envios Logísticos — Uso interno</div>
       <div class="sub" style="margin-top:4px;">Requisições de materiais (Almoxarifado → Logística)</div>
     </div>
@@ -163,11 +189,11 @@
 <div class="kpis" id="kpisEnvios">
   <div class="kpi">
     <div class="label">Total 2026</div>
-    <div class="n" id="kpiTotal">795</div>
+    <div class="n" id="kpiTotal">792</div>
   </div>
   <div class="kpi kpi-fill-blue">
     <div class="label">Requisições Almoxarifado 2026</div>
-    <div class="n" id="kpiAlmox">795</div>
+    <div class="n" id="kpiAlmox">792</div>
   </div>
   <div class="kpi kpi-fill-green">
     <div class="label">Entregues 2026 (Log.)</div>
@@ -183,10 +209,10 @@
   <h2>Resumo — Requisições em Aberto 2026</h2>
   <p class="panel-note">Situações que ainda aguardam ação (Almoxarifado ou Logística)</p>
   <div class="aberto" id="abertoBadges">
-    <div class="aberto-badge"><div class="n" id="abEmSeparacao">9</div><div class="l">Em separação</div></div>
-    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">45</div><div class="l">Aguardando coleta</div></div>
+    <div class="aberto-badge"><div class="n" id="abEmSeparacao">11</div><div class="l">Em separação</div></div>
+    <div class="aberto-badge"><div class="n" id="abAguardandoColeta">40</div><div class="l">Aguardando coleta</div></div>
     <div class="aberto-badge warn"><div class="n" id="abEmTrajeto">1</div><div class="l">Em trajeto</div></div>
-    <div class="aberto-badge total"><div class="n" id="abTotal">55</div><div class="l">Total em aberto</div></div>
+    <div class="aberto-badge total"><div class="n" id="abTotal">52</div><div class="l">Total em aberto</div></div>
   </div>
 </div>
 
@@ -213,7 +239,7 @@
 
   <div class="collapsible" id="acaoBody">
   <div class="aberto" style="max-width:620px; margin:6px 0 16px">
-    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">54</div><div class="l">Ações Almoxarifado</div></div>
+    <div class="aberto-badge"><div class="n" id="acaoCountAlmox">51</div><div class="l">Ações Almoxarifado</div></div>
     <div class="aberto-badge"><div class="n" id="acaoCountLog">1</div><div class="l">Ações Logística</div></div>
     <div class="aberto-badge warn"><div class="n" id="acaoCountAssinatura">21</div><div class="l">Aguardando Assinatura</div></div>
   </div>
@@ -238,10 +264,10 @@
     <tr><td>SERRA DO MEL</td><td>EPI - ALEX SALES DA CUNHA</td><td>JAMILE</td><td>03/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>SERRA DO MEL</td><td>EPI - ANTÔNIO ERIVANDO AGOSTINHO DA SILVA</td><td>JAMILE</td><td>03/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>DOLORES 3 (MÉXICO)</td><td>FERRAMENTAS - DOLORES 3</td><td>EVAIR</td><td>05/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
-    <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - ALDEMIR CORREIA DE JESUS</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - ALDEMIR CORREIA DE JESUS</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
     <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - KAYWAN FELIPE MARQUES SILVA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - DIEGO PEREIRA BERNARDINO</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
-    <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - MEZAC MARQUES DA ROCHA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
+    <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - MEZAC MARQUES DA ROCHA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>A SEPARAR</td></tr>
     <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - PATRICK VINICIUS RIBEIRO TARDELLI</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>DOLORES 4 (MÉXICO)</td><td>EPI - DIEGO BARBOSA DA SILVA</td><td>JAMILE</td><td>09/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>TUCANO 1</td><td>EPI - JOAO PAULO SILVA SANTOS</td><td>JAMILE</td><td>10/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
@@ -274,9 +300,6 @@
     <tr><td>CHAPADINHA 1</td><td>QUÍMICOS E CONSUMÍVEIS - CHAPADINHA 1</td><td>EVAIR</td><td>01/12/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>CHAPADINHA 2</td><td>QUÍMICOS E CONSUMÍVEIS - CHAPADINHA 2</td><td>EVAIR</td><td>01/12/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     <tr><td>DOLORES 3 (MÉXICO)</td><td>EPI - DIEGO BARBOSA DA SILVA</td><td>JAMILE</td><td>25/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
-    <tr><td>UDV 1</td><td>QUÍMICOS E CONSUMÍVEIS - ARLINDO FLORINDO</td><td>EVAIR</td><td>27/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
-    <tr><td>DOLORES 1 (MÉXICO)</td><td>EPI - FELIPE DE LIMA SERPA</td><td>JAMILE</td><td>26/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
-    <tr><td>MANUTENÇÃO</td><td>DEVOLUÇÃO DETECTOR ALTAIR 5X - THAYNÁ</td><td>EVAIR</td><td>26/11/2026</td><td></td><td>AGUARDANDO COLETA</td></tr>
     </tbody>
   </table>
   </div>
@@ -328,7 +351,7 @@
 
 <script>
   var evolucaoMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 71, 10];
+  var evolucaoReq = [100, 83, 106, 76, 58, 84, 38, 42, 54, 73, 68, 10];
   var evolucaoEnt = [92, 76, 103, 72, 58, 74, 34, 30, 48, 59, 34, 0];
   new Chart(document.getElementById("chartEvolucao"), {
     type:"line",
