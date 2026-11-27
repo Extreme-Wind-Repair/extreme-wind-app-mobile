@@ -1,10 +1,10 @@
 {
-  "generated_at": "26/11/2026 às 08:09",
+  "generated_at": "27/11/2026 às 08:10",
   "total": 161,
   "counts": {
-    "OK": 76,
+    "OK": 79,
     "VENCE": 70,
-    "VENCIDO": 15,
+    "VENCIDO": 12,
     "SEM": 0
   },
   "due_soon": 70,
@@ -15,7 +15,7 @@
       "dataCalibracao": "12/02/2025",
       "proximaCalibracao": "12/02/2026",
       "certificado": "001864/2025",
-      "diasRaw": "-287"
+      "diasRaw": "-288"
     },
     {
       "codigo": "DEG-002",
@@ -23,7 +23,7 @@
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
       "certificado": "002108/2025",
-      "diasRaw": "283"
+      "diasRaw": "282"
     },
     {
       "codigo": "DEG-006",
@@ -31,7 +31,7 @@
       "dataCalibracao": "11/02/2025",
       "proximaCalibracao": "11/02/2026",
       "certificado": "001804/2025",
-      "diasRaw": "-288"
+      "diasRaw": "-289"
     },
     {
       "codigo": "DEG-007",
@@ -39,7 +39,7 @@
       "dataCalibracao": "11/02/2025",
       "proximaCalibracao": "11/02/2026",
       "certificado": "001801/2025",
-      "diasRaw": "-288"
+      "diasRaw": "-289"
     },
     {
       "codigo": "DEG-008",
@@ -47,7 +47,7 @@
       "dataCalibracao": "27/05/2025",
       "proximaCalibracao": "27/05/2026",
       "certificado": "005971/2025",
-      "diasRaw": "-183"
+      "diasRaw": "-184"
     },
     {
       "codigo": "DEG-011",
@@ -55,7 +55,7 @@
       "dataCalibracao": "27/05/2025",
       "proximaCalibracao": "27/05/2026",
       "certificado": "005974/2025",
-      "diasRaw": "-183"
+      "diasRaw": "-184"
     },
     {
       "codigo": "DEG-014",
@@ -63,7 +63,7 @@
       "dataCalibracao": "07/09/2026",
       "proximaCalibracao": "07/09/2027",
       "certificado": "005975/2026",
-      "diasRaw": "285"
+      "diasRaw": "284"
     },
     {
       "codigo": "DEG-015",
@@ -71,7 +71,7 @@
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
       "certificado": "005976/2025",
-      "diasRaw": "283"
+      "diasRaw": "282"
     },
     {
       "codigo": "DEG-017",
@@ -79,7 +79,7 @@
       "dataCalibracao": "05/09/2026",
       "proximaCalibracao": "05/09/2027",
       "certificado": "007580/2025",
-      "diasRaw": "283"
+      "diasRaw": "282"
     },
     {
       "codigo": "MCP-011",
@@ -87,7 +87,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0777/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "MMD-009",
@@ -95,7 +95,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0793/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TORQ-001",
@@ -103,7 +103,7 @@
       "dataCalibracao": "27/11/2025",
       "proximaCalibracao": "27/11/2026",
       "certificado": "0739/25",
-      "diasRaw": "1"
+      "diasRaw": "0"
     },
     {
       "codigo": "AN-01",
@@ -111,7 +111,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0017/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "ANE-002",
@@ -119,7 +119,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0774/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "ANE-003",
@@ -127,7 +127,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0775/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "ANE-004",
@@ -135,7 +135,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0776/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "ANE-015",
@@ -143,7 +143,7 @@
       "dataCalibracao": "19/05/2026",
       "proximaCalibracao": "19/05/2027",
       "certificado": "1595/26",
-      "diasRaw": "174"
+      "diasRaw": "173"
     },
     {
       "codigo": "ANE-016",
@@ -151,7 +151,7 @@
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
       "certificado": "1910/26",
-      "diasRaw": "274"
+      "diasRaw": "273"
     },
     {
       "codigo": "ANE-019",
@@ -159,7 +159,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0022/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "ANE-020",
@@ -167,7 +167,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0006/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "BAL-004",
@@ -175,7 +175,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0007/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "BAL-016",
@@ -183,7 +183,7 @@
       "dataCalibracao": "17/01/2026",
       "proximaCalibracao": "17/01/2027",
       "certificado": "0047/26",
-      "diasRaw": "52"
+      "diasRaw": "51"
     },
     {
       "codigo": "BAL-018",
@@ -191,7 +191,7 @@
       "dataCalibracao": "17/06/2026",
       "proximaCalibracao": "17/06/2027",
       "certificado": "1707/26",
-      "diasRaw": "203"
+      "diasRaw": "202"
     },
     {
       "codigo": "BAL-019",
@@ -199,7 +199,7 @@
       "dataCalibracao": "02/04/2026",
       "proximaCalibracao": "02/04/2027",
       "certificado": "0400/26",
-      "diasRaw": "127"
+      "diasRaw": "126"
     },
     {
       "codigo": "BAL-020",
@@ -207,7 +207,7 @@
       "dataCalibracao": "27/04/2026",
       "proximaCalibracao": "27/04/2027",
       "certificado": "1522/26",
-      "diasRaw": "152"
+      "diasRaw": "151"
     },
     {
       "codigo": "BAL-026",
@@ -215,7 +215,7 @@
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
       "certificado": "0072/26",
-      "diasRaw": "58"
+      "diasRaw": "57"
     },
     {
       "codigo": "BAL-027",
@@ -223,7 +223,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0086/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "BAL-028",
@@ -231,7 +231,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0177/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "BAL-029",
@@ -239,7 +239,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0178/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "BAL-030",
@@ -247,7 +247,7 @@
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
       "certificado": "0287/26",
-      "diasRaw": "99"
+      "diasRaw": "98"
     },
     {
       "codigo": "DTLG-006",
@@ -255,7 +255,7 @@
       "dataCalibracao": "09/07/2026",
       "proximaCalibracao": "09/07/2027",
       "certificado": "1800/26",
-      "diasRaw": "225"
+      "diasRaw": "224"
     },
     {
       "codigo": "DTLG-011",
@@ -263,7 +263,7 @@
       "dataCalibracao": "16/04/2026",
       "proximaCalibracao": "16/04/2027",
       "certificado": "0424/26",
-      "diasRaw": "141"
+      "diasRaw": "140"
     },
     {
       "codigo": "DTLG-012",
@@ -271,7 +271,7 @@
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
       "certificado": "0402/26",
-      "diasRaw": "131"
+      "diasRaw": "130"
     },
     {
       "codigo": "DTLG-015",
@@ -279,7 +279,7 @@
       "dataCalibracao": "27/04/2026",
       "proximaCalibracao": "27/04/2027",
       "certificado": "1521/26",
-      "diasRaw": "152"
+      "diasRaw": "151"
     },
     {
       "codigo": "DTLG-016",
@@ -287,7 +287,7 @@
       "dataCalibracao": "06/06/2026",
       "proximaCalibracao": "06/06/2027",
       "certificado": "1834/26",
-      "diasRaw": "192"
+      "diasRaw": "191"
     },
     {
       "codigo": "DTLG-018",
@@ -295,7 +295,7 @@
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
       "certificado": "0285/26",
-      "diasRaw": "99"
+      "diasRaw": "98"
     },
     {
       "codigo": "DTLG-019",
@@ -303,7 +303,7 @@
       "dataCalibracao": "05/03/2026",
       "proximaCalibracao": "05/03/2027",
       "certificado": "0286/26",
-      "diasRaw": "99"
+      "diasRaw": "98"
     },
     {
       "codigo": "DUR-008",
@@ -311,7 +311,7 @@
       "dataCalibracao": "11/04/2026",
       "proximaCalibracao": "11/04/2027",
       "certificado": "0407/26",
-      "diasRaw": "136"
+      "diasRaw": "135"
     },
     {
       "codigo": "DUR-012",
@@ -319,7 +319,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0092/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "DUR-018",
@@ -327,7 +327,7 @@
       "dataCalibracao": "31/03/2026",
       "proximaCalibracao": "31/03/2027",
       "certificado": "0395/26",
-      "diasRaw": "125"
+      "diasRaw": "124"
     },
     {
       "codigo": "DUR-019",
@@ -335,7 +335,7 @@
       "dataCalibracao": "24/03/2026",
       "proximaCalibracao": "24/03/2027",
       "certificado": "0381/26",
-      "diasRaw": "118"
+      "diasRaw": "117"
     },
     {
       "codigo": "DUR-011",
@@ -343,7 +343,7 @@
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
       "certificado": "1906/26",
-      "diasRaw": "274"
+      "diasRaw": "273"
     },
     {
       "codigo": "DUR-020",
@@ -351,7 +351,7 @@
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
       "certificado": "1550/26",
-      "diasRaw": "168"
+      "diasRaw": "167"
     },
     {
       "codigo": "ESC-008",
@@ -359,7 +359,7 @@
       "dataCalibracao": "03/06/2026",
       "proximaCalibracao": "03/06/2027",
       "certificado": "1639/26",
-      "diasRaw": "189"
+      "diasRaw": "188"
     },
     {
       "codigo": "ESC-021",
@@ -367,7 +367,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2721/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "ESC-023",
@@ -375,7 +375,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2722/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "ESC-024",
@@ -383,7 +383,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0008/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "ESC-029",
@@ -391,7 +391,7 @@
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
       "certificado": "0071/26",
-      "diasRaw": "58"
+      "diasRaw": "57"
     },
     {
       "codigo": "ESC-030",
@@ -399,7 +399,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0087/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "ESC-031",
@@ -407,7 +407,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0088/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "ESC-032",
@@ -415,7 +415,7 @@
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
       "certificado": "0125/26",
-      "diasRaw": "85"
+      "diasRaw": "84"
     },
     {
       "codigo": "ESC-033",
@@ -423,7 +423,7 @@
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
       "certificado": "0126/26",
-      "diasRaw": "85"
+      "diasRaw": "84"
     },
     {
       "codigo": "MCP-002",
@@ -431,7 +431,7 @@
       "dataCalibracao": "30/10/2026",
       "proximaCalibracao": "30/10/2027",
       "certificado": "2716/26",
-      "diasRaw": "338"
+      "diasRaw": "337"
     },
     {
       "codigo": "MCP-003",
@@ -439,7 +439,7 @@
       "dataCalibracao": "30/10/2026",
       "proximaCalibracao": "30/10/2027",
       "certificado": "2717/26",
-      "diasRaw": "338"
+      "diasRaw": "337"
     },
     {
       "codigo": "MCP-004",
@@ -447,7 +447,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0016/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "MCP-005",
@@ -455,7 +455,7 @@
       "dataCalibracao": "27/10/2026",
       "proximaCalibracao": "27/10/2027",
       "certificado": "2698/26",
-      "diasRaw": "335"
+      "diasRaw": "334"
     },
     {
       "codigo": "MCP-006",
@@ -463,7 +463,7 @@
       "dataCalibracao": "27/10/2026",
       "proximaCalibracao": "27/10/2027",
       "certificado": "2699/26",
-      "diasRaw": "335"
+      "diasRaw": "334"
     },
     {
       "codigo": "MCP-007",
@@ -471,7 +471,7 @@
       "dataCalibracao": "27/10/2026",
       "proximaCalibracao": "27/10/2027",
       "certificado": "2700/26",
-      "diasRaw": "335"
+      "diasRaw": "334"
     },
     {
       "codigo": "MCP-008",
@@ -479,7 +479,7 @@
       "dataCalibracao": "27/10/2026",
       "proximaCalibracao": "27/10/2027",
       "certificado": "2701/26",
-      "diasRaw": "335"
+      "diasRaw": "334"
     },
     {
       "codigo": "MCP-009",
@@ -487,7 +487,7 @@
       "dataCalibracao": "27/10/2026",
       "proximaCalibracao": "27/10/2027",
       "certificado": "2702/26",
-      "diasRaw": "335"
+      "diasRaw": "334"
     },
     {
       "codigo": "MIL-001",
@@ -495,7 +495,7 @@
       "dataCalibracao": "10/11/2025",
       "proximaCalibracao": "10/11/2026",
       "certificado": "0669/25",
-      "diasRaw": "-16"
+      "diasRaw": "-17"
     },
     {
       "codigo": "MIL-005",
@@ -503,7 +503,7 @@
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
       "certificado": "0686/25",
-      "diasRaw": "-15"
+      "diasRaw": "-16"
     },
     {
       "codigo": "MMD-005",
@@ -511,7 +511,7 @@
       "dataCalibracao": "20/07/2026",
       "proximaCalibracao": "20/07/2027",
       "certificado": "1818/26",
-      "diasRaw": "236"
+      "diasRaw": "235"
     },
     {
       "codigo": "MMD-006",
@@ -519,7 +519,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0790/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "MMD-007",
@@ -527,7 +527,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0791/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "MMD-008",
@@ -535,7 +535,7 @@
       "dataCalibracao": "05/10/2026",
       "proximaCalibracao": "05/10/2027",
       "certificado": "2523/26",
-      "diasRaw": "313"
+      "diasRaw": "312"
     },
     {
       "codigo": "MMD-010",
@@ -543,15 +543,15 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0794/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "MOM-001",
-      "status": "VENCIDO",
-      "dataCalibracao": "05/11/2025",
-      "proximaCalibracao": "05/11/2026",
-      "certificado": "0631/25",
-      "diasRaw": "-21"
+      "status": "OK",
+      "dataCalibracao": "25/11/2026",
+      "proximaCalibracao": "25/11/2027",
+      "certificado": "2807/26",
+      "diasRaw": "363"
     },
     {
       "codigo": "MOM-002",
@@ -559,7 +559,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0025/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "MOM-003",
@@ -567,7 +567,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0030/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "MOM-005",
@@ -575,7 +575,7 @@
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
       "certificado": "1530/26",
-      "diasRaw": "159"
+      "diasRaw": "158"
     },
     {
       "codigo": "MOM-007",
@@ -583,23 +583,23 @@
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
       "certificado": "0070/26",
-      "diasRaw": "58"
+      "diasRaw": "57"
     },
     {
       "codigo": "MOM-011",
-      "status": "VENCIDO",
-      "dataCalibracao": "14/11/2025",
-      "proximaCalibracao": "14/11/2026",
-      "certificado": "0692/25",
-      "diasRaw": "-12"
+      "status": "OK",
+      "dataCalibracao": "25/11/2026",
+      "proximaCalibracao": "25/11/2027",
+      "certificado": "2808/26",
+      "diasRaw": "363"
     },
     {
       "codigo": "MOM-012",
-      "status": "VENCIDO",
-      "dataCalibracao": "14/11/2025",
-      "proximaCalibracao": "14/11/2026",
-      "certificado": "0693/25",
-      "diasRaw": "-12"
+      "status": "OK",
+      "dataCalibracao": "25/11/2026",
+      "proximaCalibracao": "25/11/2027",
+      "certificado": "2809/26",
+      "diasRaw": "363"
     },
     {
       "codigo": "MOM-023",
@@ -607,7 +607,7 @@
       "dataCalibracao": "17/12/2025",
       "proximaCalibracao": "17/12/2026",
       "certificado": "0806/25",
-      "diasRaw": "21"
+      "diasRaw": "20"
     },
     {
       "codigo": "MUL-0023",
@@ -615,7 +615,7 @@
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
       "certificado": "0688/25",
-      "diasRaw": "-15"
+      "diasRaw": "-16"
     },
     {
       "codigo": "MULT-001",
@@ -623,7 +623,7 @@
       "dataCalibracao": "11/11/2025",
       "proximaCalibracao": "11/11/2026",
       "certificado": "0687/25",
-      "diasRaw": "-15"
+      "diasRaw": "-16"
     },
     {
       "codigo": "PAD-001",
@@ -631,7 +631,7 @@
       "dataCalibracao": "01/04/2026",
       "proximaCalibracao": "01/04/2027",
       "certificado": "0398/26",
-      "diasRaw": "126"
+      "diasRaw": "125"
     },
     {
       "codigo": "PAD-005",
@@ -639,7 +639,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0788/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "PAD-006",
@@ -647,7 +647,7 @@
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
       "certificado": "1532/26",
-      "diasRaw": "159"
+      "diasRaw": "158"
     },
     {
       "codigo": "PAD-006 (calibracao anterior)",
@@ -655,7 +655,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0789/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "PAD-008",
@@ -663,7 +663,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0023/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "PAD-009",
@@ -671,7 +671,7 @@
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
       "certificado": "0403/26",
-      "diasRaw": "131"
+      "diasRaw": "130"
     },
     {
       "codigo": "PAD-010",
@@ -679,7 +679,7 @@
       "dataCalibracao": "17/12/2025",
       "proximaCalibracao": "17/12/2026",
       "certificado": "0805/25",
-      "diasRaw": "21"
+      "diasRaw": "20"
     },
     {
       "codigo": "PAD-011",
@@ -687,7 +687,7 @@
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
       "certificado": "1551/26",
-      "diasRaw": "168"
+      "diasRaw": "167"
     },
     {
       "codigo": "PAD-012",
@@ -695,7 +695,7 @@
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
       "certificado": "1835/26",
-      "diasRaw": "196"
+      "diasRaw": "195"
     },
     {
       "codigo": "TERM-012",
@@ -703,7 +703,7 @@
       "dataCalibracao": "06/04/2026",
       "proximaCalibracao": "06/04/2027",
       "certificado": "0401/26",
-      "diasRaw": "131"
+      "diasRaw": "130"
     },
     {
       "codigo": "TERM-019",
@@ -711,7 +711,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0020/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "TERM-021",
@@ -719,7 +719,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0019/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "TERM-027",
@@ -727,7 +727,7 @@
       "dataCalibracao": "15/04/2026",
       "proximaCalibracao": "15/04/2027",
       "certificado": "0423/26",
-      "diasRaw": "140"
+      "diasRaw": "139"
     },
     {
       "codigo": "TERM-025",
@@ -735,7 +735,7 @@
       "dataCalibracao": "31/03/2026",
       "proximaCalibracao": "31/03/2027",
       "certificado": "0394/26",
-      "diasRaw": "125"
+      "diasRaw": "124"
     },
     {
       "codigo": "TERM-026",
@@ -743,7 +743,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2723/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TERM-027",
@@ -751,7 +751,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2724/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TERM-028",
@@ -759,7 +759,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0003/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "TERM-029",
@@ -767,7 +767,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0004/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "TERM-030",
@@ -775,7 +775,7 @@
       "dataCalibracao": "02/01/2026",
       "proximaCalibracao": "02/01/2027",
       "certificado": "0005/26",
-      "diasRaw": "37"
+      "diasRaw": "36"
     },
     {
       "codigo": "TERM-031",
@@ -783,7 +783,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0174/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TERM-032",
@@ -791,7 +791,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0175/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TERM-033",
@@ -799,7 +799,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0176/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TIV-004",
@@ -807,7 +807,7 @@
       "dataCalibracao": "01/10/2026",
       "proximaCalibracao": "01/10/2027",
       "certificado": "2457/26",
-      "diasRaw": "309"
+      "diasRaw": "308"
     },
     {
       "codigo": "TIV-006",
@@ -815,7 +815,7 @@
       "dataCalibracao": "01/10/2026",
       "proximaCalibracao": "01/10/2027",
       "certificado": "2458/26",
-      "diasRaw": "309"
+      "diasRaw": "308"
     },
     {
       "codigo": "TORQ-008",
@@ -823,7 +823,7 @@
       "dataCalibracao": "06/06/2026",
       "proximaCalibracao": "06/06/2027",
       "certificado": "1833/26",
-      "diasRaw": "192"
+      "diasRaw": "191"
     },
     {
       "codigo": "TORQ-009",
@@ -831,7 +831,7 @@
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
       "certificado": "1837/26",
-      "diasRaw": "196"
+      "diasRaw": "195"
     },
     {
       "codigo": "TORQ-010",
@@ -839,7 +839,7 @@
       "dataCalibracao": "04/05/2026",
       "proximaCalibracao": "04/05/2027",
       "certificado": "1531/26",
-      "diasRaw": "159"
+      "diasRaw": "158"
     },
     {
       "codigo": "TORQ-012",
@@ -847,7 +847,7 @@
       "dataCalibracao": "27/05/2026",
       "proximaCalibracao": "27/05/2027",
       "certificado": "1625/26",
-      "diasRaw": "182"
+      "diasRaw": "181"
     },
     {
       "codigo": "TRE-004",
@@ -855,7 +855,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0781/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TRE-006",
@@ -863,7 +863,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0782/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TRE-007",
@@ -871,7 +871,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0779/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TRE-008",
@@ -879,7 +879,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0780/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TRE-009",
@@ -887,7 +887,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2725/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TRE-012",
@@ -895,7 +895,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0018/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "TRE-016",
@@ -903,7 +903,7 @@
       "dataCalibracao": "24/03/2026",
       "proximaCalibracao": "24/03/2027",
       "certificado": "0382/26",
-      "diasRaw": "118"
+      "diasRaw": "117"
     },
     {
       "codigo": "TRE-020",
@@ -911,7 +911,7 @@
       "dataCalibracao": "19/05/2026",
       "proximaCalibracao": "19/05/2027",
       "certificado": "1594/26",
-      "diasRaw": "174"
+      "diasRaw": "173"
     },
     {
       "codigo": "TRE-022",
@@ -919,7 +919,7 @@
       "dataCalibracao": "25/06/2026",
       "proximaCalibracao": "25/06/2027",
       "certificado": "1737/26",
-      "diasRaw": "211"
+      "diasRaw": "210"
     },
     {
       "codigo": "TRE-029",
@@ -927,7 +927,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0024/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "TRE-031",
@@ -935,7 +935,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0015/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "TRE-036",
@@ -943,7 +943,7 @@
       "dataCalibracao": "17/06/2026",
       "proximaCalibracao": "17/06/2027",
       "certificado": "1706/26",
-      "diasRaw": "203"
+      "diasRaw": "202"
     },
     {
       "codigo": "TRE-038",
@@ -951,7 +951,7 @@
       "dataCalibracao": "10/12/2025",
       "proximaCalibracao": "10/12/2026",
       "certificado": "0764/25",
-      "diasRaw": "14"
+      "diasRaw": "13"
     },
     {
       "codigo": "TRE-039",
@@ -959,7 +959,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2726/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TRE-040",
@@ -967,7 +967,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2727/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TRE-041",
@@ -975,7 +975,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2728/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TRE-043",
@@ -983,7 +983,7 @@
       "dataCalibracao": "14/02/2026",
       "proximaCalibracao": "14/02/2027",
       "certificado": "0117/26",
-      "diasRaw": "80"
+      "diasRaw": "79"
     },
     {
       "codigo": "TRE-044",
@@ -991,7 +991,7 @@
       "dataCalibracao": "14/02/2026",
       "proximaCalibracao": "14/02/2027",
       "certificado": "0118/26",
-      "diasRaw": "80"
+      "diasRaw": "79"
     },
     {
       "codigo": "TRE-045",
@@ -999,7 +999,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0171/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TRE-046",
@@ -1007,7 +1007,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0172/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TRE-047",
@@ -1015,7 +1015,7 @@
       "dataCalibracao": "21/02/2026",
       "proximaCalibracao": "21/02/2027",
       "certificado": "0173/26",
-      "diasRaw": "87"
+      "diasRaw": "86"
     },
     {
       "codigo": "TRE-048",
@@ -1023,7 +1023,7 @@
       "dataCalibracao": "23/05/2026",
       "proximaCalibracao": "23/05/2027",
       "certificado": "0288/26",
-      "diasRaw": "178"
+      "diasRaw": "177"
     },
     {
       "codigo": "VAC-010",
@@ -1031,7 +1031,7 @@
       "dataCalibracao": "13/05/2026",
       "proximaCalibracao": "13/05/2027",
       "certificado": "1552/26",
-      "diasRaw": "168"
+      "diasRaw": "167"
     },
     {
       "codigo": "VAC-012",
@@ -1039,7 +1039,7 @@
       "dataCalibracao": "10/06/2026",
       "proximaCalibracao": "10/06/2027",
       "certificado": "1836/26",
-      "diasRaw": "196"
+      "diasRaw": "195"
     },
     {
       "codigo": "VAC-015",
@@ -1047,7 +1047,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0091/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "VAC-022",
@@ -1055,7 +1055,7 @@
       "dataCalibracao": "07/01/2026",
       "proximaCalibracao": "07/01/2027",
       "certificado": "0026/26",
-      "diasRaw": "42"
+      "diasRaw": "41"
     },
     {
       "codigo": "VAC-024",
@@ -1063,7 +1063,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0778/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "VAC-025",
@@ -1071,7 +1071,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0089/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "VAC-026",
@@ -1079,7 +1079,7 @@
       "dataCalibracao": "29/01/2026",
       "proximaCalibracao": "29/01/2027",
       "certificado": "0090/26",
-      "diasRaw": "64"
+      "diasRaw": "63"
     },
     {
       "codigo": "ANE-005",
@@ -1087,7 +1087,7 @@
       "dataCalibracao": "14/09/2026",
       "proximaCalibracao": "14/09/2027",
       "certificado": "2406/26",
-      "diasRaw": "292"
+      "diasRaw": "291"
     },
     {
       "codigo": "ANE-014",
@@ -1095,7 +1095,7 @@
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
       "certificado": "1908/26",
-      "diasRaw": "274"
+      "diasRaw": "273"
     },
     {
       "codigo": "TORQ-005",
@@ -1103,7 +1103,7 @@
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
       "certificado": "1909/26",
-      "diasRaw": "274"
+      "diasRaw": "273"
     },
     {
       "codigo": "DTLG-017",
@@ -1111,7 +1111,7 @@
       "dataCalibracao": "16/04/2026",
       "proximaCalibracao": "16/04/2027",
       "certificado": "ND",
-      "diasRaw": "141"
+      "diasRaw": "140"
     },
     {
       "codigo": "ESC-034",
@@ -1119,7 +1119,7 @@
       "dataCalibracao": "19/02/2026",
       "proximaCalibracao": "19/02/2027",
       "certificado": "0126/26",
-      "diasRaw": "85"
+      "diasRaw": "84"
     },
     {
       "codigo": "TRE-010",
@@ -1127,7 +1127,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0783/26",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "4001863",
@@ -1135,7 +1135,7 @@
       "dataCalibracao": "28/10/2025",
       "proximaCalibracao": "28/10/2026",
       "certificado": "013363/2025",
-      "diasRaw": "-29"
+      "diasRaw": "-30"
     },
     {
       "codigo": "DEG-003",
@@ -1143,7 +1143,7 @@
       "dataCalibracao": "29/10/2025",
       "proximaCalibracao": "29/10/2026",
       "certificado": "013360/2025",
-      "diasRaw": "-28"
+      "diasRaw": "-29"
     },
     {
       "codigo": "DEG-004",
@@ -1151,7 +1151,7 @@
       "dataCalibracao": "08/05/2026",
       "proximaCalibracao": "08/05/2027",
       "certificado": "005661/2026",
-      "diasRaw": "163"
+      "diasRaw": "162"
     },
     {
       "codigo": "DEG-005",
@@ -1159,7 +1159,7 @@
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
       "certificado": "002279/2026",
-      "diasRaw": "76"
+      "diasRaw": "75"
     },
     {
       "codigo": "DEG-009",
@@ -1167,7 +1167,7 @@
       "dataCalibracao": "23/04/2026",
       "proximaCalibracao": "23/04/2027",
       "certificado": "004999/2026",
-      "diasRaw": "148"
+      "diasRaw": "147"
     },
     {
       "codigo": "DEG-012",
@@ -1175,7 +1175,7 @@
       "dataCalibracao": "29/10/2025",
       "proximaCalibracao": "29/10/2026",
       "certificado": "013361/2025",
-      "diasRaw": "-28"
+      "diasRaw": "-29"
     },
     {
       "codigo": "KA418-6000671",
@@ -1183,7 +1183,7 @@
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
       "certificado": "002278/2026",
-      "diasRaw": "76"
+      "diasRaw": "75"
     },
     {
       "codigo": "KA418-6000736",
@@ -1191,7 +1191,7 @@
       "dataCalibracao": "10/02/2026",
       "proximaCalibracao": "10/02/2027",
       "certificado": "002280/2026",
-      "diasRaw": "76"
+      "diasRaw": "75"
     },
     {
       "codigo": "KA424-6049682",
@@ -1199,7 +1199,7 @@
       "dataCalibracao": "23/01/2026",
       "proximaCalibracao": "23/01/2027",
       "certificado": "001231/2026",
-      "diasRaw": "58"
+      "diasRaw": "57"
     },
     {
       "codigo": "MA218-600611",
@@ -1207,7 +1207,7 @@
       "dataCalibracao": "28/01/2026",
       "proximaCalibracao": "28/01/2027",
       "certificado": "001513/2026",
-      "diasRaw": "63"
+      "diasRaw": "62"
     },
     {
       "codigo": "TRE-033",
@@ -1215,7 +1215,7 @@
       "dataCalibracao": "27/08/2026",
       "proximaCalibracao": "27/08/2027",
       "certificado": "1907/26",
-      "diasRaw": "274"
+      "diasRaw": "273"
     },
     {
       "codigo": "170336",
@@ -1223,7 +1223,7 @@
       "dataCalibracao": "04/09/2026",
       "proximaCalibracao": "04/09/2027",
       "certificado": "26/0303",
-      "diasRaw": "282"
+      "diasRaw": "281"
     },
     {
       "codigo": "4000790",
@@ -1231,7 +1231,7 @@
       "dataCalibracao": "08/09/2026",
       "proximaCalibracao": "08/09/2027",
       "certificado": "011313/2026",
-      "diasRaw": "286"
+      "diasRaw": "285"
     },
     {
       "codigo": "DTLG-014",
@@ -1239,7 +1239,7 @@
       "dataCalibracao": "17/09/2026",
       "proximaCalibracao": "17/09/2027",
       "certificado": "2407/26",
-      "diasRaw": "295"
+      "diasRaw": "294"
     },
     {
       "codigo": "TIV-005",
@@ -1247,7 +1247,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0768/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TIV-007",
@@ -1255,7 +1255,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0769/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TIV-002",
@@ -1263,7 +1263,7 @@
       "dataCalibracao": "12/12/2025",
       "proximaCalibracao": "12/12/2026",
       "certificado": "0770/25",
-      "diasRaw": "16"
+      "diasRaw": "15"
     },
     {
       "codigo": "TIV-001",
@@ -1271,7 +1271,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2729/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "TIV-003",
@@ -1279,7 +1279,7 @@
       "dataCalibracao": "05/11/2026",
       "proximaCalibracao": "05/11/2027",
       "certificado": "2730/26",
-      "diasRaw": "344"
+      "diasRaw": "343"
     },
     {
       "codigo": "MMD-002",
@@ -1287,7 +1287,7 @@
       "dataCalibracao": "05/10/2026",
       "proximaCalibracao": "05/10/2027",
       "certificado": "2522/26",
-      "diasRaw": "313"
+      "diasRaw": "312"
     },
     {
       "codigo": "MOM-009",
@@ -1295,7 +1295,7 @@
       "dataCalibracao": "24/11/2026",
       "proximaCalibracao": "24/11/2027",
       "certificado": "2806/26",
-      "diasRaw": "363"
+      "diasRaw": "362"
     }
   ]
 }
