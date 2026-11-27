@@ -42,3 +42,5 @@ body.light-mode .ew-nav-item:hover{background:#E1EEF6; color:#1E2B38;}
 body.light-mode .tag-warn, body.light-mode .cell-warn, body.light-mode .aberto-badge.warn .n, body.light-mode .aberto-badge.warn .l{color:#8A5A00;}
 body.light-mode .tag-ok, body.light-mode .cell-ok, body.light-mode .kpi-fill-green .label, body.light-mode .kpi-fill-green .n{color:#0B7A55;}
 body.light-mode .tag-nok, body.light-mode .cell-nok, body.light-mode .kpi-fill-red .label, body.light-mode .kpi-fill-red .n{color:#B3261E;}
+/* Reunião Diária: selos de parque usam --brand como cor de texto; no escuro, usa Névoa (legibilidade) */
+body:not(.light-mode) .badge-parque{color:var(--steel); border-color:var(--steel);}
