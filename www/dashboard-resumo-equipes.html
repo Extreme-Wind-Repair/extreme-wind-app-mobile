@@ -77,7 +77,7 @@ table.ct .perf{font-size:12px;color:var(--ew-grafite)}
 table.ct .cmot{font-size:11.5px;font-weight:600;color:#B42318;margin-top:3px}
 table.ct .cfora{font-size:11px;color:var(--ew-grafite);margin-top:1px}
 table.ct td.trn{font:800 15px Montserrat,Arial,sans-serif;color:#B25E09}
-table.ct.pl td.num.zero{color:#9AA9B8;font-weight:600}table.ct .pcs{display:flex;flex-wrap:wrap;gap:4px}table.ct .pc{font-size:11.5px;background:#FDECEA;color:#8A1C12;border-radius:10px;padding:2px 8px}table.ct .pc.ok{background:#E5F6EF;color:#0B6B47}
+table.ct.pl td.num.zero{color:#9AA9B8;font-weight:600}table.ct .pcs{display:flex;flex-wrap:wrap;gap:4px}table.ct .pc{font-size:11.5px;background:#FDECEA;color:#8A1C12;border-radius:10px;padding:2px 8px}table.ct .pc.ok{background:#E5F6EF;color:#0B6B47}table.ct .op{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#B25E09;color:#fff;font:800 11px Montserrat,Arial,sans-serif;margin-right:6px}table.ct .op.b{background:#B42318}table.ct tr.opB td{border-top:1px dashed #C9D6E2}html.ew-dark table.ct tr.opB td{border-top-color:#2E5878}
 html.ew-dark table.ct .pc{background:rgba(224,72,60,.25) !important;color:#FFD2CC !important}html.ew-dark table.ct .pc.ok{background:rgba(18,168,116,.25) !important;color:#B8F2D9 !important}html.ew-dark table.ct.pl td.num.zero{color:#7F97AD !important}
 table.ct details.qt{margin-top:4px}table.ct details.qt summary{cursor:pointer;font-size:11.5px;font-weight:700;color:#1F6FB2}
 html.ew-dark table.ct td.trn{color:#FFC27A !important}html.ew-dark table.ct details.qt summary{color:#9CD2FF !important}html.ew-dark table.ct .cfora{color:#C3DAEC !important}
@@ -775,11 +775,14 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
         var perf = (p.contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
         var nada = !p.treinar_total && !p.contratar_total;
         return '<tr class="cl"><td colspan="7">' + esc(p.cliente) + '</td></tr>' +
-          '<tr><td class="l"><div class="pcs">' + cens + '</div>' + (lst ? '<details class="qt"><summary>Quem treinar (' + p.treinar_total + ')</summary><div class="perf">' + lst + '</div></details>' : '') + '</td>' +
-          (nada ? '<td colspan="6" class="l perf"><span style="color:var(--green)">Todas as metas atingidas · nada a treinar ou contratar</span></td></tr>' :
+          '<tr><td colspan="7" class="l"><div class="pcs">' + cens + '</div></td></tr>' +
+          (nada ? '<tr><td colspan="7" class="l perf"><span style="color:var(--green)">Todas as metas atingidas · nada a treinar ou contratar</span></td></tr>' :
+          '<tr class="opA"><td class="l"><span class="op">A</span><b>Treinar a casa + contratar o que faltar</b>' + (lst ? '<details class="qt"><summary>Quem treinar (' + p.treinar_total + ')</summary><div class="perf">' + lst + '</div></details>' : '') + '</td>' +
           celN(ncur(p.cursos, 'IRATA'), 'trn').replace('</td>', rec ? '<div class="perf" style="font-weight:600">(' + rec + ' reciclagem)</div></td>' : '</td>') + celN(ncur(p.cursos, 'ART'), 'trn') + celN(ncur(p.cursos, 'BST'), 'trn') +
           celN(p.treinar_total, 'trn') + celN(p.contratar_total, 'hire') +
-          '<td class="l perf">' + (perf || '<span style="color:var(--green)">Só com treinamento bate todas as metas</span>') + '</td></tr>');
+          '<td class="l perf">' + (perf || '<span style="color:var(--green)">Só com treinamento bate todas as metas</span>') + '</td></tr>' +
+          '<tr class="opB"><td class="l"><span class="op b">B</span><b>Só contratar</b><div class="perf">sem treinar ninguém da casa</div></td><td colspan="4" class="num zero">—</td>' + celN(p.so_contratar_total, 'hire') +
+          '<td class="l perf">' + ((p.so_contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>') || '—') + '</td></tr>');
       }).join('') + '</tbody></table>';
 
     var grupos = [[1, 'Bloco 1 · em atividade'], [2, 'Bloco 2 · próximos'], [3, 'Bloco 3 · previstos']];
