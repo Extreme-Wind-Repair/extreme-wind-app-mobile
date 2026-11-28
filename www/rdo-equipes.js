@@ -521,6 +521,8 @@
     var row = vPage.querySelector('tr[data-vr="' + mat + '"]'), t = vDados.filter(function (x) { return x.mat === mat; })[0]; if (!row || !t) return;
     var s = row.querySelector('select').value, m = row.querySelector('input').value, msg = row.querySelector('[data-vs="' + mat + '"]');
     if (s === t.status && m === t.motivo) return;
+    // v62 (28/11/2026, Robson): Desligado apaga a linha do tecnico na VAGAS (proximo sincronismo, ate 15 min) -> confirma antes
+    if (s === 'Desligado' && s !== t.status && !window.confirm('Desligar ' + t.nome + ' (mat. ' + mat + ')?\n\nA linha dele será APAGADA da planilha VAGAS no próximo sincronismo (até 15 min) e ele sai do portal e do algoritmo.\nNão tem volta pelo portal (fica só um backup do arquivo da VAGAS).')) { row.querySelector('select').value = t.status; return; }
     msg.textContent = 'Salvando…';
     EWAuth.post({ action: 'indicarEquipes', modo: 'statusSalvar', mat: mat, status: s, motivo: m }).then(function (j) {
       if (!j || !j.ok) throw new Error(j && j.motivo === 'NEGADO' ? 'NEGADO' : (j && j.error) || 'falha');
