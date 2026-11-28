@@ -37,7 +37,9 @@ COL_STATUS = "RESUMO GESTAO A VISTA"
 COL_NOME = "NOME"
 COL_CONTRATO = "CONTRATO"
 TEXTO = {"A": "AGUARDANDO CONVOCAÇÃO", "R": "RESERVAS", "T": "ATIVO PARQUE", "I": "INDISPONIVEL", "B": "BANCO DE HORAS", "K": "BACKUP",
-         "D": "DESQUALIFICADO", "E": "ADMINISTRATIVO/ ENG"}
+         "D": "DESQUALIFICADO", "E": "ADMINISTRATIVO/ ENG", "X": "DESLIGADO"}
+MAX_DESLIGAR = 5  # v62: trava de seguranca -- mais que isso num ciclo = algo errado, nao apaga nada
+PASTA_BACKUP = "2 - RH & DP/8 - VAGAS/_backup_desligamentos"
 EM_CONTRATACAO = "EM CONTRATAÇÃO"  # v43: linha com nome e sem matricula (automatico)
 TRAVA_TITULO = "Coluna travada"  # v43: validacao de dados que impede digitar na coluna de status
 PRESERVAR = re.compile(r"\b(DESQUALIFICADO|ADMINISTRATIVO)\b")
@@ -62,6 +64,8 @@ def prio_letra(nome):
         return "D"
     if n.startswith("ADMINISTR"):
         return "E"
+    if n.startswith("DESLIG"):
+        return "X"  # v62: Desligado no portal -> a linha sai da VAGAS
     return "A" if n.startswith("AGUARD") else "R" if n.startswith("RESERV") else "T" if n.startswith("ATIV") else "I" if n.startswith("INDISP") else ""
 
 
@@ -146,6 +150,13 @@ def em_edicao(dados, server_modified, minutos=30):
 
 def subir(tok, dados, rev):
     arg = json.dumps({"path": "ns:%s/%s" % (NS, CAMINHO), "mode": {".tag": "update", "update": rev}, "autorename": False, "mute": True}, ensure_ascii=True)
+    _post("https://content.dropboxapi.com/2/files/upload", {"Authorization": "Bearer " + tok, "Dropbox-API-Arg": arg, "Content-Type": "application/octet-stream"}, dados, 240)
+
+
+def backup(tok, dados):
+    """v62: copia da VAGAS ANTES de apagar linha de desligado (pasta _backup_desligamentos, nunca sobrescreve)."""
+    nome = "VAGAS MESTRE antes desligamento %s.xlsx" % datetime.datetime.utcnow().strftime("%Y-%m-%d %H%M UTC")
+    arg = json.dumps({"path": "ns:%s/%s/%s" % (NS, PASTA_BACKUP, nome), "mode": "add", "autorename": True, "mute": True}, ensure_ascii=True)
     _post("https://content.dropboxapi.com/2/files/upload", {"Authorization": "Bearer " + tok, "Dropbox-API-Arg": arg, "Content-Type": "application/octet-stream"}, dados, 240)
 
 
@@ -490,6 +501,104 @@ def patch(dados, port, preservar_manual=False):
     return saida.getvalue(), stats
 
 
+def remover_desligados(dados, mats):
+    """v62 (28/11/2026, Robson): quem esta DESLIGADO no portal tem a linha APAGADA da aba BANCO DE DADOS.
+    As linhas de baixo sobem (renumera linha e celulas). So roda se a aba nao tiver formula, comentario, link,
+    formatacao condicional, tabela nem mesclagem abaixo da linha; confere que nenhuma outra celula mudou."""
+    if not mats:
+        return None, 0
+    z = zipfile.ZipFile(io.BytesIO(dados))
+    caminho = achar_aba(z)
+    x = z.read(caminho).decode("utf-8")
+    cel = _celulas(x, _strings(z))
+    alvo = sorted({r for (c, r), v in cel.items() if c == "A" and r > 2 and re.sub(r"\.0$", "", str(v).strip()) in mats})
+    if not alvo:
+        return None, 0
+    if len(alvo) > MAX_DESLIGAR:
+        raise RuntimeError("TRAVA: %d linha(s) para apagar num ciclo (limite %d); nada apagado." % (len(alvo), MAX_DESLIGAR))
+    if re.search(r"<f[ >]", x) or any(t in x for t in ("<conditionalFormatting", "<tableParts", "<drawing ")):
+        raise RuntimeError("TRAVA: a aba tem formula/formatacao condicional/tabela/desenho; desligamento nao apagado.")
+    for ref in re.findall(r'<mergeCell ref="([^"]+)"', x):
+        if max(int(n) for n in re.findall(r"\d+", ref)) >= alvo[0]:
+            raise RuntimeError("TRAVA: celula mesclada abaixo da linha a apagar; nada apagado.")
+    S = set(alvo)
+    RX = re.compile(r'<row\b[^>]*?\br="(\d+)"[^>]*?(?:/>|>.*?</row>)', re.S)
+
+    def rep_row(m):
+        n = int(m.group(1))
+        if n in S:
+            return ""
+        d = n - sum(1 for a in alvo if a < n)
+        if d == n:
+            return m.group(0)
+        b = re.sub(r'^(<row\b[^>]*?\br=")%d"' % n, lambda mm: mm.group(1) + '%d"' % d, m.group(0), count=1)
+        return re.sub(r'(<c\b[^>]*?\br="[A-Z]+)%d"' % n, lambda mm: mm.group(1) + '%d"' % d, b)
+    x2 = RX.sub(rep_row, x)
+    # conferencia: tirando as linhas apagadas e ignorando o numero da linha, o resto e identico
+    tira_r = lambda t: re.sub(r'\br="[A-Z]*\d+"', 'r=""', t)  # noqa: E731
+    x_sem = RX.sub(lambda m: "" if int(m.group(1)) in S else m.group(0), x)
+    if tira_r(x_sem) != tira_r(x2):
+        raise RuntimeError("TRAVA: apagar a linha mudaria outra coisa na aba; nada apagado.")
+    rows2 = [int(n) for n in re.findall(r'<row\b[^>]*?\br="(\d+)"', x2)]
+    if rows2 != sorted(rows2) or len(rows2) != len(set(rows2)):
+        raise RuntimeError("TRAVA: numeracao de linhas inconsistente; nada apagado.")
+    cel2 = _celulas(x2, _strings(z))
+    if any(c == "A" and re.sub(r"\.0$", "", str(v).strip()) in mats for (c, r), v in cel2.items() if r > 2):
+        raise RuntimeError("TRAVA: matricula desligada continua na aba; nada apagado.")
+    desl = lambda n: n - sum(1 for a in alvo if a < n)  # noqa: E731
+
+    def rep_link(m):  # hyperlinks: o da linha apagada sai; os de baixo sobem
+        n = int(m.group(2))
+        return "" if n in S else m.group(0).replace('ref="%s%d"' % (m.group(1), n), 'ref="%s%d"' % (m.group(1), desl(n)), 1)
+    x2 = re.sub(r'<hyperlink ref="([A-Z]+)(\d+)"[^>]*/>', rep_link, x2)
+    if re.search(r'<hyperlink ref="[A-Z]+\d+:', x2):
+        raise RuntimeError("TRAVA: link em intervalo de celulas; nada apagado.")
+    extra = {}
+    rels_p = caminho.replace("worksheets/", "worksheets/_rels/") + ".rels"
+    if "<legacyDrawing" in x2 and rels_p in z.namelist():  # comentarios (notas) da aba: acompanham a linha
+        rl = z.read(rels_p).decode("utf-8")
+        base = caminho.rsplit("/", 1)[0]
+        for tipo, alvo_p in re.findall(r'Type="[^"]*/(comments|vmlDrawing)"[^>]*Target="([^"]+)"', rl):
+            fp = alvo_p.replace("../", "xl/") if alvo_p.startswith("../") else base + "/" + alvo_p
+            t = z.read(fp).decode("utf-8")
+            if tipo == "comments":
+                def rep_cm(m):
+                    n = int(m.group(2))
+                    return "" if n in S else m.group(0).replace('ref="%s%d"' % (m.group(1), n), 'ref="%s%d"' % (m.group(1), desl(n)), 1)
+                t = re.sub(r'<comment ref="([A-Z]+)(\d+)".*?</comment>', rep_cm, t, flags=re.S)
+            else:
+                def rep_sh(m):
+                    r0 = re.search(r"<x:Row>(\d+)</x:Row>", m.group(0))
+                    if not r0:
+                        return m.group(0)
+                    n = int(r0.group(1)) + 1
+                    if n in S:
+                        return ""
+                    dd = n - desl(n)
+                    if not dd:
+                        return m.group(0)
+                    sh = m.group(0).replace(r0.group(0), "<x:Row>%d</x:Row>" % (n - 1 - dd), 1)
+                    return re.sub(r"(<x:Anchor>\s*)([^<]*)(</x:Anchor>)", lambda a: a.group(1) + ", ".join(str(max(int(v) - dd, 0)) if i in (2, 6) else v.strip() for i, v in enumerate(a.group(2).split(","))) + a.group(3), sh, count=1)
+                t = re.sub(r"<v:shape\b.*?</v:shape>", rep_sh, t, flags=re.S)
+            extra[fp] = t.encode("utf-8")
+    x2 = re.sub(r'(<dimension ref="[A-Z]+\d+:[A-Z]+)(\d+)"', lambda m: m.group(1) + '%d"' % max(int(m.group(2)) - len(alvo), 2), x2, count=1)
+    saida = io.BytesIO()
+    zo = zipfile.ZipFile(saida, "w", zipfile.ZIP_DEFLATED)
+    for it in z.infolist():
+        d = x2.encode("utf-8") if it.filename == caminho else extra.get(it.filename) or z.read(it.filename)
+        ni = zipfile.ZipInfo(it.filename, it.date_time)
+        ni.compress_type, ni.external_attr = zipfile.ZIP_DEFLATED, it.external_attr
+        zo.writestr(ni, d)
+    zo.close()
+    z2 = zipfile.ZipFile(io.BytesIO(saida.getvalue()))
+    if z2.testzip() is not None:
+        raise RuntimeError("zip invalido apos apagar linha")
+    for it in z.infolist():
+        if it.filename != caminho and it.filename not in extra and z.read(it.filename) != z2.read(it.filename):
+            raise RuntimeError("TRAVA: outra parte do arquivo mudou.")
+    return saida.getvalue(), len(alvo)
+
+
 def main():
     dry = os.environ.get("DRY_RUN", "false").strip().lower() == "true"
     try:
@@ -513,19 +622,33 @@ def main():
         log("Portal: %d tecnico(s) com status." % len(port))
         novo, st = patch(dados, port, preservar_manual=not lista_ok)  # lista falhou: nao mexe em DESQUALIFICADO/ADMINISTRATIVO
         log("Resultado: %s" % json.dumps(st))
+        n_del = 0
+        desl = {m for m, l in port.items() if l == "X"}
+        if desl:  # v62: desligado no portal -> linha apagada da VAGAS (com backup antes)
+            try:
+                sem, n_del = remover_desligados(novo if novo is not None else dados, desl)
+                if sem is not None:
+                    novo = sem
+                log("Desligados no portal: %d; linha(s) a apagar na VAGAS: %d." % (len(desl), n_del))
+            except Exception as e:  # noqa: BLE001  (falha no desligamento nao impede a gravacao do status)
+                n_del = 0
+                log("[AVISO] desligamento nao aplicado: %s" % str(e)[:200])
         if novo is None:
             log("Sem mudanca: o Mestre ja esta igual ao portal.")
             return 0
         if dry or local:
-            log("[TESTE] haveria gravacao de %d celula(s); nada foi gravado." % st["trocadas"])
+            log("[TESTE] haveria gravacao de %d celula(s) e %d linha(s) apagada(s); nada foi gravado." % (st["trocadas"], n_del))
             if local:
                 open(os.environ.get("SAIDA_LOCAL", "/tmp/mestre_sync_out.xlsx"), "wb").write(novo)
             return 0
         if em_edicao(dados, quando):
             log("Arquivo salvo pelo Excel ha menos de 30 min (alguem editando): nao grava agora; tenta no proximo ciclo.")
             return 0
+        if n_del:
+            backup(tok, dados)  # se o backup falhar, cai no except e NADA e gravado
+            log("Backup da VAGAS salvo antes de apagar %d linha(s)." % n_del)
         subir(tok, novo, rev)
-        log("Gravado no Dropbox (%d celula(s), revisao conferida)." % st["trocadas"])
+        log("Gravado no Dropbox (%d celula(s), %d linha(s) de desligado apagada(s), revisao conferida)." % (st["trocadas"], n_del))
         return 0
     except Exception as e:  # noqa: BLE001
         log("[ERRO] %s" % str(e)[:300])
