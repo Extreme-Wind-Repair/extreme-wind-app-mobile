@@ -77,6 +77,8 @@ table.ct .perf{font-size:12px;color:var(--ew-grafite)}
 table.ct .cmot{font-size:11.5px;font-weight:600;color:#B42318;margin-top:3px}
 table.ct .cfora{font-size:11px;color:var(--ew-grafite);margin-top:1px}
 table.ct td.trn{font:800 15px Montserrat,Arial,sans-serif;color:#B25E09}
+table.ct.pl td.num.zero{color:#9AA9B8;font-weight:600}table.ct .pcs{display:flex;flex-wrap:wrap;gap:4px}table.ct .pc{font-size:11.5px;background:#FDECEA;color:#8A1C12;border-radius:10px;padding:2px 8px}table.ct .pc.ok{background:#E5F6EF;color:#0B6B47}
+html.ew-dark table.ct .pc{background:rgba(224,72,60,.25) !important;color:#FFD2CC !important}html.ew-dark table.ct .pc.ok{background:rgba(18,168,116,.25) !important;color:#B8F2D9 !important}html.ew-dark table.ct.pl td.num.zero{color:#7F97AD !important}
 table.ct details.qt{margin-top:4px}table.ct details.qt summary{cursor:pointer;font-size:11.5px;font-weight:700;color:#1F6FB2}
 html.ew-dark table.ct td.trn{color:#FFC27A !important}html.ew-dark table.ct details.qt summary{color:#9CD2FF !important}html.ew-dark table.ct .cfora{color:#C3DAEC !important}
 html.ew-dark table.ct .cmot{color:#FFB4A9 !important}
@@ -640,8 +642,8 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
     <h3 class="sub">Necessidade de contratação para a meta mínima <small>· meta = 10 equipes por cenário (Exterior 5)</small></h3>
     <p class="nota">Estimativa por cenário: completa as equipes que faltam com os técnicos livres que sobraram (sem 2 N3 na mesma equipe) e conta o que precisa contratar. Os cenários não se somam: os mesmos técnicos livres servem para todos.</p>
     <div class="wrap" id="contr"><div class="msg">Carregando…</div></div>
-    <h3 class="sub">Treinar os da casa antes de contratar <small>· Reserva/Backup que só falta curso (BST, ART, IRATA)</small></h3>
-    <p class="nota">Para cada cenário: primeiro completa as equipes com quem já é da casa e só falta curso (quem precisa de menos cursos vem antes); só o que ainda faltar vira contratação. Passaporte/interesse não contam como treinável. Os cenários não se somam.</p>
+    <h3 class="sub">Plano para bater as metas · resumo para Diretoria e RH</h3>
+    <p class="nota">O que o algoritmo aconselha para cada cliente atingir a meta de <b>todos</b> os cenários dele (cordas, dupla, trio…): primeiro treinar quem já é da casa (Reserva/Backup) e só falta curso — quem for treinado para um cenário já serve para os outros —, depois contratar só o que ainda faltar. Cada pessoa aparece uma vez por cliente. Os clientes não se somam (as mesmas pessoas podem aparecer em mais de um).</p>
     <div class="wrap" id="trein"><div class="msg">Carregando…</div></div>
   </div>
 
@@ -761,21 +763,23 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
         }).join('');
       }).join('') + '</tbody></table>';
 
-    $('trein').innerHTML = '<table class="ct"><thead><tr><th class="l">Cenário</th><th>Déficit</th><th>Treinar</th><th class="l">Cursos</th><th>Contratar depois</th><th class="l">Perfil a contratar</th></tr></thead><tbody>' +
-      Object.keys(porCli).map(function (cli) {
-        return '<tr class="cl"><td colspan="6">' + esc(cli) + '</td></tr>' + porCli[cli].map(function (c) {
-          var dg = c.diag || {};
-          if (dg.meta == null) return '';
-          if (!dg.faltam_equipes) return '<tr><td class="l"><b>' + esc(c.tipo) + '</b></td><td class="num">0</td><td colspan="4" class="l perf"><span style="color:var(--green)">Meta atingida · nada a treinar ou contratar</span></td></tr>';
-          var cur = Object.keys(dg.treinar_cursos || {}).map(function (k) { return '<b>' + dg.treinar_cursos[k] + '×</b> ' + esc(k); }).join('<br>');
-          var lst = (dg.treinar || []).map(function (x) { return esc(x.mat) + ' · ' + esc(curto(x.nome)) + ' <span class="niv">' + esc(x.nivel) + '</span> — ' + esc(x.cursos.join(' + ')); }).join('<br>');
-          var perf = (dg.contratar2 || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
-          return '<tr><td class="l"><b>' + esc(c.tipo) + '</b><div class="perf">' + c.pessoas + ' pessoas · ' + esc(dg.requisitos || '') + '</div>' +
-            (lst ? '<details class="qt"><summary>Quem treinar (' + dg.treinar_total + ')</summary><div class="perf">' + lst + '</div></details>' : '') + '</td>' +
-            '<td class="hire">' + dg.faltam_equipes + '</td><td class="' + (dg.treinar_total ? 'trn' : 'num') + '">' + (dg.treinar_total || 0) + '</td>' +
-            '<td class="l perf">' + (cur || '—') + '</td><td class="' + (dg.contratar2_total ? 'hire' : 'num') + '">' + (dg.contratar2_total || 0) + '</td>' +
-            '<td class="l perf">' + (perf || '<span style="color:var(--green)">Só com treinamento bate a meta</span>') + '</td></tr>';
-        }).join('');
+    var PL = d.planos || [];
+    function ncur(cu, k) { var n = 0; Object.keys(cu || {}).forEach(function (x) { if (x.indexOf(k) === 0) n += cu[x]; }); return n; }
+    function celN(n, cls) { return '<td class="' + (n ? cls : 'num zero') + '">' + (n || '—') + '</td>'; }
+    $('trein').innerHTML = !PL.length ? '<div class="msg">Sem plano calculado agora. Clique em "Atualizar" em instantes.</div>' :
+      '<table class="ct pl"><thead><tr><th class="l">Cliente · cenários</th><th>Treinar IRATA</th><th>Treinar ART</th><th>Treinar BST</th><th>Pessoas a treinar</th><th>Contratar</th><th class="l">Perfil a contratar</th></tr></thead><tbody>' +
+      PL.map(function (p) {
+        var rec = (p.cursos || {})['IRATA (reciclagem)'] || 0;
+        var cens = (p.cenarios || []).map(function (c) { return '<span class="pc' + (c.deficit ? '' : ' ok') + '">' + esc(c.tipo.replace(' (inspeção)', '').replace(' (cordas)', '')) + ' <b>' + c.montadas + '/' + c.meta + '</b>' + (c.deficit ? ' · faltam ' + c.deficit : ' ✓') + '</span>'; }).join('');
+        var lst = (p.treinar || []).map(function (x) { return esc(x.mat) + ' · ' + esc(curto(x.nome)) + ' <span class="niv">' + esc(x.nivel) + '</span> — ' + esc(x.cursos.join(' + ')); }).join('<br>');
+        var perf = (p.contratar || []).map(function (x) { return '<b>' + x.qtd + '×</b> ' + esc(x.perfil); }).join('<br>');
+        var nada = !p.treinar_total && !p.contratar_total;
+        return '<tr class="cl"><td colspan="7">' + esc(p.cliente) + '</td></tr>' +
+          '<tr><td class="l"><div class="pcs">' + cens + '</div>' + (lst ? '<details class="qt"><summary>Quem treinar (' + p.treinar_total + ')</summary><div class="perf">' + lst + '</div></details>' : '') + '</td>' +
+          (nada ? '<td colspan="6" class="l perf"><span style="color:var(--green)">Todas as metas atingidas · nada a treinar ou contratar</span></td></tr>' :
+          celN(ncur(p.cursos, 'IRATA'), 'trn').replace('</td>', rec ? '<div class="perf" style="font-weight:600">(' + rec + ' reciclagem)</div></td>' : '</td>') + celN(ncur(p.cursos, 'ART'), 'trn') + celN(ncur(p.cursos, 'BST'), 'trn') +
+          celN(p.treinar_total, 'trn') + celN(p.contratar_total, 'hire') +
+          '<td class="l perf">' + (perf || '<span style="color:var(--green)">Só com treinamento bate todas as metas</span>') + '</td></tr>');
       }).join('') + '</tbody></table>';
 
     var grupos = [[1, 'Bloco 1 · em atividade'], [2, 'Bloco 2 · próximos'], [3, 'Bloco 3 · previstos']];
