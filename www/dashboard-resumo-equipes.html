@@ -41,6 +41,8 @@ h2.sec .n{display:inline-flex;width:26px;height:26px;border-radius:50%;backgroun
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{background:var(--ew-gelo);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--ew-noite)}
 .chip b{font-family:Montserrat,Arial,sans-serif}
+.chips{align-items:center}.chip.tot{display:inline-flex;align-items:center;gap:8px;background:#F28C28;color:#fff;border-radius:12px;padding:8px 16px;margin-right:6px}.chip.tot b{font:800 26px Montserrat,Arial,sans-serif;line-height:1}.chip.tot small{font:700 11px Montserrat,Arial,sans-serif;text-transform:uppercase;letter-spacing:.05em;line-height:1.2;max-width:90px}
+html.ew-dark .chip.tot{background:#F28C28 !important;color:#fff !important}html.ew-dark .chip.tot b,html.ew-dark .chip.tot small{color:#fff !important}
 /* Resumo do algoritmo */
 .alg{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
 .cli{border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -687,7 +689,8 @@ html.ew-dark #ganttCampo .gc-barra.prev{color:#0B1A26 !important}
       ['Parques ativos', b1.length, ''], ['Técnicos em campo', emCampo, ''], ['Projetos previstos', fut.length, ' claro'],
       ['Vagas abertas', vagas, ' claro'], ['Livres (Reserva + Backup)', livre, ' claro'], ['Liberam em até 15 dias', d.liberados_15d || 0, ' claro']
     ].map(function (k) { return '<div class="kpi' + k[2] + '"><b>' + k[1] + '</b><span>' + k[0] + '</span></div>'; }).join('');
-    $('chips').innerHTML = ORDEM_ST.filter(function (k) { return st[k]; }).map(function (k) { return '<span class="chip">' + esc(k) + ' <b>' + st[k] + '</b></span>'; }).join('') || '<span class="msg">Sem dados.</span>';
+    var stK = ORDEM_ST.filter(function (k) { return st[k]; }), stTot = stK.reduce(function (a, k) { return a + st[k]; }, 0);
+    $('chips').innerHTML = stK.length ? '<span class="chip tot"><b>' + stTot + '</b><small>técnicos no total</small></span>' + stK.map(function (k) { return '<span class="chip">' + esc(k) + ' <b>' + st[k] + '</b></span>'; }).join('') : '<span class="msg">Sem dados.</span>';
 
     var porCli = {};
     d.cenarios.forEach(function (c) { (porCli[c.cliente] = porCli[c.cliente] || []).push(c); });
