@@ -95,8 +95,9 @@ def ler_portal():
     return out
 
 
-def enviar_lista(lista):
-    d = _portal({"modo": "rosterMestre", "tecnicos": lista}, timeout=180)
+def enviar_lista(lista, todas=None):
+    # v63: "todas" = todas as matriculas da aba (inclusive MEI/determinado): quem nao estiver nela vira Desligado no portal
+    d = _portal({"modo": "rosterMestre", "tecnicos": lista, "todas": todas or []}, timeout=180)
     if not d.get("ok"):
         raise RuntimeError("Portal recusou a lista (resposta: %s)." % str(d.get("error") or d.get("motivo") or d.get("ok"))[:40])
     return d
@@ -292,6 +293,18 @@ def lista_tecnicos(dados):
                  "funcao": g(cf)[:40], "pass": _data_iso(g(cp)), "interesse": g(ci)[:20]}
         out.append([mat, nome, ctt, marca, attrs])  # v43: marca D/E = carga unica no portal; v55: atributos para o algoritmo
     return out
+
+
+def todas_matriculas(dados):
+    """v63: todas as matriculas da coluna A do BANCO DE DADOS (sem filtro de contrato)."""
+    z = zipfile.ZipFile(io.BytesIO(dados))
+    cel = _celulas(z.read(achar_aba(z)).decode("utf-8"), _strings(z))
+    out = set()
+    for (c, r), v in cel.items():
+        m = re.sub(r"\.0$", "", str(v).strip())
+        if c == "A" and r > 2 and re.fullmatch(r"\d{1,5}", m):
+            out.add(m)
+    return sorted(out)
 
 
 def _xml_esc(t):
@@ -613,7 +626,7 @@ def main():
         lista_ok = False
         if not local:
             try:
-                r = enviar_lista(lista)
+                r = enviar_lista(lista, todas_matriculas(dados))
                 lista_ok = True
                 log("Lista enviada ao portal: %d novo(s), %d nome(s) e %d contrato(s) atualizados." % (r.get("novos", 0), r.get("nomes", 0), r.get("contratos", 0)))
             except Exception as e:  # noqa: BLE001  (a lista falhar nao impede a gravacao do status)
